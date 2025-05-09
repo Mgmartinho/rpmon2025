@@ -1,0 +1,45 @@
+.container{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: auto;
+
+   
+    
+    color: white;
+    background-color: rgb(8, 7, 7);
+
+    h1{
+        color: rgb(235, 144, 6);
+        font-size: 42px;
+    }
+}
+
+.content{
+    justify-content: space-between;
+    align-items: center;
+    display: flex;
+}
+
+
+.menu{
+    background-color: rgb(151, 143, 143);
+    justify-content: space-between;
+    align-items: center;
+    display: block;
+}
+
+ul{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    text-decoration: none;
+    text-transform: capitalize;
+    padding: 2px 16px;
+    gap: 8px;
+}
+
+li{
+    text-decoration: none;
+}
