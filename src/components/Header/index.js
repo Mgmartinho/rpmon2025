@@ -1,5 +1,6 @@
 import { Container, Row, Col, Navbar, Nav } from "react-bootstrap";
 import { FaFacebook, FaInstagram, FaYoutube } from "react-icons/fa";
+import { Link } from "react-router-dom";
 import logoRpmon from "../../Imagens/LOGORPMON.png";
 import logoPMESP from "../../Imagens/Logo-PM.png";
 const Header = () => {
@@ -46,27 +47,27 @@ const Header = () => {
           <Navbar.Toggle aria-controls="naveg" />
           <Navbar.Collapse id="naveg">
             <Nav className="ms-auto">
-              <Nav.Link href="index.html" className="btn btn-dark">
+              <Link to="/" className="btn btn-dark">
                 HOME
-              </Nav.Link>
-              <Nav.Link href="comandante.html" className="btn btn-dark">
+              </Link>
+              <Link to="/comandante" className="btn btn-dark">
                 COMANDANTE
-              </Nav.Link>
-              <Nav.Link
-                href="eternos-comandantes.html"
+              </Link>
+              <Link
+                to="/eternosComandantes"
                 className="btn btn-dark"
               >
                 ETERNOS COMANDANTES
-              </Nav.Link>
-              <Nav.Link href="nossa-historia.html" className="btn btn-dark">
+              </Link>
+              <Link to="/nossaHistoria" className="btn btn-dark">
                 NOSSA HISTÓRIA
-              </Nav.Link>
+              </Link>
             </Nav>
           </Navbar.Collapse>
         </Container>
       </Navbar>
 
-      <div className="pt-1 mb-n4 text-center">
+      <div className="pt-1 pb-n5 text-center">
         <a
           href="https://pt-br.facebook.com/cavalariasp/"
           target="_blank"

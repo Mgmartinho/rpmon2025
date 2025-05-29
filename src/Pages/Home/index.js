@@ -1,5 +1,6 @@
 import React from "react";
-import MidiasSociais from "../../Imagens/sociais.jpeg";
+import MidiasSociais from "../../Imagens/carroussel/sociais.jpeg";
+import Poster from "../../Imagens/carroussel/cav024.jpg";
 
 export default function Home() {
   return (
@@ -98,7 +99,7 @@ export default function Home() {
                 </div>
                 <div className="carousel-item">
                   <img
-                    src="img/cav024.jpg"
+                    src={Poster}
                     className="d-block w-100 rounded-3"
                     alt="Carrossel 2"
                     height="800"
