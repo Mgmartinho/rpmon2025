@@ -15,7 +15,7 @@ const ComandantesRpmon = () => {
     <div class="row">
       <div class="col-md-5 col-12 mb-4">
         <h3 class="text-dark">Ten. Cel. Clodoaldo Donizetti da Cruz</h3>
-        <a href="" target="_blank">
+        <a >
           <img src={CelDaCruz} alt="Foto do Comandante" class="pt-1 w-100 fixed-image rounded-3" />
         </a>
       </div>

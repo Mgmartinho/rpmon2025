@@ -42,24 +42,21 @@ const Header = () => {
       </Container>
 
       <Navbar expand="lg" bg="dark" variant="dark" className="mt-3">
-        <Container fluid >
+        <Container fluid>
           <Navbar.Brand href="#"></Navbar.Brand>
           <Navbar.Toggle aria-controls="naveg" />
           <Navbar.Collapse id="naveg">
-            <Nav className="ms-auto">
-              <Link to="/" className="btn btn-dark">
+            <Nav className="mx-auto" >
+              <Link to="/" className="btn btn-dark mx-2">
                 HOME
               </Link>
-              <Link to="/comandante" className="btn btn-dark">
+              <Link to="/comandante" className="btn btn-dark mx-2">
                 COMANDANTE
               </Link>
-              <Link
-                to="/eternosComandantes"
-                className="btn btn-dark"
-              >
+              <Link to="/eternosComandantes" className="btn btn-dark mx-2">
                 ETERNOS COMANDANTES
               </Link>
-              <Link to="/nossaHistoria" className="btn btn-dark">
+              <Link to="/nossaHistoria" className="btn btn-dark mx-2">
                 NOSSA HISTÓRIA
               </Link>
             </Nav>
@@ -67,7 +64,7 @@ const Header = () => {
         </Container>
       </Navbar>
 
-      <div className="pt-1 pb-n5 text-center" style={{marginBottom:"-30px"}}>
+      <div className="pt-1 pb-n5 text-center" style={{ marginBottom: "-30px" }}>
         <a
           href="https://pt-br.facebook.com/cavalariasp/"
           target="_blank"
@@ -87,7 +84,7 @@ const Header = () => {
         >
           <FaYoutube />
         </a>
-        
+
         <a
           href="https://www.instagram.com/cavalariasp/"
           target="_blank"
@@ -97,7 +94,6 @@ const Header = () => {
         >
           <FaInstagram />
         </a>
-
       </div>
     </header>
   );

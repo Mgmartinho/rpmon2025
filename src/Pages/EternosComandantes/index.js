@@ -94,7 +94,9 @@ export default function EternosComandantes() {
                       className="btn-close"
                       data-bs-dismiss="modal"
                       aria-label="Fechar"
-                    ></button>
+                    >
+                      Fechar
+                    </button>
                   </div>
                   <div className="modal-body text-center">
                     <img src={full} alt={alt} className="img-fluid" />

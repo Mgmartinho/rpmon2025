@@ -1,7 +1,10 @@
 import React from "react";
 import MidiasSociais from "../../Imagens/carroussel/sociais.jpeg";
 import Poster from "../../Imagens/carroussel/cav024.jpg";
-
+import Estandarte from "../../Imagens/home/Estandarte.jpeg"
+import Ocorrencia from "../../Imagens/home/abordagem2esqd.jfif"
+import LogoRpmon from "../../Imagens/home/LOGORPMON.png"
+import Policial from "../../Imagens/home/Drumond.png"
 import "./styles.css";
 
 export default function Home() {
@@ -14,7 +17,6 @@ export default function Home() {
             <div className="text-center">
               <h3 className="text-white mb-0">
                 <a
-                  href="#"
                   style={{
                     textDecoration: "none",
                     textShadow: "5px 5px 20px turquoise",
@@ -28,14 +30,13 @@ export default function Home() {
                 </a>
               </h3>
               <a
-                href="img/LOGORPMON.png"
                 target="_blank"
                 rel="noreferrer"
                 data-bs-toggle="modal"
                 data-bs-target="#homeModal1"
               >
                 <img
-                  src="img/LOGORPMON.png"
+                  src={LogoRpmon}
                   alt="Heraldica"
                   className="pt-1 w-100 rounded-3"
                   height="350"
@@ -48,7 +49,6 @@ export default function Home() {
             <div className="text-center">
               <h3 className="text-white mb-0">
                 <a
-                  href="img/pm dO mES_JAN.jpg"
                   style={{
                     textDecoration: "none",
                     textShadow: "5px 5px 20px turquoise",
@@ -62,14 +62,13 @@ export default function Home() {
                 </a>
               </h3>
               <a
-                href="img/pm dO mES_JAN.jpg"
                 target="_blank"
                 rel="noreferrer"
                 data-bs-toggle="modal"
                 data-bs-target="#homeModal2"
               >
                 <img
-                  src="img/pm dO mES_JAN.jpg"
+                  src={Policial}
                   alt="Policial do Mês"
                   className="pt-1 w-100 rounded-3"
                   height="350"
@@ -90,7 +89,7 @@ export default function Home() {
                 <div className="carousel-item active">
                   <div className="shadow-carousel-wrapper rounded-3 overflow-hidden">
                     <img
-                      src={MidiasSociais}
+                      src={Poster}
                       className="d-block w-100"
                       alt="Carrossel 1"
                       style={{
@@ -103,7 +102,7 @@ export default function Home() {
                 </div>
                 <div className="carousel-item">
                   <img
-                    src={Poster}
+                    src={LogoRpmon}
                     className="d-block w-100 rounded-3"
                     alt="Carrossel 2"
                     height="800"
@@ -150,7 +149,6 @@ export default function Home() {
             <div className="text-center">
               <h3 className="text-white mb-0">
                 <a
-                  href="img/Estandarte.jpeg"
                   style={{
                     textDecoration: "none",
                     textShadow: "5px 5px 20px turquoise",
@@ -164,14 +162,13 @@ export default function Home() {
                 </a>
               </h3>
               <a
-                href="#"
                 target="_blank"
                 rel="noreferrer"
                 data-bs-toggle="modal"
                 data-bs-target="#homeModal3"
               >
                 <img
-                  src="img/Estandarte.jpeg"
+                  src={Estandarte}
                   alt="Estandarte"
                   className="pt-1 w-100 rounded-3"
                   height="350"
@@ -181,10 +178,11 @@ export default function Home() {
             </div>
             <br />
             <br />
+
             <div className="text-center">
               <h3 className="text-white mb-0">
                 <a
-                  href="#"
+                  
                   style={{
                     textDecoration: "none",
                     textShadow: "5px 5px 20px turquoise",
@@ -198,14 +196,13 @@ export default function Home() {
                 </a>
               </h3>
               <a
-                href="img/abordagem2esqd.jfif"
                 target="_blank"
                 rel="noreferrer"
                 data-bs-toggle="modal"
                 data-bs-target="#homeModal4"
               >
                 <img
-                  src="img/abordagem2esqd.jfif"
+                  src={Ocorrencia}
                   alt="Ocorrência Do Mês"
                   className="pt-1 w-100 rounded-3"
                   height="350"
