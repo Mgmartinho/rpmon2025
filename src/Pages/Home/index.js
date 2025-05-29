@@ -2,6 +2,8 @@ import React from "react";
 import MidiasSociais from "../../Imagens/carroussel/sociais.jpeg";
 import Poster from "../../Imagens/carroussel/cav024.jpg";
 
+import "./styles.css";
+
 export default function Home() {
   return (
     <section className="bg-dark d-flex justify-content-center align-items-center w-100 h-100">
@@ -86,16 +88,18 @@ export default function Home() {
             >
               <div className="carousel-inner">
                 <div className="carousel-item active">
-                  <img
-                    src={MidiasSociais}
-                    className="d-block rounded-3 img-cover w-100"
-                    alt="Carrossel 1"
-                    style={{
-                      height: "800px",
-                      objectFit: "cover",
-                      objectPosition: "center",
-                    }}
-                  />
+                  <div className="shadow-carousel-wrapper rounded-3 overflow-hidden">
+                    <img
+                      src={MidiasSociais}
+                      className="d-block w-100"
+                      alt="Carrossel 1"
+                      style={{
+                        height: "800px",
+                        objectFit: "cover",
+                        objectPosition: "center",
+                      }}
+                    />
+                  </div>
                 </div>
                 <div className="carousel-item">
                   <img
