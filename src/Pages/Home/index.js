@@ -94,7 +94,7 @@ export default function Home() {
                       className="d-block w-100"
                       alt="Carrossel 1"
                       style={{
-                        height: "800px",
+                        height: "auto",
                         objectFit: "cover",
                         objectPosition: "center",
                       }}

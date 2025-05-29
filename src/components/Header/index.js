@@ -42,7 +42,7 @@ const Header = () => {
       </Container>
 
       <Navbar expand="lg" bg="dark" variant="dark" className="mt-3">
-        <Container fluid>
+        <Container fluid >
           <Navbar.Brand href="#"></Navbar.Brand>
           <Navbar.Toggle aria-controls="naveg" />
           <Navbar.Collapse id="naveg">
@@ -67,36 +67,37 @@ const Header = () => {
         </Container>
       </Navbar>
 
-      <div className="pt-1 pb-n5 text-center">
+      <div className="pt-1 pb-n5 text-center" style={{marginBottom:"-30px"}}>
         <a
           href="https://pt-br.facebook.com/cavalariasp/"
           target="_blank"
           rel="noopener noreferrer"
           className="me-3 text-white"
-          style={{ fontSize: "2rem" }}
+          style={{ fontSize: "3em" }}
         >
           <FaFacebook />
-        </a>
-
-        <a
-          href="https://www.instagram.com/cavalariasp/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="me-3 text-white"
-          style={{ fontSize: "2rem" }}
-        >
-          <FaInstagram />
         </a>
 
         <a
           href="https://www.youtube.com/channel/UCYzJr50zEa_sD1u4yJ3zpvw" // Exemplo, troque pelo canal correto
           target="_blank"
           rel="noopener noreferrer"
-          className="text-white"
-          style={{ fontSize: "2rem" }}
+          className="text-white me-3"
+          style={{ fontSize: "3em" }}
         >
           <FaYoutube />
         </a>
+        
+        <a
+          href="https://www.instagram.com/cavalariasp/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="me-3 text-white"
+          style={{ fontSize: "3em" }}
+        >
+          <FaInstagram />
+        </a>
+
       </div>
     </header>
   );
