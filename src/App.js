@@ -1,19 +1,17 @@
-import logo from './logo.svg';
-import './App.css';
-import Home from './Pages/Home';
-import Header from './Content/Header';
-import Footer from './Content/Footer';
-import { BrowserRouter } from 'react-router-dom';
-import SobreNos from './Pages/SobreNos';
+import { Container } from 'react-bootstrap';
+import Header from './components/Header';
+import Footer from './components/Footer';
+import Home from "./Pages/Home"
 
 function App() {
   return (
-    <div >
-        <Header />
-          <SobreNos />
-        <Footer />
-     
-    </div>
+    <Container fluid className="d-flex flex-column min-vh-100 p-0">
+      <Header />
+      <main className="flex-fill">
+        <Home />
+      </main>
+      <Footer />
+    </Container>
   );
 }
 
