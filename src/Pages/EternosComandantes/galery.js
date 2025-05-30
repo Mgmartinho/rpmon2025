@@ -101,6 +101,48 @@ import img49Full from "../../Imagens/eternosComandantes/49.1.png";
 import img50Thumb from "../../Imagens/eternosComandantes/50.jpg";
 import img50Full from "../../Imagens/eternosComandantes/50.1.png";
 
+import img51Thumb from "../../Imagens/eternosComandantes/51.jpg";
+import img51Full from "../../Imagens/eternosComandantes/51.1.png";
+
+import img52Thumb from "../../Imagens/eternosComandantes/52.jpg";
+import img52Full from "../../Imagens/eternosComandantes/52.1.png";
+
+import img53Thumb from "../../Imagens/eternosComandantes/53.jpg";
+import img53Full from "../../Imagens/eternosComandantes/53.1.png";
+
+import img54Thumb from "../../Imagens/eternosComandantes/54.jpg";
+import img54Full from "../../Imagens/eternosComandantes/54.1.png";
+
+import img55Thumb from "../../Imagens/eternosComandantes/55.jpg";
+import img55Full from "../../Imagens/eternosComandantes/55.1.png";
+
+import img56Thumb from "../../Imagens/eternosComandantes/56.jpg";
+import img56Full from "../../Imagens/eternosComandantes/56.1.png";
+
+import img57Thumb from "../../Imagens/eternosComandantes/57.jpg";
+import img57Full from "../../Imagens/eternosComandantes/57.1.png";
+
+import img58Thumb from "../../Imagens/eternosComandantes/58.png";
+import img58Full from "../../Imagens/eternosComandantes/58.1.png";
+
+import img59Thumb from "../../Imagens/eternosComandantes/59.png";
+import img59Full from "../../Imagens/eternosComandantes/59.1.png";
+
+import img60Thumb from "../../Imagens/eternosComandantes/60.png";
+import img60Full from "../../Imagens/eternosComandantes/60.1.png";
+
+import img61Thumb from "../../Imagens/eternosComandantes/61.png";
+import img61Full from "../../Imagens/eternosComandantes/61.1.png";
+
+import img62Thumb from "../../Imagens/eternosComandantes/62.png";
+import img62Full from "../../Imagens/eternosComandantes/62.1.png";
+
+import img63Thumb from "../../Imagens/eternosComandantes/63.png";
+import img63Full from "../../Imagens/eternosComandantes/63.1.png";
+
+import img64Thumb from "../../Imagens/eternosComandantes/64.jpg";
+import img64Full from "../../Imagens/eternosComandantes/64.1.png";
+
 
 // IMAGENS SECULO XX
 
@@ -463,3 +505,120 @@ export const comandantesXX = [
     modalId: "imagemModal46",
   },
 ];
+
+
+export const comandantesXXI = [
+  {
+    thumb: img49Thumb,
+    full: img49Full,
+    alt: "Imagem 49",
+    title: "Ten Cel PM Yvens Martini Catalano",
+    modalId: "imagemModal49",
+  },
+  {
+    thumb: img50Thumb,
+    full: img50Full,
+    alt: "Imagem 50",
+    title: "Ten Cel PM Eduardo José Felix de Oliveira",
+    modalId: "imagemModal50",
+  },
+  {
+    thumb: img51Thumb,
+    full: img51Full,
+    alt: "Imagem 51",
+    title: "Ten Cel PM Maércio Ananias Batista",
+    modalId: "imagemModal51",
+  },
+  {
+    thumb: img52Thumb,
+    full: img52Full,
+    alt: "Imagem 52",
+    title: "Ten Cel PM Francisco de Oliveira e Silva",
+    modalId: "imagemModal52",
+  },
+  {
+    thumb: img53Thumb,
+    full: img53Full,
+    alt: "Imagem 53",
+    title: "Ten Cel PM Ricardo Andrioli",
+    modalId: "imagemModal53",
+  },
+  {
+    thumb: img54Thumb,
+    full: img54Full,
+    alt: "Imagem 54",
+    title: "Ten Cel PM Alfredo Donizeti Rodrigues de Souza",
+    modalId: "imagemModal54",
+  },
+  {
+    thumb: img55Thumb,
+    full: img55Full,
+    alt: "Imagem 55",
+    title: "Ten Cel PM Alberto Malfi Sardilli",
+    modalId: "imagemModal55",
+  },
+  {
+    thumb: img56Thumb,
+    full: img56Full,
+    alt: "Imagem 56",
+    title: "Ten Cel PM Alexandre Gaspar Gasparian",
+    modalId: "imagemModal56",
+  },
+  {
+    thumb: img57Thumb,
+    full: img57Full,
+    alt: "Imagem 57",
+    title: "Ten Cel PM Everton Rubens Rodrigues da Cunha",
+    modalId: "imagemModal57",
+  },
+  {
+    thumb: img58Thumb,
+    full: img58Full,
+    alt: "Imagem 58",
+    title: "Ten Cel Marcelo Vieira Salles",
+    modalId: "imagemModal58",
+  },
+  {
+    thumb: img59Thumb,
+    full: img59Full,
+    alt: "Imagem 59",
+    title: "Ten Cel Ronaldo Miguel Vieira",
+    modalId: "imagemModal59",
+  },
+  {
+    thumb: img60Thumb,
+    full: img60Full,
+    alt: "Imagem 60",
+    title: "Ten Cel João Alves Cangerana Junior",
+    modalId: "imagemModal60",
+  },
+  {
+    thumb: img61Thumb,
+    full: img61Full,
+    alt: "Imagem 61",
+    title: "Ten Cel Luiz Gonzaga Oliveira Junior",
+    modalId: "imagemModal61",
+  },
+  {
+    thumb: img62Thumb,
+    full: img62Full,
+    alt: "Imagem 62",
+    title: "Ten Cel Reges Meira Peres",
+    modalId: "imagemModal62",
+  },
+  {
+    thumb: img63Thumb,
+    full: img63Full,
+    alt: "Imagem 63",
+    title: "Ten Cel Wagner Giurni Gomes",
+    modalId: "imagemModal63",
+  },
+  {
+    thumb: img64Thumb,
+    full: img64Full,
+    alt: "Imagem 64",
+    title: "Ten Cel Carlos Eduardo de Lima",
+    modalId: "imagemModal64",
+  },
+];
+

@@ -1,10 +1,12 @@
-import React from "react";
+
 import MidiasSociais from "../../Imagens/carroussel/sociais.jpeg";
-import Poster from "../../Imagens/carroussel/cav024.jpg";
-import Estandarte from "../../Imagens/home/Estandarte.jpeg"
-import Ocorrencia from "../../Imagens/home/abordagem2esqd.jfif"
-import LogoRpmon from "../../Imagens/home/LOGORPMON.png"
-import Policial from "../../Imagens/home/Drumond.png"
+import Poster1 from "../../Imagens/carroussel/cav024.jpg";
+import Poster2 from "../../Imagens/carroussel/cav052.jpg";
+import Estandarte from "../../Imagens/home/estandarteSVG.png";
+import Ocorrencia from "../../Imagens/home/abordagem2esqd.jfif";
+import LogoRpmon from "../../Imagens/home/LOGORPMON.png";
+import Policial from "../../Imagens/home/Drumond.png";
+
 import "./styles.css";
 
 export default function Home() {
@@ -20,9 +22,8 @@ export default function Home() {
                   style={{
                     textDecoration: "none",
                     textShadow: "5px 5px 20px turquoise",
+                    cursor: "pointer",
                   }}
-                  target="_blank"
-                  rel="noreferrer"
                   data-bs-toggle="modal"
                   data-bs-target="#homeModal1"
                 >
@@ -52,8 +53,8 @@ export default function Home() {
                   style={{
                     textDecoration: "none",
                     textShadow: "5px 5px 20px turquoise",
+                    cursor:"pointer",
                   }}
-                  target="_blank"
                   rel="noreferrer"
                   data-bs-toggle="modal"
                   data-bs-target="#homeModal2"
@@ -62,7 +63,6 @@ export default function Home() {
                 </a>
               </h3>
               <a
-                target="_blank"
                 rel="noreferrer"
                 data-bs-toggle="modal"
                 data-bs-target="#homeModal2"
@@ -79,6 +79,7 @@ export default function Home() {
           </div>
 
           {/* Coluna 2 */}
+
           <div className="col-md-6">
             <div
               id="carouselExampleIndicators"
@@ -89,7 +90,7 @@ export default function Home() {
                 <div className="carousel-item active">
                   <div className="shadow-carousel-wrapper rounded-3 overflow-hidden">
                     <img
-                      src={Poster}
+                      src={Poster1}
                       className="d-block w-100"
                       alt="Carrossel 1"
                       style={{
@@ -102,7 +103,7 @@ export default function Home() {
                 </div>
                 <div className="carousel-item">
                   <img
-                    src={LogoRpmon}
+                    src={Poster2}
                     className="d-block w-100 rounded-3"
                     alt="Carrossel 2"
                     height="800"
@@ -110,7 +111,7 @@ export default function Home() {
                 </div>
                 <div className="carousel-item">
                   <img
-                    src="img/sociais.jpeg"
+                    src={MidiasSociais}
                     className="d-block w-100 rounded-3"
                     alt="Carrossel 3"
                     height="800"
@@ -152,8 +153,8 @@ export default function Home() {
                   style={{
                     textDecoration: "none",
                     textShadow: "5px 5px 20px turquoise",
+                    cursor:"pointer",
                   }}
-                  target="_blank"
                   rel="noreferrer"
                   data-bs-toggle="modal"
                   data-bs-target="#homeModal3"
@@ -162,7 +163,6 @@ export default function Home() {
                 </a>
               </h3>
               <a
-                target="_blank"
                 rel="noreferrer"
                 data-bs-toggle="modal"
                 data-bs-target="#homeModal3"
@@ -182,12 +182,11 @@ export default function Home() {
             <div className="text-center">
               <h3 className="text-white mb-0">
                 <a
-                  
                   style={{
                     textDecoration: "none",
                     textShadow: "5px 5px 20px turquoise",
+                    cursor:"pointer",
                   }}
-                  target="_blank"
                   rel="noreferrer"
                   data-bs-toggle="modal"
                   data-bs-target="#homeModal4"
@@ -196,7 +195,6 @@ export default function Home() {
                 </a>
               </h3>
               <a
-                target="_blank"
                 rel="noreferrer"
                 data-bs-toggle="modal"
                 data-bs-target="#homeModal4"
@@ -214,7 +212,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Modais */}
+      {/* Modal 1 */}
       <div
         className="modal fade"
         id="homeModal1"
@@ -235,12 +233,8 @@ export default function Home() {
                 aria-label="Close"
               ></button>
             </div>
-            <div className="modal-body">
-              <img
-                src="img/Heraldica.jpg"
-                alt="Heraldica"
-                className="h-50 w-75"
-              />
+            <div className="modal-body d-flex justify-content-center">
+              <img src={LogoRpmon} alt="Heraldica" className="img-fluid" />
             </div>
             <div className="modal-footer">
               <button
@@ -267,7 +261,7 @@ export default function Home() {
           <div className="modal-content">
             <div className="modal-header">
               <h5 className="modal-title" id="exampleHomeLabel2">
-                Policia Do Mês
+                Policial do Mês
               </h5>
               <button
                 type="button"
@@ -276,8 +270,8 @@ export default function Home() {
                 aria-label="Close"
               ></button>
             </div>
-            <div className="modal-body">
-              <p className="h-75">teste</p>
+            <div className="modal-body d-flex justify-content-center">
+              <img src={Policial} alt="Policial do Mês" className="img-fluid" />
             </div>
             <div className="modal-footer">
               <button
@@ -303,7 +297,7 @@ export default function Home() {
         <div className="modal-dialog modal-dialog-centered modal-xl">
           <div className="modal-content">
             <div className="modal-header">
-              <h5 className="modal-title" id="exampleModalLabel3">
+              <h5 className="modal-title" id="exampleHomeLabel3">
                 Estandarte
               </h5>
               <button
@@ -313,12 +307,8 @@ export default function Home() {
                 aria-label="Close"
               ></button>
             </div>
-            <div className="modal-body">
-              <img
-                src="img/Estandarte.bmp"
-                alt="Estandarte"
-                className="h-50 w-50"
-              />
+            <div className="modal-body d-flex justify-content-center">
+              <img src={Estandarte} alt="Estandarte" className="img-fluid" />
             </div>
             <div className="modal-footer">
               <button
@@ -344,8 +334,8 @@ export default function Home() {
         <div className="modal-dialog modal-dialog-centered modal-xl">
           <div className="modal-content">
             <div className="modal-header">
-              <h5 className="modal-title" id="exampleModalLabel4">
-                Ocorrência Do Mês
+              <h5 className="modal-title" id="exampleHomeLabel4">
+                Ocorrência do Mês
               </h5>
               <button
                 type="button"
@@ -354,11 +344,11 @@ export default function Home() {
                 aria-label="Close"
               ></button>
             </div>
-            <div className="modal-body">
+            <div className="modal-body d-flex justify-content-center">
               <img
-                src="img/abordagem2esqd.jfif"
-                alt="Ocorrência Do Mês"
-                className="h-75 w-75"
+                src={Ocorrencia}
+                alt="Ocorrência do Mês"
+                className="img-fluid"
               />
             </div>
             <div className="modal-footer">

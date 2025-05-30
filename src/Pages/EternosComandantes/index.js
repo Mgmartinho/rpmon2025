@@ -1,8 +1,29 @@
-import "./styles.css"
-import { comandantesXIX } from "./galery";
-import { comandantesXX } from "./galery";
+import { useEffect } from "react";
+import "./styles.css";
+import { comandantesXIX, comandantesXX, comandantesXXI } from "./galery";
 
 export default function EternosComandantes() {
+  useEffect(() => {
+    // Exemplo: foco no input de modal, caso exista algum com id 'myModal' e 'myInput'
+    const myModal = document.getElementById("myModal");
+    const myInput = document.getElementById("myInput");
+
+    if (myModal && myInput) {
+      myModal.addEventListener("shown.bs.modal", () => {
+        myInput.focus();
+      });
+    }
+
+    // Cleanup para evitar vazamento
+    return () => {
+      if (myModal && myInput) {
+        myModal.removeEventListener("shown.bs.modal", () => {
+          myInput.focus();
+        });
+      }
+    };
+  }, []);
+
   return (
     <div className="container">
       <h2 className="text-dark text-center pt-4 pb-3">
@@ -11,8 +32,9 @@ export default function EternosComandantes() {
       <div className="row justify-content-center">
         {comandantesXIX.map(({ thumb, full, alt, title, modalId }) => (
           <div className="col-md-1 mb-4" key={modalId}>
-            <a
-              href={full}
+            <button
+              type="button"
+              className="border-0 bg-transparent p-0"
               data-bs-toggle="modal"
               data-bs-target={`#${modalId}`}
             >
@@ -21,9 +43,8 @@ export default function EternosComandantes() {
                 className="img-fluid rounded img-hover-zoom"
                 alt={alt}
                 title={title}
-                img-hover-zoom
               />
-            </a>
+            </button>
 
             {/* Modal */}
             <div
@@ -61,9 +82,10 @@ export default function EternosComandantes() {
       </h2>
       <div className="row justify-content-center">
         {comandantesXX.map(({ thumb, full, alt, title, modalId }) => (
-          <div className="col-md-1 mb-4 transform-scale(1.3)" key={modalId}>
-            <a
-              href={full}
+          <div className="col-md-1 mb-4" key={modalId}>
+            <button
+              type="button"
+              className="border-0 bg-transparent p-0"
               data-bs-toggle="modal"
               data-bs-target={`#${modalId}`}
             >
@@ -73,7 +95,7 @@ export default function EternosComandantes() {
                 alt={alt}
                 title={title}
               />
-            </a>
+            </button>
 
             {/* Modal */}
             <div
@@ -94,9 +116,59 @@ export default function EternosComandantes() {
                       className="btn-close"
                       data-bs-dismiss="modal"
                       aria-label="Fechar"
-                    >
-                      Fechar
-                    </button>
+                    ></button>
+                  </div>
+                  <div className="modal-body text-center">
+                    <img src={full} alt={alt} className="img-fluid" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <h2 className="text-dark text-center pt-4 pb-3">
+        Comandantes do Século XXI
+      </h2>
+      <div className="row justify-content-center">
+        {comandantesXXI.map(({ thumb, full, alt, title, modalId }) => (
+          <div className="col-md-1 mb-4" key={modalId}>
+            <button
+              type="button"
+              className="border-0 bg-transparent p-0"
+              data-bs-toggle="modal"
+              data-bs-target={`#${modalId}`}
+            >
+              <img
+                src={thumb}
+                className="img-fluid rounded img-hover-zoom"
+                alt={alt}
+                title={title}
+                modalId
+              />
+            </button>
+
+            {/* Modal */}
+            <div
+              className="modal fade"
+              id={modalId}
+              tabIndex="-1"
+              aria-labelledby={`${modalId}Label`}
+              aria-hidden="true"
+            >
+              <div className="modal-dialog modal-dialog-centered modal-lg">
+                <div className="modal-content bg-white">
+                  <div className="modal-header">
+                    <h5 className="modal-title" id={`${modalId}Label`}>
+                      {title}
+                    </h5>
+                    <button
+                      type="button"
+                      className="btn-close"
+                      data-bs-dismiss="modal"
+                      aria-label="Fechar"
+                    ></button>
                   </div>
                   <div className="modal-body text-center">
                     <img src={full} alt={alt} className="img-fluid" />
