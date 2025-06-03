@@ -10,6 +10,7 @@ import Policial from "../../Imagens/home/Drumond.png";
 import "./styles.css";
 
 export default function Home() {
+
   return (
     <section className="bg-dark d-flex justify-content-center align-items-center w-100 h-100">
       <div className="container mt-5 mb-5">
@@ -31,7 +32,6 @@ export default function Home() {
                 </a>
               </h3>
               <a
-                target="_blank"
                 rel="noreferrer"
                 data-bs-toggle="modal"
                 data-bs-target="#homeModal1"

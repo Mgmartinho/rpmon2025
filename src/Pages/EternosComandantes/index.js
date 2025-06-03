@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import "./styles.css";
 import { comandantesXIX, comandantesXX, comandantesXXI } from "./galery";
 
+
 export default function EternosComandantes() {
   useEffect(() => {
     // Exemplo: foco no input de modal, caso exista algum com id 'myModal' e 'myInput'
