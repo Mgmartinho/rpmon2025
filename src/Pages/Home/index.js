@@ -16,7 +16,7 @@ export default function Home() {
       <div className="container mt-5 mb-5">
         <div className="row">
           {/* Coluna 1 */}
-          <div className="col-md-3">
+          {/* <div className="col-md-3">
             <div className="text-center">
               <h3 className="text-white mb-0">
                 <a
@@ -76,11 +76,11 @@ export default function Home() {
                 />
               </a>
             </div>
-          </div>
+          </div> */}
 
           {/* Coluna 2 */}
 
-          <div className="col-md-6">
+          <div className="col-md-12">
             <div
               id="carouselExampleIndicators"
               className="carousel slide"
@@ -94,7 +94,7 @@ export default function Home() {
                       className="d-block w-100"
                       alt="Carrossel 1"
                       style={{
-                        height: "auto",
+                        height: "1280px",
                         objectFit: "cover",
                         objectPosition: "center",
                       }}
@@ -146,7 +146,7 @@ export default function Home() {
           </div>
 
           {/* Coluna 3 */}
-          <div className="col-md-3">
+          {/* <div className="col-md-3">
             <div className="text-center">
               <h3 className="text-white mb-0">
                 <a
@@ -208,7 +208,7 @@ export default function Home() {
                 />
               </a>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
 
