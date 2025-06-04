@@ -129,6 +129,9 @@ import img63Full from "../../Imagens/eternosComandantes/63.1.png";
 import img64Thumb from "../../Imagens/eternosComandantes/64.jpg";
 import img64Full from "../../Imagens/eternosComandantes/64.1.png";
 
+// import img65Thumb from "../../Imagens/eternosComandantes/65.jpg";
+// import img65Full from "../../Imagens/eternosComandantes/65.1.png";
+
 
 // IMAGENS SECULO XX
 

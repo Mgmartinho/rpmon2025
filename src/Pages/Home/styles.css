@@ -1,1 +1,109 @@
 
+/* styles.css */
+.shadow-carousel-wrapper img {
+  width: 100%;
+  height: 100vh; /* ocupa a altura toda da tela */
+  object-fit: cover;
+  object-position: center;
+}
+
+body, html {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+
+.timeline-horizontal {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1rem 0;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
+  border-bottom: 2px solid #0d6efd; /* linha da timeline */
+  scroll-snap-type: x mandatory;
+}
+
+.timeline-item {
+  min-width: 150px;
+  flex-shrink: 0;
+  scroll-snap-align: start;
+  background: #f8f9fa;
+  border-radius: 0.25rem;
+  padding: 0.5rem 1rem;
+  box-shadow: 0 0 5px rgb(0 0 0 / 0.1);
+  position: relative;
+  text-align: center;
+}
+
+.timeline-year {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0d6efd;
+  margin-bottom: 0.25rem;
+}
+
+.timeline-content p {
+  font-size: 0.85rem;
+  margin: 0;
+  color: #333;
+}
+
+/* Circulo indicador na linha para cada item */
+.timeline-item::before {
+  content: "";
+  position: absolute;
+  bottom: -12px; /* alinhado na linha inferior */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 12px;
+  height: 12px;
+  background-color: #0d6efd;
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 0 4px rgb(13 110 253 / 0.7);
+}
+
+/* Para esconder a barra de rolagem no Chrome/Edge/Safari (opcional) */
+.timeline-horizontal::-webkit-scrollbar {
+  height: 6px;
+}
+
+.timeline-horizontal::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.timeline-horizontal::-webkit-scrollbar-thumb {
+  background-color: #0d6efd;
+  border-radius: 3px;
+}
+
+/* MAPA*/
+.mapa-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow-x: auto;
+  padding: 1rem;
+}
+
+.mapa-svg {
+  width: 100%;
+  max-width: 600px;
+  height: auto;
+}
+
+.municipio {
+  fill: #ccc;
+  stroke: #333;
+  stroke-width: 0.5;
+  cursor: pointer;
+  transition: fill 0.3s ease, transform 0.3s ease;
+}
+
+.municipio:hover {
+  fill: #007bff;
+  transform: scale(1.05);
+}
