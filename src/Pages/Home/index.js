@@ -5,7 +5,7 @@ import Estandarte from "../../Imagens/home/estandarteSVG.png";
 import Ocorrencia from "../../Imagens/home/abordagem2esqd.jfif";
 import LogoRpmon from "../../Imagens/home/LOGORPMON.png";
 import Policial from "../../Imagens/home/Drumond.png";
-import julhao from "../../Imagens/home/Julhão.png";
+import Mapa from "../../Imagens/home/São Paulo RegAdmin.png";
 
 import { Row, Col, Container } from "react-bootstrap";
 
@@ -152,27 +152,33 @@ export default function Home() {
           <h2 className="text-center mb-4">Nossa Linha do Tempo</h2>
           <div className="timeline-horizontal">
             <div className="timeline-item">
-              <div className="timeline-year">1944</div>
+              <div className="timeline-year">1831</div>
               <div className="timeline-content">
-                <p>Fundação oficial do Regimento 9 de Julho.</p>
+                <p>Criação do corpo de Cavalaria.</p>
               </div>
             </div>
             <div className="timeline-item">
-              <div className="timeline-year">1978</div>
+              <div className="timeline-year">1892</div>
               <div className="timeline-content">
-                <p>Participação em eventos internacionais.</p>
+                <p>Denominação Regimento de Policia Montada "9 de Julho"</p>
               </div>
             </div>
             <div className="timeline-item">
-              <div className="timeline-year">1999</div>
+              <div className="timeline-year">1932</div>
               <div className="timeline-content">
-                <p>Início do projeto social de equoterapia.</p>
+                <p>Revolução Constitucionalista</p>
               </div>
             </div>
             <div className="timeline-item">
-              <div className="timeline-year">2020</div>
+              <div className="timeline-year">1934</div>
               <div className="timeline-content">
-                <p>Reconhecimento estadual por serviços prestados.</p>
+                <p>Constituição de 1934</p>
+              </div>
+            </div>
+            <div className="timeline-item">
+              <div className="timeline-year">2025</div>
+              <div className="timeline-content">
+                <p>Dias atuais</p>
               </div>
             </div>
           </div>
@@ -187,7 +193,7 @@ export default function Home() {
               <div className="mb-3">
                 <i className="bi bi-shield-lock fs-1 text-primary"></i>
               </div>
-              <h5>3 Esquadrões</h5>
+              <h5>4 Esquadrões</h5>
               <p>
                 Unidades de patrulha especializadas em policiamento montado.
               </p>
@@ -196,7 +202,7 @@ export default function Home() {
               <div className="mb-3">
                 <i className="bi bi-horse fs-1 text-primary"></i>
               </div>
-              <h5>50 Cavalos</h5>
+              <h5>502 Cavalos</h5>
               <p>
                 Animais treinados com disciplina e cuidado para operações
                 urbanas e rurais.
@@ -216,31 +222,27 @@ export default function Home() {
         </Container>
       </section>
 
-      <section className="bg-white py-5">
+      <section className="d-flex bg-white py-5">
         <Container>
           <h2 className="text-center mb-4">Regimento em Ação</h2>
           <Row className="g-3">
-            <Col xs={12} md={4}>
+           
+           <Col xs={12} md={4} lg={4} sm={6}>
+              <h2>Informações Demograficas</h2>
+              <h4>População:</h4><span>45.973.194</span>
+              <h4>Densidade demográfica:</h4><span>178,92 habitante por quilômetro quadrado  </span>
+              <h4>Total de veículos:</h4><span>33.264.096</span>
+
+            </Col>
+
+            <Col xs={12} md={8} lg={8} sm={6}>
               <img
-                src={Ocorrencia}
-                alt="Operação"
-                className="img-fluid rounded shadow-sm"
+                src={Mapa}
+                alt="Mapa"
+                className="img-fluid rounded "
               />
             </Col>
-            <Col xs={12} md={4}>
-              <img
-                src={julhao}
-                alt="Policial"
-                className="img-fluid rounded shadow-sm"
-              />
-            </Col>
-            <Col xs={12} md={4}>
-              <img
-                src={Poster2}
-                alt="Evento"
-                className="img-fluid rounded shadow-sm"
-              />
-            </Col>
+           
           </Row>
         </Container>
       </section>
