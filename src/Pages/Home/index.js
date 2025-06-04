@@ -1,4 +1,3 @@
-
 import MidiasSociais from "../../Imagens/carroussel/sociais.jpeg";
 import Poster1 from "../../Imagens/carroussel/cav024.jpg";
 import Poster2 from "../../Imagens/carroussel/cav052.jpg";
@@ -6,363 +5,286 @@ import Estandarte from "../../Imagens/home/estandarteSVG.png";
 import Ocorrencia from "../../Imagens/home/abordagem2esqd.jfif";
 import LogoRpmon from "../../Imagens/home/LOGORPMON.png";
 import Policial from "../../Imagens/home/Drumond.png";
+import julhao from "../../Imagens/home/Julhão.png";
+
+import { Row, Col, Container } from "react-bootstrap";
 
 import "./styles.css";
 
 export default function Home() {
-
   return (
-    <section className="bg-dark d-flex justify-content-center align-items-center w-100 h-100">
-      <div className="container mt-5 mb-5">
-        <div className="row">
-          {/* Coluna 1 */}
-          {/* <div className="col-md-3">
-            <div className="text-center">
-              <h3 className="text-white mb-0">
-                <a
-                  style={{
-                    textDecoration: "none",
-                    textShadow: "5px 5px 20px turquoise",
-                    cursor: "pointer",
-                  }}
-                  data-bs-toggle="modal"
-                  data-bs-target="#homeModal1"
-                >
-                  Heraldica
-                </a>
-              </h3>
-              <a
-                rel="noreferrer"
-                data-bs-toggle="modal"
-                data-bs-target="#homeModal1"
+    <>
+      <section className="bg-dark d-flex justify-content-center align-items-center w-100 h-100">
+        <div className="w-100 px-0">
+          <div className="row">
+            <div className="col-12 px-0">
+              <div
+                id="carouselExampleIndicators"
+                className="carousel slide"
+                data-bs-ride="carousel"
               >
-                <img
-                  src={LogoRpmon}
-                  alt="Heraldica"
-                  className="pt-1 w-100 rounded-3"
-                  height="350"
-                  width="300"
-                />
-              </a>
-            </div>
-            <br />
-            <br />
-            <div className="text-center">
-              <h3 className="text-white mb-0">
-                <a
-                  style={{
-                    textDecoration: "none",
-                    textShadow: "5px 5px 20px turquoise",
-                    cursor:"pointer",
-                  }}
-                  rel="noreferrer"
-                  data-bs-toggle="modal"
-                  data-bs-target="#homeModal2"
-                >
-                  Policial do Mês
-                </a>
-              </h3>
-              <a
-                rel="noreferrer"
-                data-bs-toggle="modal"
-                data-bs-target="#homeModal2"
-              >
-                <img
-                  src={Policial}
-                  alt="Policial do Mês"
-                  className="pt-1 w-100 rounded-3"
-                  height="350"
-                  width="300"
-                />
-              </a>
-            </div>
-          </div> */}
-
-          {/* Coluna 2 */}
-
-          <div className="col-md-12">
-            <div
-              id="carouselExampleIndicators"
-              className="carousel slide"
-              data-bs-ride="carousel"
-            >
-              <div className="carousel-inner">
-                <div className="carousel-item active">
-                  <div className="shadow-carousel-wrapper rounded-3 overflow-hidden">
+                <div className="carousel-inner">
+                  <div className="carousel-item active">
+                    <div className="shadow-carousel-wrapper rounded-3 overflow-hidden">
+                      <img
+                        src={Poster1}
+                        className="d-block w-100"
+                        alt="Carrossel 1"
+                        style={{
+                          height: "720px",
+                          objectFit: "cover",
+                          objectPosition: "center",
+                        }}
+                      />
+                    </div>
+                  </div>
+                  <div className="carousel-item">
                     <img
-                      src={Poster1}
+                      src={Poster2}
                       className="d-block w-100"
                       alt="Carrossel 1"
                       style={{
-                        height: "1280px",
+                        height: "720px",
+                        objectFit: "cover",
+                        objectPosition: "center",
+                      }}
+                    />
+                  </div>
+                  <div className="carousel-item">
+                    <img
+                      src={MidiasSociais}
+                      className="d-block w-100"
+                      alt="Carrossel 1"
+                      style={{
+                        height: "720px",
                         objectFit: "cover",
                         objectPosition: "center",
                       }}
                     />
                   </div>
                 </div>
-                <div className="carousel-item">
-                  <img
-                    src={Poster2}
-                    className="d-block w-100 rounded-3"
-                    alt="Carrossel 2"
-                    height="800"
-                  />
-                </div>
-                <div className="carousel-item">
-                  <img
-                    src={MidiasSociais}
-                    className="d-block w-100 rounded-3"
-                    alt="Carrossel 3"
-                    height="800"
-                  />
+                <button
+                  className="carousel-control-prev"
+                  type="button"
+                  data-bs-target="#carouselExampleIndicators"
+                  data-bs-slide="prev"
+                >
+                  <span
+                    className="carousel-control-prev-icon"
+                    aria-hidden="true"
+                  ></span>
+                  <span className="visually-hidden">Previous</span>
+                </button>
+                <button
+                  className="carousel-control-next"
+                  type="button"
+                  data-bs-target="#carouselExampleIndicators"
+                  data-bs-slide="next"
+                >
+                  <span
+                    className="carousel-control-next-icon"
+                    aria-hidden="true"
+                  ></span>
+                  <span className="visually-hidden">Next</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-light w-100">
+        <Container fluid className="py-5 px-3">
+          <Row className="g-4 justify-content-center">
+            <Col xs={12} md={6} lg={3}>
+              <div className="card h-100 shadow-sm">
+                <div className="card-body">
+                  <h5 className="card-title">Missão</h5>
+                  <p className="card-text">
+                    Servir com honra, proteger com coragem e atuar com
+                    excelência na segurança pública montada.
+                  </p>
                 </div>
               </div>
-              <button
-                className="carousel-control-prev"
-                type="button"
-                data-bs-target="#carouselExampleIndicators"
-                data-bs-slide="prev"
-              >
-                <span
-                  className="carousel-control-prev-icon"
-                  aria-hidden="true"
-                ></span>
-                <span className="visually-hidden">Previous</span>
-              </button>
-              <button
-                className="carousel-control-next"
-                type="button"
-                data-bs-target="#carouselExampleIndicators"
-                data-bs-slide="next"
-              >
-                <span
-                  className="carousel-control-next-icon"
-                  aria-hidden="true"
-                ></span>
-                <span className="visually-hidden">Next</span>
-              </button>
+            </Col>
+
+            <Col xs={12} md={6} lg={3}>
+              <div className="card h-100 shadow-sm">
+                <div className="card-body">
+                  <h5 className="card-title">Visão</h5>
+                  <p className="card-text">
+                    Ser referência nacional em policiamento montado, com foco na
+                    disciplina, inovação e proximidade com a comunidade.
+                  </p>
+                </div>
+              </div>
+            </Col>
+
+            <Col xs={12} md={6} lg={3}>
+              <div className="card h-100 shadow-sm">
+                <div className="card-body">
+                  <h5 className="card-title">Valores</h5>
+                  <p className="card-text">
+                    Ética, lealdade, respeito, comprometimento, coragem e
+                    espírito de corpo no cumprimento do dever.
+                  </p>
+                </div>
+              </div>
+            </Col>
+
+            <Col xs={12} md={6} lg={3}>
+              <div className="card h-100 shadow-sm">
+                <div className="card-body">
+                  <h5 className="card-title">História</h5>
+                  <p className="card-text">
+                    Fundado há décadas, o Regimento 9 de Julho carrega uma rica
+                    tradição na proteção do povo paulista.
+                  </p>
+                </div>
+              </div>
+            </Col>
+          </Row>
+        </Container>
+      </section>
+
+      <section className="bg-white py-4">
+        <Container>
+          <h2 className="text-center mb-4">Nossa Linha do Tempo</h2>
+          <div className="timeline-horizontal">
+            <div className="timeline-item">
+              <div className="timeline-year">1944</div>
+              <div className="timeline-content">
+                <p>Fundação oficial do Regimento 9 de Julho.</p>
+              </div>
+            </div>
+            <div className="timeline-item">
+              <div className="timeline-year">1978</div>
+              <div className="timeline-content">
+                <p>Participação em eventos internacionais.</p>
+              </div>
+            </div>
+            <div className="timeline-item">
+              <div className="timeline-year">1999</div>
+              <div className="timeline-content">
+                <p>Início do projeto social de equoterapia.</p>
+              </div>
+            </div>
+            <div className="timeline-item">
+              <div className="timeline-year">2020</div>
+              <div className="timeline-content">
+                <p>Reconhecimento estadual por serviços prestados.</p>
+              </div>
             </div>
           </div>
+        </Container>
+      </section>
 
-          {/* Coluna 3 */}
-          {/* <div className="col-md-3">
-            <div className="text-center">
-              <h3 className="text-white mb-0">
-                <a
-                  style={{
-                    textDecoration: "none",
-                    textShadow: "5px 5px 20px turquoise",
-                    cursor:"pointer",
-                  }}
-                  rel="noreferrer"
-                  data-bs-toggle="modal"
-                  data-bs-target="#homeModal3"
-                >
-                  Estandarte
-                </a>
-              </h3>
-              <a
-                rel="noreferrer"
-                data-bs-toggle="modal"
-                data-bs-target="#homeModal3"
-              >
-                <img
-                  src={Estandarte}
-                  alt="Estandarte"
-                  className="pt-1 w-100 rounded-3"
-                  height="350"
-                  width="300"
-                />
-              </a>
-            </div>
-            <br />
-            <br />
+      <section className="bg-light py-5">
+        <Container>
+          <h2 className="text-center mb-4">Nossa Estrutura</h2>
+          <Row className="text-center">
+            <Col xs={12} md={4}>
+              <div className="mb-3">
+                <i className="bi bi-shield-lock fs-1 text-primary"></i>
+              </div>
+              <h5>3 Esquadrões</h5>
+              <p>
+                Unidades de patrulha especializadas em policiamento montado.
+              </p>
+            </Col>
+            <Col xs={12} md={4}>
+              <div className="mb-3">
+                <i className="bi bi-horse fs-1 text-primary"></i>
+              </div>
+              <h5>50 Cavalos</h5>
+              <p>
+                Animais treinados com disciplina e cuidado para operações
+                urbanas e rurais.
+              </p>
+            </Col>
+            <Col xs={12} md={4}>
+              <div className="mb-3">
+                <i className="bi bi-hospital fs-1 text-primary"></i>
+              </div>
+              <h5>Centro de Equoterapia</h5>
+              <p>
+                Projeto social de reabilitação e inclusão com uso terapêutico de
+                cavalos.
+              </p>
+            </Col>
+          </Row>
+        </Container>
+      </section>
 
-            <div className="text-center">
-              <h3 className="text-white mb-0">
-                <a
-                  style={{
-                    textDecoration: "none",
-                    textShadow: "5px 5px 20px turquoise",
-                    cursor:"pointer",
-                  }}
-                  rel="noreferrer"
-                  data-bs-toggle="modal"
-                  data-bs-target="#homeModal4"
-                >
-                  Ocorrência Do Mês
-                </a>
-              </h3>
-              <a
-                rel="noreferrer"
-                data-bs-toggle="modal"
-                data-bs-target="#homeModal4"
-              >
-                <img
-                  src={Ocorrencia}
-                  alt="Ocorrência Do Mês"
-                  className="pt-1 w-100 rounded-3"
-                  height="350"
-                  width="300"
-                />
-              </a>
-            </div>
-          </div> */}
-        </div>
-      </div>
-
-      {/* Modal 1 */}
-      <div
-        className="modal fade"
-        id="homeModal1"
-        tabIndex="-1"
-        aria-labelledby="exampleHomeLabel1"
-        aria-hidden="true"
-      >
-        <div className="modal-dialog modal-dialog-centered modal-xl">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h5 className="modal-title" id="exampleHomeLabel1">
-                Heraldica
-              </h5>
-              <button
-                type="button"
-                className="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-              ></button>
-            </div>
-            <div className="modal-body d-flex justify-content-center">
-              <img src={LogoRpmon} alt="Heraldica" className="img-fluid" />
-            </div>
-            <div className="modal-footer">
-              <button
-                type="button"
-                className="btn btn-secondary"
-                data-bs-dismiss="modal"
-              >
-                Fechar
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Modal 2 */}
-      <div
-        className="modal fade"
-        id="homeModal2"
-        tabIndex="-1"
-        aria-labelledby="exampleHomeLabel2"
-        aria-hidden="true"
-      >
-        <div className="modal-dialog modal-dialog-centered modal-xl">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h5 className="modal-title" id="exampleHomeLabel2">
-                Policial do Mês
-              </h5>
-              <button
-                type="button"
-                className="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-              ></button>
-            </div>
-            <div className="modal-body d-flex justify-content-center">
-              <img src={Policial} alt="Policial do Mês" className="img-fluid" />
-            </div>
-            <div className="modal-footer">
-              <button
-                type="button"
-                className="btn btn-secondary"
-                data-bs-dismiss="modal"
-              >
-                Fechar
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Modal 3 */}
-      <div
-        className="modal fade"
-        id="homeModal3"
-        tabIndex="-1"
-        aria-labelledby="exampleHomeLabel3"
-        aria-hidden="true"
-      >
-        <div className="modal-dialog modal-dialog-centered modal-xl">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h5 className="modal-title" id="exampleHomeLabel3">
-                Estandarte
-              </h5>
-              <button
-                type="button"
-                className="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-              ></button>
-            </div>
-            <div className="modal-body d-flex justify-content-center">
-              <img src={Estandarte} alt="Estandarte" className="img-fluid" />
-            </div>
-            <div className="modal-footer">
-              <button
-                type="button"
-                className="btn btn-secondary"
-                data-bs-dismiss="modal"
-              >
-                Fechar
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Modal 4 */}
-      <div
-        className="modal fade"
-        id="homeModal4"
-        tabIndex="-1"
-        aria-labelledby="exampleHomeLabel4"
-        aria-hidden="true"
-      >
-        <div className="modal-dialog modal-dialog-centered modal-xl">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h5 className="modal-title" id="exampleHomeLabel4">
-                Ocorrência do Mês
-              </h5>
-              <button
-                type="button"
-                className="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-              ></button>
-            </div>
-            <div className="modal-body d-flex justify-content-center">
+      <section className="bg-white py-5">
+        <Container>
+          <h2 className="text-center mb-4">Regimento em Ação</h2>
+          <Row className="g-3">
+            <Col xs={12} md={4}>
               <img
                 src={Ocorrencia}
-                alt="Ocorrência do Mês"
-                className="img-fluid"
+                alt="Operação"
+                className="img-fluid rounded shadow-sm"
               />
-            </div>
-            <div className="modal-footer">
-              <button
-                type="button"
-                className="btn btn-secondary"
-                data-bs-dismiss="modal"
-              >
-                Fechar
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+            </Col>
+            <Col xs={12} md={4}>
+              <img
+                src={julhao}
+                alt="Policial"
+                className="img-fluid rounded shadow-sm"
+              />
+            </Col>
+            <Col xs={12} md={4}>
+              <img
+                src={Poster2}
+                alt="Evento"
+                className="img-fluid rounded shadow-sm"
+              />
+            </Col>
+          </Row>
+        </Container>
+      </section>
+
+      <section className="bg-light py-5">
+        <Container>
+          <h2 className="text-center mb-4">Conheça Nossos Projetos</h2>
+          <Row className="g-4">
+            <Col xs={12} md={4}>
+              <div className="card h-100 shadow-sm">
+                <div className="card-body">
+                  <h5 className="card-title">Projeto Cavalo Amigo</h5>
+                  <p className="card-text">
+                    Visitas a escolas e comunidades, promovendo interação com os
+                    cavalos e conscientização sobre segurança.
+                  </p>
+                </div>
+              </div>
+            </Col>
+            <Col xs={12} md={4}>
+              <div className="card h-100 shadow-sm">
+                <div className="card-body">
+                  <h5 className="card-title">Equoterapia Social</h5>
+                  <p className="card-text">
+                    Atendimentos gratuitos voltados a crianças com deficiência,
+                    com apoio profissional.
+                  </p>
+                </div>
+              </div>
+            </Col>
+            <Col xs={12} md={4}>
+              <div className="card h-100 shadow-sm">
+                <div className="card-body">
+                  <h5 className="card-title">Campanhas Solidárias</h5>
+                  <p className="card-text">
+                    Arrecadações de roupas e alimentos organizadas por policiais
+                    e parceiros comunitários.
+                  </p>
+                </div>
+              </div>
+            </Col>
+          </Row>
+        </Container>
+      </section>
+    </>
   );
 }
