@@ -180,9 +180,9 @@ export default function Home() {
               </div>
             </div>
             <div className="timeline-item">
-              <div className="timeline-year">2025</div>
+              <div className="timeline-year">2024</div>
               <div className="timeline-content">
-                <p>Dias atuais</p>
+                <p>Banda de Clarins declarada Patrimônio Historico e cultural</p>
               </div>
             </div>
           </div>
