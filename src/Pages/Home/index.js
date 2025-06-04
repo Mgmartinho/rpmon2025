@@ -1,17 +1,20 @@
 import MidiasSociais from "../../Imagens/carroussel/sociais.jpeg";
 import Poster1 from "../../Imagens/carroussel/cav024.jpg";
 import Poster2 from "../../Imagens/carroussel/cav052.jpg";
-import Estandarte from "../../Imagens/home/estandarteSVG.png";
-import Ocorrencia from "../../Imagens/home/abordagem2esqd.jfif";
-import LogoRpmon from "../../Imagens/home/LOGORPMON.png";
-import Policial from "../../Imagens/home/Drumond.png";
-import Mapa from "../../Imagens/home/São Paulo RegAdmin.png";
+//import Estandarte from "../../Imagens/home/estandarteSVG.png";
+//import Ocorrencia from "../../Imagens/home/abordagem2esqd.jfif";
+//import LogoRpmon from "../../Imagens/home/LOGORPMON.png";
+//import Policial from "../../Imagens/home/Drumond.png";
+//import Mapa from "../../Imagens/home/São Paulo RegAdmin.png";
+import MapaTeste from "../../Imagens/home/SP_RG_Imediatas_2024.svg";
 
 import { Row, Col, Container } from "react-bootstrap";
 
 import "./styles.css";
 
 export default function Home() {
+  
+
   return (
     <>
       <section className="bg-dark d-flex justify-content-center align-items-center w-100 h-100">
@@ -94,7 +97,7 @@ export default function Home() {
       </section>
 
       <section className="bg-light w-100">
-        <Container fluid className="py-5 px-3">
+        <Container fluid className="py-5 px-5">
           <Row className="g-4 justify-content-center">
             <Col xs={12} md={6} lg={3}>
               <div className="card h-100 shadow-sm">
@@ -221,28 +224,60 @@ export default function Home() {
           </Row>
         </Container>
       </section>
-
+      {/* mapa regional */}
       <section className="d-flex bg-white py-5">
         <Container>
-          <h2 className="text-center mb-4">Regimento em Ação</h2>
+          <h2 className="text-center mb-4">Area de atuação</h2>
           <Row className="g-3">
-           
-           <Col xs={12} md={4} lg={4} sm={6}>
-              <h2>Informações Demograficas</h2>
-              <h4>População:</h4><span>45.973.194</span>
-              <h4>Densidade demográfica:</h4><span>178,92 habitante por quilômetro quadrado  </span>
-              <h4>Total de veículos:</h4><span>33.264.096</span>
+            <Col
+              xs={12}
+              md={4}
+              lg={4}
+              sm={6}
+              className="text-center p-4 shadow-sm rounded-2 bg-light"
+            >
+              {/* <h2 className="mb-4 text-primary">Informações Demográficas</h2> */}
 
+              <div className="mb-3">
+                <h5 className="mb-1 fw-bold">População</h5>
+                <p className="mb-0 fs-5 text-dark">45.973.194 habitantes</p>
+              </div>
+
+              <div className="mb-3">
+                <h5 className="mb-1 fw-bold">Densidade Demográfica</h5>
+                <p className="mb-0 fs-5 text-dark">178,92 hab/km²</p>
+              </div>
+
+              <div className="mb-3">
+                <h5 className="mb-1 fw-bold">Área Territorial</h5>
+                <p className="mb-0 fs-5 text-dark">248.219,5 km²</p>
+              </div>
+
+              <div className="mb-3">
+                <h5 className="mb-1 fw-bold">Total de Veículos</h5>
+                <p className="mb-0 fs-5 text-dark">33.264.096</p>
+              </div>
+
+              <div className="mb-3">
+                <h5 className="mb-1 fw-bold">Frota por Habitante</h5>
+                <p className="mb-0 fs-5 text-dark">
+                  1 veículo para cada 1,4 habitante
+                </p>
+              </div>
+
+              <div className="mb-3">
+                <h5 className="mb-1 fw-bold">PIB</h5>
+                <p className="mb-0 fs-5 text-dark">R$ 2,5 trilhões (2022)</p>
+              </div>
+
+              <div>
+                <h6 className="text-muted mt-4">Fonte: IBGE e Detran</h6>
+              </div>
             </Col>
 
             <Col xs={12} md={8} lg={8} sm={6}>
-              <img
-                src={Mapa}
-                alt="Mapa"
-                className="img-fluid rounded "
-              />
+              <img src={MapaTeste} alt="Mapa" className="img-fluid rounded " />
             </Col>
-           
           </Row>
         </Container>
       </section>
