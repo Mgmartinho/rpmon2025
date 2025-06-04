@@ -60,6 +60,7 @@ export default function Home() {
                       alt="Carrossel 1"
                       style={{
                         height: "720px",
+                        height: "800px",
                         objectFit: "cover",
                         objectPosition: "center",
                       }}

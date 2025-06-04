@@ -100,46 +100,32 @@ import img49Thumb from "../../Imagens/eternosComandantes/49.jpg";
 import img49Full from "../../Imagens/eternosComandantes/49.1.png";
 import img50Thumb from "../../Imagens/eternosComandantes/50.jpg";
 import img50Full from "../../Imagens/eternosComandantes/50.1.png";
-
 import img51Thumb from "../../Imagens/eternosComandantes/51.jpg";
 import img51Full from "../../Imagens/eternosComandantes/51.1.png";
-
 import img52Thumb from "../../Imagens/eternosComandantes/52.jpg";
 import img52Full from "../../Imagens/eternosComandantes/52.1.png";
-
 import img53Thumb from "../../Imagens/eternosComandantes/53.jpg";
 import img53Full from "../../Imagens/eternosComandantes/53.1.png";
-
 import img54Thumb from "../../Imagens/eternosComandantes/54.jpg";
 import img54Full from "../../Imagens/eternosComandantes/54.1.png";
-
 import img55Thumb from "../../Imagens/eternosComandantes/55.jpg";
 import img55Full from "../../Imagens/eternosComandantes/55.1.png";
-
 import img56Thumb from "../../Imagens/eternosComandantes/56.jpg";
 import img56Full from "../../Imagens/eternosComandantes/56.1.png";
-
 import img57Thumb from "../../Imagens/eternosComandantes/57.jpg";
 import img57Full from "../../Imagens/eternosComandantes/57.1.png";
-
 import img58Thumb from "../../Imagens/eternosComandantes/58.png";
 import img58Full from "../../Imagens/eternosComandantes/58.1.png";
-
 import img59Thumb from "../../Imagens/eternosComandantes/59.png";
 import img59Full from "../../Imagens/eternosComandantes/59.1.png";
-
 import img60Thumb from "../../Imagens/eternosComandantes/60.png";
 import img60Full from "../../Imagens/eternosComandantes/60.1.png";
-
 import img61Thumb from "../../Imagens/eternosComandantes/61.png";
 import img61Full from "../../Imagens/eternosComandantes/61.1.png";
-
 import img62Thumb from "../../Imagens/eternosComandantes/62.png";
 import img62Full from "../../Imagens/eternosComandantes/62.1.png";
-
 import img63Thumb from "../../Imagens/eternosComandantes/63.png";
 import img63Full from "../../Imagens/eternosComandantes/63.1.png";
-
 import img64Thumb from "../../Imagens/eternosComandantes/64.jpg";
 import img64Full from "../../Imagens/eternosComandantes/64.1.png";
 
