@@ -91,7 +91,7 @@ body, html {
 
 .mapa-svg {
   width: 100%;
-  max-width: 600px;
+  max-width: 720px;
   height: auto;
 }
 
@@ -106,4 +106,47 @@ body, html {
 .municipio:hover {
   fill: #007bff;
   transform: scale(1.05);
+
+}
+
+
+
+/* Container que envolve o SVG */
+.mapa-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow-x: auto;
+  padding: 1rem;
+  background-color: transparent; /* não altera nada aqui */
+}
+
+/* Alvo principal: o <div> que react-inlinesvg injeta */
+.mapa-svg > svg {
+  position: relative;   /* para posicionar pseudoelemento atrás */
+  width: 100%;
+  height: auto;
+}
+
+/* Pseudoelemento ::before cria um "retângulo de fundo" por trás de todo o SVG */
+.mapa-svg > svg::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #ADD8E6; /* cor de fundo desejada */
+  z-index: -1; /* fica atrás de todos os paths */
+}
+
+/* Se quiser, dê hover nos paths */
+.mapa-svg path {
+  transition: fill 0.3s ease, transform 0.3s ease;
+  cursor: pointer;
+}
+
+.mapa-svg path:hover {
+  fill: #a1a19e; /* ao passar o mouse, mostra azul */
+  transform: scale(1.00);
 }

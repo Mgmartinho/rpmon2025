@@ -1,20 +1,16 @@
 import MidiasSociais from "../../Imagens/carroussel/sociais.jpeg";
 import Poster1 from "../../Imagens/carroussel/cav024.jpg";
 import Poster2 from "../../Imagens/carroussel/cav052.jpg";
-//import Estandarte from "../../Imagens/home/estandarteSVG.png";
-//import Ocorrencia from "../../Imagens/home/abordagem2esqd.jfif";
-//import LogoRpmon from "../../Imagens/home/LOGORPMON.png";
-//import Policial from "../../Imagens/home/Drumond.png";
-//import Mapa from "../../Imagens/home/São Paulo RegAdmin.png";
-import MapaTeste from "../../Imagens/home/SP_RG_Imediatas_2024.svg";
+import MapaSVG2 from "../../Imagens/home/SP_RG_Imediatas_2024.svg";
 
-import { Row, Col, Container } from "react-bootstrap";
-
+import SVG from "react-inlinesvg";
+import { Container, Row, Col } from "react-bootstrap";
+import { destacamentos } from "./infoMaps";
+import "bootstrap/dist/css/bootstrap.min.css";
 import "./styles.css";
 
-export default function Home() {
-  
 
+export default function Home() {
   return (
     <>
       <section className="bg-dark d-flex justify-content-center align-items-center w-100 h-100">
@@ -225,9 +221,10 @@ export default function Home() {
         </Container>
       </section>
       {/* mapa regional */}
+      {/* Área de atuação - Mapa regional */}
       <section className="d-flex bg-white py-5">
         <Container>
-          <h2 className="text-center mb-4">Area de atuação</h2>
+          <h2 className="text-center mb-4">Area de atuação</h2>{" "}
           <Row className="g-3">
             <Col
               xs={12}
@@ -236,47 +233,45 @@ export default function Home() {
               sm={6}
               className="text-center p-4 shadow-sm rounded-2 bg-light"
             >
-              {/* <h2 className="mb-4 text-primary">Informações Demográficas</h2> */}
-
               <div className="mb-3">
-                <h5 className="mb-1 fw-bold">População</h5>
-                <p className="mb-0 fs-5 text-dark">45.973.194 habitantes</p>
+                <h5 className="mb-1 fw-bold">Regiões</h5>
+                <p className="mb-0 fs-5 text-dark">16</p>
               </div>
-
               <div className="mb-3">
-                <h5 className="mb-1 fw-bold">Densidade Demográfica</h5>
-                <p className="mb-0 fs-5 text-dark">178,92 hab/km²</p>
+                <h5 className="mb-1 fw-bold">Destacamento</h5>
+                <p className="mb-0 fs-5 text-dark">13</p>
               </div>
-
               <div className="mb-3">
-                <h5 className="mb-1 fw-bold">Área Territorial</h5>
-                <p className="mb-0 fs-5 text-dark">248.219,5 km²</p>
+                <h5 className="mb-1 fw-bold">Centro de Equoterapia</h5>
+                <p className="mb-0 fs-5 text-dark">10</p>
               </div>
-
               <div className="mb-3">
-                <h5 className="mb-1 fw-bold">Total de Veículos</h5>
-                <p className="mb-0 fs-5 text-dark">33.264.096</p>
+                <h5 className="mb-1 fw-bold">Atendimentos médio diário</h5>
+                <p className="mb-0 fs-5 text-dark">20 pessoas</p>
               </div>
-
               <div className="mb-3">
-                <h5 className="mb-1 fw-bold">Frota por Habitante</h5>
-                <p className="mb-0 fs-5 text-dark">
-                  1 veículo para cada 1,4 habitante
-                </p>
-              </div>
-
-              <div className="mb-3">
-                <h5 className="mb-1 fw-bold">PIB</h5>
-                <p className="mb-0 fs-5 text-dark">R$ 2,5 trilhões (2022)</p>
-              </div>
-
-              <div>
-                <h6 className="text-muted mt-4">Fonte: IBGE e Detran</h6>
+                <h5 className="mb-1 fw-bold">Total de solípedes</h5>
+                <p className="mb-0 fs-5 text-dark">502</p>
               </div>
             </Col>
-
             <Col xs={12} md={8} lg={8} sm={6}>
-              <img src={MapaTeste} alt="Mapa" className="img-fluid rounded " />
+              <SVG
+                src={MapaSVG2} // a URL que veio de require(...)
+                className="mapa-svg"
+                preProcessor={(code) =>
+                  // remove qualquer <rect fill="#fff"> que o Illustrator tenha colocado
+                  code.replace(/<rect[^>]*fill="(#fff|#ffffff)"[^>]*\/>/gi, "")
+                }
+                onSVGReady={(svg) => {
+                  // Se quiser ajustar traços/cor de preenchimento dos <path> (mantendo todas as linhas):
+                  svg.querySelectorAll("path").forEach((pathEl) => {
+                    pathEl.setAttribute("stroke", "#333333");
+                    pathEl.setAttribute("stroke-width", "0.5");
+                    // Se preferir manter o fill original, comente a linha abaixo:
+                    // pathEl.setAttribute("fill", "#CCCCCC");
+                  });
+                }}
+              />
             </Col>
           </Row>
         </Container>
