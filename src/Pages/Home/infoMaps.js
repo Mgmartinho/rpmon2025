@@ -1,6 +1,6 @@
 export const destacamentos = [
     {
-        id: "1",
+        codigo: "1",
         regiao: "São Paulo",
         destacamento: "APMBB - Academia de Policia Militar do Barro Branco",
         cavalos: "20",
@@ -8,7 +8,7 @@ export const destacamentos = [
         atendimento: "15",
     },
      {
-        id: "2",
+        codigo: "2",
         regiao: "São Paulo",
         destacamento: `RPMon - Regimento de Policia Montada "9 de Julho" `,
         cavalos: "256",
@@ -16,7 +16,7 @@ export const destacamentos = [
         atendimento: "120",
     },
     {
-        id: "3",
+        codigo: "3",
         regiao: "Santos",
         destacamento: `CPI-6`,
         cavalos: "35",
@@ -24,7 +24,7 @@ export const destacamentos = [
         atendimento: "20",
     },
     {
-        id: "4",
+        codigo: "4",
         regiao: "Marilia",
         destacamento: `CPI-2 `,
         cavalos: "15",
@@ -32,7 +32,7 @@ export const destacamentos = [
         atendimento: "15",
     },
     {
-        id: "5",
+        codigo: "5",
         regiao: "Presidente Prudente",
         destacamento: `CPI-3 `,
         cavalos: "30",
@@ -40,7 +40,7 @@ export const destacamentos = [
         atendimento: "30",
     },
     {
-        id: "6",
+        codigo: "6",
         regiao: "Araraquara",
         destacamento: `CPI-4 `,
         cavalos: "22",
@@ -48,7 +48,7 @@ export const destacamentos = [
         atendimento: "17",
     },
     {
-        id: "7",
+        codigo: "7",
         regiao: "São Jose Dos Campos",
         destacamento: `CPI-2 `,
         cavalos: "17",

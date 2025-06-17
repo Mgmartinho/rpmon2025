@@ -8,9 +8,11 @@ import { Container, Row, Col } from "react-bootstrap";
 import { destacamentos } from "./infoMaps";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./styles.css";
-
+import { useState } from "react";
 
 export default function Home() {
+  const [destacamentoSelecionado, setDestacamentoSelecionado] = useState(null);
+
   return (
     <>
       <section className="bg-dark d-flex justify-content-center align-items-center w-100 h-100">
@@ -222,60 +224,100 @@ export default function Home() {
       </section>
       {/* mapa regional */}
       {/* Área de atuação - Mapa regional */}
-      <section className="d-flex bg-white py-5">
-        <Container>
-          <h2 className="text-center mb-4">Area de atuação</h2>{" "}
-          <Row className="g-3">
-            <Col
-              xs={12}
-              md={4}
-              lg={4}
-              sm={6}
-              className="text-center p-4 shadow-sm rounded-2 bg-light"
-            >
-              <div className="mb-3">
-                <h5 className="mb-1 fw-bold">Regiões</h5>
-                <p className="mb-0 fs-5 text-dark">16</p>
-              </div>
-              <div className="mb-3">
-                <h5 className="mb-1 fw-bold">Destacamento</h5>
-                <p className="mb-0 fs-5 text-dark">13</p>
-              </div>
-              <div className="mb-3">
-                <h5 className="mb-1 fw-bold">Centro de Equoterapia</h5>
-                <p className="mb-0 fs-5 text-dark">10</p>
-              </div>
-              <div className="mb-3">
-                <h5 className="mb-1 fw-bold">Atendimentos médio diário</h5>
-                <p className="mb-0 fs-5 text-dark">20 pessoas</p>
-              </div>
-              <div className="mb-3">
-                <h5 className="mb-1 fw-bold">Total de solípedes</h5>
-                <p className="mb-0 fs-5 text-dark">502</p>
-              </div>
-            </Col>
-            <Col xs={12} md={8} lg={8} sm={6}>
-              <SVG
-                src={MapaSVG2} // a URL que veio de require(...)
-                className="mapa-svg"
-                preProcessor={(code) =>
-                  // remove qualquer <rect fill="#fff"> que o Illustrator tenha colocado
-                  code.replace(/<rect[^>]*fill="(#fff|#ffffff)"[^>]*\/>/gi, "")
-                }
-                onSVGReady={(svg) => {
-                  // Se quiser ajustar traços/cor de preenchimento dos <path> (mantendo todas as linhas):
-                  svg.querySelectorAll("path").forEach((pathEl) => {
-                    pathEl.setAttribute("stroke", "#333333");
-                    pathEl.setAttribute("stroke-width", "0.5");
-                    // Se preferir manter o fill original, comente a linha abaixo:
-                    // pathEl.setAttribute("fill", "#CCCCCC");
-                  });
-                }}
-              />
-            </Col>
-          </Row>
-        </Container>
-      </section>
+       
+    <section className="d-flex bg-white py-5">
+      <Container>
+        <h2 className="text-center mb-4">Área de atuação</h2>
+        <Row className="g-3">
+          <Col
+            xs={12}
+            md={4}
+            lg={4}
+            sm={6}
+            className="text-center p-4 shadow-sm rounded-2 bg-light"
+          >
+            <div className="mb-3">
+              <h5 className="mb-1 fw-bold">Região</h5>
+              <p className="mb-0 fs-5 text-dark">
+                {destacamentoSelecionado
+                  ? destacamentoSelecionado.regiao
+                  : "São Paulo"}
+              </p>
+            </div>
+            <div className="mb-3">
+              <h5 className="mb-1 fw-bold">Destacamento</h5>
+              <p className="mb-0 fs-5 text-dark">
+                {destacamentoSelecionado
+                  ? destacamentoSelecionado.destacamento
+                  : "14"}
+              </p>
+            </div>
+            <div className="mb-3">
+              <h5 className="mb-1 fw-bold">Centro de Equoterapia</h5>
+              <p className="mb-0 fs-5 text-dark">
+                {destacamentoSelecionado
+                  ? destacamentoSelecionado.Equoterapia
+                  : "10"}
+              </p>
+            </div>
+            <div className="mb-3">
+              <h5 className="mb-1 fw-bold">Atendimentos médio semanal</h5>
+              <p className="mb-0 fs-5 text-dark">
+                {destacamentoSelecionado
+                  ? destacamentoSelecionado.atendimento + " pessoas"
+                  : "220 pessoas"}
+              </p>
+            </div>
+            <div className="mb-3">
+              <h5 className="mb-1 fw-bold">Total de solípedes</h5>
+              <p className="mb-0 fs-5 text-dark">
+                {destacamentoSelecionado
+                  ? destacamentoSelecionado.cavalos
+                  : "502"}
+              </p>
+            </div>
+          </Col>
+          <Col xs={12} md={8} lg={8} sm={6} className="mapa-wrapper">
+            <SVG
+              src={MapaSVG2}
+              className="mapa-svg"
+              preProcessor={(code) =>
+                code.replace(/<rect[^>]*fill="(#fff|#ffffff)"[^>]*\/>/gi, "")
+              }
+              onSVGReady={(svg) => {
+                svg.querySelectorAll("path").forEach((pathEl) => {
+                  pathEl.classList.add("municipio"); // adiciona classe pra estilizar
+
+                  pathEl.setAttribute("stroke", "#333333");
+                  pathEl.setAttribute("stroke-width", "0.5");
+
+                  // Pega id ou data-id
+                  const id = pathEl.getAttribute("id") || pathEl.getAttribute("data-id");
+
+                  const dest = destacamentos.find((d) => d.id === id);
+
+                  if (dest) {
+                    if (dest.Equoterapia === "Sim") {
+                      pathEl.setAttribute("fill", "#4CAF50"); // verde
+                    } else {
+                      pathEl.setAttribute("fill", "#FFC107"); // amarelo
+                    }
+                    pathEl.setAttribute("title", dest.destacamento);
+                    pathEl.style.cursor = "pointer";
+
+                    pathEl.onclick = () => setDestacamentoSelecionado(dest);
+                  } else {
+                    pathEl.setAttribute("fill", "#ccc"); // cinza padrão
+                    pathEl.style.cursor = "default";
+                    pathEl.onclick = null;
+                  }
+                });
+              }}
+            />
+          </Col>
+        </Row>
+      </Container>
+    </section>
 
       <section className="bg-light py-5">
         <Container>
