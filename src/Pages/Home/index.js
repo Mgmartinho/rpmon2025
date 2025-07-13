@@ -43,7 +43,7 @@ export default function Home() {
                     <img
                       src={Poster2}
                       className="d-block w-100"
-                      alt="Carrossel 1"
+                      alt="Carrossel 2"
                       style={{
                         height: "720px",
                         objectFit: "cover",
@@ -55,10 +55,9 @@ export default function Home() {
                     <img
                       src={MidiasSociais}
                       className="d-block w-100"
-                      alt="Carrossel 1"
+                      alt="Carrossel 3"
                       style={{
                         height: "720px",
-                        height: "800px",
                         objectFit: "cover",
                         objectPosition: "center",
                       }}

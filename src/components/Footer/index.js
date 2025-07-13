@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Container, Row, Col, Button, Offcanvas, Form } from 'react-bootstrap';
+import { Container, Button, Offcanvas, Form } from 'react-bootstrap';
 import logoPMESP200Anos from "../../Imagens/200anospm.bmp"
 
 
