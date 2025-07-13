@@ -1,19 +1,17 @@
 import MidiasSociais from "../../Imagens/carroussel/sociais.jpeg";
 import Poster1 from "../../Imagens/carroussel/cav024.jpg";
 import Poster2 from "../../Imagens/carroussel/cav052.jpg";
-//import Estandarte from "../../Imagens/home/estandarteSVG.png";
-//import Ocorrencia from "../../Imagens/home/abordagem2esqd.jfif";
-//import LogoRpmon from "../../Imagens/home/LOGORPMON.png";
-//import Policial from "../../Imagens/home/Drumond.png";
-//import Mapa from "../../Imagens/home/São Paulo RegAdmin.png";
-import MapaTeste from "../../Imagens/home/SP_RG_Imediatas_2024.svg";
+import MapaSVG2 from "../../Imagens/home/SP_RG_Imediatas_2024.svg";
 
-import { Row, Col, Container } from "react-bootstrap";
-
+import SVG from "react-inlinesvg";
+import { Container, Row, Col } from "react-bootstrap";
+import { destacamentos } from "./infoMaps";
+import "bootstrap/dist/css/bootstrap.min.css";
 import "./styles.css";
+import { useState } from "react";
 
 export default function Home() {
-  
+  const [destacamentoSelecionado, setDestacamentoSelecionado] = useState(null);
 
   return (
     <>
@@ -226,62 +224,101 @@ export default function Home() {
         </Container>
       </section>
       {/* mapa regional */}
-      <section className="d-flex bg-white py-5">
-        <Container>
-          <h2 className="text-center mb-4">Area de atuação</h2>
-          <Row className="g-3">
-            <Col
-              xs={12}
-              md={4}
-              lg={4}
-              sm={6}
-              className="text-center p-4 shadow-sm rounded-2 bg-light"
-            >
-              {/* <h2 className="mb-4 text-primary">Informações Demográficas</h2> */}
+      {/* Área de atuação - Mapa regional */}
+       
+    <section className="d-flex bg-white py-5">
+      <Container>
+        <h2 className="text-center mb-4">Área de atuação</h2>
+        <Row className="g-3">
+          <Col
+            xs={12}
+            md={4}
+            lg={4}
+            sm={6}
+            className="text-center p-4 shadow-sm rounded-2 bg-light"
+          >
+            <div className="mb-3">
+              <h5 className="mb-1 fw-bold">Região</h5>
+              <p className="mb-0 fs-5 text-dark">
+                {destacamentoSelecionado
+                  ? destacamentoSelecionado.regiao
+                  : "São Paulo"}
+              </p>
+            </div>
+            <div className="mb-3">
+              <h5 className="mb-1 fw-bold">Destacamento</h5>
+              <p className="mb-0 fs-5 text-dark">
+                {destacamentoSelecionado
+                  ? destacamentoSelecionado.destacamento
+                  : "14"}
+              </p>
+            </div>
+            <div className="mb-3">
+              <h5 className="mb-1 fw-bold">Centro de Equoterapia</h5>
+              <p className="mb-0 fs-5 text-dark">
+                {destacamentoSelecionado
+                  ? destacamentoSelecionado.Equoterapia
+                  : "10"}
+              </p>
+            </div>
+            <div className="mb-3">
+              <h5 className="mb-1 fw-bold">Atendimentos médio semanal</h5>
+              <p className="mb-0 fs-5 text-dark">
+                {destacamentoSelecionado
+                  ? destacamentoSelecionado.atendimento + " pessoas"
+                  : "220 pessoas"}
+              </p>
+            </div>
+            <div className="mb-3">
+              <h5 className="mb-1 fw-bold">Total de solípedes</h5>
+              <p className="mb-0 fs-5 text-dark">
+                {destacamentoSelecionado
+                  ? destacamentoSelecionado.cavalos
+                  : "502"}
+              </p>
+            </div>
+          </Col>
+          <Col xs={12} md={8} lg={8} sm={6} className="mapa-wrapper">
+            <SVG
+              src={MapaSVG2}
+              className="mapa-svg"
+              preProcessor={(code) =>
+                code.replace(/<rect[^>]*fill="(#fff|#ffffff)"[^>]*\/>/gi, "")
+              }
+              onSVGReady={(svg) => {
+                svg.querySelectorAll("path").forEach((pathEl) => {
+                  pathEl.classList.add("municipio"); // adiciona classe pra estilizar
 
-              <div className="mb-3">
-                <h5 className="mb-1 fw-bold">População</h5>
-                <p className="mb-0 fs-5 text-dark">45.973.194 habitantes</p>
-              </div>
+                  pathEl.setAttribute("stroke", "#333333");
+                  pathEl.setAttribute("stroke-width", "0.5");
 
-              <div className="mb-3">
-                <h5 className="mb-1 fw-bold">Densidade Demográfica</h5>
-                <p className="mb-0 fs-5 text-dark">178,92 hab/km²</p>
-              </div>
+                  // Pega id ou data-id
+                  const id = pathEl.getAttribute("id") || pathEl.getAttribute("data-id");
 
-              <div className="mb-3">
-                <h5 className="mb-1 fw-bold">Área Territorial</h5>
-                <p className="mb-0 fs-5 text-dark">248.219,5 km²</p>
-              </div>
+                  const dest = destacamentos.find((d) => d.id === id);
 
-              <div className="mb-3">
-                <h5 className="mb-1 fw-bold">Total de Veículos</h5>
-                <p className="mb-0 fs-5 text-dark">33.264.096</p>
-              </div>
+                  if (dest) {
+                    if (dest.Equoterapia === "Sim") {
+                      pathEl.setAttribute("fill", "#4CAF50"); // verde
+                    } else {
+                      pathEl.setAttribute("fill", "#FFC107"); // amarelo
+                    }
+                    pathEl.setAttribute("title", dest.destacamento);
+                    pathEl.style.cursor = "pointer";
 
-              <div className="mb-3">
-                <h5 className="mb-1 fw-bold">Frota por Habitante</h5>
-                <p className="mb-0 fs-5 text-dark">
-                  1 veículo para cada 1,4 habitante
-                </p>
-              </div>
-
-              <div className="mb-3">
-                <h5 className="mb-1 fw-bold">PIB</h5>
-                <p className="mb-0 fs-5 text-dark">R$ 2,5 trilhões (2022)</p>
-              </div>
-
-              <div>
-                <h6 className="text-muted mt-4">Fonte: IBGE e Detran</h6>
-              </div>
-            </Col>
-
-            <Col xs={12} md={8} lg={8} sm={6}>
-              <img src={MapaTeste} alt="Mapa" className="img-fluid rounded " />
-            </Col>
-          </Row>
-        </Container>
-      </section>
+                    pathEl.onclick = () => setDestacamentoSelecionado(dest);
+                  } else {
+                    pathEl.setAttribute("fill", "#ccc"); // cinza padrão
+                    pathEl.style.cursor = "default";
+                    pathEl.onclick = null;
+                  }
+                });
+              }}
+            />
+          </Col>
+        </Row>
+      </Container>
+    </section>
 
       <section className="bg-light py-5">
         <Container>

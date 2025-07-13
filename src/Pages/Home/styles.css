@@ -80,7 +80,7 @@ body, html {
   border-radius: 3px;
 }
 
-/* MAPA*/
+
 .mapa-wrapper {
   display: flex;
   justify-content: center;
@@ -91,8 +91,10 @@ body, html {
 
 .mapa-svg {
   width: 100%;
-  max-width: 600px;
+  max-width: 720px;
   height: auto;
+  background-color: #ADD8E6; /* Fundo azul claro */
+  position: relative;
 }
 
 .municipio {
@@ -106,4 +108,24 @@ body, html {
 .municipio:hover {
   fill: #007bff;
   transform: scale(1.05);
+}
+
+.mapa-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow-x: auto;
+  padding: 1rem;
+  background-color: transparent;
+}
+
+.mapa-svg path {
+  transition: fill 0.3s ease, transform 0.3s ease;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.mapa-svg path:hover {
+  fill: #eaea0c;
+  transform: scale(1.00);
 }
