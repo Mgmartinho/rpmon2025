@@ -177,6 +177,12 @@ export default function Home() {
               </div>
             </div>
             <div className="timeline-item">
+              <div className="timeline-year">2024</div>
+              <div className="timeline-content">
+                <p>Patrimonio historico e cultaral</p>
+              </div>
+            </div>
+            <div className="timeline-item">
               <div className="timeline-year">2025</div>
               <div className="timeline-content">
                 <p>Dias atuais</p>

@@ -55,6 +55,7 @@ export const destacamentos = [
         Equoterapia: "Sim",
         atendimento: "23",
     },
+    
 ];
 
 

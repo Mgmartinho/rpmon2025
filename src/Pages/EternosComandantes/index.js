@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect,useState } from "react";
 import "./styles.css";
 import { comandantesXIX, comandantesXX, comandantesXXI } from "./galery";
 
@@ -24,6 +24,46 @@ export default function EternosComandantes() {
       }
     };
   }, []);
+
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Pega todas as imagens que precisam ser carregadas
+    const allImages = [
+      ...comandantesXIX,
+      ...comandantesXX,
+      ...comandantesXXI
+    ].map((c) => c.full);
+
+    let loadedCount = 0;
+
+    allImages.forEach((src) => {
+      const img = new Image();
+      img.src = src;
+      img.onload = () => {
+        loadedCount++;
+        if (loadedCount === allImages.length) {
+          setLoading(false); // termina o loading quando todas carregarem
+        }
+      };
+      img.onerror = () => {
+        loadedCount++;
+        if (loadedCount === allImages.length) {
+          setLoading(false);
+        }
+      };
+    });
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="d-flex justify-content-center align-items-center vh-100">
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Carregando...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container">

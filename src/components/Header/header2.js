@@ -7,10 +7,33 @@ import "./style.css";
 
 const Header2 = () => {
   return (
-    <header className="shadowHeader">
+    <header className="shadowHeader" >
       <Container fluid>
+        <Col md={12} className="text-center mb-n1 pt-1 d-none d-md-block">
+          <div>
+            <a
+              href="https://facebook.com/cavalariasp"
+              className="text-white mx-1"
+            >
+              <FaFacebook />
+            </a>
+            <a
+              href="https://youtube.com/channel/UCYzJr50zEa_sD1u4yJ3zpvw"
+              className="text-white mx-1"
+            >
+              <FaYoutube />
+            </a>
+
+            <a
+              href="https://instagram.com/cavalariasp"
+              className="text-white mx-1"
+            >
+              <FaInstagram />
+            </a>
+          </div>
+        </Col>
         <Row className="align-items-center justify-content-between py-4">
-          <Col xs={6} md={2} className="text-center">
+          <Col sm={6} md={2} className="text-center justify-content-center m-auto">
             <a
               href="http://intranet.policiamilitar.sp.gov.br/"
               target="_blank"
@@ -24,16 +47,19 @@ const Header2 = () => {
               />
             </a>
           </Col>
-          <Col md={8} className="text-center">
-            <h2 className="mb-0" style={{ color: "#FFD700", fontWeight: "bold" }}>
+          <Col md={8} sm={12} className="text-center">
+            <h2
+              className="mb-0"
+              style={{ color: "#FFD700", fontWeight: "bold", fontSize: "45px" }}
+            >
               Regimento de Polícia Montada “9 de Julho”
             </h2>
             <small className="text-secondary d-block">
               Polícia Militar do Estado de São Paulo
             </small>
           </Col>
-          <Col xs={6} md={2} className="text-center">
-            <Link to="/" target="_blank" rel="noopener noreferrer">
+          <Col sm={6} md={2} className="text-center justify-content-center m-auto">
+            <Link to="/" rel="noopener noreferrer">
               <img
                 src={logoRpmon}
                 className="img-fluid"
