@@ -332,7 +332,7 @@ export default function Home() {
             <Col xs={12} md={4}>
               <div className="card h-100 shadow-sm">
                 <div className="card-body">
-                  <h5 className="card-title">Projeto Cavalo Amigo</h5>
+                  <h5 className="card-title">Projeto Gira Mundo</h5>
                   <p className="card-text">
                     Visitas a escolas e comunidades, promovendo interação com os
                     cavalos e conscientização sobre segurança.
