@@ -3,6 +3,7 @@ import { Container, Row, Col, Button, Offcanvas, Form } from "react-bootstrap";
 import { FaFacebook, FaInstagram, FaYoutube } from "react-icons/fa";
 import rpmon from "../../Imagens/LOGORPMON.png";
 import "./style.css";
+import { FaMusic, FaFilePdf } from "react-icons/fa";
 
 const Footer = () => {
   const [showOffcanvas, setShowOffcanvas] = useState(false);
@@ -27,7 +28,7 @@ const Footer = () => {
       <Container>
         <Row className="text-center text-md-start">
           {/* Coluna Logo + Redes Sociais */}
-          <Col md={4} className="mb-4">
+          <Col md={4} className="mb-4 text-center">
             <a
               href="http://intranet.policiamilitar.sp.gov.br/"
               target="_blank"
@@ -40,28 +41,49 @@ const Footer = () => {
                 className="mb-3"
               />
             </a>
-            <div className="d-flex justify-content-center justify-content-md-start gap-3 fs-4 social-links text-white">
-              <a
-                href="https://facebook.com/cavalariasp"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <FaFacebook />
-              </a>
-              <a
-                href="https://instagram.com/cavalariasp"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <FaInstagram />
-              </a>
-              <a
-                href="https://youtube.com/channel/UCYzJr50zEa_sD1u4yJ3zpvw"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <FaYoutube />
-              </a>
+
+            <div className="d-flex justify-content-center gap-4 fs-4 text-white text-center">
+              {/* Facebook */}
+              <div className="d-flex flex-column align-items-center">
+                <a
+                  href="https://facebook.com/cavalariasp"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <FaFacebook />
+                </a>
+                <small className="mt-1  text-warning" style={{ fontSize: 17 }}>
+                  27k+
+                </small>
+              </div>
+
+              {/* Instagram */}
+              <div className="d-flex flex-column align-items-center">
+                <a
+                  href="https://instagram.com/cavalariasp"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <FaInstagram />
+                </a>
+                <small className="mt-1  text-warning" style={{ fontSize: 17 }}>
+                  37k+
+                </small>
+              </div>
+
+              {/* YouTube */}
+              <div className="d-flex flex-column align-items-center">
+                <a
+                  href="https://youtube.com/channel/UCYzJr50zEa_sD1u4yJ3zpvw"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <FaYoutube />
+                </a>
+                <small className="mt-1 text-warning" style={{ fontSize: 17 }}>
+                  28k+
+                </small>
+              </div>
             </div>
           </Col>
 
@@ -88,64 +110,65 @@ const Footer = () => {
               <Offcanvas.Header closeButton closeVariant="white">
                 <Offcanvas.Title>Lista de Músicas</Offcanvas.Title>
               </Offcanvas.Header>
+
               <Offcanvas.Body>
-                <div className="d-flex flex-column align-items-center gap-2">
-                  <a
-                    href="/musicas/musica1.mp3"
-                    download
-                    className="text-light link-hover"
-                  >
-                    Música 1
-                  </a>
-                  <a
-                    href="/musicas/musica2.mp3"
-                    download
-                    className="text-light link-hover"
-                  >
-                    Música 2
-                  </a>
-                  <a
-                    href="/musicas/musica3.mp3"
-                    download
-                    className="text-light link-hover"
-                  >
-                    Música 3
-                  </a>
-                  <a
-                    href="/musicas/musica4.mp3"
-                    download
-                    className="text-light link-hover"
-                  >
-                    Música 4
-                  </a>
-                  <a
-                    href="/musicas/musica5.mp3"
-                    download
-                    className="text-light link-hover"
-                  >
-                    Música 5
-                  </a>
-                  <a
-                    href="/musicas/musica6.mp3"
-                    download
-                    className="text-light link-hover"
-                  >
-                    Música 6
-                  </a>
-                  <a
-                    href="/musicas/musica7.mp3"
-                    download
-                    className="text-light link-hover"
-                  >
-                    Música 7
-                  </a>
-                  <a
-                    href="/musicas/musica8.mp3"
-                    download
-                    className="text-light link-hover"
-                  >
-                    Música 8
-                  </a>
+                <div className="row text-center">
+                  {[
+                    {
+                      nome: "Canção Eterno Regimento Instrumental",
+                      mp3: "/Hinos/Eterno Regimento - Instrumental.mp3",
+                      pdf: "/LetraHinos/Eterno Regimento.pdf",
+                    },
+                    {
+                      nome: "Canção Eterno Regimento",
+                      mp3: "/Hinos/Eterno Regimento - Vocal.mp3",
+                      pdf: "/letras/musica2.pdf",
+                    },
+                    {
+                      nome: "Canção Da Cavalaria",
+                      mp3: "/musicas/musica3.mp3",
+                      pdf: "/letras/musica3.pdf",
+                    },
+                    {
+                      nome: "Hino Nacional Brasileiro",
+                      mp3: "/Hinos/Hino Nacional Brasileiro - Vocal.mp3",
+                      pdf: "/LetraHinos/Hino Nacional Brasileiro.pdf",
+                    },
+                    {
+                      nome: "Incorporação da Bandeira",
+                      mp3: "/musicas/musica5.mp3",
+                      pdf: "/letras/musica5.pdf",
+                    },
+                    {
+                      nome: "9 de Julho",
+                      mp3: "/musicas/musica6.mp3",
+                      pdf: "/letras/musica6.pdf",
+                    },
+                    {
+                      nome: "Canção da Policia Militar",
+                      mp3: "/musicas/musica7.mp3",
+                      pdf: "/letras/musica7.pdf",
+                    },
+                    {
+                      nome: "Canção Escola Superior de Soldados",
+                      mp3: "/musicas/musica8.mp3",
+                      pdf: "/letras/musica8.pdf",
+                    },
+                  ].map((musica, i) => (
+                    <div key={i} className="col-md-3 col-sm-6 mb-3">
+                      <div className="d-flex flex-column align-items-center">
+                        <span className="mb-2">{musica.nome}</span>
+                        <div className="d-flex gap-3">
+                          <a href={musica.mp3} download className="text-light">
+                            <FaMusic size={22} />
+                          </a>
+                          <a href={musica.pdf} download className="text-danger">
+                            <FaFilePdf size={22} />
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </Offcanvas.Body>
             </Offcanvas>
