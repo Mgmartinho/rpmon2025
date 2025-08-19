@@ -30,6 +30,7 @@ import img14Thumb from "../../Imagens/eternosComandantes/14.jpg";
 import img14Full from "../../Imagens/eternosComandantes/14.1.png";
 import img15Thumb from "../../Imagens/eternosComandantes/15.jpg";
 import img15Full from "../../Imagens/eternosComandantes/15.1.png";
+import img15_1Full from "../../Imagens/eternosComandantes/15.2.png";
 import img16Thumb from "../../Imagens/eternosComandantes/16.jpg";
 import img16Full from "../../Imagens/eternosComandantes/16.1.png";
 import img17Thumb from "../../Imagens/eternosComandantes/17.jpg";
@@ -38,10 +39,12 @@ import img18Thumb from "../../Imagens/eternosComandantes/18.jpg";
 import img18Full from "../../Imagens/eternosComandantes/18.1.png";
 import img19Thumb from "../../Imagens/eternosComandantes/19.jpg";
 import img19Full from "../../Imagens/eternosComandantes/19.1.png";
+import img19_1Full from "../../Imagens/eternosComandantes/19.2.png";
 import img20Thumb from "../../Imagens/eternosComandantes/20.jpg";
 import img20Full from "../../Imagens/eternosComandantes/20.1.png";
 import img21Thumb from "../../Imagens/eternosComandantes/21.jpg";
 import img21Full from "../../Imagens/eternosComandantes/21.1.png";
+import img21_1Full from "../../Imagens/eternosComandantes/21.2.png";
 import img22Thumb from "../../Imagens/eternosComandantes/22.jpg";
 import img22Full from "../../Imagens/eternosComandantes/22.1.png";
 import img23Thumb from "../../Imagens/eternosComandantes/23.jpg";
@@ -52,6 +55,7 @@ import img25Thumb from "../../Imagens/eternosComandantes/25.jpg";
 import img25Full from "../../Imagens/eternosComandantes/25.1.png";
 import img26Thumb from "../../Imagens/eternosComandantes/26.jpg";
 import img26Full from "../../Imagens/eternosComandantes/26.1.png";
+import img26_1Full from "../../Imagens/eternosComandantes/26.2.png";
 import img27Thumb from "../../Imagens/eternosComandantes/27.jpg";
 import img27Full from "../../Imagens/eternosComandantes/27.1.png";
 import img28Thumb from "../../Imagens/eternosComandantes/28.jpg";
@@ -62,6 +66,7 @@ import img30Thumb from "../../Imagens/eternosComandantes/30.jpg";
 import img30Full from "../../Imagens/eternosComandantes/30.1.png";
 import img31Thumb from "../../Imagens/eternosComandantes/31.jpg";
 import img31Full from "../../Imagens/eternosComandantes/31.1.png";
+import img31_1Full from "../../Imagens/eternosComandantes/31.2.png";
 import img32Thumb from "../../Imagens/eternosComandantes/32.jpg";
 import img32Full from "../../Imagens/eternosComandantes/32.1.png";
 import img33Thumb from "../../Imagens/eternosComandantes/33.jpg";
@@ -74,12 +79,15 @@ import img36Thumb from "../../Imagens/eternosComandantes/36.jpg";
 import img36Full from "../../Imagens/eternosComandantes/36.1.png";
 import img37Thumb from "../../Imagens/eternosComandantes/37.jpg";
 import img37Full from "../../Imagens/eternosComandantes/37.1.png";
+import img37_1Full from "../../Imagens/eternosComandantes/37.2.png";
 import img38Thumb from "../../Imagens/eternosComandantes/38.jpg";
 import img38Full from "../../Imagens/eternosComandantes/38.1.png";
 import img39Thumb from "../../Imagens/eternosComandantes/39.jpg";
 import img39Full from "../../Imagens/eternosComandantes/39.1.png";
+import img39_1Full from "../../Imagens/eternosComandantes/39.2.png";
 import img40Thumb from "../../Imagens/eternosComandantes/40.jpg";
 import img40Full from "../../Imagens/eternosComandantes/40.1.png";
+import img40_1Full from "../../Imagens/eternosComandantes/40.2.png";
 import img41Thumb from "../../Imagens/eternosComandantes/41.jpg";
 import img41Full from "../../Imagens/eternosComandantes/41.1.png";
 import img42Thumb from "../../Imagens/eternosComandantes/42.jpg";
@@ -96,10 +104,14 @@ import img47Thumb from "../../Imagens/eternosComandantes/47.jpg";
 import img47Full from "../../Imagens/eternosComandantes/47.1.png";
 import img48Thumb from "../../Imagens/eternosComandantes/48.jpg";
 import img48Full from "../../Imagens/eternosComandantes/48.1.png";
+import img48_1Full from "../../Imagens/eternosComandantes/48.2.png";
+import img48_2Full from "../../Imagens/eternosComandantes/48.3.png";
+import img48_3Full from "../../Imagens/eternosComandantes/48.4.png";
 import img49Thumb from "../../Imagens/eternosComandantes/49.jpg";
 import img49Full from "../../Imagens/eternosComandantes/49.1.png";
 import img50Thumb from "../../Imagens/eternosComandantes/50.jpg";
 import img50Full from "../../Imagens/eternosComandantes/50.1.png";
+import img50_1Full from "../../Imagens/eternosComandantes/50.2.png";
 
 import img51Thumb from "../../Imagens/eternosComandantes/51.jpg";
 import img51Full from "../../Imagens/eternosComandantes/51.1.png";
@@ -109,12 +121,17 @@ import img52Full from "../../Imagens/eternosComandantes/52.1.png";
 
 import img53Thumb from "../../Imagens/eternosComandantes/53.jpg";
 import img53Full from "../../Imagens/eternosComandantes/53.1.png";
+import img53_1Full from "../../Imagens/eternosComandantes/53.2.png";
 
 import img54Thumb from "../../Imagens/eternosComandantes/54.jpg";
 import img54Full from "../../Imagens/eternosComandantes/54.1.png";
+import img54_1Full from "../../Imagens/eternosComandantes/54.2.png";
 
 import img55Thumb from "../../Imagens/eternosComandantes/55.jpg";
 import img55Full from "../../Imagens/eternosComandantes/55.1.png";
+import img55_1Full from "../../Imagens/eternosComandantes/55.2.png";
+import img55_2Full from "../../Imagens/eternosComandantes/55.3.png";
+import img55_3Full from "../../Imagens/eternosComandantes/55.4.png";
 
 import img56Thumb from "../../Imagens/eternosComandantes/56.jpg";
 import img56Full from "../../Imagens/eternosComandantes/56.1.png";
@@ -130,6 +147,8 @@ import img59Full from "../../Imagens/eternosComandantes/59.1.png";
 
 import img60Thumb from "../../Imagens/eternosComandantes/60.png";
 import img60Full from "../../Imagens/eternosComandantes/60.1.png";
+import img60_1Full from "../../Imagens/eternosComandantes/60.2.png";
+import img60_2Full from "../../Imagens/eternosComandantes/60.3.png";
 
 import img61Thumb from "../../Imagens/eternosComandantes/61.png";
 import img61Full from "../../Imagens/eternosComandantes/61.1.png";
@@ -142,6 +161,7 @@ import img63Full from "../../Imagens/eternosComandantes/63.1.png";
 
 import img64Thumb from "../../Imagens/eternosComandantes/64.jpg";
 import img64Full from "../../Imagens/eternosComandantes/64.1.png";
+import img64_1Full from "../../Imagens/eternosComandantes/64.2.png";
 
 // import img65Thumb from "../../Imagens/eternosComandantes/65.jpg";
 // import img65Full from "../../Imagens/eternosComandantes/65.1.png";
@@ -256,7 +276,7 @@ export const comandantesXX = [
   },
   {
     thumb: img15Thumb,
-    full: img15Full,
+    full: [img15Full, img15_1Full],
     alt: "Imagem 15",
     title: "Ten Cel Sebastião do Amaral",
     modalId: "imagemModal15",
@@ -284,7 +304,7 @@ export const comandantesXX = [
   },
   {
     thumb: img19Thumb,
-    full: img19Full,
+    full: [img19Full, img19_1Full],
     alt: "Imagem 19",
     title: "Ten Cel Cândido Bravo",
     modalId: "imagemModal19",
@@ -298,7 +318,7 @@ export const comandantesXX = [
   },
   {
     thumb: img21Thumb,
-    full: img21Full,
+    full: [img21Full,img21_1Full],
     alt: "Imagem 21",
     title: "Ten Cel José Canavó Filho",
     modalId: "imagemModal21",
@@ -333,7 +353,7 @@ export const comandantesXX = [
   },
   {
     thumb: img26Thumb,
-    full: img26Full,
+    full: [img26Full,img26_1Full],
     alt: "Imagem 26",
     title: "Ten Cel Felix de Barros Morgado",
     modalId: "imagemModal26",
@@ -368,7 +388,7 @@ export const comandantesXX = [
   },
   {
     thumb: img31Thumb,
-    full: img31Full,
+    full: [img31Full,img31_1Full],
     alt: "Imagem 31",
     title: "Ten Cel PM Horácio Boson",
     modalId: "imagemModal31",
@@ -410,7 +430,7 @@ export const comandantesXX = [
   },
   {
     thumb: img37Thumb,
-    full: img37Full,
+    full: [img37Full,img37_1Full],
     alt: "Imagem 37",
     title: "Ten Cel PM Antonio Abate Filho",
     modalId: "imagemModal37",
@@ -422,95 +442,82 @@ export const comandantesXX = [
     title: "Ten Cel PM Niomar Cyrne Bezerra",
     modalId: "imagemModal38",
   },
-  //continue with the rest of the images
   {
     thumb: img39Thumb,
-    full: img39Full,
+    full: [img39Full,img39_1Full],
     alt: "Imagem 39",
-    title: "Ten Cel Jorge Furtado Leal",
-    modalId: "imagemModal35",
+    title: "Ten Cel PM Plínio Anganuzzi",
+    modalId: "imagemModal39",
   },
   {
     thumb: img40Thumb,
-    full: img40Full,
+    full: [img40Full,img40_1Full],
     alt: "Imagem 40",
-    title: "Ten Cel Adilson Torres Mendes",
-    modalId: "imagemModal36",
+    title: "Ten Cel PM Ubiratan Guimarães",
+    modalId: "imagemModal40",
   },
   {
     thumb: img41Thumb,
     full: img41Full,
     alt: "Imagem 41",
-    title: "Ten Cel Leandro Pinheiro Dantas",
-    modalId: "imagemModal37",
+    title: "Ten Cel PM José Aparecido de Lima",
+    modalId: "imagemModal41",
   },
   {
     thumb: img42Thumb,
     full: img42Full,
     alt: "Imagem 42",
-    title: "Ten Cel Celso Moraes Almeida",
-    modalId: "imagemModal38",
+    title: "Ten Cel PM Antonio de Jesus Gandolfi",
+    modalId: "imagemModal42",
   },
   {
     thumb: img43Thumb,
     full: img43Full,
     alt: "Imagem 43",
-    title: "Ten Cel Pedro Augusto Ferraz",
-    modalId: "imagemModal39",
+    title: "Ten Cel PM Ubirajara Dias Fernandes",
+    modalId: "imagemModal43",
   },
   {
     thumb: img44Thumb,
     full: img44Full,
     alt: "Imagem 44",
-    title: "Ten Cel Cléber Roberto Simões",
-    modalId: "imagemModal40",
+    title: "Ten Cel PM Armando Rafael de Araújo",
+    modalId: "imagemModal44",
   },
   {
     thumb: img45Thumb,
     full: img45Full,
     alt: "Imagem 45",
-    title: "Ten Cel Raul Miranda Peixoto",
-    modalId: "imagemModal41",
+    title: "Ten Cel PM Vicente Benedito Marcelino da Silva",
+    modalId: "imagemModal45",
   },
   {
     thumb: img46Thumb,
     full: img46Full,
     alt: "Imagem 46",
-    title: "Ten Cel Vinícius Rocha Barreto",
-    modalId: "imagemModal42",
+    title: "Ten Cel PM Rui César Melo",
+    modalId: "imagemModal46",
   },
   {
     thumb: img47Thumb,
     full: img47Full,
     alt: "Imagem 47",
-    title: "Ten Cel Mauro José Pinto",
-    modalId: "imagemModal43",
+    title: "Ten Cel PM José Luís Soares Coutinho",
+    modalId: "imagemModal47",
   },
   {
     thumb: img48Thumb,
-    full: img48Full,
+    full: [img48Full,img48_1Full,img48_2Full,img48_3Full],
     alt: "Imagem 48",
-    title: "Ten Cel Arthur Luís Macedo",
-    modalId: "imagemModal44",
+    title: "Ten Cel PM Tomaz Alves Cangerana",
+    modalId: "imagemModal48",
   },
-  {
-    thumb: img49Thumb,
-    full: img49Full,
-    alt: "Imagem 49",
-    title: "Ten Cel Renato Ferreira de Lima",
-    modalId: "imagemModal45",
-  },
-  {
-    thumb: img50Thumb,
-    full: img50Full,
-    alt: "Imagem 50",
-    title: "Ten Cel Marcelo Augusto Ribeiro",
-    modalId: "imagemModal46",
-  },
+ 
 ];
 
 
 export const comandantesXXI = [
+  
   {
     thumb: img49Thumb,
     full: img49Full,
@@ -520,7 +527,7 @@ export const comandantesXXI = [
   },
   {
     thumb: img50Thumb,
-    full: img50Full,
+    full: [img50Full,img50_1Full],
     alt: "Imagem 50",
     title: "Ten Cel PM Eduardo José Felix de Oliveira",
     modalId: "imagemModal50",
@@ -541,21 +548,21 @@ export const comandantesXXI = [
   },
   {
     thumb: img53Thumb,
-    full: img53Full,
+    full: [img53Full,img53_1Full],
     alt: "Imagem 53",
     title: "Ten Cel PM Ricardo Andrioli",
     modalId: "imagemModal53",
   },
   {
     thumb: img54Thumb,
-    full: img54Full,
+    full: [img54Full,img54_1Full],
     alt: "Imagem 54",
     title: "Ten Cel PM Alfredo Donizeti Rodrigues de Souza",
     modalId: "imagemModal54",
   },
   {
     thumb: img55Thumb,
-    full: img55Full,
+    full: [img55Full,img55_1Full,img55_2Full,img55_3Full],
     alt: "Imagem 55",
     title: "Ten Cel PM Alberto Malfi Sardilli",
     modalId: "imagemModal55",
@@ -590,7 +597,7 @@ export const comandantesXXI = [
   },
   {
     thumb: img60Thumb,
-    full: img60Full,
+    full: [img60Full,img60_1Full,img60_2Full],
     alt: "Imagem 60",
     title: "Ten Cel João Alves Cangerana Junior",
     modalId: "imagemModal60",
@@ -618,7 +625,7 @@ export const comandantesXXI = [
   },
   {
     thumb: img64Thumb,
-    full: img64Full,
+    full: [img64Full,img64_1Full],
     alt: "Imagem 64",
     title: "Ten Cel Carlos Eduardo de Lima",
     modalId: "imagemModal64",

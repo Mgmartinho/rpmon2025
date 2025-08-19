@@ -11,13 +11,11 @@ const Footer = () => {
 
   const [escala, setEscala] = useState("");
 
-  const handleSearch = (e) => {
+ const handleSearch = (e) => {
     e.preventDefault();
     if (escala) {
-      window.open(
-        `http://sistemasadmin.policiamilitar.sp.gov.br/Escala/arrelpreesc.aspx?${escala}`
-      );
-    }else{alert("Escala Não econtrada")}
+      window.open(`http://sistemasadmin.intranet.policiamilitar.sp.gov.br/Escala/arrelpreesc.aspx?${escala}`);
+    }
   };
 
   return (

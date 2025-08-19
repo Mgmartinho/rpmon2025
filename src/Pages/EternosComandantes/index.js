@@ -1,39 +1,20 @@
-import { useEffect,useState } from "react";
-import "./styles.css";
+import { useEffect, useState } from "react";
+import { Modal, Carousel, Button } from "react-bootstrap";
 import { comandantesXIX, comandantesXX, comandantesXXI } from "./galery";
-
+import "./styles.css";
 
 export default function EternosComandantes() {
-  useEffect(() => {
-    // Exemplo: foco no input de modal, caso exista algum com id 'myModal' e 'myInput'
-    const myModal = document.getElementById("myModal");
-    const myInput = document.getElementById("myInput");
-
-    if (myModal && myInput) {
-      myModal.addEventListener("shown.bs.modal", () => {
-        myInput.focus();
-      });
-    }
-
-    // Cleanup para evitar vazamento
-    return () => {
-      if (myModal && myInput) {
-        myModal.removeEventListener("shown.bs.modal", () => {
-          myInput.focus();
-        });
-      }
-    };
-  }, []);
-
   const [loading, setLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+  const [modalData, setModalData] = useState({});
 
+  // Preload de todas as imagens
   useEffect(() => {
-    // Pega todas as imagens que precisam ser carregadas
     const allImages = [
       ...comandantesXIX,
       ...comandantesXX,
-      ...comandantesXXI
-    ].map((c) => c.full);
+      ...comandantesXXI,
+    ].flatMap((c) => (Array.isArray(c.full) ? c.full : [c.full]));
 
     let loadedCount = 0;
 
@@ -42,18 +23,20 @@ export default function EternosComandantes() {
       img.src = src;
       img.onload = () => {
         loadedCount++;
-        if (loadedCount === allImages.length) {
-          setLoading(false); // termina o loading quando todas carregarem
-        }
+        if (loadedCount === allImages.length) setLoading(false);
       };
       img.onerror = () => {
         loadedCount++;
-        if (loadedCount === allImages.length) {
-          setLoading(false);
-        }
+        if (loadedCount === allImages.length) setLoading(false);
       };
     });
   }, []);
+
+  // Função para abrir a modal
+  const openModal = (item) => {
+    setModalData(item);
+    setShowModal(true);
+  };
 
   if (loading) {
     return (
@@ -65,161 +48,107 @@ export default function EternosComandantes() {
     );
   }
 
+  // Função para renderizar os cards de qualquer século
+  const renderCards = (comandantes) =>
+    comandantes.map(({ thumb, full, alt, title, modalId }) => (
+      <div className="col-md-1 mb-4" key={modalId}>
+        <button
+          type="button"
+          className="border-0 bg-transparent p-0"
+          onClick={() => openModal({ thumb, full, alt, title })}
+        >
+          <img
+            src={thumb}
+            className="img-fluid rounded img-hover-zoom"
+            alt={alt}
+            title={title}
+          />
+        </button>
+      </div>
+    ));
+
   return (
     <div className="container">
       <h2 className="text-dark text-center pt-4 pb-3">
         Comandantes do Século XIX
       </h2>
       <div className="row justify-content-center">
-        {comandantesXIX.map(({ thumb, full, alt, title, modalId }) => (
-          <div className="col-md-1 mb-4" key={modalId}>
-            <button
-              type="button"
-              className="border-0 bg-transparent p-0"
-              data-bs-toggle="modal"
-              data-bs-target={`#${modalId}`}
-            >
-              <img
-                src={thumb}
-                className="img-fluid rounded img-hover-zoom"
-                alt={alt}
-                title={title}
-              />
-            </button>
-
-            {/* Modal */}
-            <div
-              className="modal fade"
-              id={modalId}
-              tabIndex="-1"
-              aria-labelledby={`${modalId}Label`}
-              aria-hidden="true"
-            >
-              <div className="modal-dialog modal-dialog-centered modal-lg">
-                <div className="modal-content bg-white">
-                  <div className="modal-header">
-                    <h5 className="modal-title" id={`${modalId}Label`}>
-                      {title}
-                    </h5>
-                    <button
-                      type="button"
-                      className="btn-close"
-                      data-bs-dismiss="modal"
-                      aria-label="Fechar"
-                    ></button>
-                  </div>
-                  <div className="modal-body text-center">
-                    <img src={full} alt={alt} className="img-fluid" />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
+        {renderCards(comandantesXIX)}
       </div>
 
       <h2 className="text-dark text-center pt-2 pb-4">
         Comandantes do Século XX
       </h2>
       <div className="row justify-content-center">
-        {comandantesXX.map(({ thumb, full, alt, title, modalId }) => (
-          <div className="col-md-1 mb-4" key={modalId}>
-            <button
-              type="button"
-              className="border-0 bg-transparent p-0"
-              data-bs-toggle="modal"
-              data-bs-target={`#${modalId}`}
-            >
-              <img
-                src={thumb}
-                className="img-fluid rounded img-hover-zoom"
-                alt={alt}
-                title={title}
-              />
-            </button>
-
-            {/* Modal */}
-            <div
-              className="modal fade"
-              id={modalId}
-              tabIndex="-1"
-              aria-labelledby={`${modalId}Label`}
-              aria-hidden="true"
-            >
-              <div className="modal-dialog modal-dialog-centered modal-lg">
-                <div className="modal-content bg-white">
-                  <div className="modal-header">
-                    <h5 className="modal-title" id={`${modalId}Label`}>
-                      {title}
-                    </h5>
-                    <button
-                      type="button"
-                      className="btn-close"
-                      data-bs-dismiss="modal"
-                      aria-label="Fechar"
-                    ></button>
-                  </div>
-                  <div className="modal-body text-center">
-                    <img src={full} alt={alt} className="img-fluid" />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
+        {renderCards(comandantesXX)}
       </div>
 
       <h2 className="text-dark text-center pt-4 pb-3">
         Comandantes do Século XXI
       </h2>
       <div className="row justify-content-center">
-        {comandantesXXI.map(({ thumb, full, alt, title, modalId }) => (
-          <div className="col-md-1 mb-4" key={modalId}>
-            <button
-              type="button"
-              className="border-0 bg-transparent p-0"
-              data-bs-toggle="modal"
-              data-bs-target={`#${modalId}`}
-            >
-              <img
-                src={thumb}
-                className="img-fluid rounded img-hover-zoom"
-                alt={alt}
-                title={title}
-                modalId
-              />
-            </button>
-
-            {/* Modal */}
-            <div
-              className="modal fade"
-              id={modalId}
-              tabIndex="-1"
-              aria-labelledby={`${modalId}Label`}
-              aria-hidden="true"
-            >
-              <div className="modal-dialog modal-dialog-centered modal-lg">
-                <div className="modal-content bg-white">
-                  <div className="modal-header">
-                    <h5 className="modal-title" id={`${modalId}Label`}>
-                      {title}
-                    </h5>
-                    <button
-                      type="button"
-                      className="btn-close"
-                      data-bs-dismiss="modal"
-                      aria-label="Fechar"
-                    ></button>
-                  </div>
-                  <div className="modal-body text-center">
-                    <img src={full} alt={alt} className="img-fluid" />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
+        {renderCards(comandantesXXI)}
       </div>
+
+      {/* Modal global com Carousel */}
+      <Modal
+        show={showModal}
+        onHide={() => setShowModal(false)}
+        size="xl"
+        centered
+      >
+        <Modal.Header closeButton>
+  <Modal.Title className="d-flex align-items-center">
+    {modalData.thumb && (
+      <img
+        src={modalData.thumb}
+        alt={`${modalData.title}-thumb`}
+        className="rounded-circle me-2"
+        style={{ width: "40px", height: "40px", objectFit: "cover" }}
+      />
+    )}
+    {modalData.title}
+  </Modal.Title>
+</Modal.Header>
+
+
+        <Modal.Body>
+          {modalData.full
+            ? // Garantir que full é sempre um array plano
+              (() => {
+                const images = Array.isArray(modalData.full)
+                  ? modalData.full.flat()
+                  : [modalData.full];
+
+                return images.length > 1 ? (
+                  <Carousel>
+                    {images.map((imgSrc, idx) => (
+                      <Carousel.Item key={idx}>
+                        <img
+                          src={imgSrc}
+                          alt={`${modalData.alt}-${idx}`}
+                          className="d-block w-100"
+                        />
+                      </Carousel.Item>
+                    ))}
+                  </Carousel>
+                ) : (
+                  <img
+                    src={images[0]}
+                    alt={modalData.alt}
+                    className="img-fluid"
+                  />
+                );
+              })()
+            : null}
+        </Modal.Body>
+
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowModal(false)}>
+            Fechar
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 }

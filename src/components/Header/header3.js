@@ -2,7 +2,6 @@ import { Container, Row, Col, Navbar, Nav } from "react-bootstrap";
 import { FaFacebook, FaInstagram, FaYoutube } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import logoRpmon from "../../Imagens/LOGORPMON.png";
-import logoPMESP from "../../Imagens/Logo-PM.png";
 const Header3 = () => {
   return (
   <header className="bg-dark text-white shadow">

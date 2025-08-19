@@ -26,3 +26,18 @@
 .img-hover-zoom:hover::after {
   opacity: 1;
 }
+
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+  filter: invert(20%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(40%) contrast(90%);
+  background-color: transparent;
+  color: black;
+  size: 2px;
+}
+
+
+
+.carousel-indicators [data-bs-target]{
+background-color: black;
+}    
