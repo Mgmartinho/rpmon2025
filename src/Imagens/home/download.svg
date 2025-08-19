@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800">
+  <style>
+    .region {
+      fill: #ddd;
+      stroke: #666;
+      stroke-width: 0.5;
+      cursor: pointer;
+      transition: fill 0.2s;
+    }
+    .region:hover {
+      fill: #ffa500;
+    }
+  </style>
+
+  <!-- Região Administrativa 1 -->
+  <path id="RA1" class="region" d="M300,200 L350,220 L340,260 L310,280 L280,240 Z"></path>
+
+  <!-- Região Administrativa 2 -->
+  <path id="RA2" class="region" d="M360,300 L410,320 L400,360 L370,380 L340,340 Z"></path>
+
+  <!-- Região Administrativa 3 -->
+  <path id="RA3" class="region" d="M420,400 L470,420 L460,460 L430,480 L400,440 Z"></path>
+
+  <!-- ...continue até RA17 -->
+</svg>

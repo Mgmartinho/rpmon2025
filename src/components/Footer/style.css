@@ -1,0 +1,10 @@
+.link-hover:hover {
+  color: #FFD700;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.offcanvas-body a {
+  font-weight: 500;
+  font-size: 1rem;
+}

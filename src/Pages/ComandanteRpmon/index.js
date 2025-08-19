@@ -14,8 +14,9 @@ const ComandantesRpmon = () => {
     </h2>
     <div class="row">
       <div class="col-md-5 col-12 mb-4">
+        <h3 class="text-dark">Ten. Cel. Clodoaldo Donizetti Da Cruz</h3>
+        <a href='/comandante'>
         <h3 class="text-dark">Ten. Cel. Clodoaldo Donizetti da Cruz</h3>
-        
           <img src={CelDaCruz} alt="Foto do Comandante" class="pt-1 w-100 fixed-image rounded-3" />
         
       </div>
@@ -24,8 +25,8 @@ const ComandantesRpmon = () => {
 
         <h4>Cursos:</h4>
         <ul>
-          <li>Tropa Montada – 08/03/1999</li>
-          <li>Curso de Equoterapia – 24/11/1999</li>
+          <li>Tropa Montada – 08/03/2000</li>
+          <li>Curso de força tatica – 24/11/1999</li>
           <li>CEP - Curso de Técnicas de Ensino – 08/12/2000</li>
           <li>Curso de Administrador de Bens Imóveis – 11/09/2000</li>
           <li>Bacharel em Educação Física - PMESP – 11/08/2006</li>
