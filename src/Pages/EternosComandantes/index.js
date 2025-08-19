@@ -68,7 +68,7 @@ export default function EternosComandantes() {
     ));
 
   return (
-    <div className="container">
+    <div className="container ">
       <h2 className="text-dark text-center pt-4 pb-3">
         Comandantes do Século XIX
       </h2>

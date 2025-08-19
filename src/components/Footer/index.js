@@ -1,9 +1,13 @@
+
 import React, { useState } from "react";
 import { Container, Row, Col, Button, Offcanvas, Form } from "react-bootstrap";
 import { FaFacebook, FaInstagram, FaYoutube } from "react-icons/fa";
 import rpmon from "../../Imagens/LOGORPMON.png";
 import "./style.css";
 import { FaMusic, FaFilePdf } from "react-icons/fa";
+import React, { useState } from 'react';
+import { Container, Button, Offcanvas, Form } from 'react-bootstrap';
+import logoPMESP200Anos from "../../Imagens/200anospm.bmp"
 
 const Footer = () => {
   const [showOffcanvas, setShowOffcanvas] = useState(false);

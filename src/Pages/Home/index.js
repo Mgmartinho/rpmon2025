@@ -43,7 +43,7 @@ export default function Home() {
                     <img
                       src={Poster2}
                       className="d-block w-100"
-                      alt="Carrossel 1"
+                      alt="Carrossel 2"
                       style={{
                         height: "720px",
                         objectFit: "cover",
@@ -55,7 +55,7 @@ export default function Home() {
                     <img
                       src={MidiasSociais}
                       className="d-block w-100"
-                      alt="Carrossel 1"
+                      alt="Carrossel 3"
                       style={{
                         height: "720px",
                         objectFit: "cover",
@@ -185,7 +185,7 @@ export default function Home() {
             <div className="timeline-item">
               <div className="timeline-year">2025</div>
               <div className="timeline-content">
-                <p>Dias atuais</p>
+                <p>Banda de Clarins declarada Patrimônio Historico e cultural</p>
               </div>
             </div>
           </div>
