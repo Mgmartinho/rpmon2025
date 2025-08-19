@@ -17,7 +17,7 @@ const Footer = () => {
       window.open(
         `http://sistemasadmin.policiamilitar.sp.gov.br/Escala/arrelpreesc.aspx?${escala}`
       );
-    }
+    }else{alert("Escala Não econtrada")}
   };
 
   return (
@@ -26,9 +26,9 @@ const Footer = () => {
       style={{ backgroundColor: "#121212" }}
     >
       <Container>
-        <Row className="text-center text-md-start">
+        <Row className="text-center justify-content-center align-items-center text-md-start">
           {/* Coluna Logo + Redes Sociais */}
-          <Col md={4} className="mb-4 text-center">
+          <Col md={3} className="mb-4 text-center">
             <a
               href="http://intranet.policiamilitar.sp.gov.br/"
               target="_blank"
@@ -87,10 +87,67 @@ const Footer = () => {
             </div>
           </Col>
 
+          <Col md={3} className="mb-4 text-center">
+            <h5 className="text-warning mb-3">Links Úteis</h5>
+
+            <ul className="list-unstyled">
+              <li>
+                <a
+                  href="https://www.sp.gov.br/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-warning text-decoration-none"
+                >
+                  Governo de SP
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://www.pm.sp.gov.br/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-warning text-decoration-none"
+                >
+                  Polícia Militar SP
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://www.al.sp.gov.br/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-warning text-decoration-none"
+                >
+                  Assembleia Legislativa
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://www.stf.jus.br/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-warning text-decoration-none"
+                >
+                  Supremo Tribunal Federal
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://www.gov.br/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-warning text-decoration-none"
+                >
+                  Portal Gov.br
+                </a>
+              </li>
+            </ul>
+          </Col>
+
           {/* Coluna Acesso Rápido (Offcanvas) */}
           {/* Coluna Acesso Rápido (Offcanvas) */}
           {/* Coluna Acesso Rápido (Offcanvas) */}
-          <Col md={4} className="mb-4 text-center">
+          <Col md={3} className="mb-4 text-center">
             <h5 className="text-warning mb-3">Downloads</h5>
             <Button
               variant="outline-warning"
@@ -108,7 +165,9 @@ const Footer = () => {
               className="bg-dark text-light"
             >
               <Offcanvas.Header closeButton closeVariant="white">
-                <Offcanvas.Title>Lista de Músicas</Offcanvas.Title>
+                <Offcanvas.Title className="text-center align-items-center justify-content-center">
+                  Lista de Músicas
+                </Offcanvas.Title>
               </Offcanvas.Header>
 
               <Offcanvas.Body>
@@ -120,14 +179,14 @@ const Footer = () => {
                       pdf: "/LetraHinos/Eterno Regimento.pdf",
                     },
                     {
-                      nome: "Canção Eterno Regimento",
+                      nome: "Canção Eterno Regimento Vocal",
                       mp3: "/Hinos/Eterno Regimento - Vocal.mp3",
-                      pdf: "/letras/musica2.pdf",
+                      pdf: "/LetraHinos/Eterno Regimento.pdf",
                     },
                     {
                       nome: "Canção Da Cavalaria",
-                      mp3: "/musicas/musica3.mp3",
-                      pdf: "/letras/musica3.pdf",
+                      mp3: "/Hinos/Canção da Cavalaria.mp3",
+                      pdf: "/LetraHinos/cancao da cavalaria.pdf",
                     },
                     {
                       nome: "Hino Nacional Brasileiro",
@@ -136,26 +195,35 @@ const Footer = () => {
                     },
                     {
                       nome: "Incorporação da Bandeira",
-                      mp3: "/musicas/musica5.mp3",
-                      pdf: "/letras/musica5.pdf",
+                      mp3: "/Hinos/Música da Incorporação da Bandeira.mp3",
                     },
                     {
-                      nome: "9 de Julho",
-                      mp3: "/musicas/musica6.mp3",
-                      pdf: "/letras/musica6.pdf",
+                      nome: "Paris Belfort (9 de Julho)",
+                      mp3: "/Hinos/Paris Belfort (9 de Julho) - Vocal.mp3",
+                      pdf: "/LetraHinos/9 de julho - paris belfort.pdf",
                     },
                     {
                       nome: "Canção da Policia Militar",
-                      mp3: "/musicas/musica7.mp3",
-                      pdf: "/letras/musica7.pdf",
+                      mp3: "/Hinos/Canção da Polícia Militar - Vocal.mp3",
+                      pdf: "/LetraHinos/cancao da pm.pdf",
                     },
                     {
                       nome: "Canção Escola Superior de Soldados",
-                      mp3: "/musicas/musica8.mp3",
-                      pdf: "/letras/musica8.pdf",
+                      mp3: "/Hinos/cancao_essd.mp3",
+                      pdf: "/LetraHinos/escola superior de soldados.pdf",
+                    },
+                    {
+                      nome: "Canção Soldados, a Cavalaria",
+                      mp3: "/Hinos/cancao_essd.mp3",
+                      pdf: "/LetraHinos/Soldados a cavalaria.pdf",
+                    },
+                    {
+                      nome: "Canção do Patrulheiro",
+                      mp3: "/Hinos/Canção do Patrulheiro - Vocal.mp3",
+                      pdf: "/LetraHinos/cancao do patrulheiro.pdf",
                     },
                   ].map((musica, i) => (
-                    <div key={i} className="col-md-3 col-sm-6 mb-3">
+                    <div key={i} className="col-md-3 col-sm-6 mb-3 p-2 ">
                       <div className="d-flex flex-column align-items-center">
                         <span className="mb-2">{musica.nome}</span>
                         <div className="d-flex gap-3">
@@ -175,7 +243,7 @@ const Footer = () => {
           </Col>
 
           {/* Coluna Pesquisa Escala */}
-          <Col md={4} className="mb-4">
+          <Col md={3} className="mb-4">
             <h5 className="text-warning mb-3 text-center">Pesquisar Escala</h5>
             <Form
               onSubmit={handleSearch}
