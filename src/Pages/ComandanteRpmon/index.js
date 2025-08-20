@@ -14,7 +14,7 @@ const ComandantesRpmon = () => {
     </h2>
     <div class="row">
       <div class="col-md-5 col-12 mb-4">
-        <h3 class="text-dark">Ten. Cel. André Frisene</h3>
+        <h3 class="text-dark">Ten. Cel. André Frisenes</h3>
         <a href='/comandante'>
           <img src={CelDaCruz} alt="Foto do Comandante" class="pt-1 w-100 fixed-image rounded-3" />
         </a>
