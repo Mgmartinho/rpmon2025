@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import logoRpmon from "../../Imagens/LOGORPMON.png";
 import logoPMESP from "../../Imagens/Logo-PM.png";
 import "./style.css";
+import { FaFacebook, FaYoutube, FaInstagram } from "react-icons/fa";
 
 const Header2 = () => {
   return (

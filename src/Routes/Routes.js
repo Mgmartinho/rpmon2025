@@ -5,11 +5,7 @@ import NossaHistoria from "../Pages/nossaHistoria";
 import EternosComandantes from "../Pages/EternosComandantes";
 import ComandantesRpmon from "../Pages/ComandanteRpmon";
 import NotFound from "../Pages/404"; // importe sua página 404 corretamente
-import {Routes, Route,} from "react-router-dom"
-import Home from '../Pages/Home'
-import NossaHistoria from '../Pages/nossaHistoria'
-import EternosComandantes from "../Pages/EternosComandantes"
-import ComandantesRpmon from "../Pages/ComandanteRpmon"
+
 const MainRoutes = () => {
   return (
     <Routes>
