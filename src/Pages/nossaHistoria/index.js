@@ -1,9 +1,9 @@
 import React from "react";
 import { Container, Row, Col, Card, ListGroup } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
+import { FaFilePdf } from "react-icons/fa";
 
-import quartelDaLuz from "../../Imagens/nossaHistoria/historia2.jpg"
-
+import quartelDaLuz from "../../Imagens/nossaHistoria/historia2.jpg";
 const DestaqueTimeline = ({ itens }) => (
   <Card className="shadow-sm mb-4">
     <Card.Header className="fw-bold">Linha do tempo (resumo)</Card.Header>
@@ -39,6 +39,24 @@ const DestaqueCitacao = ({ texto, autor, cargo }) => (
           {autor} <cite className="text-muted">— {cargo}</cite>
         </footer>
       </blockquote>
+    </Card.Body>
+  </Card>
+);
+
+const DestaqueLivro = ({ titulo, resumo, autor, linkPdf }) => (
+  <Card className="shadow-sm mb-4">
+    <Card.Body>
+      <h5 className="mb-2">{titulo}</h5>
+      <p className="text-muted mb-2">{resumo}</p>
+      <footer className="blockquote-footer mb-3">{autor}</footer>
+      <a
+        href={linkPdf}
+        download
+        className="btn btn-danger"
+      >
+        <FaFilePdf className="me-2" />
+        Baixar PDF
+      </a>
     </Card.Body>
   </Card>
 );
@@ -93,9 +111,9 @@ const nossaHistoria = () => {
             <h3 className="mt-4">Origens (1831–1891)</h3>
             <p className="dropcap">
               Em 1831, nasce o embrião que daria origem a uma tradição de
-              disciplina, serviço e pertencimento. Entre improvisos e
-              desafios, as primeiras missões moldaram o caráter da tropa e
-              aproximaram a instituição da população que jurou proteger.
+              disciplina, serviço e pertencimento. Entre improvisos e desafios,
+              as primeiras missões moldaram o caráter da tropa e aproximaram a
+              instituição da população que jurou proteger.
             </p>
             <p>
               As primeiras décadas consolidaram práticas, símbolos e ofícios.
@@ -105,17 +123,17 @@ const nossaHistoria = () => {
 
             <h3 className="mt-5">Afirmação (1892–1931)</h3>
             <p>
-              O fim do século XIX e o início do XX marcaram uma fase de
-              expansão e organização. A criação do Corpo de Cavalaria elevou o
-              padrão operacional, e novos regulamentos trouxeram uniformidade
-              e eficiência às atividades diárias.
+              O fim do século XIX e o início do XX marcaram uma fase de expansão
+              e organização. A criação do Corpo de Cavalaria elevou o padrão
+              operacional, e novos regulamentos trouxeram uniformidade e
+              eficiência às atividades diárias.
             </p>
 
             <h3 className="mt-5">Modernização (1906–1924)</h3>
             <p>
               Com a Missão Francesa, técnicas, doutrina e treinamento foram
-              atualizados. A profissionalização saltou de patamar, com ênfase
-              em instrução, tática e padronização — legado que ecoa até hoje.
+              atualizados. A profissionalização saltou de patamar, com ênfase em
+              instrução, tática e padronização — legado que ecoa até hoje.
             </p>
 
             <h3 className="mt-5">Protagonismo cívico (1932)</h3>
@@ -151,6 +169,20 @@ const nossaHistoria = () => {
               texto="A história que honramos é a mesma que nos inspira a servir melhor."
               autor="Cel. J. M. Silva"
               cargo="Comandante (gestão 19XX–19XX)"
+            />
+
+            <DestaqueCitacao
+              texto="Conheça nossa trajetória e fortaleça seu pertencimento."
+              autor="Cel. J. M. Silva"
+              cargo="Livro RC"
+              FaFilePdf
+            />
+
+            <DestaqueLivro
+              titulo="9 de Julho - Paris Belfort"
+              resumo="Um relato histórico sobre a participação do Regimento na campanha..."
+              autor="Autor Desconhecido"
+              linkPdf="/LetraHinos/9 de julho - paris belfort.pdf"
             />
           </div>
         </Col>
