@@ -1,6 +1,6 @@
 import React from 'react'
 import './styles.css'
-import CelDaCruz from "../../Imagens/comandante/dacruz.png"
+import CelFrisene from "../../Imagens/comandante/CelFrisene.jpg"
 
 const ComandantesRpmon = () => {
   return (
@@ -15,8 +15,8 @@ const ComandantesRpmon = () => {
     <div class="row">
       <div class="col-md-5 col-12 mb-4">
         <a href='/comandante' className='text-decoration-none'>
-          <h3 class="text-dark">Ten. Cel. Clodoaldo Donizete da Cruz</h3>
-          <img src={CelDaCruz} alt="Foto do Comandante" class="pt-1 w-100 fixed-image rounded-3" />
+          <h3 class="text-dark">Ten. Cel. André Frisene</h3>
+          <img src={CelFrisene} alt="Foto do Comandante" class="pt-1 w-100 fixed-image rounded-3" />
         </a>
         
       </div>

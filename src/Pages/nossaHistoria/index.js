@@ -179,9 +179,9 @@ const nossaHistoria = () => {
             />
 
             <DestaqueLivro
-              titulo="9 de Julho - Paris Belfort"
-              resumo="Um relato histórico sobre a participação do Regimento na campanha..."
-              autor="Autor Desconhecido"
+              titulo='Regimento de Cavalaria - "9 de Julho" '
+              resumo="Um relato histórico sobre a participação do Regimento na história do Brasil..."
+              autor="Cel PM Ricardo Andrioli"
               linkPdf="/LetraHinos/9 de julho - paris belfort.pdf"
             />
           </div>
