@@ -8,6 +8,9 @@
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^13.5.0",
     "bootstrap": "^5.3.6",
+    "file-saver": "^2.0.5",
+    "jspdf": "^3.0.4",
+    "jspdf-autotable": "^5.0.2",
     "react": "^19.1.0",
     "react-bootstrap": "^2.10.10",
     "react-dom": "^19.1.0",
@@ -15,7 +18,9 @@
     "react-inlinesvg": "^4.2.0",
     "react-router-dom": "^7.6.0",
     "react-scripts": "5.0.1",
-    "web-vitals": "^2.1.4"
+    "recharts": "^3.5.1",
+    "web-vitals": "^2.1.4",
+    "xlsx": "^0.18.5"
   },
   "scripts": {
     "start": "react-scripts start",
