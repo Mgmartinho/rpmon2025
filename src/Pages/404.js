@@ -20,7 +20,7 @@ const NotFound = () => {
           <h1 className="display-4">404</h1>
           <p className="lead">Ops! A página que você procura não existe.</p>
           <Button variant="primary" onClick={() => navigate('/')}>
-            Voltar para a Home
+            Voltar para a pagina inicial
           </Button>
         </Col>
       </Row>
