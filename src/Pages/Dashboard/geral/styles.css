@@ -1,0 +1,49 @@
+Fundo geral
+.dashboard-wrapper {
+  min-height: 100vh;
+  background: #f4f7fc;
+}
+
+/* Barra lateral */
+.sidebar-dashboard {
+  background: #212529; /* Azul escuro padrão PMESP */
+  height: 100vh;
+  border-right: 3px solid #ffd700; /* detalhe dourado */
+  color: white;
+}
+
+/* Título do menu */
+.sidebar-header {
+  background: #212529;
+  border-bottom: 2px solid #ffd700;
+}
+
+.text-gold {
+  color: #ffd700 !important;
+}
+
+/* Links do menu */
+.menu-links .menu-link {
+  color: #e0e6ff;
+  padding: 12px 14px;
+  margin-bottom: 6px;
+  border-radius: 6px;
+  display: block;
+  font-size: 1.05rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.menu-links .menu-link:hover {
+  background: #0055b8;
+  color: #fff;
+  padding-left: 18px;
+}
+
+/* Conteúdo */
+.conteudo-dashboard {
+  background: #f7faff;
+}
+
+

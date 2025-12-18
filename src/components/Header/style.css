@@ -1,0 +1,14 @@
+
+
+.shadowHeader{
+        background-color: #121212;
+        box-Shadow: 0 20px 30px rgba(0, 0, 0, 0.7);
+        /* position: sticky; */
+        top: 0;
+        z-Index: 1030;
+        padding-Bottom: 1rem;
+}
+
+.bgFooter{
+        background-color: #121212;
+}

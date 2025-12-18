@@ -1,0 +1,58 @@
+.dashboard-header {
+  height: 56px;
+  border-bottom: 1px solid #222;
+}
+
+.dashboard-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+}
+
+/* ESQUERDA */
+.dashboard-left {
+  display: flex;
+  align-items: center;
+  color: #cfa84a;
+  font-size: 1.5rem;
+}
+
+/* CENTRO */
+.dashboard-nav {
+  display: flex;
+  gap: 1.2rem;
+}
+
+.dashboard-nav .nav-link {
+  color: #aaa;
+  font-size: 1.3rem;
+  padding: 0.4rem;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.dashboard-nav .nav-link:hover {
+  background-color: #222;
+  color: #fff;
+}
+
+.dashboard-nav .nav-link.active {
+  background-color: #cfa84a;
+  color: #000;
+}
+
+/* DIREITA */
+.dashboard-right {
+  display: flex;
+  align-items: center;
+}
+
+.dashboard-right .nav-link {
+  color: #aaa;
+  font-size: 1.3rem;
+}
+
+.dashboard-right .nav-link:hover {
+  color: #fff;
+}

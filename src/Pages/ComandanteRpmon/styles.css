@@ -1,0 +1,43 @@
+ .fixed-page {
+   width: auto;
+   max-width: 1200px;
+   height: auto;
+   margin: 0 auto;
+   padding: 20px;
+ }
+
+ /* .fixed-image {
+      width: 100%;
+      height: auto;
+      max-height: 500px;
+      object-fit: cover;
+    } */
+
+ .fixed-image {
+   width: 100%;
+   height: 500px;
+   object-fit: cover;
+   object-position: center 9%;
+   /* ajusta o foco da imagem */
+ }
+
+
+
+ .overflow-custom {
+   max-height: 700px;
+   overflow-y: auto;
+   scrollbar-width: thin;
+ }
+
+ .overflow-custom::-webkit-scrollbar {
+   width: 8px;
+ }
+
+ .overflow-custom::-webkit-scrollbar-thumb {
+   background-color: #343a40;
+   border-radius: 10px;
+ }
+
+ .overflow-custom::-webkit-scrollbar-track {
+   background-color: #f8f9fa;
+ }
