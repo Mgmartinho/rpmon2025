@@ -7,8 +7,12 @@ import {
   InputGroup,
   FormControl,
 } from "react-bootstrap";
-import { FaClock } from "react-icons/fa";
+import { FaClock, FaFileExcel, FaFilePdf } from "react-icons/fa";
 import axios from "axios";
+
+import * as XLSX from "xlsx";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 
 const AdminCargaHoraria = () => {
   const [dados, setDados] = useState([]);
@@ -26,6 +30,10 @@ const AdminCargaHoraria = () => {
   const [historico, setHistorico] = useState([]);
   const [historicoNumero, setHistoricoNumero] = useState(null);
 
+  // Filtros
+  const [filtroEsqd, setFiltroEsqd] = useState("Todos");
+  const [filtroNome, setFiltroNome] = useState("");
+
   useEffect(() => {
     fetchDados();
   }, []);
@@ -38,6 +46,12 @@ const AdminCargaHoraria = () => {
       console.error("Erro ao buscar dados:", err);
     }
   };
+
+  const filtrados = dados.filter(
+    (d) =>
+      (filtroEsqd === "Todos" || d.esquadrao === filtroEsqd) &&
+      d.nome.toLowerCase().includes(filtroNome.toLowerCase())
+  );
 
   const handleSelecionar = (numero) => {
     setSelecionados((prev) =>
@@ -63,7 +77,10 @@ const AdminCargaHoraria = () => {
       setDados((prevDados) =>
         prevDados.map((item) =>
           selecionados.includes(item.numero)
-            ? { ...item, cargaHoraria: (item.cargaHoraria || 0) + Number(horasAdicionar) }
+            ? {
+                ...item,
+                cargaHoraria: (item.cargaHoraria || 0) + Number(horasAdicionar),
+              }
             : item
         )
       );
@@ -85,8 +102,9 @@ const AdminCargaHoraria = () => {
 
   const abrirHistorico = async (numero) => {
     try {
-      // 🚀 Chamada correta para histórico completo
-      const response = await axios.get(`http://localhost:3000/solipedes/${numero}/historico`);
+      const response = await axios.get(
+        `http://localhost:3000/solipedes/${numero}/historico`
+      );
       setHistorico(response.data);
       setHistoricoNumero(numero);
       setShowHistorico(true);
@@ -98,39 +116,85 @@ const AdminCargaHoraria = () => {
     }
   };
 
-const atualizarHora = async (id, novasHoras) => {
-  try {
-    const response = await axios.put(`http://localhost:3000/historicoHoras/${id}`, {
-      horas: Number(novasHoras),
-    });
+  const atualizarHora = async (id, novasHoras) => {
+    try {
+      const response = await axios.put(
+        `http://localhost:3000/historicoHoras/${id}`,
+        {
+          horas: Number(novasHoras),
+        }
+      );
 
-    const totalHorasAtualizado = response.data.totalHoras;
+      const totalHorasAtualizado = response.data.totalHoras;
 
-    // Atualiza histórico local
-    setHistorico((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, horas: Number(novasHoras) } : item
-      )
+      setHistorico((prev) =>
+        prev.map((item) =>
+          item.id === id ? { ...item, horas: Number(novasHoras) } : item
+        )
+      );
+
+      setDados((prevDados) =>
+        prevDados.map((item) =>
+          item.numero === historicoNumero
+            ? { ...item, cargaHoraria: totalHorasAtualizado }
+            : item
+        )
+      );
+
+      setFeedbackMessage("Histórico atualizado com sucesso!");
+      setFeedbackSuccess(true);
+      setShowFeedback(true);
+    } catch (err) {
+      console.error("Erro ao atualizar histórico:", err);
+      setFeedbackMessage("Erro ao atualizar histórico!");
+      setFeedbackSuccess(false);
+      setShowFeedback(true);
+    }
+  };
+
+  // ===== EXPORTAÇÃO =====
+  const exportExcel = () => {
+    const ws = XLSX.utils.json_to_sheet(
+      filtrados.map(({ numero, nome, esquadrao, cargaHoraria }) => ({
+        Número: numero,
+        Nome: nome,
+        Esquadrão: esquadrao,
+        "Carga Horária": cargaHoraria || 0,
+      }))
     );
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "CargaHoraria");
+    XLSX.writeFile(wb, "CargaHoraria.xlsx");
+  };
 
-    // Atualiza tabela principal
-    setDados((prevDados) =>
-      prevDados.map((item) =>
-        item.numero === historicoNumero
-          ? { ...item, cargaHoraria: totalHorasAtualizado }
-          : item
-      )
-    );
+const exportPDF = () => {
+  const doc = new jsPDF();
+  doc.setFontSize(16);
+  doc.text("Administração de Carga Horária", 14, 20);
 
-    setFeedbackMessage("Histórico atualizado com sucesso!");
-    setFeedbackSuccess(true);
-    setShowFeedback(true);
-  } catch (err) {
-    console.error("Erro ao atualizar histórico:", err);
-    setFeedbackMessage("Erro ao atualizar histórico!");
-    setFeedbackSuccess(false);
-    setShowFeedback(true);
-  }
+  const tableColumn = ["Número", "Nome", "Esquadrão", "Carga Horária"];
+  const tableRows = filtrados.map(
+    ({ numero, nome, esquadrao, cargaHoraria }) => [
+      numero,
+      nome,
+      esquadrao,
+      cargaHoraria || 0,
+    ]
+  );
+
+  doc.autoTable({
+    startY: 30,
+    head: [tableColumn],
+    body: tableRows,
+    theme: "grid",
+    headStyles: { fillColor: [0, 123, 255], textColor: 255 }, // azul bootstrap
+    styles: { fontSize: 10, halign: "center" },
+    columnStyles: {
+      1: { halign: "left" }, // Nome alinhado à esquerda
+    },
+  });
+
+  doc.save("CargaHoraria.pdf");
 };
 
 
@@ -141,14 +205,43 @@ const atualizarHora = async (id, novasHoras) => {
           Administração de Carga Horária
         </h3>
 
-        <div className="d-flex justify-content-end mb-2">
-          <Button variant="primary" onClick={() => setShowModal(true)}>
-            Adicionar Carga Horária
+        {/* ===== FILTROS e EXPORTAÇÃO ===== */}
+        <div className="d-flex mb-2 gap-2">
+          <Form.Select
+            value={filtroEsqd}
+            onChange={(e) => setFiltroEsqd(e.target.value)}
+          >
+            <option value="Todos">Todos os Esquadrões</option>
+            <option value="1 Esquadrao">1º Esqd</option>
+            <option value="2 Esquadrao">2º Esqd</option>
+            <option value="3 Esquadrao">3º Esqd</option>
+            <option value="4 Esquadrao">4º Esqd</option>
+            <option value="Equoterapia">Equoterapia</option>
+            <option value="Representacao">Representação</option>
+          </Form.Select>
+
+          <FormControl
+            placeholder="Pesquisar por nome"
+            value={filtroNome}
+            onChange={(e) => setFiltroNome(e.target.value)}
+          />
+
+          <Button variant="success" onClick={exportExcel}>
+            <FaFileExcel className="me-1" /> Excel
+          </Button>
+          <Button variant="danger" onClick={exportPDF}>
+            <FaFilePdf className="me-1" /> PDF
           </Button>
         </div>
 
+        {/* ===== TABELA PRINCIPAL ===== */}
         <div className="table-responsive shadow-sm rounded">
-          <Table striped hover bordered className="mb-4 align-middle text-center">
+          <Table
+            striped
+            hover
+            bordered
+            className="mb-4 align-middle text-center"
+          >
             <thead className="table-primary">
               <tr>
                 <th>Número</th>
@@ -159,7 +252,7 @@ const atualizarHora = async (id, novasHoras) => {
               </tr>
             </thead>
             <tbody>
-              {dados.map((item) => (
+              {filtrados.map((item) => (
                 <tr key={item.numero}>
                   <td>{item.numero}</td>
                   <td className="text-start">{item.nome}</td>
@@ -179,8 +272,14 @@ const atualizarHora = async (id, novasHoras) => {
           </Table>
         </div>
 
+        {/* ===== MODAIS ===== */}
         {/* Modal de adicionar horas */}
-        <Modal show={showModal} onHide={() => setShowModal(false)} size="lg" centered>
+        <Modal
+          show={showModal}
+          onHide={() => setShowModal(false)}
+          size="lg"
+          centered
+        >
           <Modal.Header closeButton>
             <Modal.Title>Adicionar Carga Horária</Modal.Title>
           </Modal.Header>
@@ -196,7 +295,12 @@ const atualizarHora = async (id, novasHoras) => {
             </InputGroup>
 
             <div className="table-responsive">
-              <Table striped hover bordered className="align-middle text-center">
+              <Table
+                striped
+                hover
+                bordered
+                className="align-middle text-center"
+              >
                 <thead className="table-secondary">
                   <tr>
                     <th>Selecionar</th>
@@ -241,7 +345,12 @@ const atualizarHora = async (id, novasHoras) => {
         </Modal>
 
         {/* Modal de histórico */}
-        <Modal show={showHistorico} onHide={() => setShowHistorico(false)} size="lg" centered>
+        <Modal
+          show={showHistorico}
+          onHide={() => setShowHistorico(false)}
+          size="lg"
+          centered
+        >
           <Modal.Header closeButton>
             <Modal.Title>
               Carga Horária - Individual {historicoNumero}
@@ -262,7 +371,7 @@ const atualizarHora = async (id, novasHoras) => {
                     <td>
                       {new Date(item.dataLancamento).toLocaleString()}
                       <br />
-                      <small >Atualizado por:</small>
+                      <small>Atualizado por:</small>
                     </td>
                     <td>
                       <FormControl
@@ -272,7 +381,9 @@ const atualizarHora = async (id, novasHoras) => {
                           const novasHoras = e.target.value;
                           setHistorico((prev) =>
                             prev.map((h) =>
-                              h.id === item.id ? { ...h, horas: Number(novasHoras) } : h
+                              h.id === item.id
+                                ? { ...h, horas: Number(novasHoras) }
+                                : h
                             )
                           );
                         }}
@@ -300,7 +411,11 @@ const atualizarHora = async (id, novasHoras) => {
         </Modal>
 
         {/* Modal de feedback */}
-        <Modal show={showFeedback} onHide={() => setShowFeedback(false)} centered>
+        <Modal
+          show={showFeedback}
+          onHide={() => setShowFeedback(false)}
+          centered
+        >
           <Modal.Header closeButton>
             <Modal.Title>{feedbackSuccess ? "Sucesso" : "Erro"}</Modal.Title>
           </Modal.Header>
