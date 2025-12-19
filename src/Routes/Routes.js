@@ -20,6 +20,8 @@ import CadastrarSolipede from "../Pages/Dashboard/gestaoFVR/cadastrarSolipede";
 import EditarSolipede from "../Pages/Dashboard/gestaoFVR/editarSolipede";
 import ProntuarioSolipede from "../Pages/Dashboard/gestaoFVR/pronturario";
 import CriarUsuario from "../Pages/Dashboard/usuarios/CriarUsuario";
+import ProntuarioSolipedeEdit from "../Pages/Dashboard/gestaoFVR/pronturarioEdit";
+
 const MainRoutes = () => {
   return (
     <Routes>
@@ -42,6 +44,7 @@ const MainRoutes = () => {
         <Route path="gestaofvr/taskcreatepage" element={<TaskCreatePage />} />
         <Route path="gestaofvr/solipede/create" element={<CadastrarSolipede />} />
         <Route path="gestaofvr/solipede/prontuario" element={<ProntuarioSolipede />} />
+        <Route path="gestaofvr/solipede/prontuario/edit/:numero" element={<ProntuarioSolipedeEdit />} />
 
         <Route
           path="gestaofvr/solipede/edit/:numero"

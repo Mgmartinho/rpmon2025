@@ -10,9 +10,14 @@ import {
 import { FaClock, FaFileExcel, FaFilePdf } from "react-icons/fa";
 import axios from "axios";
 
+import { OverlayTrigger, Tooltip } from "react-bootstrap";
+import { FaInfoCircle } from "react-icons/fa";
+
+
 import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
+import autoTable from "jspdf-autotable";
 
 const AdminCargaHoraria = () => {
   const [dados, setDados] = useState([]);
@@ -47,10 +52,10 @@ const AdminCargaHoraria = () => {
     }
   };
 
-  const filtrados = dados.filter(
+  const solipedesFiltrados = dados.filter(
     (d) =>
       (filtroEsqd === "Todos" || d.esquadrao === filtroEsqd) &&
-      d.nome.toLowerCase().includes(filtroNome.toLowerCase())
+      (d.nome || "").toLowerCase().includes(filtroNome.toLowerCase())
   );
 
   const handleSelecionar = (numero) => {
@@ -61,152 +66,127 @@ const AdminCargaHoraria = () => {
     );
   };
 
-  const aplicarHoras = async () => {
-    if (!selecionados.length || horasAdicionar <= 0) return;
+const aplicarHoras = async () => {
+  if (!selecionados.length || horasAdicionar <= 0) return;
 
-    try {
-      await Promise.all(
-        selecionados.map((numero) =>
-          axios.post(`http://localhost:3000/solipedes/adicionarHoras`, {
-            numero,
-            horas: Number(horasAdicionar),
-          })
-        )
-      );
-
-      setDados((prevDados) =>
-        prevDados.map((item) =>
-          selecionados.includes(item.numero)
-            ? {
-                ...item,
-                cargaHoraria: (item.cargaHoraria || 0) + Number(horasAdicionar),
-              }
-            : item
-        )
-      );
-
-      setFeedbackMessage("Horas aplicadas com sucesso!");
-      setFeedbackSuccess(true);
-      setShowFeedback(true);
-
-      setShowModal(false);
-      setSelecionados([]);
-      setHorasAdicionar(0);
-    } catch (err) {
-      console.error("Erro ao aplicar horas:", err);
-      setFeedbackMessage("Erro ao aplicar horas. Tente novamente.");
-      setFeedbackSuccess(false);
-      setShowFeedback(true);
-    }
-  };
-
-  const abrirHistorico = async (numero) => {
-    try {
-      const response = await axios.get(
-        `http://localhost:3000/solipedes/${numero}/historico`
-      );
-      setHistorico(response.data);
-      setHistoricoNumero(numero);
-      setShowHistorico(true);
-    } catch (err) {
-      console.error("Erro ao buscar histórico:", err);
-      setFeedbackMessage("Erro ao buscar histórico");
-      setFeedbackSuccess(false);
-      setShowFeedback(true);
-    }
-  };
-
-  const atualizarHora = async (id, novasHoras) => {
-    try {
-      const response = await axios.put(
-        `http://localhost:3000/historicoHoras/${id}`,
-        {
-          horas: Number(novasHoras),
-        }
-      );
-
-      const totalHorasAtualizado = response.data.totalHoras;
-
-      setHistorico((prev) =>
-        prev.map((item) =>
-          item.id === id ? { ...item, horas: Number(novasHoras) } : item
-        )
-      );
-
-      setDados((prevDados) =>
-        prevDados.map((item) =>
-          item.numero === historicoNumero
-            ? { ...item, cargaHoraria: totalHorasAtualizado }
-            : item
-        )
-      );
-
-      setFeedbackMessage("Histórico atualizado com sucesso!");
-      setFeedbackSuccess(true);
-      setShowFeedback(true);
-    } catch (err) {
-      console.error("Erro ao atualizar histórico:", err);
-      setFeedbackMessage("Erro ao atualizar histórico!");
-      setFeedbackSuccess(false);
-      setShowFeedback(true);
-    }
-  };
-
-  // ===== EXPORTAÇÃO =====
-  const exportExcel = () => {
-    const ws = XLSX.utils.json_to_sheet(
-      filtrados.map(({ numero, nome, esquadrao, cargaHoraria }) => ({
-        Número: numero,
-        Nome: nome,
-        Esquadrão: esquadrao,
-        "Carga Horária": cargaHoraria || 0,
-      }))
+  try {
+    await Promise.all(
+      selecionados.map((numero) =>
+        axios.post(`http://localhost:3000/solipedes/adicionarHoras`, {
+          numero,
+          horas: Number(horasAdicionar),
+        })
+      )
     );
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "CargaHoraria");
-    XLSX.writeFile(wb, "CargaHoraria.xlsx");
-  };
 
-const exportPDF = () => {
-  const doc = new jsPDF();
-  doc.setFontSize(16);
-  doc.text("Administração de Carga Horária", 14, 20);
+    // 🔄 FORÇA SINCRONIZAÇÃO COM O BACKEND
+    await fetchDados();
 
-  const tableColumn = ["Número", "Nome", "Esquadrão", "Carga Horária"];
-  const tableRows = filtrados.map(
-    ({ numero, nome, esquadrao, cargaHoraria }) => [
-      numero,
-      nome,
-      esquadrao,
-      cargaHoraria || 0,
-    ]
-  );
+    setFeedbackMessage("Horas aplicadas com sucesso!");
+    setFeedbackSuccess(true);
+    setShowFeedback(true);
 
-  doc.autoTable({
-    startY: 30,
-    head: [tableColumn],
-    body: tableRows,
-    theme: "grid",
-    headStyles: { fillColor: [0, 123, 255], textColor: 255 }, // azul bootstrap
-    styles: { fontSize: 10, halign: "center" },
-    columnStyles: {
-      1: { halign: "left" }, // Nome alinhado à esquerda
-    },
-  });
-
-  doc.save("CargaHoraria.pdf");
+    setShowModal(false);
+    setSelecionados([]);
+    setHorasAdicionar(0);
+  } catch (err) {
+    console.error("Erro ao aplicar horas:", err);
+    setFeedbackMessage("Erro ao aplicar horas. Tente novamente.");
+    setFeedbackSuccess(false);
+    setShowFeedback(true);
+  }
 };
 
 
+const abrirHistorico = async (numero) => {
+  try {
+    const response = await axios.get(
+      `http://localhost:3000/solipedes/historico/${numero}`
+    );
+    setHistorico(response.data);
+    setHistoricoNumero(numero);
+    setShowHistorico(true);
+  } catch (err) {
+    console.error("Erro ao buscar histórico:", err);
+    setFeedbackMessage("Erro ao buscar histórico");
+    setFeedbackSuccess(false);
+    setShowFeedback(true);
+  }
+};
+
+
+
+
+const atualizarHora = async (id, novasHoras) => {
+  try {
+    await axios.put(
+      `http://localhost:3000/historicoHoras/${id}`,
+      { horas: Number(novasHoras) }
+    );
+
+    await abrirHistorico(historicoNumero);
+    await fetchDados();
+
+    setFeedbackMessage("Histórico atualizado com sucesso!");
+    setFeedbackSuccess(true);
+    setShowFeedback(true);
+  } catch (err) {
+    console.error("Erro ao atualizar histórico:", err);
+    setFeedbackMessage("Erro ao atualizar histórico!");
+    setFeedbackSuccess(false);
+    setShowFeedback(true);
+  }
+};
+
+  const exportExcel = () => {
+    const dadosExportacao = solipedesFiltrados.map((item) => ({
+      Numero: item.numero,
+      Nome: item.nome,
+      Esquadrao: item.esquadrao,
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(dadosExportacao);
+    const workbook = XLSX.utils.book_new();
+
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Solipedes");
+
+    XLSX.writeFile(workbook, "solipedes_fvr.xlsx");
+  };
+
+  const exportPDF = () => {
+    const doc = new jsPDF("landscape");
+
+    doc.setFontSize(14);
+    doc.text("Administração de Carga Horária", 14, 15);
+
+    const tableColumn = ["Número", "Nome", "Esquadrão", "Carga Horária"];
+
+    const tableRows = solipedesFiltrados.map((item) => [
+      item.numero,
+      item.nome,
+      item.esquadrao,
+      item.cargaHoraria || 0,
+    ]);
+
+    autoTable(doc, {
+      head: [tableColumn],
+      body: tableRows,
+      startY: 25,
+      styles: { fontSize: 9 },
+      headStyles: {
+        fillColor: [220, 220, 220],
+        textColor: 20,
+      },
+    });
+
+    doc.save("carga_horaria_solipedes.pdf");
+  };
+
   return (
     <div className="justify-content-center mt-4">
-      <div className="p-4 bg-light rounded shadow-sm">
-        <h3 className="mb-4 text-center text-primary fw-bold">
-          Administração de Carga Horária
-        </h3>
-
-        {/* ===== FILTROS e EXPORTAÇÃO ===== */}
-        <div className="d-flex mb-2 gap-2">
+      {/* ===== FILTROS e EXPORTAÇÃO ===== */}
+      <div className="d-flex mb-2 gap-2 align-items-center justify-content-between">
+        <div className="d-flex gap-2">
           <Form.Select
             value={filtroEsqd}
             onChange={(e) => setFiltroEsqd(e.target.value)}
@@ -225,15 +205,38 @@ const exportPDF = () => {
             value={filtroNome}
             onChange={(e) => setFiltroNome(e.target.value)}
           />
+        </div>
 
-          <Button variant="success" onClick={exportExcel}>
+        <div className="d-flex gap-2">
+          {/* Botão de lançar carga horária */}
+          <Button variant="primary" onClick={() => setShowModal(true)}>
+            <FaClock className="me-1" /> Lançar Carga Horária
+          </Button>
+
+          {/* Ícones de exportação */}
+          <Button
+            style={{
+              backgroundColor: "transparent",
+              color: "#000",
+              border: "1px solid #000",
+            }}
+            onClick={exportExcel}
+          >
             <FaFileExcel className="me-1" /> Excel
           </Button>
-          <Button variant="danger" onClick={exportPDF}>
+          <Button
+            style={{
+              backgroundColor: "transparent",
+              color: "#000",
+              border: "1px solid #000",
+            }}
+            onClick={exportPDF}
+          >
             <FaFilePdf className="me-1" /> PDF
           </Button>
         </div>
-
+      </div>
+      <div>
         {/* ===== TABELA PRINCIPAL ===== */}
         <div className="table-responsive shadow-sm rounded">
           <Table
@@ -252,7 +255,7 @@ const exportPDF = () => {
               </tr>
             </thead>
             <tbody>
-              {filtrados.map((item) => (
+              {solipedesFiltrados.map((item) => (
                 <tr key={item.numero}>
                   <td>{item.numero}</td>
                   <td className="text-start">{item.nome}</td>
@@ -352,10 +355,26 @@ const exportPDF = () => {
           centered
         >
           <Modal.Header closeButton>
-            <Modal.Title>
-              Carga Horária - Individual {historicoNumero}
-            </Modal.Title>
-          </Modal.Header>
+  <Modal.Title className="d-flex align-items-center gap-2">
+    Carga Horária – Individual {historicoNumero}
+
+    <OverlayTrigger
+      placement="right"
+      overlay={
+        <Tooltip id="tooltip-historico">
+          Aqui você pode editar lançamentos individuais.
+          <br />
+          Ao salvar, a carga horária total é recalculada automaticamente.
+        </Tooltip>
+      }
+    >
+      <span className="text-secondary" style={{ cursor: "pointer" }}>
+        <FaInfoCircle />
+      </span>
+    </OverlayTrigger>
+  </Modal.Title>
+</Modal.Header>
+
           <Modal.Body>
             <Table striped bordered hover className="text-center">
               <thead className="table-secondary">
