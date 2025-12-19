@@ -13,7 +13,7 @@ import {
   LineChart,
   Line,
 } from "recharts";
-import axios from "axios";
+import { api } from "../../../services/api";
 
 const Estatisticas = () => {
   const [dados, setDados] = useState([]);
@@ -23,10 +23,19 @@ const Estatisticas = () => {
   useEffect(() => {
     const fetchDados = async () => {
       try {
-        const res = await axios.get("http://localhost:3000/solipedes");
-        setDados(res.data);
+        const res = await api.listarSolipedesPublico();
+        // Verifica se há erro na resposta
+        if (res && res.error) {
+          console.warn("Erro ao buscar dados:", res.error);
+          setDados([]);
+        } else if (Array.isArray(res)) {
+          setDados(res);
+        } else {
+          setDados([]);
+        }
       } catch (err) {
         console.error("Erro ao buscar dados:", err);
+        setDados([]);
       } finally {
         setLoading(false);
       }

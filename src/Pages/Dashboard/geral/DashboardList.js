@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { Table, Button, Badge } from "react-bootstrap";
 import { BsPencilSquare, BsTrash, BsClockHistory } from "react-icons/bs";
-
-const API_URL = "http://localhost:3000/solipedes";
+import { api } from "../../../services/api";
 
 const DashboardList = () => {
   const [dados, setDados] = useState([]);
@@ -12,17 +11,19 @@ const DashboardList = () => {
   useEffect(() => {
     const carregarDados = async () => {
       try {
-        const response = await fetch(API_URL);
-
-        if (!response.ok) {
-          throw new Error("Erro ao buscar dados da API");
+        const data = await api.listarSolipedesPublico();
+        console.log("DADOS DA API:", data); // 👈 DEBUG
+        if (data && data.error) {
+          console.warn("Erro ao buscar dados:", data.error);
+          setDados([]);
+        } else if (Array.isArray(data)) {
+          setDados(data);
+        } else {
+          setDados([]);
         }
-
-        const data = await response.json();
-        console.log("DADOS DA API:", data); // 👈 DEBUG CORRETO
-        setDados(data);
       } catch (error) {
         console.error("Erro:", error);
+        setDados([]);
       } finally {
         setLoading(false);
       }

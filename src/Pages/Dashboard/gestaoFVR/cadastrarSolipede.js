@@ -1,11 +1,9 @@
 import { useState } from "react";
 import { Container, Card, Row, Col, Form, Button } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
-
-const API_URL = "http://localhost:3000/solipedes";
+import { Link } from "react-router-dom";
+import { api } from "../../../services/api";
 
 const CadastrarSolipede = () => {
-  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     numero: "",
@@ -30,18 +28,14 @@ const CadastrarSolipede = () => {
     e.preventDefault();
 
     try {
-      const response = await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
+      const response = await api.criarSolipede(formData);
 
-      if (!response.ok) {
-        throw new Error("Erro ao cadastrar solípede");
+      if (response.error) {
+        throw new Error(response.error || "Erro ao cadastrar solípede");
       }
 
       alert("Solípede cadastrado com sucesso!");
-      navigate("/dashboard/gestaofvr");
+      window.location.href = "/dashboard/gestaofvr";
     } catch (error) {
       console.error(error);
       alert("Erro ao salvar dados");
@@ -161,12 +155,12 @@ const CadastrarSolipede = () => {
               </Row>
 
               <Col md={6}>
-                <Form.Label>Esquadrão *</Form.Label>
+                <Form.Label>Esquadrão </Form.Label>
                 <Form.Select
                   name="esquadrao"
                   value={formData.esquadrao}
                   onChange={handleChange}
-                  required
+                  
                 >
                   <option value="">Selecione</option>
                   <option value="1 Esquadrao">1º Esquadrão</option>
@@ -258,12 +252,11 @@ const CadastrarSolipede = () => {
 
               {/* AÇÕES */}
               <div className="d-flex justify-content-end gap-2 mt-4">
-                <Button
-                  variant="outline-secondary"
-                  onClick={() => navigate(-1)}
-                >
-                  Cancelar
-                </Button>
+                <Link to="/dashboard/gestaofvr">
+                  <Button variant="outline-secondary">
+                    Cancelar
+                  </Button>
+                </Link>
                 <Button type="submit" variant="primary">
                   Salvar Solípede
                 </Button>

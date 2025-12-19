@@ -1,5 +1,5 @@
-import { NavLink,Link } from "react-router-dom";
-import { useState } from "react";
+import { NavLink, Link } from "react-router-dom";
+import { useState, useEffect } from "react";
 
 import {
   Navbar,
@@ -25,44 +25,82 @@ import {
 } from "react-icons/bs";
 
 import { GiHorseHead } from "react-icons/gi";
+import { api } from "../../services/api";
 
 import "./styles.css";
 
 const HeaderDashboard = () => {
-  const [login, setLogin] = useState(false);
+  const [usuario, setUsuario] = useState(null);
   const [showLogin, setShowLogin] = useState(false);
 
   const [credenciais, setCredenciais] = useState({
-    re: "",
+    email: "",
     senha: "",
   });
+
+  useEffect(() => {
+    // Verifica se há usuário no localStorage quando componente monta
+    const usuarioArmazenado = localStorage.getItem("usuario");
+    if (usuarioArmazenado) {
+      setUsuario(JSON.parse(usuarioArmazenado));
+    }
+
+    // Listener para mudanças no storage (sincroniza entre abas)
+    const handleStorageChange = () => {
+      const usuario = localStorage.getItem("usuario");
+      setUsuario(usuario ? JSON.parse(usuario) : null);
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setCredenciais((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleLogin = () => {
-    console.log("Login:", credenciais);
+  const handleLogin = async () => {
+    try {
+      const data = await api.login(credenciais.email, credenciais.senha);
 
-    // LOGIN SIMULADO
-    setLogin(true);
-    setShowLogin(false);
+      if (data.error) {
+        alert(data.error);
+        return;
+      }
+
+      // Armazena o token e usuário
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("usuario", JSON.stringify(data.usuario));
+
+      setUsuario(data.usuario);
+      setShowLogin(false);
+      setCredenciais({ email: "", senha: "" });
+    } catch (erro) {
+      console.error("Erro:", erro);
+      alert("Erro ao fazer login");
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("usuario");
+    setUsuario(null);
   };
 
   return (
     <>
       {/* NAVBAR */}
       <Navbar bg="dark" variant="dark" className="dashboard-header">
-        <Container fluid className="d-flex align-items-center">
-
-          {/* ESQUERDA */}
-          <div className="dashboard-left d-flex align-items-center">
+        <Container fluid style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", alignItems: "center", gap: "20px" }}>
+          {/* ESQUERDA - LOGO (COLUNA 1) */}
+          <div className="dashboard-left d-flex align-items-center justify-content-start">
             <GiHorseHead size={26} className="text-white" />
           </div>
 
-          {/* CENTRO */}
-          <Nav className="dashboard-nav flex-grow-1 justify-content-center">
+          {/* CENTRO - MENUS (COLUNA 2) */}
+          <Nav className="dashboard-nav d-flex gap-3 justify-content-center">
+            {/* ABAS PÚBLICAS - SEMPRE VISÍVEIS */}
             <OverlayTrigger overlay={<Tooltip>Dashboard</Tooltip>}>
               <Nav.Link as={NavLink} to="/dashboard">
                 <BsHouse />
@@ -81,38 +119,49 @@ const HeaderDashboard = () => {
               </Nav.Link>
             </OverlayTrigger>
 
-            <OverlayTrigger overlay={<Tooltip>Estatísticas</Tooltip>}>
-              <Nav.Link as={NavLink} to="/dashboard/estatisticas">
-                <BsBarChart />
-              </Nav.Link>
-            </OverlayTrigger>
+            {/* ABAS PROTEGIDAS - SÓ MOSTRA SE LOGADO */}
+            {usuario && (
+              <>
+                <OverlayTrigger overlay={<Tooltip>Estatísticas</Tooltip>}>
+                  <Nav.Link as={NavLink} to="/dashboard/estatisticas">
+                    <BsBarChart />
+                  </Nav.Link>
+                </OverlayTrigger>
 
-            <OverlayTrigger overlay={<Tooltip>Gestão FVR</Tooltip>}>
-              <Nav.Link as={NavLink} to="/dashboard/gestaofvr">
-                <GiHorseHead />
-              </Nav.Link>
-            </OverlayTrigger>
+                <OverlayTrigger overlay={<Tooltip>Gestão FVR</Tooltip>}>
+                  <Nav.Link as={NavLink} to="/dashboard/gestaofvr">
+                    <GiHorseHead />
+                  </Nav.Link>
+                </OverlayTrigger>
 
-            <OverlayTrigger overlay={<Tooltip>Nova Tarefa</Tooltip>}>
-              <Nav.Link as={NavLink} to="/dashboard/gestaofvr/taskcreatepage">
-                <BsClipboardPlus />
-              </Nav.Link>
-            </OverlayTrigger>
+                <OverlayTrigger overlay={<Tooltip>Nova Tarefa</Tooltip>}>
+                  <Nav.Link as={NavLink} to="/dashboard/gestaofvr/taskcreatepage">
+                    <BsClipboardPlus />
+                  </Nav.Link>
+                </OverlayTrigger>
+              </>
+            )}
           </Nav>
 
-          {/* DIREITA */}
-          <div className="dashboard-right d-flex align-items-center gap-3">
-            {login ? (
+          {/* DIREITA - USUÁRIO (COLUNA 3) */}
+          <div className="dashboard-right d-flex align-items-center justify-content-end gap-3">
+            {usuario ? (
               <>
                 <div className="d-flex align-items-center gap-2 text-white">
                   <BsPersonCircle size={22} />
-                  <span className="fw-semibold">Usuário</span>
+                  <div className="d-flex flex-column">
+                    <span className="fw-semibold">{usuario.nome}</span>
+                    <small style={{ fontSize: "0.7em", color: "#bbb" }}>
+                      {usuario.perfil}
+                    </small>
+                  </div>
                 </div>
 
                 <span
                   className="d-flex align-items-center text-white"
                   style={{ cursor: "pointer" }}
-                  onClick={() => setLogin(false)}
+                  onClick={handleLogout}
+                  title="Logout"
                 >
                   <BsBoxArrowRight size={20} />
                 </span>
@@ -122,13 +171,13 @@ const HeaderDashboard = () => {
                 className="d-flex align-items-center gap-2 text-white"
                 style={{ cursor: "pointer" }}
                 onClick={() => setShowLogin(true)}
+                title="Login"
               >
                 <BsPerson size={22} />
                 <BsBoxArrowInRight size={18} />
               </span>
             )}
           </div>
-
         </Container>
       </Navbar>
 
@@ -141,12 +190,13 @@ const HeaderDashboard = () => {
         <Modal.Body>
           <Form>
             <Form.Group className="mb-3">
-              <Form.Label>RE / Registro</Form.Label>
+              <Form.Label>E-mail</Form.Label>
               <Form.Control
-                name="re"
-                value={credenciais.re}
+                name="email"
+                type="email"
+                value={credenciais.email}
                 onChange={handleChange}
-                placeholder="Digite seu RE"
+                placeholder="Digite seu email"
               />
             </Form.Group>
 
@@ -165,13 +215,13 @@ const HeaderDashboard = () => {
 
         <Modal.Footer className="d-flex justify-content-between">
           <Link to="/dashboard/criarusuario">
-          <Button
-            variant="outline-secondary"
-            onClick={() => console.log("Ir para cadastro")}
-          >
-            Cadastrar-se
-          </Button>
-            </Link>
+            <Button
+              variant="outline-secondary"
+              onClick={() => setShowLogin(false)}
+            >
+              Cadastrar-se
+            </Button>
+          </Link>
           <Button variant="primary" onClick={handleLogin}>
             Entrar
           </Button>

@@ -6,9 +6,10 @@ import {
   Modal,
   InputGroup,
   FormControl,
+  Spinner,
 } from "react-bootstrap";
 import { FaClock, FaFileExcel, FaFilePdf } from "react-icons/fa";
-import axios from "axios";
+import { api } from "../../../services/api";
 
 import { OverlayTrigger, Tooltip } from "react-bootstrap";
 import { FaInfoCircle } from "react-icons/fa";
@@ -22,8 +23,11 @@ import autoTable from "jspdf-autotable";
 const AdminCargaHoraria = () => {
   const [dados, setDados] = useState([]);
   const [showModal, setShowModal] = useState(false);
+  const [showConfirmSenha, setShowConfirmSenha] = useState(false);
   const [selecionados, setSelecionados] = useState([]);
   const [horasAdicionar, setHorasAdicionar] = useState(0);
+  const [senhaConfirmacao, setSenhaConfirmacao] = useState("");
+  const [carregando, setCarregando] = useState(false);
 
   // Modal de feedback
   const [showFeedback, setShowFeedback] = useState(false);
@@ -45,10 +49,18 @@ const AdminCargaHoraria = () => {
 
   const fetchDados = async () => {
     try {
-      const response = await axios.get("http://localhost:3000/solipedes");
-      setDados(response.data);
+      const response = await api.listarSolipedesPublico();
+      if (response && response.error) {
+        console.warn("Erro ao buscar dados:", response.error);
+        setDados([]);
+      } else if (Array.isArray(response)) {
+        setDados(response);
+      } else {
+        setDados([]);
+      }
     } catch (err) {
       console.error("Erro ao buscar dados:", err);
+      setDados([]);
     }
   };
 
@@ -67,43 +79,81 @@ const AdminCargaHoraria = () => {
   };
 
 const aplicarHoras = async () => {
-  if (!selecionados.length || horasAdicionar <= 0) return;
+  if (!selecionados.length || horasAdicionar <= 0) {
+    setFeedbackMessage("Selecione pelo menos um solípede e informe as horas!");
+    setFeedbackSuccess(false);
+    setShowFeedback(true);
+    return;
+  }
 
+  if (!senhaConfirmacao.trim()) {
+    setFeedbackMessage("🔐 Informe sua senha para confirmar o lançamento!");
+    setFeedbackSuccess(false);
+    setShowFeedback(true);
+    return;
+  }
+
+  setCarregando(true);
   try {
-    await Promise.all(
-      selecionados.map((numero) =>
-        axios.post(`http://localhost:3000/solipedes/adicionarHoras`, {
-          numero,
-          horas: Number(horasAdicionar),
-        })
-      )
-    );
+    const usuario = JSON.parse(localStorage.getItem("usuario")) || {};
+
+const resultados = await Promise.all(
+  selecionados.map((numero) =>
+    api.adicionarHoras(numero, Number(horasAdicionar), {
+      usuarioId: usuario.id,       // 🔹 enviar ID do usuário
+      usuarioNome: usuario.nome,   // 🔹 opcional, para exibir no frontend
+      senha: senhaConfirmacao
+    })
+  )
+);
+
+    console.log("Resultados da adição de horas:", resultados);
 
     // 🔄 FORÇA SINCRONIZAÇÃO COM O BACKEND
     await fetchDados();
 
-    setFeedbackMessage("Horas aplicadas com sucesso!");
+    setFeedbackMessage("✅ Horas aplicadas com sucesso! Lançamento registrado.");
     setFeedbackSuccess(true);
     setShowFeedback(true);
 
     setShowModal(false);
+    setShowConfirmSenha(false);
     setSelecionados([]);
     setHorasAdicionar(0);
+    setSenhaConfirmacao("");
   } catch (err) {
     console.error("Erro ao aplicar horas:", err);
-    setFeedbackMessage("Erro ao aplicar horas. Tente novamente.");
+    setFeedbackMessage(err.message || "Erro ao aplicar horas. Tente novamente.");
     setFeedbackSuccess(false);
     setShowFeedback(true);
+  } finally {
+    setCarregando(false);
   }
+};
+
+const handleClicarAplicar = () => {
+  if (!selecionados.length || horasAdicionar <= 0) {
+    setFeedbackMessage("Selecione pelo menos um solípede e informe as horas!");
+    setFeedbackSuccess(false);
+    setShowFeedback(true);
+    return;
+  }
+  // Abrir modal de confirmação de senha
+  setShowConfirmSenha(true);
 };
 
 
 const abrirHistorico = async (numero) => {
   try {
-    const response = await axios.get(
-      `http://localhost:3000/solipedes/historico/${numero}`
-    );
-    setHistorico(response.data);
+    const response = await api.historicoHoras(numero);
+
+    // Garantir que sempre haverá um nome de usuário
+    const historicoAtualizado = response.map((item) => ({
+      ...item,
+      usuarioNome: item.usuarioNome || 'Desconhecido' // ou pegar do usuário logado
+    }));
+
+    setHistorico(historicoAtualizado);
     setHistoricoNumero(numero);
     setShowHistorico(true);
   } catch (err) {
@@ -117,12 +167,10 @@ const abrirHistorico = async (numero) => {
 
 
 
+
 const atualizarHora = async (id, novasHoras) => {
   try {
-    await axios.put(
-      `http://localhost:3000/historicoHoras/${id}`,
-      { horas: Number(novasHoras) }
-    );
+    await api.atualizarHistorico(id, Number(novasHoras));
 
     await abrirHistorico(historicoNumero);
     await fetchDados();
@@ -275,7 +323,40 @@ const atualizarHora = async (id, novasHoras) => {
           </Table>
         </div>
 
-        {/* ===== MODAIS ===== */}
+        {/* ===== ÁREA DE APLICAR HORAS (RÁPIDO) ===== */}
+        {selecionados.length > 0 && (
+          <div className="card p-3 mb-4 bg-light border-2 border-primary">
+            <div className="row align-items-center">
+              <div className="col-md-6">
+                <h6 className="mb-2">
+                  ✅ {selecionados.length} solípede(s) selecionado(s)
+                </h6>
+                <p className="mb-0 text-muted">
+                  Selecione a quantidade de horas a adicionar e clique em aplicar.
+                </p>
+              </div>
+              <div className="col-md-6">
+                <InputGroup className="mb-2">
+                  <InputGroup.Text>Horas a adicionar</InputGroup.Text>
+                  <FormControl
+                    type="number"
+                    min="0"
+                    value={horasAdicionar}
+                    onChange={(e) => setHorasAdicionar(Number(e.target.value))}
+                  />
+                </InputGroup>
+                <Button
+                  variant="success"
+                  className="w-100"
+                  disabled={!selecionados.length || horasAdicionar <= 0}
+                  onClick={aplicarHoras}
+                >
+                  ✅ Aplicar Horas
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
         {/* Modal de adicionar horas */}
         <Modal
           show={showModal}
@@ -294,6 +375,7 @@ const atualizarHora = async (id, novasHoras) => {
                 min="0"
                 value={horasAdicionar}
                 onChange={(e) => setHorasAdicionar(Number(e.target.value))}
+                disabled={carregando}
               />
             </InputGroup>
 
@@ -321,6 +403,7 @@ const atualizarHora = async (id, novasHoras) => {
                           type="checkbox"
                           checked={selecionados.includes(item.numero)}
                           onChange={() => handleSelecionar(item.numero)}
+                          disabled={carregando}
                         />
                       </td>
                       <td>{item.numero}</td>
@@ -334,15 +417,79 @@ const atualizarHora = async (id, novasHoras) => {
             </div>
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="secondary" onClick={() => setShowModal(false)}>
+            <Button variant="secondary" onClick={() => {
+              setShowModal(false);
+              setSenhaConfirmacao("");
+            }} disabled={carregando}>
               Cancelar
             </Button>
             <Button
               variant="success"
-              disabled={!selecionados.length || horasAdicionar <= 0}
+              disabled={!selecionados.length || horasAdicionar <= 0 || carregando}
+              onClick={handleClicarAplicar}
+            >
+              ✅ Aplicar Horas
+            </Button>
+          </Modal.Footer>
+        </Modal>
+
+        {/* Modal de confirmação de senha */}
+        <Modal
+          show={showConfirmSenha}
+          onHide={() => {
+            setShowConfirmSenha(false);
+            setSenhaConfirmacao("");
+          }}
+          size="sm"
+          centered
+        >
+          <Modal.Header closeButton>
+            <Modal.Title>🔐 Confirmar com Senha</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <p className="text-muted mb-3">
+              Confirme sua senha para registrar o lançamento de {horasAdicionar}h para {selecionados.length} solípede(s).
+            </p>
+            <Form.Group>
+              <Form.Label className="fw-bold">Sua Senha</Form.Label>
+              <FormControl
+                type="password"
+                placeholder="Digite sua senha..."
+                value={senhaConfirmacao}
+                onChange={(e) => setSenhaConfirmacao(e.target.value)}
+                disabled={carregando}
+                onKeyPress={(e) => {
+                  if (e.key === "Enter" && senhaConfirmacao.trim()) {
+                    aplicarHoras();
+                  }
+                }}
+              />
+            </Form.Group>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button 
+              variant="secondary" 
+              onClick={() => {
+                setShowConfirmSenha(false);
+                setSenhaConfirmacao("");
+              }}
+              disabled={carregando}
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="success"
+              disabled={!senhaConfirmacao.trim() || carregando}
               onClick={aplicarHoras}
             >
-              Aplicar Horas
+              {carregando ? (
+                <>
+                  <Spinner size="sm" className="me-2" animation="border" />
+                  Processando...
+                </>
+              ) : (
+                "✅ Confirmar"
+              )}
             </Button>
           </Modal.Footer>
         </Modal>
@@ -390,7 +537,7 @@ const atualizarHora = async (id, novasHoras) => {
                     <td>
                       {new Date(item.dataLancamento).toLocaleString()}
                       <br />
-                      <small>Atualizado por:</small>
+                      <small>Adicionado por: <strong>{item.usuarioNome || 'Desconhecido'}</strong></small>
                     </td>
                     <td>
                       <FormControl

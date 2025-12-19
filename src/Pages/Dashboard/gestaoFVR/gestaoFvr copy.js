@@ -23,8 +23,7 @@ import "./styles.css";
 
 import { FaUserDoctor } from "react-icons/fa6";
 import { GiHorseHead } from "react-icons/gi";
-
-const API_URL = "http://localhost:3000/solipedes";
+import { api } from "../../../services/api";
 
 const GestaoFvr = () => {
   const [dados, setDados] = useState([]);

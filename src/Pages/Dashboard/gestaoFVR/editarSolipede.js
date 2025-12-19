@@ -1,11 +1,9 @@
 import { useState, useEffect } from "react";
 import { Container, Card, Row, Col, Form, Button } from "react-bootstrap";
-import { useNavigate, useParams } from "react-router-dom";
-
-const API_URL = "http://localhost:3000/solipedes";
+import { Link, useParams } from "react-router-dom";
+import { api } from "../../../services/api";
 
 const EditarSolipede = () => {
-  const navigate = useNavigate();
   const { numero } = useParams(); // pega o número do solípede da URL
 
   const [formData, setFormData] = useState({
@@ -26,10 +24,9 @@ const EditarSolipede = () => {
 useEffect(() => {
   const fetchSolipede = async () => {
     try {
-      const response = await fetch(`${API_URL}/${numero}`);
-      if (!response.ok) throw new Error("Erro ao buscar solípede");
-
-      const data = await response.json();
+      const data = await api.obterSolipede(numero);
+      
+      if (data.error) throw new Error(data.error);
 
       // 🔽 CONVERSÃO DA DATA PARA YYYY-MM-DD
       const dataFormatada = {
@@ -59,16 +56,12 @@ useEffect(() => {
     e.preventDefault();
 
     try {
-      const response = await fetch(`${API_URL}/${numero}`, {
-        method: "PUT", // atualiza os dados
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
+      const response = await api.atualizarSolipede(numero, formData);
 
-      if (!response.ok) throw new Error("Erro ao atualizar solípede");
+      if (response.error) throw new Error(response.error);
 
       alert("Solípede atualizado com sucesso!");
-      navigate("/dashboard/gestaofvr");
+      window.location.href = "/dashboard/gestaofvr";
     } catch (error) {
       console.error(error);
       alert("Erro ao salvar dados");
@@ -197,7 +190,7 @@ useEffect(() => {
                 </Col>
 
                 <Col md={6}>
-                  <Form.Label>Esquadrão *</Form.Label>
+                  <Form.Label>Esquadrão </Form.Label>
                   <Form.Select
                     name="esquadrao"
                     value={formData.esquadrao}
@@ -283,12 +276,11 @@ useEffect(() => {
 
               {/* AÇÕES */}
               <div className="d-flex justify-content-end gap-2 mt-4">
-                <Button
-                  variant="outline-secondary"
-                  onClick={() => navigate(-1)}
-                >
-                  Cancelar
-                </Button>
+                <Link to="/dashboard/gestaofvr">
+                  <Button variant="outline-secondary">
+                    Cancelar
+                  </Button>
+                </Link>
                 <Button type="submit" variant="primary">
                   Salvar Alterações
                 </Button>

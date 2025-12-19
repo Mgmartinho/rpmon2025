@@ -1,9 +1,13 @@
 import { useState } from "react";
-import { Container, Card, Form, Button, Row, Col } from "react-bootstrap";
+import { Container, Card, Form, Button, Row, Col, Alert } from "react-bootstrap";
 import { useNavigate, Link } from "react-router-dom";
+import { api } from "../../../services/api";
 
 const CriarUsuario = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [erro, setErro] = useState("");
+  const [sucesso, setSucesso] = useState("");
 
   const [formData, setFormData] = useState({
     nome: "",
@@ -19,19 +23,42 @@ const CriarUsuario = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setErro("");
+    setSucesso("");
 
     if (formData.senha !== formData.confirmarSenha) {
-      alert("As senhas não conferem");
+      setErro("As senhas não conferem");
       return;
     }
 
-    console.log("Dados do usuário:", formData);
+    setLoading(true);
 
-    // futuramente aqui vai o POST para a API
-    alert("Usuário criado (frontend)");
-    navigate("/login");
+    try {
+      const data = await api.criarUsuario(
+        formData.nome,
+        formData.registro,
+        formData.email,
+        formData.senha,
+        formData.perfil
+      );
+
+      if (data.error) {
+        setErro(data.error);
+        setLoading(false);
+        return;
+      }
+
+      setSucesso("Usuário criado com sucesso!");
+      setTimeout(() => {
+        navigate("/login");
+      }, 2000);
+    } catch (erro) {
+      console.error("Erro:", erro);
+      setErro("Erro ao conectar com o servidor");
+      setLoading(false);
+    }
   };
 
   return (
@@ -43,6 +70,9 @@ const CriarUsuario = () => {
             <p className="text-muted text-center mb-4">
               Cadastro de acesso ao sistema
             </p>
+
+            {erro && <Alert variant="danger">{erro}</Alert>}
+            {sucesso && <Alert variant="success">{sucesso}</Alert>}
 
             <Form onSubmit={handleSubmit}>
               <Form.Group className="mb-3">
@@ -121,8 +151,8 @@ const CriarUsuario = () => {
               </Form.Group>
 
               <div className="d-grid">
-                <Button type="submit" variant="primary">
-                  Criar Usuário
+                <Button type="submit" variant="primary" disabled={loading}>
+                  {loading ? "Criando..." : "Criar Usuário"}
                 </Button>
               </div>
 

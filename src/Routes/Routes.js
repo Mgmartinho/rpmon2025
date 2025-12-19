@@ -2,6 +2,7 @@ import { Routes, Route } from "react-router-dom";
 
 import PublicLayout from "../Layouts/PublicLayout";
 import DashboardLayout from "../Layouts/DashboardLayout";
+import ProtectedRoute from "../components/ProtectedRoute";
 
 // Públicas
 import Home from "../Pages/Home";
@@ -36,26 +37,23 @@ const MainRoutes = () => {
 
       {/* DASHBOARD */}
       <Route path="/dashboard" element={<DashboardLayout />}>
+        {/* Rota padrão */}
         <Route index element={<Estatisticas />} />
         <Route path="list" element={<DashboardList />} />
-        <Route path="estatisticas" element={<Estatisticas />} />
         <Route path="AdminCargaHoraria" element={<AdminCargaHoraria />} />
-        <Route path="gestaofvr" element={<GestaoFvr />} />
-        <Route path="gestaofvr/taskcreatepage" element={<TaskCreatePage />} />
-        <Route path="gestaofvr/solipede/create" element={<CadastrarSolipede />} />
-        <Route path="gestaofvr/solipede/prontuario" element={<ProntuarioSolipede />} />
-        <Route path="gestaofvr/solipede/prontuario/edit/:numero" element={<ProntuarioSolipedeEdit />} />
 
-        <Route
-          path="gestaofvr/solipede/edit/:numero"
-          element={<EditarSolipede />}
-        />
+        {/* Rotas COM autenticação */}
+        <Route path="estatisticas" element={<ProtectedRoute><Estatisticas /></ProtectedRoute>} />
+        <Route path="gestaofvr" element={<ProtectedRoute><GestaoFvr /></ProtectedRoute>} />
+        <Route path="gestaofvr/taskcreatepage" element={<ProtectedRoute><TaskCreatePage /></ProtectedRoute>} />
+        <Route path="gestaofvr/solipede/create" element={<ProtectedRoute><CadastrarSolipede /></ProtectedRoute>} />
+        <Route path="gestaofvr/solipede/prontuario" element={<ProtectedRoute><ProntuarioSolipede /></ProtectedRoute>} />
+        <Route path="gestaofvr/solipede/prontuario/edit/:numero" element={<ProtectedRoute><ProntuarioSolipedeEdit /></ProtectedRoute>} />
+        <Route path="gestaofvr/solipede/edit/:numero" element={<ProtectedRoute><EditarSolipede /></ProtectedRoute>} />
       </Route>
 
-    {/* Usuarios */}
-        <Route path="dashboard/criarusuario" element={<CriarUsuario />} />
-        {/* <Route path="dashboard/login" element={<Login />} /> */}
-
+      {/* Usuários - Sem autenticação */}
+      <Route path="dashboard/criarusuario" element={<CriarUsuario />} />
 
       {/* 404 */}
       <Route path="*" element={<NotFound />} />

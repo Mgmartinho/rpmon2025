@@ -36,8 +36,7 @@ import { GiHorseHead } from "react-icons/gi";
 import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-
-const API_URL = "http://localhost:3000/solipedes";
+import { api } from "../../../services/api";
 
 const GestaoFvr = () => {
   const [dados, setDados] = useState([]);
@@ -90,11 +89,18 @@ const GestaoFvr = () => {
   useEffect(() => {
     const carregarDados = async () => {
       try {
-        const response = await fetch(API_URL);
-        const data = await response.json();
-        setDados(data);
+        const data = await api.listarSolipedes();
+        if (data && data.error) {
+          console.warn("Erro na autenticação:", data.error);
+          setDados([]);
+        } else if (Array.isArray(data)) {
+          setDados(data);
+        } else {
+          setDados([]);
+        }
       } catch (error) {
         console.error("Erro ao carregar dados:", error);
+        setDados([]);
       } finally {
         setLoading(false);
       }
@@ -542,7 +548,7 @@ const GestaoFvr = () => {
                         </Button>
 
                         <Link
-                          to={`/dashboard/gestaofvr/solipede/prontuario/edit:/${item.numero}`}
+                          to={`/dashboard/gestaofvr/solipede/prontuario/edit/${item.numero}`}
                           className="me-1"
                         >
                           <Button size="sm" variant="light" className="border">
