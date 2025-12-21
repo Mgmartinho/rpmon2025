@@ -78,28 +78,36 @@ export const api = {
     return response.json();
   },
 
-  adicionarHoras: async (numero, horas, dadosUsuario = {}) => {
-    const token = localStorage.getItem("token");
-    const response = await fetch(`${API_BASE_URL}/gestaoFVR/solipedes/adicionarHoras`, {
+ adicionarHoras: async (dados) => {
+  const token = localStorage.getItem("token");
+  console.log("API adicionarHoras - dados enviados:", dados);
+
+  const response = await fetch(
+    `${API_BASE_URL}/gestaoFVR/solipedes/adicionarHoras`,
+    {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ 
-        numero, 
-        horas,
-        ...dadosUsuario
-      }),
-    });
-    return response.json();
-  },
+      body: JSON.stringify(dados),
+    }
+  );
+
+  return response.json();
+},
+
 
   historicoHoras: async (numero) => {
     const token = localStorage.getItem("token");
     const response = await fetch(`${API_BASE_URL}/gestaoFVR/solipedes/historico/${numero}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
+    return response.json();
+  },
+
+  historicoHorasPublico: async (numero) => {
+    const response = await fetch(`${API_BASE_URL}/solipedes/historico/${numero}`);
     return response.json();
   },
 

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Container, Card, Form, Button, Row, Col, Alert } from "react-bootstrap";
 import { useNavigate, Link } from "react-router-dom";
-import { api } from "../../../services/api";
+import { api } from "../../../services/api.js";
 
 const CriarUsuario = () => {
   const navigate = useNavigate();

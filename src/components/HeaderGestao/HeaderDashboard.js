@@ -24,6 +24,9 @@ import {
   BsPerson,
 } from "react-icons/bs";
 
+import { HiCog8Tooth } from "react-icons/hi2";
+
+
 import { GiHorseHead } from "react-icons/gi";
 import { api } from "../../services/api";
 
@@ -86,6 +89,10 @@ const HeaderDashboard = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("usuario");
     setUsuario(null);
+  };
+
+  const handleConfig = () => {
+    window.location.href = "/dashboard/gestaofvr/configPerfil";
   };
 
   return (
@@ -157,6 +164,17 @@ const HeaderDashboard = () => {
                   </div>
                 </div>
 
+                {/* CONFIGURAÇÕES */}
+                <span
+                  className="d-flex align-items-center text-white"
+                  style={{ cursor: "pointer" }}
+                  onClick={handleConfig}
+                  title="Configurações"
+                >
+                  <HiCog8Tooth size={20} />
+                </span>
+
+                {/* LOGOUT */}
                 <span
                   className="d-flex align-items-center text-white"
                   style={{ cursor: "pointer" }}
@@ -178,6 +196,7 @@ const HeaderDashboard = () => {
               </span>
             )}
           </div>
+
         </Container>
       </Navbar>
 

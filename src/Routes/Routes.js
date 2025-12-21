@@ -22,6 +22,7 @@ import EditarSolipede from "../Pages/Dashboard/gestaoFVR/editarSolipede";
 import ProntuarioSolipede from "../Pages/Dashboard/gestaoFVR/pronturario";
 import CriarUsuario from "../Pages/Dashboard/usuarios/CriarUsuario";
 import ProntuarioSolipedeEdit from "../Pages/Dashboard/gestaoFVR/pronturarioEdit";
+import ConfiguracaoPerfil from "../Pages/Dashboard/usuarios/configPerfil";
 
 const MainRoutes = () => {
   return (
@@ -47,9 +48,11 @@ const MainRoutes = () => {
         <Route path="gestaofvr" element={<ProtectedRoute><GestaoFvr /></ProtectedRoute>} />
         <Route path="gestaofvr/taskcreatepage" element={<ProtectedRoute><TaskCreatePage /></ProtectedRoute>} />
         <Route path="gestaofvr/solipede/create" element={<ProtectedRoute><CadastrarSolipede /></ProtectedRoute>} />
-        <Route path="gestaofvr/solipede/prontuario" element={<ProtectedRoute><ProntuarioSolipede /></ProtectedRoute>} />
+        <Route path="gestaofvr/solipede/:numero/prontuario" element={<ProtectedRoute><ProntuarioSolipede /></ProtectedRoute>} />
         <Route path="gestaofvr/solipede/prontuario/edit/:numero" element={<ProtectedRoute><ProntuarioSolipedeEdit /></ProtectedRoute>} />
         <Route path="gestaofvr/solipede/edit/:numero" element={<ProtectedRoute><EditarSolipede /></ProtectedRoute>} />
+        <Route path="gestaofvr/configPerfil" element={<ProtectedRoute><ConfiguracaoPerfil /></ProtectedRoute>} />
+
       </Route>
 
       {/* Usuários - Sem autenticação */}
