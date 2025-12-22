@@ -130,7 +130,7 @@ const HeaderDashboard = () => {
             {usuario && (
               <>
                 <OverlayTrigger overlay={<Tooltip>Estatísticas</Tooltip>}>
-                  <Nav.Link as={NavLink} to="/dashboard/estatisticas">
+                  <Nav.Link as={NavLink} to="/dashboard/estatisticasfvr">
                     <BsBarChart />
                   </Nav.Link>
                 </OverlayTrigger>

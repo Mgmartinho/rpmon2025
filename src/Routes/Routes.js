@@ -23,6 +23,7 @@ import ProntuarioSolipede from "../Pages/Dashboard/gestaoFVR/pronturario";
 import CriarUsuario from "../Pages/Dashboard/usuarios/CriarUsuario";
 import ProntuarioSolipedeEdit from "../Pages/Dashboard/gestaoFVR/pronturarioEdit";
 import ConfiguracaoPerfil from "../Pages/Dashboard/usuarios/configPerfil";
+import EstatisticasGestaoFVR from "../Pages/Dashboard/gestaoFVR/EstatisticasGestaoFVR";
 
 const MainRoutes = () => {
   return (
@@ -44,7 +45,7 @@ const MainRoutes = () => {
         <Route path="AdminCargaHoraria" element={<AdminCargaHoraria />} />
 
         {/* Rotas COM autenticação */}
-        <Route path="estatisticas" element={<ProtectedRoute><Estatisticas /></ProtectedRoute>} />
+        <Route path="estatisticasfvr" element={<ProtectedRoute><EstatisticasGestaoFVR /></ProtectedRoute>} />
         <Route path="gestaofvr" element={<ProtectedRoute><GestaoFvr /></ProtectedRoute>} />
         <Route path="gestaofvr/taskcreatepage" element={<ProtectedRoute><TaskCreatePage /></ProtectedRoute>} />
         <Route path="gestaofvr/solipede/create" element={<ProtectedRoute><CadastrarSolipede /></ProtectedRoute>} />

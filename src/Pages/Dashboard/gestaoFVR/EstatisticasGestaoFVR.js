@@ -13,7 +13,7 @@ import {
 } from "recharts";
 import { api } from "../../../services/api";
 
-const Estatisticas = () => {
+const EstatisticasGestaoFVR = () => {
   const [dados, setDados] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filtroEsqd, setFiltroEsqd] = useState("Todos");
@@ -40,22 +40,15 @@ const Estatisticas = () => {
     fetchDados();
   }, []);
 
-  
-
   const normalizar = (txt) => (txt ? txt.toLowerCase().trim() : "");
 
-  // ===== Filtrar somente RPMon =====
-  const dadosRPMon = useMemo(() => {
-    return dados.filter((d) => d.alocacao === "RPMon");
-  }, [dados]);
-
   // ===== KPIs =====
-  const total = dadosRPMon.length;
-  const ativos = dadosRPMon.filter((d) => normalizar(d.status) === "ativo").length;
-  const baixados = dadosRPMon.filter((d) =>
+  const total = dados.length;
+  const ativos = dados.filter((d) => normalizar(d.status) === "ativo").length;
+  const baixados = dados.filter((d) =>
     normalizar(d.status).includes("baix")
   ).length;
-  const totalHoras = dadosRPMon.reduce(
+  const totalHoras = dados.reduce(
     (acc, d) =>
       acc + (d.historicoHoras || []).reduce((a, h) => a + (h.horas || 0), 0),
     0
@@ -64,9 +57,9 @@ const Estatisticas = () => {
 
   // ===== Filtro por esquadrão =====
   const filtrados = useMemo(() => {
-    if (filtroEsqd === "Todos") return dadosRPMon;
-    return dadosRPMon.filter((d) => d.esquadrao === filtroEsqd);
-  }, [filtroEsqd, dadosRPMon]);
+    if (filtroEsqd === "Todos") return dados;
+    return dados.filter((d) => d.esquadrao === filtroEsqd);
+  }, [filtroEsqd, dados]);
 
   // ===== Cavalos por esquadrão =====
   const dadosEsqd = useMemo(() => {
@@ -80,8 +73,11 @@ const Estatisticas = () => {
   }, [filtrados]);
 
   // ===== Evolução mensal por categoria =====
-const evolucaoAnualCategorias = useMemo(() => {
+// ===== Evolução mensal por categoria =====
+// ===== Evolução mensal por categoria (com relação ao cavalo) =====
+const evolucaoMensalCategorias = useMemo(() => {
   const hoje = new Date();
+  const mesAtual = hoje.getMonth() + 1;
   const anoAtual = hoje.getFullYear();
 
   const categorias = [
@@ -93,34 +89,44 @@ const evolucaoAnualCategorias = useMemo(() => {
     "Representação",
   ];
 
-  // Inicializa objeto com todos os meses
-  const meses = Array.from({ length: 12 }, (_, i) => {
-    const mesStr = `${anoAtual}-${String(i + 1).padStart(2, "0")}`;
-    const obj = { mes: mesStr };
-    categorias.forEach((c) => (obj[c] = 0));
-    return obj;
-  });
+  // Objeto temporário para agrupar por data
+  const agrupadosPorData = {};
 
-  // Preenche horas por mês e categoria
-  dadosRPMon.forEach((cavalo) => {
+  // Percorre cada cavalo válido
+  dados.forEach((cavalo) => {
     const historico = cavalo.historicoHoras || [];
     historico.forEach((h) => {
       const data = new Date(h.data);
-      if (data.getFullYear() === anoAtual && categorias.includes(h.categoria)) {
-        const mesIndex = data.getMonth(); // 0 = Jan, 11 = Dec
-        meses[mesIndex][h.categoria] += h.horas || 0;
+      const dataStr = h.data;
+
+      // Considera apenas registros do mês/ano atual
+      if (data.getMonth() + 1 === mesAtual && data.getFullYear() === anoAtual) {
+        // Inicializa objeto para a data se ainda não existir
+        if (!agrupadosPorData[dataStr]) {
+          agrupadosPorData[dataStr] = { data: dataStr };
+          categorias.forEach((c) => (agrupadosPorData[dataStr][c] = 0));
+        }
+
+        // Só adiciona horas se a categoria for válida
+        if (categorias.includes(h.categoria)) {
+          agrupadosPorData[dataStr][h.categoria] += h.horas || 0;
+        }
       }
     });
   });
 
-  return meses;
-}, [dadosRPMon]);
+  // Converte para array e ordena por data
+  return Object.values(agrupadosPorData).sort(
+    (a, b) => new Date(a.data) - new Date(b.data)
+  );
+}, [dados]);
+
 
 
   // ===== Carga horária por esquadrão =====
   const cargaPorEsqd = useMemo(() => {
     const agrupados = {};
-    dadosRPMon.forEach((d) => {
+    dados.forEach((d) => {
       const esquadrao = d.esquadrao || "Sem Esquadrão";
       const totalHoras = d.cargaHoraria || 0;
       agrupados[esquadrao] = (agrupados[esquadrao] || 0) + totalHoras;
@@ -130,7 +136,7 @@ const evolucaoAnualCategorias = useMemo(() => {
       .filter(([esqd]) => filtroEsqd === "Todos" || esqd === filtroEsqd)
       .map(([esqd, horas]) => ({ esquadrao: esqd, horas }))
       .sort((a, b) => a.esquadrao.localeCompare(b.esquadrao));
-  }, [dadosRPMon, filtroEsqd]);
+  }, [dados, filtroEsqd]);
 
   // ===== Status Pie =====
   const cores = ["#28a745", "#f14b6dff"];
@@ -171,7 +177,7 @@ const evolucaoAnualCategorias = useMemo(() => {
       const dia = new Date(data30Dias);
       dia.setDate(data30Dias.getDate() + i);
       const diaStr = dia.toISOString().split("T")[0];
-      const totalDia = dadosRPMon.reduce((acc, d) => {
+      const totalDia = dados.reduce((acc, d) => {
         const historico = d.historicoHoras || [];
         const hDia = historico
           .filter((h) => h.data === diaStr)
@@ -181,7 +187,7 @@ const evolucaoAnualCategorias = useMemo(() => {
       resultado.push({ data: diaStr, horas: totalDia });
     }
     return resultado;
-  }, [dadosRPMon]);
+  }, [dados]);
 
   // ===== Loader =====
   if (loading) {
@@ -196,15 +202,16 @@ const evolucaoAnualCategorias = useMemo(() => {
     );
   }
 
-  return (
+
+return (
     <Container fluid className="d-flex justify-content-center">
       <div className="w-100 pt-5 border rounded-3 p-4 bg-light">
         {/* ===== KPIs ===== */}
         <Row className="mb-4 g-3">
           {[
-            { label: "Total de Cavalos", value: filtrados.length },
-            { label: "Ativos", value: filtrados.filter((d) => normalizar(d.status) === "ativo").length, color: "success" },
-            { label: "Baixados", value: filtrados.filter((d) => normalizar(d.status).includes("baix")).length, color: "danger" },
+            { label: "Total de Cavalos", value: filtroEsqd === "Todos" ? total : filtrados.length },
+            { label: "Ativos", value: filtroEsqd === "Todos" ? ativos : filtrados.filter((d) => normalizar(d.status) === "ativo").length, color: "success" },
+            { label: "Baixados", value: filtroEsqd === "Todos" ? baixados : filtrados.filter((d) => normalizar(d.status).includes("baix")).length, color: "danger" },
             { label: "Total de Horas", value: `${filtrados.reduce((acc, d) => acc + (d.historicoHoras || []).reduce((a, h) => a + (h.horas || 0), 0), 0)} h` },
             { label: "Média por Ativo", value: `${(filtrados.reduce((acc, d) => acc + (d.historicoHoras || []).reduce((a, h) => a + (h.horas || 0), 0), 0) / (filtrados.filter((d) => normalizar(d.status) === "ativo").length || 1)).toFixed(1)} h` },
           ].map((kpi, idx) => (
@@ -292,29 +299,28 @@ const evolucaoAnualCategorias = useMemo(() => {
         </Row>
 
         <Row>
-  <Col md={12}>
-    <Card className="p-3 shadow-sm border-0 rounded-3">
-      <h5 className="text-center">Evolução da Carga Horária (Ano Atual)</h5>
-      <ResponsiveContainer width="100%" height={350}>
-        <BarChart data={evolucaoAnualCategorias}>
-          <XAxis dataKey="mes" />
-          <YAxis />
-          <Tooltip />
-          <Bar dataKey="1 Esquadrao" fill="#1f77b4" />
-          <Bar dataKey="2 Esquadrao" fill="#ff7f0e" />
-          <Bar dataKey="3 Esquadrao" fill="#2ca02c" />
-          <Bar dataKey="4 Esquadrao" fill="#d62728" />
-          <Bar dataKey="Equoterapia" fill="#9467bd" />
-          <Bar dataKey="Representação" fill="#8c564b" />
-        </BarChart>
-      </ResponsiveContainer>
-    </Card>
-  </Col>
-</Row>
-
+          <Col md={12}>
+            <Card className="p-3 shadow-sm border-0 rounded-3">
+              <h5 className="text-center">Evolução da Carga Horária (Mês Atual)</h5>
+              <ResponsiveContainer width="100%" height={350}>
+                <BarChart data={evolucaoMensalCategorias}>
+                  <XAxis dataKey="data" />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="1 Esquadrao" fill="#1f77b4" />
+                  <Bar dataKey="2 Esquadrao" fill="#ff7f0e" />
+                  <Bar dataKey="3 Esquadrao" fill="#2ca02c" />
+                  <Bar dataKey="4 Esquadrao" fill="#d62728" />
+                  <Bar dataKey="Equoterapia" fill="#9467bd" />
+                  <Bar dataKey="Representação" fill="#8c564b" />
+                </BarChart>
+              </ResponsiveContainer>
+            </Card>
+          </Col>
+        </Row>
       </div>
     </Container>
   );
 };
 
-export default Estatisticas;
+export default EstatisticasGestaoFVR;
