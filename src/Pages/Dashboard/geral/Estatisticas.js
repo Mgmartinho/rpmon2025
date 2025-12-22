@@ -17,6 +17,15 @@ const Estatisticas = () => {
   const [dados, setDados] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filtroEsqd, setFiltroEsqd] = useState("Todos");
+  const [evolucaoAnualCategorias, setEvolucaoAnualCategorias] = useState([]);
+  const [categoriasHoras, setCategoriasHoras] = useState([
+    "1 Esquadrao",
+    "2 Esquadrao",
+    "3 Esquadrao",
+    "4 Esquadrao",
+    "Equoterapia",
+    "Representacao",
+  ]);
 
   useEffect(() => {
     const fetchDados = async () => {
@@ -38,6 +47,24 @@ const Estatisticas = () => {
       }
     };
     fetchDados();
+  }, []);
+
+  useEffect(() => {
+    const fetchIndicadores = async () => {
+      try {
+        const anoAtual = new Date().getFullYear();
+        const res = await api.indicadoresAnuais(anoAtual);
+        if (res) {
+          setEvolucaoAnualCategorias(res.meses || []);
+          if (Array.isArray(res.categorias)) {
+            setCategoriasHoras(res.categorias);
+          }
+        }
+      } catch (err) {
+        console.error("Erro ao buscar indicadores anuais", err);
+      }
+    };
+    fetchIndicadores();
   }, []);
 
   
@@ -79,44 +106,6 @@ const Estatisticas = () => {
       .sort((a, b) => a.esquadrao.localeCompare(b.esquadrao));
   }, [filtrados]);
 
-  // ===== Evolução mensal por categoria =====
-const evolucaoAnualCategorias = useMemo(() => {
-  const hoje = new Date();
-  const anoAtual = hoje.getFullYear();
-
-  const categorias = [
-    "1 Esquadrao",
-    "2 Esquadrao",
-    "3 Esquadrao",
-    "4 Esquadrao",
-    "Equoterapia",
-    "Representação",
-  ];
-
-  // Inicializa objeto com todos os meses
-  const meses = Array.from({ length: 12 }, (_, i) => {
-    const mesStr = `${anoAtual}-${String(i + 1).padStart(2, "0")}`;
-    const obj = { mes: mesStr };
-    categorias.forEach((c) => (obj[c] = 0));
-    return obj;
-  });
-
-  // Preenche horas por mês e categoria
-  dadosRPMon.forEach((cavalo) => {
-    const historico = cavalo.historicoHoras || [];
-    historico.forEach((h) => {
-      const data = new Date(h.data);
-      if (data.getFullYear() === anoAtual && categorias.includes(h.categoria)) {
-        const mesIndex = data.getMonth(); // 0 = Jan, 11 = Dec
-        meses[mesIndex][h.categoria] += h.horas || 0;
-      }
-    });
-  });
-
-  return meses;
-}, [dadosRPMon]);
-
-
   // ===== Carga horária por esquadrão =====
   const cargaPorEsqd = useMemo(() => {
     const agrupados = {};
@@ -146,6 +135,17 @@ const evolucaoAnualCategorias = useMemo(() => {
       { name: "Baixados", value: baixadosCount },
     ];
   }, [filtrados]);
+
+  const paletaCoresCategorias = [
+    "#1f77b4",
+    "#ff7f0e",
+    "#2ca02c",
+    "#d62728",
+    "#9467bd",
+    "#8c564b",
+    "#17becf",
+    "#e377c2",
+  ];
 
   // ===== Carga horária por cavalo =====
   const cargaPorCavalo = useMemo(
@@ -294,18 +294,19 @@ const evolucaoAnualCategorias = useMemo(() => {
         <Row>
   <Col md={12}>
     <Card className="p-3 shadow-sm border-0 rounded-3">
-      <h5 className="text-center">Evolução da Carga Horária (Ano Atual)</h5>
+      <h5 className="text-center">Comparativo Mensal por Esquadrão (Ano Atual)</h5>
       <ResponsiveContainer width="100%" height={350}>
         <BarChart data={evolucaoAnualCategorias}>
           <XAxis dataKey="mes" />
           <YAxis />
           <Tooltip />
-          <Bar dataKey="1 Esquadrao" fill="#1f77b4" />
-          <Bar dataKey="2 Esquadrao" fill="#ff7f0e" />
-          <Bar dataKey="3 Esquadrao" fill="#2ca02c" />
-          <Bar dataKey="4 Esquadrao" fill="#d62728" />
-          <Bar dataKey="Equoterapia" fill="#9467bd" />
-          <Bar dataKey="Representação" fill="#8c564b" />
+          {categoriasHoras.map((cat, idx) => (
+            <Bar
+              key={cat}
+              dataKey={cat}
+              fill={paletaCoresCategorias[idx % paletaCoresCategorias.length]}
+            />
+          ))}
         </BarChart>
       </ResponsiveContainer>
     </Card>

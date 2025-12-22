@@ -9,6 +9,8 @@ import {
   Col,
   Spinner,
   Form,
+  Modal,
+  Alert,
 } from "react-bootstrap";
 
 import {
@@ -66,6 +68,41 @@ const GestaoFvr = () => {
   =========================== */
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [pageSolipede, setPageSolipede] = useState(1);
+
+  /* ===========================
+      MODAL – MOVIMENTAÇÃO EM LOTE
+    =========================== */
+  const [showMovModal, setShowMovModal] = useState(false);
+  const [selecionados, setSelecionados] = useState([]);
+  const [novaMovimentacao, setNovaMovimentacao] = useState("");
+  const [senhaConfirmacao, setSenhaConfirmacao] = useState("");
+  const [movLoading, setMovLoading] = useState(false);
+  const [movErro, setMovErro] = useState("");
+  const [movSucesso, setMovSucesso] = useState("");
+  const [filtroModal, setFiltroModal] = useState("");
+
+  const opcoesMovimentacao = [
+    "Colina",
+    "RPMon",
+    "Barro Branco",
+    "Hospital Veterinario",
+    "Escola de Equitação do Exército",
+    "Representação",
+    "Destacamento Montado de Campinas",
+    "Destacamento Montado de Santos",
+    "Destacamento Montado de Taubaté",
+    "Destacamento Montado de Mauá",
+    "Destacamento Montado de São Bernardo do Campo",
+    "Destacamento Montado de Presidente Prudente",
+    "Destacamento Montado de São José do Rio Preto",
+    "Destacamento Montado de Barretos",
+    "Destacamento Montado de Ribeirão Preto",
+    "Destacamento Montado de Bauru",
+    "Destacamento Montado de Marília",
+    "Destacamento Montado de Avaré",
+    "Destacamento Montado de Itapetininga",
+    "Destacamento Montado de Sorocaba",
+  ];
 
   /* ===========================
      INDICADORES (DADOS REAIS)
@@ -315,8 +352,21 @@ const GestaoFvr = () => {
                 </Link>
               </Col>
 
-              {/* EXPORTAR EXCEL */}
               <Col md={2}>
+                <Card
+                  className="h-100 text-center shadow-sm border-start"
+                  onClick={() => setShowMovModal(true)}
+                  style={{ cursor: "pointer" }}
+                >
+                  <Card.Body className="d-flex flex-column justify-content-center">
+                    <BsArrowRepeat size={22} className="mb-2" />
+                    <small className="fw-semibold">Gerar movimentação</small>
+                  </Card.Body>
+                </Card>
+              </Col>
+
+              {/* EXPORTAR EXCEL */}
+              <Col md={1}>
                 <Card
                   className="h-100 text-center shadow-sm border-start"
                   onClick={exportExcel}
@@ -330,7 +380,7 @@ const GestaoFvr = () => {
               </Col>
 
               {/* EXPORTAR PDF */}
-              <Col md={2}>
+              <Col md={1}>
                 <Card
                   className="h-100 text-center shadow-sm border-start"
                   onClick={exportPDF}
@@ -603,6 +653,195 @@ const GestaoFvr = () => {
             )}
           </Card.Body>
         </Card>
+
+        {/* ===== MODAL MOVIMENTAÇÃO EM LOTE ===== */}
+        <Modal
+          show={showMovModal}
+          onHide={() => setShowMovModal(false)}
+          size="lg"
+        >
+          <Modal.Header closeButton>
+            <Modal.Title>Gerar Movimentação em Lote</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Row className="mb-3">
+              <Col md={6}>
+                <Form.Group>
+                  <Form.Label>Movimentação (coluna movimentacao)</Form.Label>
+                  <Form.Select
+                    value={novaMovimentacao}
+                    onChange={(e) => setNovaMovimentacao(e.target.value)}
+                  >
+                    <option value="">Selecione...</option>
+                    {opcoesMovimentacao.map((opt) => (
+                      <option key={opt} value={opt}>
+                        {opt}
+                      </option>
+                    ))}
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group>
+                  <Form.Label>Senha do Usuário</Form.Label>
+                  <Form.Control
+                    type="password"
+                    value={senhaConfirmacao}
+                    onChange={(e) => setSenhaConfirmacao(e.target.value)}
+                    placeholder="Confirme sua senha"
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+
+            {(() => {
+              const termo = filtroModal.toLowerCase();
+              const modalFiltrados = solipedesFiltrados.filter((s) => {
+                return (
+                  s.nome?.toLowerCase().includes(termo) ||
+                  s.numero?.toString().includes(termo) ||
+                  (s.movimentacao || "").toLowerCase().includes(termo) ||
+                  (s.alocacao || "").toLowerCase().includes(termo)
+                );
+              });
+
+              const todosSelecionados =
+                modalFiltrados.length > 0 &&
+                modalFiltrados.every((s) => selecionados.includes(s.numero));
+
+              return (
+                <div className="border rounded p-2 mb-3" style={{ maxHeight: 360, overflowY: "auto" }}>
+                  <div className="d-flex justify-content-between align-items-center mb-2">
+                    <strong>Selecionar Solípedes</strong>
+                    <div className="d-flex gap-2">
+                      <Form.Control
+                        size="sm"
+                        placeholder="Filtrar por nº, nome, status ou mov."
+                        value={filtroModal}
+                        onChange={(e) => setFiltroModal(e.target.value)}
+                        style={{ width: 260 }}
+                      />
+                      <Button
+                        size="sm"
+                        variant="outline-secondary"
+                        onClick={() => {
+                          if (todosSelecionados) {
+                            const restantes = selecionados.filter((n) => !modalFiltrados.some((s) => s.numero === n));
+                            setSelecionados(restantes);
+                          } else {
+                            const novos = modalFiltrados.map((s) => s.numero);
+                            const merge = Array.from(new Set([...selecionados, ...novos]));
+                            setSelecionados(merge);
+                          }
+                        }}
+                      >
+                        {todosSelecionados ? "Limpar seleção" : "Selecionar todos"}
+                      </Button>
+                    </div>
+                  </div>
+
+                  <Table size="sm" hover className="align-middle mb-0">
+                    <thead className="table-light">
+                      <tr>
+                        <th style={{ width: 40 }}></th>
+                        <th>Nº</th>
+                        <th>Nome / Alocação</th>
+                        <th>Movimentação Atual</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {modalFiltrados.map((s) => {
+                        const checked = selecionados.includes(s.numero);
+                        return (
+                          <tr key={s.numero}>
+                            <td>
+                              <Form.Check
+                                type="checkbox"
+                                checked={checked}
+                                onChange={(e) => {
+                                  setSelecionados((prev) => {
+                                    if (e.target.checked) return [...prev, s.numero];
+                                    return prev.filter((n) => n !== s.numero);
+                                  });
+                                }}
+                              />
+                            </td>
+                            <td className="fw-semibold">{s.numero}</td>
+                            <td>
+                              <div className="fw-semibold">{s.nome}</div>
+                              <div className="text-muted small">{s.alocacao || "-"}</div>
+                            </td>
+                            <td>{s.movimentacao || "-"}</td>
+                          </tr>
+                        );
+                      })}
+                      {modalFiltrados.length === 0 && (
+                        <tr>
+                          <td colSpan={4} className="text-center text-muted py-3">
+                            Nenhum solípede encontrado com esse filtro.
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </Table>
+                </div>
+              );
+            })()}
+
+            {movErro && <Alert variant="danger">{movErro}</Alert>}
+            {movSucesso && <Alert variant="success">{movSucesso}</Alert>}
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={() => setShowMovModal(false)}>
+              Cancelar
+            </Button>
+            <Button
+              variant="primary"
+              disabled={
+                movLoading ||
+                !novaMovimentacao ||
+                !senhaConfirmacao ||
+                selecionados.length === 0
+              }
+              onClick={async () => {
+                try {
+                  setMovErro("");
+                  setMovSucesso("");
+                  setMovLoading(true);
+                  const resp = await api.movimentacaoBulk({
+                    numeros: selecionados,
+                    novoStatus: novaMovimentacao,
+                    senha: senhaConfirmacao,
+                  });
+                  if (resp && resp.success) {
+                    // Atualiza os dados locais
+                    setDados((prev) =>
+                      prev.map((d) =>
+                        selecionados.includes(d.numero)
+                          ? { ...d, movimentacao: novaMovimentacao, status: novaMovimentacao }
+                          : d
+                      )
+                    );
+                    setMovSucesso(
+                      `Movimentação aplicada a ${resp.count} solípedes.`
+                    );
+                    setSelecionados([]);
+                    setSenhaConfirmacao("");
+                    setNovaMovimentacao("");
+                  } else {
+                    setMovErro(resp?.error || "Falha ao aplicar movimentação");
+                  }
+                } catch (e) {
+                  setMovErro(e.message || "Erro inesperado");
+                } finally {
+                  setMovLoading(false);
+                }
+              }}
+            >
+              {movLoading ? "Aplicando..." : "Confirmar Movimentação"}
+            </Button>
+          </Modal.Footer>
+        </Modal>
       </div>
     </div>
   );

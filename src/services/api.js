@@ -26,6 +26,12 @@ export const api = {
     return response.json();
   },
 
+  indicadoresAnuais: async (ano) => {
+    const anoParam = ano || new Date().getFullYear();
+    const response = await fetch(`${API_BASE_URL}/solipedes/indicadores/anual?ano=${anoParam}`);
+    return response.json();
+  },
+
   // Solípedes (com autenticação)
   listarSolipedes: async () => {
     const token = localStorage.getItem("token");
@@ -67,6 +73,29 @@ export const api = {
       body: JSON.stringify(dados),
     });
     return response.json();
+  },
+
+  movimentacaoBulk: async ({ numeros, novoStatus, senha }) => {
+    const token = localStorage.getItem("token");
+    const response = await fetch(`${API_BASE_URL}/gestaoFVR/solipedes/movimentacao/bulk`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ numeros, novoStatus, senha }),
+    });
+
+    const contentType = response.headers.get("content-type") || "";
+    const raw = await response.text();
+    if (contentType.includes("application/json")) {
+      try {
+        return JSON.parse(raw);
+      } catch (e) {
+        return { error: "Resposta JSON inválida", detail: raw };
+      }
+    }
+    return { error: raw || "Falha desconhecida" };
   },
 
   excluirSolipede: async (numero) => {
@@ -135,6 +164,12 @@ export const api = {
   // Prontuário
   salvarProntuario: async (dados) => {
     const token = localStorage.getItem("token");
+    
+    console.log("🔐 salvarProntuario:");
+    console.log("   Token presente:", token ? "✅ Sim" : "❌ Não");
+    console.log("   Token (primeiros 30 chars):", token ? token.substring(0, 30) + "..." : "N/A");
+    console.log("   Dados sendo enviados:", dados);
+    
     const response = await fetch(`${API_BASE_URL}/gestaoFVR/prontuario`, {
       method: "POST",
       headers: {
@@ -143,7 +178,10 @@ export const api = {
       },
       body: JSON.stringify(dados),
     });
-    return response.json();
+    
+    const resultado = await response.json();
+    console.log("📥 Resposta do servidor:", resultado);
+    return resultado;
   },
 
   listarProntuario: async (numero) => {
