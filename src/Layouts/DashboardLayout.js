@@ -2,6 +2,7 @@ import { Outlet } from "react-router-dom";
 import { Container, Row, Col } from "react-bootstrap";
 import HeaderDashboard from "../components/HeaderGestao/HeaderDashboard";
 import FooterDashboard from "../components/HeaderGestao/FooterDashboard";
+
 const DashboardLayout = () => {
   return (
     <>
@@ -22,8 +23,7 @@ const DashboardLayout = () => {
         </Container>
       </main>
 
-            <FooterDashboard />
-
+      <FooterDashboard />
     </>
   );
 };

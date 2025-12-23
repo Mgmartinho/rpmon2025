@@ -22,6 +22,7 @@ import {
   BsBoxArrowInRight,
   BsPersonCircle,
   BsPerson,
+  BsTrash,
 } from "react-icons/bs";
 
 import { HiCog8Tooth } from "react-icons/hi2";
@@ -144,6 +145,12 @@ const HeaderDashboard = () => {
                 <OverlayTrigger overlay={<Tooltip>Nova Tarefa</Tooltip>}>
                   <Nav.Link as={NavLink} to="/dashboard/gestaofvr/taskcreatepage">
                     <BsClipboardPlus />
+                  </Nav.Link>
+                </OverlayTrigger>
+
+                <OverlayTrigger overlay={<Tooltip>Exclusão de Solípedes</Tooltip>}>
+                  <Nav.Link as={NavLink} to="/dashboard/gestaofvr/exclusao">
+                    <BsTrash />
                   </Nav.Link>
                 </OverlayTrigger>
               </>

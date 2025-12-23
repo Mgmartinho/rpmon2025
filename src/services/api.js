@@ -75,23 +75,45 @@ export const api = {
     return response.json();
   },
 
-  movimentacaoBulk: async ({ numeros, novoStatus, senha }) => {
+  movimentacaoBulk: async ({ numeros, novaMovimentacao, observacao, senha }) => {
+    console.log("🌐 API.movimentacaoBulk CHAMADO");
+    console.log("   - numeros:", numeros);
+    console.log("   - novaMovimentacao:", novaMovimentacao);
+    console.log("   - observacao:", observacao);
+    console.log("   - senha:", senha ? "****" : "vazia");
+    
     const token = localStorage.getItem("token");
-    const response = await fetch(`${API_BASE_URL}/gestaoFVR/solipedes/movimentacao/bulk`, {
+    console.log("   - token:", token ? "existe" : "NÃO EXISTE");
+    
+    const url = `${API_BASE_URL}/gestaoFVR/solipedes/movimentacao/bulk`;
+    console.log("   - URL:", url);
+    
+    const body = { numeros, novaMovimentacao, observacao, senha };
+    console.log("   - Body completo:", body);
+    
+    const response = await fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ numeros, novoStatus, senha }),
+      body: JSON.stringify(body),
     });
 
+    console.log("   - Response status:", response.status);
+    console.log("   - Response ok:", response.ok);
+    
     const contentType = response.headers.get("content-type") || "";
     const raw = await response.text();
+    console.log("   - Response raw:", raw);
+    
     if (contentType.includes("application/json")) {
       try {
-        return JSON.parse(raw);
+        const parsed = JSON.parse(raw);
+        console.log("   - Response parsed:", parsed);
+        return parsed;
       } catch (e) {
+        console.error("   - Erro ao parsear JSON:", e);
         return { error: "Resposta JSON inválida", detail: raw };
       }
     }
@@ -213,4 +235,27 @@ export const api = {
     });
     return response.json();
   },
+
+  // Exclusão (soft delete)
+  excluirSolipede: async (numero, motivoExclusao, senha) => {
+    const token = localStorage.getItem("token");
+    const response = await fetch(`${API_BASE_URL}/gestaoFVR/solipedes/excluir`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ numero, motivoExclusao, senha }),
+    });
+    return response.json();
+  },
+
+  listarExcluidos: async () => {
+    const token = localStorage.getItem("token");
+    const response = await fetch(`${API_BASE_URL}/gestaoFVR/solipedes/excluidos/listar`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.json();
+  },
 };
+

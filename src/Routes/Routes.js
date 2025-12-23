@@ -24,6 +24,7 @@ import CriarUsuario from "../Pages/Dashboard/usuarios/CriarUsuario";
 import ProntuarioSolipedeEdit from "../Pages/Dashboard/gestaoFVR/pronturarioEdit";
 import ConfiguracaoPerfil from "../Pages/Dashboard/usuarios/configPerfil";
 import EstatisticasGestaoFVR from "../Pages/Dashboard/gestaoFVR/EstatisticasGestaoFVR";
+import ExclusaoSolipede from "../Pages/Dashboard/gestaoFVR/ExclusaoSolipede";
 
 const MainRoutes = () => {
   return (
@@ -52,6 +53,7 @@ const MainRoutes = () => {
         <Route path="gestaofvr/solipede/:numero/prontuario" element={<ProtectedRoute><ProntuarioSolipede /></ProtectedRoute>} />
         <Route path="gestaofvr/solipede/prontuario/edit/:numero" element={<ProtectedRoute><ProntuarioSolipedeEdit /></ProtectedRoute>} />
         <Route path="gestaofvr/solipede/edit/:numero" element={<ProtectedRoute><EditarSolipede /></ProtectedRoute>} />
+        <Route path="gestaofvr/exclusao" element={<ProtectedRoute><ExclusaoSolipede /></ProtectedRoute>} />
         <Route path="gestaofvr/configPerfil" element={<ProtectedRoute><ConfiguracaoPerfil /></ProtectedRoute>} />
 
       </Route>

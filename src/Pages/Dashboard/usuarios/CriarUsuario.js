@@ -135,20 +135,7 @@ const CriarUsuario = () => {
                 </Col>
               </Row>
 
-              <Form.Group className="mb-4">
-                <Form.Label>Perfil de acesso</Form.Label>
-                <Form.Select
-                  name="perfil"
-                  value={formData.perfil}
-                  onChange={handleChange}
-                  required
-                >
-                  <option value="">Selecione</option>
-                  <option value="admin">Administrador</option>
-                  <option value="veterinario">Veterinário</option>
-                  <option value="operador">Operador</option>
-                </Form.Select>
-              </Form.Group>
+            
 
               <div className="d-grid">
                 <Button type="submit" variant="primary" disabled={loading}>

@@ -284,7 +284,7 @@ const AdminCargaHoraria = () => {
                 value={filtroEsqd}
                 onChange={(e) => setFiltroEsqd(e.target.value)}
               >
-                <option value="Todos">Todos</option>
+                <option value="Todos">Todos Esquadrões</option>
                 <option value="1 Esquadrao">1º Esqd</option>
                 <option value="2 Esquadrao">2º Esqd</option>
                 <option value="3 Esquadrao">3º Esqd</option>

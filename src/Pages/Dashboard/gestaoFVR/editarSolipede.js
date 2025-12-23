@@ -21,30 +21,30 @@ const EditarSolipede = () => {
   });
 
   // busca os dados do solípede ao carregar a página
-useEffect(() => {
-  const fetchSolipede = async () => {
-    try {
-      const data = await api.obterSolipede(numero);
-      
-      if (data.error) throw new Error(data.error);
+  useEffect(() => {
+    const fetchSolipede = async () => {
+      try {
+        const data = await api.obterSolipede(numero);
 
-      // 🔽 CONVERSÃO DA DATA PARA YYYY-MM-DD
-      const dataFormatada = {
-        ...data,
-        DataNascimento: data.DataNascimento
-          ? data.DataNascimento.split("T")[0]
-          : "",
-      };
+        if (data.error) throw new Error(data.error);
 
-      setFormData(dataFormatada);
-    } catch (error) {
-      console.error(error);
-      alert("Erro ao carregar dados do solípede");
-    }
-  };
+        // 🔽 CONVERSÃO DA DATA PARA YYYY-MM-DD
+        const dataFormatada = {
+          ...data,
+          DataNascimento: data.DataNascimento
+            ? data.DataNascimento.split("T")[0]
+            : "",
+        };
 
-  fetchSolipede();
-}, [numero]);
+        setFormData(dataFormatada);
+      } catch (error) {
+        console.error(error);
+        alert("Erro ao carregar dados do solípede");
+      }
+    };
+
+    fetchSolipede();
+  }, [numero]);
 
 
   const handleChange = (e) => {
@@ -182,12 +182,35 @@ useEffect(() => {
               <Row className="mb-3">
                 <Col md={6}>
                   <Form.Label>Alocação</Form.Label>
-                  <Form.Control
+                  <Form.Select
                     name="alocacao"
-                    value={formData.alocacao}
+                    value={formData.alocacao || ""}
                     onChange={handleChange}
-                  />
+                  >
+                    <option value="">Selecione</option>
+                    <option value=""></option>
+                    <option value="RPMon">RPMon</option>
+                    <option value="Barro Branco">Barro Branco</option>
+                    <option value="Avaré">Avaré</option>
+                    <option value="Bauru">Bauru</option>
+                    <option value="Campinas">Campinas</option>
+                    <option value="Taubaté">Taubaté</option>
+                    <option value="Colina">Colina</option>
+                    <option value="Itapetininga">Itapetininga</option>
+                    <option value="Marília">Marília</option>
+                    <option value="Mauá">Mauá</option>
+                    <option value="Presidente Prudente">P. Prudente</option>
+                    <option value="Hospital Veterinário">Hosp Vet</option>
+                    <option value="Ribeirão Preto">Ribeirão Preto</option>
+                    <option value="Rio de Janeiro">Rio de Janeiro</option>
+                    <option value="Santos">Santos</option>
+                    <option value="São Bernardo do Campo">São Bernardo</option>
+                    <option value="Sorocaba">Sorocaba</option>
+                    <option value="São José do Rio Preto">São José do Rio Preto</option>
+                    <option value="Barretos">Barretos</option>
+                  </Form.Select>
                 </Col>
+
 
                 <Col md={6}>
                   <Form.Label>Esquadrão </Form.Label>
@@ -231,6 +254,7 @@ useEffect(() => {
                     onChange={handleChange}
                   >
                     <option value="">Selecione</option>
+                    <option value=""> </option>
                     <option value="RPMon">RPMon</option>
                     <option value="Barro Branco">Barro Branco</option>
                     <option value="Hospital Veterinario">

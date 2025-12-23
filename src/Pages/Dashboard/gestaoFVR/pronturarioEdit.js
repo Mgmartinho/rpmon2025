@@ -42,6 +42,13 @@ export default function ProntuarioSolipedeEdit() {
 
   const [loadingHistorico, setLoadingHistorico] = useState(true);
 
+  const [dataLancamento, setDataLancamento] = useState("");
+  const [dataValidade, setDataValidade] = useState("");
+
+  const [tipoBaixa, setTipoBaixa] = useState("");
+
+
+
   useEffect(() => {
     const fetchSolipede = async () => {
       try {
@@ -78,10 +85,10 @@ export default function ProntuarioSolipedeEdit() {
   const gerarDocumentoFormatado = () => {
     if (!historico || historico.length === 0) return '';
 
-    const dataAtual = new Date().toLocaleDateString('pt-BR', { 
-      day: '2-digit', 
-      month: 'long', 
-      year: 'numeric' 
+    const dataAtual = new Date().toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric'
     });
 
     let documento = `
@@ -144,9 +151,9 @@ export default function ProntuarioSolipedeEdit() {
             II - HISTÓRICO CLÍNICO E EVOLUÇÃO
           </h4>
           ${historico.map((registro, index) => {
-            const dataBR = new Date(registro.data_criacao).toLocaleDateString('pt-BR');
-            const horaBR = new Date(registro.data_criacao).toLocaleTimeString('pt-BR');
-            return `
+      const dataBR = new Date(registro.data_criacao).toLocaleDateString('pt-BR');
+      const horaBR = new Date(registro.data_criacao).toLocaleTimeString('pt-BR');
+      return `
               <div style="margin-bottom: 25px; page-break-inside: avoid;">
                 <p style="margin: 0 0 8px 0;">
                   <strong>${index + 1}. ${registro.tipo.toUpperCase()}</strong>
@@ -165,7 +172,7 @@ export default function ProntuarioSolipedeEdit() {
                 ` : ''}
               </div>
             `;
-          }).join('')}
+    }).join('')}
         </div>
 
         <hr style="border: 1px solid #000; margin: 30px 0;">
@@ -185,7 +192,7 @@ export default function ProntuarioSolipedeEdit() {
   const exportarPDF = () => {
     const element = document.createElement('div');
     element.innerHTML = gerarDocumentoFormatado();
-    
+
     const opt = {
       margin: [15, 15],
       filename: `Prontuario_${solipede.nome}_${solipede.numero}.pdf`,
@@ -281,7 +288,7 @@ export default function ProntuarioSolipedeEdit() {
         const historicoAtualizado = await api.listarProntuario(numero);
         console.log("📖 Histórico atualizado:", historicoAtualizado);
         setHistorico(historicoAtualizado);
-        
+
         setObservacao("");
         setRecomendacoes("");
         setMensagem({
@@ -415,8 +422,8 @@ export default function ProntuarioSolipedeEdit() {
                 <strong>
                   {solipede.DataNascimento
                     ? new Date(solipede.DataNascimento).toLocaleDateString(
-                        "pt-BR"
-                      )
+                      "pt-BR"
+                    )
                     : "N/A"}
                 </strong>
               </ListGroup.Item>
@@ -516,8 +523,8 @@ export default function ProntuarioSolipedeEdit() {
                   <>
                     {/* Botões de Exportação */}
                     <div className="d-flex gap-2 mb-3">
-                      <Button 
-                        variant="danger" 
+                      <Button
+                        variant="danger"
                         size="sm"
                         onClick={exportarPDF}
                         disabled={!historico || historico.length === 0}
@@ -525,8 +532,8 @@ export default function ProntuarioSolipedeEdit() {
                         <BsFilePdf className="me-2" />
                         Exportar PDF
                       </Button>
-                      <Button 
-                        variant="primary" 
+                      <Button
+                        variant="primary"
                         size="sm"
                         onClick={exportarWord}
                         disabled={!historico || historico.length === 0}
@@ -535,12 +542,12 @@ export default function ProntuarioSolipedeEdit() {
                         Exportar Word
                       </Button>
                     </div>
-                    
+
                     <Card className="shadow-sm border-0">
                       <Card.Body style={{ backgroundColor: '#f8f9fa' }}>
                         <div
                           dangerouslySetInnerHTML={{ __html: visaoGeralTexto }}
-                          style={{ 
+                          style={{
                             backgroundColor: 'white',
                             padding: '20px',
                             borderRadius: '5px',
@@ -574,9 +581,89 @@ export default function ProntuarioSolipedeEdit() {
                           <option>Tratamento</option>
                           <option>Exame</option>
                           <option>Vacinação</option>
-                          <option>Observação Geral</option>
+                          <option>Baixa</option>
+                          <option>Restrições</option>
                         </Form.Select>
                       </Form.Group>
+
+                      {tipoObservacao === "Baixa" && (
+                        <div className="mt-2">
+                          {/* ===== LINHA 1 — BAIXA ===== */}
+                          <Row className="align-items-start">
+                            <Col md="auto">
+                              <Form.Select
+                                size="sm"
+                                value={tipoBaixa}
+                                onChange={(e) => setTipoBaixa(e.target.value)}
+                                style={{ maxWidth: "220px" }}
+                              >
+                                <option value="">Selecione</option>
+                                <option value="Baixa Eterna">Baixa Eterna</option>
+                              </Form.Select>
+                            </Col>
+
+                            <Col>
+                              {tipoBaixa === "Baixa Eterna" && (
+                                <div
+                                  className="p-2 rounded"
+                                  style={{
+                                    backgroundColor: "#fff3cd",
+                                    border: "1px solid #ffeeba",
+                                    color: "#856404",
+                                    fontSize: "0.85rem",
+                                  }}
+                                >
+                                  <strong>Atenção:</strong> Esta seleção será marcada como{" "}
+                                  <strong>Baixa Eterna</strong>. Caso seja uma baixa comum, deixe o
+                                  campo sem seleção.
+                                </div>
+                              )}
+                            </Col>
+                          </Row>
+
+                          {/* ===== LINHA 2 — DATAS ===== */}
+                          <Row className="mt-3">
+                            <Col md={6}>
+                              <Form.Group className="mb-3">
+                                <Form.Label className="fw-bold">
+                                  Data de Lançamento
+                                </Form.Label>
+                                <Form.Control
+                                  type="date"
+                                  size="sm"
+                                  value={dataLancamento}
+                                  onChange={(e) => setDataLancamento(e.target.value)}
+                                />
+                              </Form.Group>
+                            </Col>
+
+                            <Col md={6}>
+                              <Form.Group className="mb-3">
+                                <Form.Label className="fw-bold">
+                                  Data de Validade
+                                </Form.Label>
+                                <Form.Control
+                                  type="date"
+                                  size="sm"
+                                  value={dataValidade}
+                                  onChange={(e) => setDataValidade(e.target.value)}
+                                  min={dataLancamento}
+                                />
+                              </Form.Group>
+                            </Col>
+
+                            <Col xs={12}>
+                              <small className="text-muted d-block mb-3">
+                                * As datas de lançamento e validade são opcionais e servem para
+                                controle interno e auxílio do{" "}
+                                <strong>Pagador de cavalo</strong>.
+                              </small>
+                            </Col>
+                          </Row>
+                        </div>
+                      )}
+
+
 
                       <Form.Group className="mb-3">
                         <Form.Label className="fw-bold">Observação</Form.Label>
@@ -662,7 +749,7 @@ export default function ProntuarioSolipedeEdit() {
                   historico.map((registro) => {
                     const dataBR = new Date(registro.data_criacao).toLocaleDateString('pt-BR');
                     const horaBR = new Date(registro.data_criacao).toLocaleTimeString('pt-BR');
-                    
+
                     return (
                       <Card
                         key={registro.id}
@@ -699,7 +786,7 @@ export default function ProntuarioSolipedeEdit() {
                           <div className="bg-light p-2 rounded mb-2">
                             <p
                               className="mb-0"
-                              style={{ fontSize: "14px", lineHeight: "1.6" }}
+                              style={{ fontSize: "14px", lineHeight: "1.6", whiteSpace: "pre-line" }}
                             >
                               {registro.observacao}
                             </p>
@@ -718,6 +805,7 @@ export default function ProntuarioSolipedeEdit() {
                   })
                 )}
               </Tab.Pane>
+
             </Tab.Content>
           </Tab.Container>
         </Col>

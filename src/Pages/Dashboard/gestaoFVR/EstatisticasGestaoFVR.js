@@ -16,7 +16,7 @@ import { api } from "../../../services/api";
 const EstatisticasGestaoFVR = () => {
   const [dados, setDados] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filtroEsqd, setFiltroEsqd] = useState("Todos");
+  const [filtroAlocacao, setFiltroAlocacao] = useState("Todos");
 
   useEffect(() => {
     const fetchDados = async () => {
@@ -42,24 +42,55 @@ const EstatisticasGestaoFVR = () => {
 
   const normalizar = (txt) => (txt ? txt.toLowerCase().trim() : "");
 
+  // Função para calcular idade
+  const calcularIdade = (dataNascimento) => {
+    if (!dataNascimento) return 0;
+    const hoje = new Date();
+    const nascimento = new Date(dataNascimento);
+    let idade = hoje.getFullYear() - nascimento.getFullYear();
+    const mes = hoje.getMonth() - nascimento.getMonth();
+    if (mes < 0 || (mes === 0 && hoje.getDate() < nascimento.getDate())) {
+      idade--;
+    }
+    return idade;
+  };
+
   // ===== KPIs =====
   const total = dados.length;
   const ativos = dados.filter((d) => normalizar(d.status) === "ativo").length;
   const baixados = dados.filter((d) =>
     normalizar(d.status).includes("baix")
   ).length;
-  const totalHoras = dados.reduce(
-    (acc, d) =>
-      acc + (d.historicoHoras || []).reduce((a, h) => a + (h.horas || 0), 0),
-    0
-  );
-  const mediaHorasAtivos = (totalHoras / (ativos || 1)).toFixed(1);
+  
+  // KPIs por idade
+  const cavalosAte10Anos = dados.filter((d) => calcularIdade(d.DataNascimento) <= 10).length;
+  const cavalos10OuMais = dados.filter((d) => calcularIdade(d.DataNascimento) > 10).length;
+  
+  // KPIs por sexo
+  const tiposMachos = ["macho", "macho castrado", "Garanhao", "criptorquida"];
+  const machos = dados.filter((d) => tiposMachos.includes(normalizar(d.sexo))).length;
+  const femeas = dados.filter((d) => normalizar(d.sexo) === "femea" || normalizar(d.sexo) === "fêmea").length;
+  
+  // Pelagens mais comuns
+  const pelagemContagem = dados.reduce((acc, d) => {
+    const pelagem = d.pelagem || "Não informada";
+    acc[pelagem] = (acc[pelagem] || 0) + 1;
+    return acc;
+  }, {});
+  const pelagemMaisComum = Object.entries(pelagemContagem)
+    .sort((a, b) => b[1] - a[1])[0] || ["N/A", 0];
 
-  // ===== Filtro por esquadrão =====
+  // ===== Filtro por alocação =====
   const filtrados = useMemo(() => {
-    if (filtroEsqd === "Todos") return dados;
-    return dados.filter((d) => d.esquadrao === filtroEsqd);
-  }, [filtroEsqd, dados]);
+    if (filtroAlocacao === "Todos") return dados;
+    return dados.filter((d) => d.alocacao === filtroAlocacao);
+  }, [filtroAlocacao, dados]);
+
+  // Lista de alocações disponíveis
+  const alocacoesDisponiveis = useMemo(() => {
+    const alocacoes = new Set(dados.map(d => d.alocacao).filter(Boolean));
+    return Array.from(alocacoes).sort();
+  }, [dados]);
 
   // ===== Cavalos por esquadrão =====
   const dadosEsqd = useMemo(() => {
@@ -72,71 +103,44 @@ const EstatisticasGestaoFVR = () => {
       .sort((a, b) => a.esquadrao.localeCompare(b.esquadrao));
   }, [filtrados]);
 
-  // ===== Evolução mensal por categoria =====
-// ===== Evolução mensal por categoria =====
-// ===== Evolução mensal por categoria (com relação ao cavalo) =====
-const evolucaoMensalCategorias = useMemo(() => {
-  const hoje = new Date();
-  const mesAtual = hoje.getMonth() + 1;
-  const anoAtual = hoje.getFullYear();
-
-  const categorias = [
-    "1 Esquadrao",
-    "2 Esquadrao",
-    "3 Esquadrao",
-    "4 Esquadrao",
-    "Equoterapia",
-    "Representação",
-  ];
-
-  // Objeto temporário para agrupar por data
-  const agrupadosPorData = {};
-
-  // Percorre cada cavalo válido
-  dados.forEach((cavalo) => {
-    const historico = cavalo.historicoHoras || [];
-    historico.forEach((h) => {
-      const data = new Date(h.data);
-      const dataStr = h.data;
-
-      // Considera apenas registros do mês/ano atual
-      if (data.getMonth() + 1 === mesAtual && data.getFullYear() === anoAtual) {
-        // Inicializa objeto para a data se ainda não existir
-        if (!agrupadosPorData[dataStr]) {
-          agrupadosPorData[dataStr] = { data: dataStr };
-          categorias.forEach((c) => (agrupadosPorData[dataStr][c] = 0));
-        }
-
-        // Só adiciona horas se a categoria for válida
-        if (categorias.includes(h.categoria)) {
-          agrupadosPorData[dataStr][h.categoria] += h.horas || 0;
-        }
-      }
-    });
-  });
-
-  // Converte para array e ordena por data
-  return Object.values(agrupadosPorData).sort(
-    (a, b) => new Date(a.data) - new Date(b.data)
-  );
-}, [dados]);
-
-
-
-  // ===== Carga horária por esquadrão =====
-  const cargaPorEsqd = useMemo(() => {
+  // ===== Cavalos por alocação =====
+  const dadosAlocacao = useMemo(() => {
     const agrupados = {};
-    dados.forEach((d) => {
-      const esquadrao = d.esquadrao || "Sem Esquadrão";
-      const totalHoras = d.cargaHoraria || 0;
-      agrupados[esquadrao] = (agrupados[esquadrao] || 0) + totalHoras;
+    filtrados.forEach((item) => {
+      const alocacao = item.alocacao || "Sem alocação";
+      agrupados[alocacao] = (agrupados[alocacao] || 0) + 1;
     });
-
     return Object.entries(agrupados)
-      .filter(([esqd]) => filtroEsqd === "Todos" || esqd === filtroEsqd)
-      .map(([esqd, horas]) => ({ esquadrao: esqd, horas }))
-      .sort((a, b) => a.esquadrao.localeCompare(b.esquadrao));
-  }, [dados, filtroEsqd]);
+      .map(([key, value]) => ({ alocacao: key, total: value }))
+      .sort((a, b) => b.total - a.total)
+  }, [filtrados]);
+
+  // ===== Dados por sexo =====
+  const dadosSexo = useMemo(() => {
+    const agrupados = {};
+    filtrados.forEach((item) => {
+      const sexo = item.sexo || "Não informado";
+      agrupados[sexo] = (agrupados[sexo] || 0) + 1;
+    });
+    return Object.entries(agrupados)
+      .map(([key, value]) => ({ name: key, value }))
+      .sort((a, b) => b.value - a.value);
+  }, [filtrados]);
+
+  // ===== Dados por pelagem =====
+  const dadosPelagem = useMemo(() => {
+    const agrupados = {};
+    filtrados.forEach((item) => {
+      const pelagem = item.pelagem || "Não informada";
+      agrupados[pelagem] = (agrupados[pelagem] || 0) + 1;
+    });
+    return Object.entries(agrupados)
+      .map(([key, value]) => ({ name: key, value }))
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 8); // Top 8 pelagens
+  }, [filtrados]);
+
+
 
   // ===== Status Pie =====
   const cores = ["#28a745", "#f14b6dff"];
@@ -152,42 +156,6 @@ const evolucaoMensalCategorias = useMemo(() => {
       { name: "Baixados", value: baixadosCount },
     ];
   }, [filtrados]);
-
-  // ===== Carga horária por cavalo =====
-  const cargaPorCavalo = useMemo(
-    () =>
-      filtrados.map((d) => ({
-        nome: d.nome || "Sem Nome",
-        horas: (d.historicoHoras || []).reduce(
-          (acc, h) => acc + (h.horas || 0),
-          0
-        ),
-      })),
-    [filtrados]
-  );
-
-  // ===== Evolução mensal =====
-  const evolucaoMensal = useMemo(() => {
-    const hoje = new Date();
-    const data30Dias = new Date();
-    data30Dias.setDate(hoje.getDate() - 30);
-
-    const resultado = [];
-    for (let i = 0; i <= 30; i++) {
-      const dia = new Date(data30Dias);
-      dia.setDate(data30Dias.getDate() + i);
-      const diaStr = dia.toISOString().split("T")[0];
-      const totalDia = dados.reduce((acc, d) => {
-        const historico = d.historicoHoras || [];
-        const hDia = historico
-          .filter((h) => h.data === diaStr)
-          .reduce((a, h) => a + (h.horas || 0), 0);
-        return acc + hDia;
-      }, 0);
-      resultado.push({ data: diaStr, horas: totalDia });
-    }
-    return resultado;
-  }, [dados]);
 
   // ===== Loader =====
   if (loading) {
@@ -209,16 +177,20 @@ return (
         {/* ===== KPIs ===== */}
         <Row className="mb-4 g-3">
           {[
-            { label: "Total de Cavalos", value: filtroEsqd === "Todos" ? total : filtrados.length },
-            { label: "Ativos", value: filtroEsqd === "Todos" ? ativos : filtrados.filter((d) => normalizar(d.status) === "ativo").length, color: "success" },
-            { label: "Baixados", value: filtroEsqd === "Todos" ? baixados : filtrados.filter((d) => normalizar(d.status).includes("baix")).length, color: "danger" },
-            { label: "Total de Horas", value: `${filtrados.reduce((acc, d) => acc + (d.historicoHoras || []).reduce((a, h) => a + (h.horas || 0), 0), 0)} h` },
-            { label: "Média por Ativo", value: `${(filtrados.reduce((acc, d) => acc + (d.historicoHoras || []).reduce((a, h) => a + (h.horas || 0), 0), 0) / (filtrados.filter((d) => normalizar(d.status) === "ativo").length || 1)).toFixed(1)} h` },
+            { label: "Total de Cavalos", value: filtroAlocacao === "Todos" ? total : filtrados.length, color: "primary" },
+            { label: "Ativos", value: filtroAlocacao === "Todos" ? ativos : filtrados.filter((d) => normalizar(d.status) === "ativo").length, color: "success" },
+            { label: "Baixados", value: filtroAlocacao === "Todos" ? baixados : filtrados.filter((d) => normalizar(d.status).includes("baix")).length, color: "danger" },
+            { label: "Até 10 anos", value: filtroAlocacao === "Todos" ? cavalosAte10Anos : filtrados.filter((d) => calcularIdade(d.DataNascimento) <= 10).length, color: "info" },
+            { label: "10 anos ou +", value: filtroAlocacao === "Todos" ? cavalos10OuMais : filtrados.filter((d) => calcularIdade(d.DataNascimento) > 10).length, color: "warning" },
+            { label: "Machos", value: filtroAlocacao === "Todos" ? machos : filtrados.filter((d) => tiposMachos.includes(normalizar(d.sexo))).length, color: "secondary" },
+            { label: "Fêmeas", value: filtroAlocacao === "Todos" ? femeas : filtrados.filter((d) => normalizar(d.sexo) === "femea" || normalizar(d.sexo) === "fêmea").length, color: "secondary" },
+            { label: `Pelagem Comum`, value: pelagemMaisComum[0], subtitle: `${pelagemMaisComum[1]} cavalos` },
           ].map((kpi, idx) => (
-            <Col key={idx} md={3}>
+            <Col key={idx} xs={6} md={3}>
               <Card className="p-3 text-center shadow-sm border-0 rounded-3">
-                <h6 className="text-muted">{kpi.label}</h6>
+                <h6 className="text-muted mb-2">{kpi.label}</h6>
                 <h3 className={kpi.color ? `text-${kpi.color}` : ""}>{kpi.value}</h3>
+                {kpi.subtitle && <small className="text-muted">{kpi.subtitle}</small>}
               </Card>
             </Col>
           ))}
@@ -228,17 +200,16 @@ return (
         <Row className="mb-4">
           <Col md={4}>
             <Form.Select
-              value={filtroEsqd}
-              onChange={(e) => setFiltroEsqd(e.target.value)}
+              value={filtroAlocacao}
+              onChange={(e) => setFiltroAlocacao(e.target.value)}
               className="shadow-sm rounded-3"
             >
-              <option value="Todos">Todos os Esquadrões</option>
-              <option value="1 Esquadrao">1º Esqd</option>
-              <option value="2 Esquadrao">2º Esqd</option>
-              <option value="3 Esquadrao">3º Esqd</option>
-              <option value="4 Esquadrao">4º Esqd</option>
-              <option value="Equoterapia">Equoterapia</option>
-              <option value="Representacao">Representação</option>
+              <option value="Todos">Todas as Alocações</option>
+              {alocacoesDisponiveis.map((alocacao) => (
+                <option key={alocacao} value={alocacao}>
+                  {alocacao}
+                </option>
+              ))}
             </Form.Select>
           </Col>
         </Row>
@@ -248,11 +219,11 @@ return (
           <Col md={8} className="mb-4">
             <Card className="p-3 shadow-sm border-0 rounded-3">
               <h5 className="text-center">
-                Cavalos por Esquadrão {filtroEsqd !== "Todos" && `(Filtro: ${filtroEsqd})`}
+                Cavalos por Alocação  {filtroAlocacao !== "Todos" && `(Filtro: ${filtroAlocacao})`}
               </h5>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={dadosEsqd}>
-                  <XAxis dataKey="esquadrao" />
+              <ResponsiveContainer width="100%" height={350}>
+                <BarChart data={dadosAlocacao}>
+                  <XAxis dataKey="alocacao" angle={-45} textAnchor="end" height={100} />
                   <YAxis />
                   <Tooltip />
                   <Bar dataKey="total" fill="#007bff" />
@@ -264,9 +235,9 @@ return (
           <Col md={4} className="mb-4">
             <Card className="p-3 shadow-sm border-0 rounded-3">
               <h5 className="text-center">
-                Status {filtroEsqd !== "Todos" && `(Filtro: ${filtroEsqd})`}
+                Status {filtroAlocacao !== "Todos" && `(Filtro: ${filtroAlocacao})`}
               </h5>
-              <ResponsiveContainer width="100%" height={300}>
+              <ResponsiveContainer width="100%" height={350}>
                 <PieChart>
                   <Pie data={dadosStatus} dataKey="value" nameKey="name" outerRadius={100}>
                     {dadosStatus.map((entry, index) => (
@@ -281,43 +252,42 @@ return (
         </Row>
 
         <Row>
-          <Col md={12} className="mb-4">
+          <Col md={6} className="mb-4">
             <Card className="p-3 shadow-sm border-0 rounded-3">
               <h5 className="text-center">
-                Carga Horária por Esquadrão {filtroEsqd !== "Todos" && `(Filtro: ${filtroEsqd})`}
+                Distribuição por Sexo {filtroAlocacao !== "Todos" && `(Filtro: ${filtroAlocacao})`}
               </h5>
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={cargaPorEsqd}>
-                  <XAxis dataKey="esquadrao" />
-                  <YAxis />
+                <PieChart>
+                  <Pie data={dadosSexo} dataKey="value" nameKey="name" outerRadius={100} label>
+                    <Cell fill="#17a2b8" />
+                    <Cell fill="#ff6b9d" />
+                    <Cell fill="#6c757d" />
+                  </Pie>
                   <Tooltip />
-                  <Bar dataKey="horas" fill="#f36812ff" />
+                </PieChart>
+              </ResponsiveContainer>
+            </Card>
+          </Col>
+
+          <Col md={6} className="mb-4">
+            <Card className="p-3 shadow-sm border-0 rounded-3">
+              <h5 className="text-center">
+                Pelagens Mais Comuns (Top 8) {filtroAlocacao !== "Todos" && `(Filtro: ${filtroAlocacao})`}
+              </h5>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={dadosPelagem} layout="vertical">
+                  <XAxis type="number" />
+                  <YAxis type="category" dataKey="name" width={120} />
+                  <Tooltip />
+                  <Bar dataKey="value" fill="#28a745" />
                 </BarChart>
               </ResponsiveContainer>
             </Card>
           </Col>
         </Row>
 
-        <Row>
-          <Col md={12}>
-            <Card className="p-3 shadow-sm border-0 rounded-3">
-              <h5 className="text-center">Evolução da Carga Horária (Mês Atual)</h5>
-              <ResponsiveContainer width="100%" height={350}>
-                <BarChart data={evolucaoMensalCategorias}>
-                  <XAxis dataKey="data" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="1 Esquadrao" fill="#1f77b4" />
-                  <Bar dataKey="2 Esquadrao" fill="#ff7f0e" />
-                  <Bar dataKey="3 Esquadrao" fill="#2ca02c" />
-                  <Bar dataKey="4 Esquadrao" fill="#d62728" />
-                  <Bar dataKey="Equoterapia" fill="#9467bd" />
-                  <Bar dataKey="Representação" fill="#8c564b" />
-                </BarChart>
-              </ResponsiveContainer>
-            </Card>
-          </Col>
-        </Row>
+      
       </div>
     </Container>
   );
