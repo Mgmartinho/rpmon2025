@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://localhost:3000";
+const API_BASE_URL = "http://10.37.20.250:3000";
 
 export const api = {
   // Auth

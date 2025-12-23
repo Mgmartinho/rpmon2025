@@ -259,6 +259,23 @@ const GestaoFvr = () => {
     };
   }, [solipeddesOrdenados, itemsPerPage, pageSolipede]);
 
+  //calcular idade
+const calcularIdade = (dataNascimento) => {
+  const hoje = new Date();
+  const nascimento = new Date(dataNascimento);
+
+  let idade = hoje.getFullYear() - nascimento.getFullYear();
+  const m = hoje.getMonth() - nascimento.getMonth();
+
+  if (m < 0 || (m === 0 && hoje.getDate() < nascimento.getDate())) {
+    idade--;
+  }
+
+  return idade;
+};
+
+
+
   /* ===========================
      FUNÇÕES DE EXPORTAÇÃO - MEMOIZADAS
   =========================== */
@@ -623,7 +640,7 @@ const GestaoFvr = () => {
                     {[
                       ["numero", "Nº"],
                       ["nome", "Nome"],
-                      ["DataNascimento", "Ano"],
+                      ["DataNascimento", "Idade"],
                       ["sexo", "Sexo"],
                       ["pelagem", "Pelagem"],
                       ["alocacao", "Alocação"],
@@ -663,7 +680,7 @@ const GestaoFvr = () => {
                       </td>
 
                       <td>{item.nome}</td>
-                      <td>{new Date(item.DataNascimento).getFullYear()}</td>
+                      <td>{calcularIdade(item.DataNascimento)} anos</td>
                       <td>{item.sexo}</td>
                       <td>{item.pelagem}</td>
                       <td>{item.alocacao}</td>

@@ -155,21 +155,34 @@ const CadastrarSolipede = () => {
               </Row>
 
               <Col md={6}>
-                <Form.Label>Esquadrão </Form.Label>
+                <Form.Label>Esquadrão / Batalhao</Form.Label>
                 <Form.Select
                   name="esquadrao"
                   value={formData.esquadrao}
                   onChange={handleChange}
 
                 >
-                  <option value="">Selecione</option>
-                  <option value="1 Esquadrao">1º Esquadrão</option>
-                  <option value="2 Esquadrao">2º Esquadrão</option>
-                  <option value="3 Esquadrao">3º Esquadrão</option>
-                  <option value="4 Esquadrao">4º Esquadrão</option>
-                  <option value="Equoterapia">Equoterapia</option>
-                  <option value="Representacao">Representação</option>
-                </Form.Select>
+                <option value="">Selecione</option>
+                    <option value=""> </option>
+
+                    <option value="1 Esquadrao">1 Esquadrão</option>
+                    <option value="2 Esquadrao">2 Esquadrão</option>
+                    <option value="3 Esquadrao">3 Esquadrão</option>
+                    <option value="4 Esquadrao">4 Esquadrão</option>
+
+                    <option value="Equoterapia">Equoterapia</option>
+                    <option value="Representacao">Representação</option>
+
+                    <option value="1 BAEP">1 BAEP - Campinas</option>
+                    <option value="2 BAEP">2 BAEP - Santos</option>
+                    <option value="3 BAEP">3 BAEP - Taubaté</option>
+                    <option value="6 BAEP">6 BAEP - Mauá/S.B. do Campo</option>
+                    <option value="8 BAEP">8 BAEP - P. Prudente</option>
+                    <option value="9 BAEP">9 BAEP - S. J . do Rio Preto</option>
+                    <option value="11 BAEP">11 BAEP - Barretos/ R. Preto</option>
+                    <option value="13 BAEP">13 BAEP - Bauru/ Marilia</option>
+                    <option value="14 BAEP">14 BAEP - Avaré/Itapetininga/Sorocaba</option>
+                 </Form.Select>
               </Col>
 
               {/* Alocação */}
@@ -263,14 +276,14 @@ const CadastrarSolipede = () => {
                   </Form.Select>
                 </Col>
 
-                <Col md={6}>
+                {/* <Col md={6}>
                   <Form.Label>Restrições</Form.Label>
                   <Form.Control
                     name="restricoes"
                     value={formData.restricoes}
                     onChange={handleChange}
                   />
-                </Col>
+                </Col> */}
               </Row>
 
               {/* AÇÕES */}

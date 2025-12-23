@@ -86,7 +86,7 @@ const ConfiguracaoPerfil = () => {
 
       if (usuario) {
         try {
-          const response = await fetch(`http://localhost:3000/auth/usuarios/${usuario.id}`, {
+          const response = await fetch(`http://10.37.20.250:3000/auth/usuarios/${usuario.id}`, {
             headers: {
               "Authorization": `Bearer ${localStorage.getItem("token")}`,
             },
@@ -134,7 +134,7 @@ const ConfiguracaoPerfil = () => {
   const carregarUsuarios = async () => {
     try {
       setLoading(true);
-      const response = await fetch("http://localhost:3000/auth/usuarios", {
+      const response = await fetch("http://10.37.20.250:3000/auth/usuarios", {
         headers: {
           "Authorization": `Bearer ${localStorage.getItem("token")}`,
         },
@@ -165,7 +165,7 @@ const ConfiguracaoPerfil = () => {
       setLoading(true);
       const usuario = JSON.parse(localStorage.getItem("usuario"));
       
-      const response = await fetch(`http://localhost:3000/auth/usuarios/${usuario.id}`, {
+      const response = await fetch(`http://10.37.20.250:3000/auth/usuarios/${usuario.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -221,7 +221,7 @@ const ConfiguracaoPerfil = () => {
 
     try {
       setLoading(true);
-      const response = await fetch("http://localhost:3000/auth/alterar-senha", {
+      const response = await fetch("http://10.37.20.250:3000/auth/alterar-senha", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -272,7 +272,7 @@ const ConfiguracaoPerfil = () => {
   const salvarEdicaoUsuario = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:3000/auth/usuarios/${usuarioSelecionado.id}`, {
+      const response = await fetch(`http://10.37.20.250:3000/auth/usuarios/${usuarioSelecionado.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -319,7 +319,7 @@ const ConfiguracaoPerfil = () => {
   const salvarPerfilUsuario = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:3000/auth/usuarios/${usuarioSelecionado.id}/perfil`, {
+      const response = await fetch(`http://10.37.20.250:3000/auth/usuarios/${usuarioSelecionado.id}/perfil`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -379,7 +379,7 @@ const ConfiguracaoPerfil = () => {
 
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:3000/auth/usuarios/${usuarioSelecionado.id}/senha`, {
+      const response = await fetch(`http://10.37.20.250:3000/auth/usuarios/${usuarioSelecionado.id}/senha`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
