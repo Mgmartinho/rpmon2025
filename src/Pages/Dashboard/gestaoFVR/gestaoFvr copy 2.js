@@ -518,7 +518,8 @@ const calcularIdade = (dataNascimento) => {
             <Row className="my-4 g-3">
               <Col md={3}>
                 <Card
-                  className="indicator-card"
+                  className="indicator-card indicator-total"
+                  role="button"
                   onClick={() => {
                     setIndicador("TOTAL");
                     setPageSolipede(1);
@@ -536,7 +537,8 @@ const calcularIdade = (dataNascimento) => {
 
               <Col md={3}>
                 <Card
-                  className="indicator-card"
+                  className="indicator-card indicator-success"
+                  role="button"
                   onClick={() => {
                     setIndicador("ATIVOS");
                     setPageSolipede(1);
@@ -554,7 +556,8 @@ const calcularIdade = (dataNascimento) => {
 
               <Col md={3}>
                 <Card
-                  className="indicator-card"
+                  className="indicator-card indicator-danger"
+                  role="button"
                   onClick={() => {
                     setIndicador("BAIXADOS");
                     setPageSolipede(1);
@@ -572,7 +575,8 @@ const calcularIdade = (dataNascimento) => {
 
               <Col md={3}>
                 <Card
-                  className="indicator-card"
+                  className="indicator-card indicator-warning"
+                  role="button"
                   onClick={() => {
                     setIndicador("MOVIMENTACAO");
                     setPageSolipede(1);

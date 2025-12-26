@@ -25,6 +25,9 @@ import {
   BsTrash,
 } from "react-icons/bs";
 
+import { GiHorseshoe } from "react-icons/gi";
+
+
 import { HiCog8Tooth } from "react-icons/hi2";
 
 
@@ -130,11 +133,18 @@ const HeaderDashboard = () => {
             {/* ABAS PROTEGIDAS - SÓ MOSTRA SE LOGADO */}
             {usuario && (
               <>
+                <OverlayTrigger overlay={<Tooltip>Ferradoria</Tooltip>}>
+                  <Nav.Link as={NavLink} to="/dashboard/ferradoria">
+                    <GiHorseshoe />
+                  </Nav.Link>
+                </OverlayTrigger>
+
                 <OverlayTrigger overlay={<Tooltip>Estatísticas</Tooltip>}>
                   <Nav.Link as={NavLink} to="/dashboard/estatisticasfvr">
                     <BsBarChart />
                   </Nav.Link>
                 </OverlayTrigger>
+
 
                 <OverlayTrigger overlay={<Tooltip>Gestão FVR</Tooltip>}>
                   <Nav.Link as={NavLink} to="/dashboard/gestaofvr">

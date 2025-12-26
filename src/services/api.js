@@ -214,6 +214,49 @@ export const api = {
     return response.json();
   },
 
+  contarBaixasPendentes: async (numero) => {
+    const token = localStorage.getItem("token");
+    const response = await fetch(`${API_BASE_URL}/gestaoFVR/prontuario/${numero}/baixas-pendentes`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.json();
+  },
+
+  liberarBaixa: async (prontuarioId) => {
+    const token = localStorage.getItem("token");
+    const response = await fetch(`${API_BASE_URL}/gestaoFVR/prontuario/${prontuarioId}/liberar-baixa`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.json();
+  },
+
+  concluirTratamento: async (prontuarioId, email, senha) => {
+    console.log(`🔐 API: Concluindo tratamento ${prontuarioId} para ${email}`);
+    try {
+      const response = await fetch(`${API_BASE_URL}/gestaoFVR/prontuario/${prontuarioId}/concluir-tratamento`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, senha }),
+      });
+      
+      console.log(`📡 Status da resposta: ${response.status}`);
+      
+      const data = await response.json();
+      console.log("📦 Dados recebidos:", data);
+      
+      return data;
+    } catch (error) {
+      console.error("❌ Erro na requisição:", error);
+      return { error: "Erro de conexão com o servidor" };
+    }
+  },
+
   atualizarProntuario: async (id, dados) => {
     const token = localStorage.getItem("token");
     const response = await fetch(`${API_BASE_URL}/gestaoFVR/prontuario/${id}`, {
@@ -253,6 +296,74 @@ export const api = {
   listarExcluidos: async () => {
     const token = localStorage.getItem("token");
     const response = await fetch(`${API_BASE_URL}/gestaoFVR/solipedes/excluidos/listar`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.json();
+  },
+
+  // Ferrageamentos
+  criarFerrageamento: async (dados) => {
+    const token = localStorage.getItem("token");
+    const response = await fetch(`${API_BASE_URL}/gestaoFVR/ferrageamentos`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(dados),
+    });
+    return response.json();
+  },
+
+  listarFerrageamentos: async () => {
+    const token = localStorage.getItem("token");
+    const response = await fetch(`${API_BASE_URL}/gestaoFVR/ferrageamentos`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.json();
+  },
+
+  listarFerrageamentosComStatus: async () => {
+    const token = localStorage.getItem("token");
+    const response = await fetch(`${API_BASE_URL}/gestaoFVR/ferrageamentos/status`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.json();
+  },
+
+  historicoFerrageamento: async (numero) => {
+    const token = localStorage.getItem("token");
+    const response = await fetch(`${API_BASE_URL}/gestaoFVR/ferrageamentos/historico/${numero}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.json();
+  },
+
+  ultimoFerrageamento: async (numero) => {
+    const token = localStorage.getItem("token");
+    const response = await fetch(`${API_BASE_URL}/gestaoFVR/ferrageamentos/ultimo/${numero}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.json();
+  },
+
+  atualizarFerrageamento: async (id, dados) => {
+    const token = localStorage.getItem("token");
+    const response = await fetch(`${API_BASE_URL}/gestaoFVR/ferrageamentos/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(dados),
+    });
+    return response.json();
+  },
+
+  deletarFerrageamento: async (id) => {
+    const token = localStorage.getItem("token");
+    const response = await fetch(`${API_BASE_URL}/gestaoFVR/ferrageamentos/${id}`, {
+      method: "DELETE",
       headers: { Authorization: `Bearer ${token}` },
     });
     return response.json();

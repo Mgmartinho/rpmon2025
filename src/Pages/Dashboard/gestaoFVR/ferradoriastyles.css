@@ -1,0 +1,82 @@
+/* Estilos específicos para a página de Ferradoria */
+
+.indicator-card {
+  border-radius: 12px;
+  border: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.indicator-card .card-body {
+  padding: 1rem;
+  text-align: center;
+}
+
+.indicator-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 0.5rem;
+  font-size: 18px;
+}
+
+.indicator-card small {
+  display: block;
+  color: #6c757d;
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.indicator-card h4 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.indicator-total .indicator-icon {
+  background-color: #e7f1ff;
+  color: #0d6efd;
+}
+
+.indicator-total h4 {
+  color: #0d6efd;
+}
+
+.indicator-success .indicator-icon {
+  background-color: #d1f2dd;
+  color: #198754;
+}
+
+.indicator-success h4 {
+  color: #198754;
+}
+
+.indicator-warning .indicator-icon {
+  background-color: #fff3cd;
+  color: #ffc107;
+}
+
+.indicator-warning h4 {
+  color: #ffc107;
+}
+
+.indicator-danger .indicator-icon {
+  background-color: #f8d7da;
+  color: #dc3545;
+}
+
+.indicator-danger h4 {
+  color: #dc3545;
+}
+
+.indicator-secondary .indicator-icon {
+  background-color: #e9ecef;
+  color: #6c757d;
+}
+
+.indicator-secondary h4 {
+  color: #6c757d;
+}

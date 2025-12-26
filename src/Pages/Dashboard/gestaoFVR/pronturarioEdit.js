@@ -12,6 +12,7 @@ import {
   Tab,
   ListGroup,
   Alert,
+  Modal,
 } from "react-bootstrap";
 import {
   BsPlusCircle,
@@ -46,7 +47,22 @@ export default function ProntuarioSolipedeEdit() {
   const [dataValidade, setDataValidade] = useState("");
 
   const [tipoBaixa, setTipoBaixa] = useState("");
+  const [baixasPendentes, setBaixasPendentes] = useState(0);
+  const [liberandoBaixa, setLiberandoBaixa] = useState(null);
 
+  // Estados para Vacinação, Vermifugação e AIE
+  const [dataAplicacao, setDataAplicacao] = useState("");
+  const [partidaLote, setPartidaLote] = useState("");
+  const [validadeProduto, setValidadeProduto] = useState("");
+  const [nomeProduto, setNomeProduto] = useState("");
+
+  // Estados para conclusão de tratamento
+  const [showModalConclusao, setShowModalConclusao] = useState(false);
+  const [prontuarioIdConcluir, setProntuarioIdConcluir] = useState(null);
+  const [emailConclusao, setEmailConclusao] = useState("");
+  const [senhaConclusao, setSenhaConclusao] = useState("");
+  const [concluindo, setConcluindo] = useState(false);
+  const [erroConclusao, setErroConclusao] = useState("");
 
 
   useEffect(() => {
@@ -234,6 +250,10 @@ export default function ProntuarioSolipedeEdit() {
       try {
         const response = await api.listarProntuario(solipede.numero);
         setHistorico(response);
+
+        // Carregar contador de baixas pendentes
+        const baixas = await api.contarBaixasPendentes(solipede.numero);
+        setBaixasPendentes(baixas.total || 0);
       } catch (error) {
         console.error("Erro ao carregar prontuário", error);
       } finally {
@@ -278,6 +298,9 @@ export default function ProntuarioSolipedeEdit() {
         tipo: tipoObservacao,
         observacao,
         recomendacoes: recomendacoes || null,
+        tipo_baixa: tipoObservacao === "Baixa" && tipoBaixa ? tipoBaixa : null,
+        data_lancamento: tipoObservacao === "Baixa" && dataLancamento ? dataLancamento : null,
+        data_validade: tipoObservacao === "Baixa" && dataValidade ? dataValidade : null,
       });
 
       console.log("📥 Resposta do servidor:", response);
@@ -289,8 +312,21 @@ export default function ProntuarioSolipedeEdit() {
         console.log("📖 Histórico atualizado:", historicoAtualizado);
         setHistorico(historicoAtualizado);
 
+        // Se for baixa, atualizar contador e status do solípede
+        if (tipoObservacao === "Baixa") {
+          const baixas = await api.contarBaixasPendentes(numero);
+          setBaixasPendentes(baixas.total || 0);
+
+          // Recarregar dados do solípede para atualizar status
+          const dadosAtualizados = await api.obterSolipede(numero);
+          setSolipede(dadosAtualizados);
+        }
+
         setObservacao("");
         setRecomendacoes("");
+        setDataLancamento("");
+        setDataValidade("");
+        setTipoBaixa("");
         setMensagem({
           tipo: "success",
           texto: "✅ Observação salva com sucesso!",
@@ -364,6 +400,110 @@ export default function ProntuarioSolipedeEdit() {
     return "warning";
   };
 
+  const handleLiberarBaixa = async (prontuarioId) => {
+    if (!window.confirm("⚠️ Confirma a liberação desta baixa?")) {
+      return;
+    }
+
+    setLiberandoBaixa(prontuarioId);
+    try {
+      const response = await api.liberarBaixa(prontuarioId);
+
+      if (response.success) {
+        // Recarregar histórico
+        const historicoAtualizado = await api.listarProntuario(numero);
+        setHistorico(historicoAtualizado);
+
+        // Atualizar contador de baixas pendentes
+        setBaixasPendentes(response.baixasPendentes || 0);
+
+        // Recarregar dados do solípede para atualizar status
+        const dadosAtualizados = await api.obterSolipede(numero);
+        setSolipede(dadosAtualizados);
+
+        setMensagem({
+          tipo: "success",
+          texto: "✅ Baixa liberada com sucesso!",
+        });
+
+        setTimeout(() => setMensagem(""), 3000);
+      } else {
+        setMensagem({
+          tipo: "danger",
+          texto: response.error || "❌ Erro ao liberar baixa",
+        });
+      }
+    } catch (error) {
+      console.error("❌ Erro ao liberar baixa:", error);
+      setMensagem({
+        tipo: "danger",
+        texto: "❌ Erro ao conectar com o servidor",
+      });
+    } finally {
+      setLiberandoBaixa(null);
+    }
+  };
+
+  const handleAbrirModalConclusao = (prontuarioId) => {
+    setProntuarioIdConcluir(prontuarioId);
+    setEmailConclusao("");
+    setSenhaConclusao("");
+    setErroConclusao("");
+    setShowModalConclusao(true);
+  };
+
+  const handleFecharModalConclusao = () => {
+    setShowModalConclusao(false);
+    setProntuarioIdConcluir(null);
+    setEmailConclusao("");
+    setSenhaConclusao("");
+    setErroConclusao("");
+  };
+
+  const handleConcluirTratamento = async (e) => {
+    e.preventDefault();
+    setErroConclusao("");
+    setConcluindo(true);
+
+    console.log("📝 Tentando concluir tratamento:", {
+      prontuarioId: prontuarioIdConcluir,
+      email: emailConclusao
+    });
+
+    try {
+      const response = await api.concluirTratamento(
+        prontuarioIdConcluir,
+        emailConclusao,
+        senhaConclusao
+      );
+
+      console.log("📦 Resposta da API:", response);
+
+      if (response.success) {
+        // Recarregar histórico
+        const historicoAtualizado = await api.listarProntuario(numero);
+        setHistorico(historicoAtualizado);
+
+        setMensagem({
+          tipo: "success",
+          texto: `✅ Tratamento concluído por ${response.usuario_conclusao.nome}`,
+        });
+
+        setTimeout(() => setMensagem(""), 5000);
+        handleFecharModalConclusao();
+      } else {
+        const erroMsg = response.error || "❌ Erro ao concluir tratamento";
+        console.error("❌ Erro na resposta:", erroMsg);
+        setErroConclusao(erroMsg);
+      }
+    } catch (error) {
+      console.error("❌ Erro ao concluir tratamento:", error);
+      setErroConclusao("❌ Erro ao conectar com o servidor. Verifique sua conexão.");
+    } finally {
+      setConcluindo(false);
+    }
+  };
+
   return (
     <div className="container-fluid mt-4 mb-5">
       {/* Cabeçalho */}
@@ -404,6 +544,20 @@ export default function ProntuarioSolipedeEdit() {
                 <BsCheckCircle className="me-1" />
                 {solipede.status || "N/A"}
               </Badge>
+
+              {baixasPendentes > 0 && (
+                <div className="mt-2">
+                  <Badge
+                    bg="warning"
+                    text="dark"
+                    className="w-100"
+                    style={{ fontSize: "11px", padding: "8px" }}
+                  >
+                    <BsExclamationTriangle className="me-1" />
+                    {baixasPendentes} {baixasPendentes === 1 ? "baixa pendente" : "baixas pendentes"}
+                  </Badge>
+                </div>
+              )}
             </Card.Body>
           </Card>
 
@@ -499,6 +653,11 @@ export default function ProntuarioSolipedeEdit() {
                   Histórico ({historico.length})
                 </Nav.Link>
               </Nav.Item>
+              <Nav.Item>
+                <Nav.Link eventKey="porTipo" className="fw-bold">
+                  📊 Registros por Tipo
+                </Nav.Link>
+              </Nav.Item>
             </Nav>
 
             <Tab.Content>
@@ -581,88 +740,74 @@ export default function ProntuarioSolipedeEdit() {
                           <option>Tratamento</option>
                           <option>Exame</option>
                           <option>Vacinação</option>
-                          <option>Baixa</option>
+                          <option>Vermifugação</option>
+                          <option>Exames AIE / Mormo</option>
                           <option>Restrições</option>
                         </Form.Select>
                       </Form.Group>
 
-                      {tipoObservacao === "Baixa" && (
-                        <div className="mt-2">
-                          {/* ===== LINHA 1 — BAIXA ===== */}
-                          <Row className="align-items-start">
-                            <Col md="auto">
-                              <Form.Select
-                                size="sm"
-                                value={tipoBaixa}
-                                onChange={(e) => setTipoBaixa(e.target.value)}
-                                style={{ maxWidth: "220px" }}
-                              >
-                                <option value="">Selecione</option>
-                                <option value="Baixa Eterna">Baixa Eterna</option>
-                              </Form.Select>
-                            </Col>
+                      {/* Mensagem informativa para Tratamento */}
+                      {tipoObservacao === "Tratamento" && (
+                        <Alert variant="info" className="mb-3">
+                          <strong>ℹ️ Importante:</strong> Ao iniciar um tratamento, o cavalo será automaticamente marcado com status de <strong>baixado</strong>.
+                        </Alert>
+                      )}
 
-                            <Col>
-                              {tipoBaixa === "Baixa Eterna" && (
-                                <div
-                                  className="p-2 rounded"
-                                  style={{
-                                    backgroundColor: "#fff3cd",
-                                    border: "1px solid #ffeeba",
-                                    color: "#856404",
-                                    fontSize: "0.85rem",
-                                  }}
-                                >
-                                  <strong>Atenção:</strong> Esta seleção será marcada como{" "}
-                                  <strong>Baixa Eterna</strong>. Caso seja uma baixa comum, deixe o
-                                  campo sem seleção.
-                                </div>
-                              )}
+                      {/* Campos específicos para Vacinação, Vermifugação e AIE/Mormo */}
+                      {(tipoObservacao === "Vacinação" || tipoObservacao === "Vermifugação" || tipoObservacao === "Exames AIE / Mormo") && (
+                        <div className="mt-3 mb-3 p-3 rounded" style={{ backgroundColor: "#f8f9fa", border: "1px solid #dee2e6" }}>
+                          <Row>
+                            <Col md={6}>
+                              <Form.Group className="mb-3">
+                                <Form.Label className="fw-bold">Data</Form.Label>
+                                <Form.Control
+                                  type="date"
+                                  size="sm"
+                                  value={dataAplicacao}
+                                  onChange={(e) => setDataAplicacao(e.target.value)}
+                                />
+                              </Form.Group>
+                            </Col>
+                            <Col md={6}>
+                              <Form.Group className="mb-3">
+                                <Form.Label className="fw-bold">Partida/Lote</Form.Label>
+                                <Form.Control
+                                  type="text"
+                                  size="sm"
+                                  placeholder="Número da partida ou lote"
+                                  value={partidaLote}
+                                  onChange={(e) => setPartidaLote(e.target.value)}
+                                />
+                              </Form.Group>
                             </Col>
                           </Row>
-
-                          {/* ===== LINHA 2 — DATAS ===== */}
-                          <Row className="mt-3">
+                          <Row>
                             <Col md={6}>
                               <Form.Group className="mb-3">
-                                <Form.Label className="fw-bold">
-                                  Data de Lançamento
-                                </Form.Label>
+                                <Form.Label className="fw-bold">Validade</Form.Label>
                                 <Form.Control
                                   type="date"
                                   size="sm"
-                                  value={dataLancamento}
-                                  onChange={(e) => setDataLancamento(e.target.value)}
+                                  value={validadeProduto}
+                                  onChange={(e) => setValidadeProduto(e.target.value)}
                                 />
                               </Form.Group>
                             </Col>
-
                             <Col md={6}>
                               <Form.Group className="mb-3">
-                                <Form.Label className="fw-bold">
-                                  Data de Validade
-                                </Form.Label>
+                                <Form.Label className="fw-bold">Produto</Form.Label>
                                 <Form.Control
-                                  type="date"
+                                  type="text"
                                   size="sm"
-                                  value={dataValidade}
-                                  onChange={(e) => setDataValidade(e.target.value)}
-                                  min={dataLancamento}
+                                  placeholder="Nome do produto"
+                                  value={nomeProduto}
+                                  onChange={(e) => setNomeProduto(e.target.value)}
                                 />
                               </Form.Group>
-                            </Col>
-
-                            <Col xs={12}>
-                              <small className="text-muted d-block mb-3">
-                                * As datas de lançamento e validade são opcionais e servem para
-                                controle interno e auxílio do{" "}
-                                <strong>Pagador de cavalo</strong>.
-                              </small>
                             </Col>
                           </Row>
                         </div>
                       )}
-
 
 
                       <Form.Group className="mb-3">
@@ -720,6 +865,10 @@ export default function ProntuarioSolipedeEdit() {
                           onClick={() => {
                             setObservacao("");
                             setRecomendacoes("");
+                            setDataAplicacao("");
+                            setPartidaLote("");
+                            setValidadeProduto("");
+                            setNomeProduto("");
                           }}
                           disabled={salvando}
                         >
@@ -806,10 +955,411 @@ export default function ProntuarioSolipedeEdit() {
                 )}
               </Tab.Pane>
 
+              {/* TAB: REGISTROS POR TIPO */}
+              <Tab.Pane eventKey="porTipo">
+                <Card className="shadow-sm border-0">
+                  <Card.Body>
+                    <Tab.Container defaultActiveKey="vacinacao">
+                      <Nav variant="pills" className="mb-3">
+                        <Nav.Item>
+                          <Nav.Link eventKey="consulta" className="me-2">
+                            🩺 Consulta Clínica
+                          </Nav.Link>
+                        </Nav.Item>
+                        <Nav.Item>
+                          <Nav.Link eventKey="tratamento" className="me-2">
+                            💊 Tratamento
+                          </Nav.Link>
+                        </Nav.Item>
+                        <Nav.Item>
+                          <Nav.Link eventKey="exame" className="me-2">
+                            🔬 Exame
+                          </Nav.Link>
+                        </Nav.Item>
+                        <Nav.Item>
+                          <Nav.Link eventKey="vacinacao" className="me-2">
+                            💉 Vacinação
+                          </Nav.Link>
+                        </Nav.Item>
+                        <Nav.Item>
+                          <Nav.Link eventKey="vermifugacao" className="me-2">
+                            💊 Vermifugação
+                          </Nav.Link>
+                        </Nav.Item>
+                        <Nav.Item>
+                          <Nav.Link eventKey="aie" className="me-2">
+                            🧪 Exames AIE/Mormo
+                          </Nav.Link>
+                        </Nav.Item>
+                        <Nav.Item>
+                          <Nav.Link eventKey="restricoes">
+                            ⚠️ Restrições
+                          </Nav.Link>
+                        </Nav.Item>
+                      </Nav>
+
+                      <Tab.Content>
+                        {/* SUB-TAB: CONSULTA CLÍNICA */}
+                        <Tab.Pane eventKey="consulta">
+                          {historico.filter(reg => reg.tipo === "Consulta Clínica").length === 0 ? (
+                            <Alert variant="info" className="text-center">
+                              🩺 Nenhum registro de consulta clínica adicionado ainda
+                            </Alert>
+                          ) : (
+                            historico.filter(reg => reg.tipo === "Consulta Clínica").map((registro) => {
+                              const dataBR = new Date(registro.data_criacao).toLocaleDateString('pt-BR');
+                              const horaBR = new Date(registro.data_criacao).toLocaleTimeString('pt-BR');
+
+                              return (
+                                <Card key={registro.id} className="mb-3 border-start border-4 border-primary">
+                                  <Card.Body>
+                                    <Row className="align-items-start mb-2">
+                                      <Col>
+                                        <Badge bg="primary" className="mb-2">🩺 Consulta Clínica</Badge>
+                                        <p className="text-muted mb-0" style={{ fontSize: "12px" }}>
+                                          📅 {dataBR} às {horaBR}
+                                        </p>
+                                      </Col>
+                                    </Row>
+                                    <hr />
+                                    <p style={{ fontSize: "14px", lineHeight: "1.6" }}>{registro.observacao}</p>
+                                    {registro.recomendacoes && (
+                                      <div className="bg-warning bg-opacity-10 p-2 rounded border-start border-warning">
+                                        <small className="text-muted">
+                                          <strong>📌 Recomendação:</strong> {registro.recomendacoes}
+                                        </small>
+                                      </div>
+                                    )}
+                                  </Card.Body>
+                                </Card>
+                              );
+                            })
+                          )}
+                        </Tab.Pane>
+
+                        {/* SUB-TAB: TRATAMENTO */}
+                        <Tab.Pane eventKey="tratamento">
+                          {historico.filter(reg => reg.tipo === "Tratamento").length === 0 ? (
+                            <Alert variant="info" className="text-center">
+                              💊 Nenhum registro de tratamento adicionado ainda
+                            </Alert>
+                          ) : (
+                            historico.filter(reg => reg.tipo === "Tratamento").map((registro) => {
+                              const dataBR = new Date(registro.data_criacao).toLocaleDateString('pt-BR');
+                              const horaBR = new Date(registro.data_criacao).toLocaleTimeString('pt-BR');
+                              const isConcluido = registro.status_conclusao === 'concluido';
+
+                              return (
+                                <Card key={registro.id} className="mb-3 border-start border-4 border-danger">
+                                  <Card.Body>
+                                    <Row className="align-items-start mb-2">
+                                      <Col>
+                                        <Badge bg="danger" className="mb-2">💊 Tratamento</Badge>
+                                        {isConcluido && (
+                                          <Badge bg="success" className="mb-2 ms-2">
+                                            <BsCheckCircle className="me-1" />
+                                            Concluído
+                                          </Badge>
+                                        )}
+                                        <p className="text-muted mb-0" style={{ fontSize: "12px" }}>
+                                          📅 {dataBR} às {horaBR}
+                                        </p>
+                                        {isConcluido && registro.usuario_conclusao_nome && (
+                                          <p className="text-success mb-0" style={{ fontSize: "12px" }}>
+                                            ✅ Concluído por: <strong>{registro.usuario_conclusao_nome}</strong> ({registro.usuario_conclusao_registro})
+                                            <br />
+                                            📅 {new Date(registro.data_conclusao).toLocaleDateString('pt-BR')} às {new Date(registro.data_conclusao).toLocaleTimeString('pt-BR')}
+                                          </p>
+                                        )}
+                                      </Col>
+                                      <Col xs="auto">
+                                        {!isConcluido && (
+                                          <Button
+                                            size="sm"
+                                            variant="outline-success"
+                                            onClick={() => handleAbrirModalConclusao(registro.id)}
+                                          >
+                                            <BsCheckCircle className="me-1" />
+                                            Concluir
+                                          </Button>
+                                        )}
+                                      </Col>
+                                    </Row>
+                                    <hr />
+                                    <p style={{ fontSize: "14px", lineHeight: "1.6" }}>{registro.observacao}</p>
+                                    {registro.recomendacoes && (
+                                      <div className="bg-warning bg-opacity-10 p-2 rounded border-start border-warning">
+                                        <small className="text-muted">
+                                          <strong>📌 Recomendação:</strong> {registro.recomendacoes}
+                                        </small>
+                                      </div>
+                                    )}
+                                  </Card.Body>
+                                </Card>
+                              );
+                            })
+                          )}
+                        </Tab.Pane>
+
+                        {/* SUB-TAB: EXAME */}
+                        <Tab.Pane eventKey="exame">
+                          {historico.filter(reg => reg.tipo === "Exame").length === 0 ? (
+                            <Alert variant="info" className="text-center">
+                              🔬 Nenhum registro de exame adicionado ainda
+                            </Alert>
+                          ) : (
+                            historico.filter(reg => reg.tipo === "Exame").map((registro) => {
+                              const dataBR = new Date(registro.data_criacao).toLocaleDateString('pt-BR');
+                              const horaBR = new Date(registro.data_criacao).toLocaleTimeString('pt-BR');
+
+                              return (
+                                <Card key={registro.id} className="mb-3 border-start border-4 border-secondary">
+                                  <Card.Body>
+                                    <Row className="align-items-start mb-2">
+                                      <Col>
+                                        <Badge bg="secondary" className="mb-2">🔬 Exame</Badge>
+                                        <p className="text-muted mb-0" style={{ fontSize: "12px" }}>
+                                          📅 {dataBR} às {horaBR}
+                                        </p>
+                                      </Col>
+                                    </Row>
+                                    <hr />
+                                    <p style={{ fontSize: "14px", lineHeight: "1.6" }}>{registro.observacao}</p>
+                                    {registro.recomendacoes && (
+                                      <div className="bg-warning bg-opacity-10 p-2 rounded border-start border-warning">
+                                        <small className="text-muted">
+                                          <strong>📌 Recomendação:</strong> {registro.recomendacoes}
+                                        </small>
+                                      </div>
+                                    )}
+                                  </Card.Body>
+                                </Card>
+                              );
+                            })
+                          )}
+                        </Tab.Pane>
+
+                        {/* SUB-TAB: VACINAÇÃO */}
+                        <Tab.Pane eventKey="vacinacao">
+                          {historico.filter(reg => reg.tipo === "Vacinação").length === 0 ? (
+                            <Alert variant="info" className="text-center">
+                              💉 Nenhum registro de vacinação adicionado ainda
+                            </Alert>
+                          ) : (
+                            historico.filter(reg => reg.tipo === "Vacinação").map((registro) => {
+                              const dataBR = new Date(registro.data_criacao).toLocaleDateString('pt-BR');
+                              const horaBR = new Date(registro.data_criacao).toLocaleTimeString('pt-BR');
+
+                              return (
+                                <Card key={registro.id} className="mb-3 border-start border-4 border-success">
+                                  <Card.Body>
+                                    <Row className="align-items-start mb-2">
+                                      <Col>
+                                        <Badge bg="success" className="mb-2">💉 Vacinação</Badge>
+                                        <p className="text-muted mb-0" style={{ fontSize: "12px" }}>
+                                          📅 {dataBR} às {horaBR}
+                                        </p>
+                                      </Col>
+                                    </Row>
+                                    <hr />
+                                    <p style={{ fontSize: "14px", lineHeight: "1.6" }}>{registro.observacao}</p>
+                                    {registro.recomendacoes && (
+                                      <div className="bg-warning bg-opacity-10 p-2 rounded border-start border-warning">
+                                        <small className="text-muted">
+                                          <strong>📌 Recomendação:</strong> {registro.recomendacoes}
+                                        </small>
+                                      </div>
+                                    )}
+                                  </Card.Body>
+                                </Card>
+                              );
+                            })
+                          )}
+                        </Tab.Pane>
+
+                        {/* SUB-TAB: VERMIFUGAÇÃO */}
+                        <Tab.Pane eventKey="vermifugacao">
+                          {historico.filter(reg => reg.tipo === "Vermifugação").length === 0 ? (
+                            <Alert variant="info" className="text-center">
+                              💊 Nenhum registro de vermifugação adicionado ainda
+                            </Alert>
+                          ) : (
+                            historico.filter(reg => reg.tipo === "Vermifugação").map((registro) => {
+                              const dataBR = new Date(registro.data_criacao).toLocaleDateString('pt-BR');
+                              const horaBR = new Date(registro.data_criacao).toLocaleTimeString('pt-BR');
+
+                              return (
+                                <Card key={registro.id} className="mb-3 border-start border-4 border-info">
+                                  <Card.Body>
+                                    <Row className="align-items-start mb-2">
+                                      <Col>
+                                        <Badge bg="info" className="mb-2">💊 Vermifugação</Badge>
+                                        <p className="text-muted mb-0" style={{ fontSize: "12px" }}>
+                                          📅 {dataBR} às {horaBR}
+                                        </p>
+                                      </Col>
+                                    </Row>
+                                    <hr />
+                                    <p style={{ fontSize: "14px", lineHeight: "1.6" }}>{registro.observacao}</p>
+                                    {registro.recomendacoes && (
+                                      <div className="bg-warning bg-opacity-10 p-2 rounded border-start border-warning">
+                                        <small className="text-muted">
+                                          <strong>📌 Recomendação:</strong> {registro.recomendacoes}
+                                        </small>
+                                      </div>
+                                    )}
+                                  </Card.Body>
+                                </Card>
+                              );
+                            })
+                          )}
+                        </Tab.Pane>
+
+                        {/* SUB-TAB: EXAMES AIE/MORMO */}
+                        <Tab.Pane eventKey="aie">
+                          {historico.filter(reg => reg.tipo === "Exames AIE / Mormo").length === 0 ? (
+                            <Alert variant="info" className="text-center">
+                              🧪 Nenhum registro de exames AIE/Mormo adicionado ainda
+                            </Alert>
+                          ) : (
+                            historico.filter(reg => reg.tipo === "Exames AIE / Mormo").map((registro) => {
+                              const dataBR = new Date(registro.data_criacao).toLocaleDateString('pt-BR');
+                              const horaBR = new Date(registro.data_criacao).toLocaleTimeString('pt-BR');
+
+                              return (
+                                <Card key={registro.id} className="mb-3 border-start border-4 border-warning">
+                                  <Card.Body>
+                                    <Row className="align-items-start mb-2">
+                                      <Col>
+                                        <Badge bg="warning" className="mb-2">🧪 Exames AIE / Mormo</Badge>
+                                        <p className="text-muted mb-0" style={{ fontSize: "12px" }}>
+                                          📅 {dataBR} às {horaBR}
+                                        </p>
+                                      </Col>
+                                    </Row>
+                                    <hr />
+                                    <p style={{ fontSize: "14px", lineHeight: "1.6" }}>{registro.observacao}</p>
+                                    {registro.recomendacoes && (
+                                      <div className="bg-warning bg-opacity-10 p-2 rounded border-start border-warning">
+                                        <small className="text-muted">
+                                          <strong>📌 Recomendação:</strong> {registro.recomendacoes}
+                                        </small>
+                                      </div>
+                                    )}
+                                  </Card.Body>
+                                </Card>
+                              );
+                            })
+                          )}
+                        </Tab.Pane>
+
+                          {/* SUB-TAB: RESTRIÇÕES */}
+                          <Tab.Pane eventKey="restricoes">
+                            {historico.filter(reg => reg.tipo === "Restrições").length === 0 ? (
+                              <Alert variant="info" className="text-center">
+                                ⚠️ Nenhum registro de restrições adicionado ainda
+                              </Alert>
+                            ) : (
+                              historico.filter(reg => reg.tipo === "Restrições").map((registro) => {
+                                const dataBR = new Date(registro.data_criacao).toLocaleDateString('pt-BR');
+                                const horaBR = new Date(registro.data_criacao).toLocaleTimeString('pt-BR');
+  
+                                return (
+                                  <Card key={registro.id} className="mb-3 border-start border-4 border-warning">
+                                    <Card.Body>
+                                      <Row className="align-items-start mb-2">
+                                        <Col>
+                                          <Badge bg="warning" className="mb-2">⚠️ Restrições</Badge>
+                                          <p className="text-muted mb-0" style={{ fontSize: "12px" }}>
+                                            📅 {dataBR} às {horaBR}
+                                          </p>
+                                        </Col>
+                                      </Row>
+                                      <hr />
+                                      <p style={{ fontSize: "14px", lineHeight: "1.6" }}>{registro.observacao}</p>
+                                      {registro.recomendacoes && (
+                                        <div className="bg-warning bg-opacity-10 p-2 rounded border-start border-warning">
+                                          <small className="text-muted">
+                                            <strong>📌 Recomendação:</strong> {registro.recomendacoes}
+                                          </small>
+                                        </div>
+                                      )}
+                                    </Card.Body>
+                                  </Card>
+                                );
+                              })
+                            )}
+                          </Tab.Pane>
+                        </Tab.Content>
+                    </Tab.Container>
+                  </Card.Body>
+                </Card>
+              </Tab.Pane>
             </Tab.Content>
           </Tab.Container>
         </Col>
       </Row>
+
+      {/* Modal de Conclusão de Tratamento */}
+      <Modal show={showModalConclusao} onHide={handleFecharModalConclusao} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>🔒 Autenticação Necessária</Modal.Title>
+        </Modal.Header>
+        <Form onSubmit={handleConcluirTratamento}>
+          <Modal.Body>
+            <p className="text-muted mb-3">
+              Para concluir este tratamento, confirme sua identidade:
+            </p>
+
+            {erroConclusao && (
+              <Alert variant="danger" className="py-2">
+                {erroConclusao}
+              </Alert>
+            )}
+
+            <Form.Group className="mb-3">
+              <Form.Label>📧 Email:</Form.Label>
+              <Form.Control
+                type="email"
+                value={emailConclusao}
+                onChange={(e) => setEmailConclusao(e.target.value)}
+                placeholder="seu.email@exemplo.com"
+                required
+                autoFocus
+              />
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>🔑 Senha:</Form.Label>
+              <Form.Control
+                type="password"
+                value={senhaConclusao}
+                onChange={(e) => setSenhaConclusao(e.target.value)}
+                placeholder="Digite sua senha"
+                required
+              />
+            </Form.Group>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={handleFecharModalConclusao} disabled={concluindo}>
+              Cancelar
+            </Button>
+            <Button variant="success" type="submit" disabled={concluindo}>
+              {concluindo ? (
+                <>
+                  <Spinner size="sm" className="me-2" />
+                  Concluindo...
+                </>
+              ) : (
+                <>
+                  <BsCheckCircle className="me-2" />
+                  Concluir Tratamento
+                </>
+              )}
+            </Button>
+          </Modal.Footer>
+        </Form>
+      </Modal>
     </div>
   );
 }

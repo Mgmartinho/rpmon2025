@@ -12,11 +12,21 @@ import {
   Modal,
   Alert,
 } from "react-bootstrap";
-import { BsTrash } from "react-icons/bs";
+import { 
+  BsTrash, 
+  BsCheckCircle, 
+  BsXCircle, 
+  BsFilter,
+  BsSearch,
+  BsArchive 
+} from "react-icons/bs";
+import { GiHorseHead } from "react-icons/gi";
 import { api } from "../../../services/api";
 import "./styles.css";
+import "./exclusaostyles.css";
 
 const ExclusaoSolipede = () => {
+
   const [searchParams] = useSearchParams();
   const [solipedes, setSolipedes] = useState([]);
   const [excluidos, setExcluidos] = useState([]);
@@ -181,85 +191,113 @@ const ExclusaoSolipede = () => {
   }
 
   return (
-    <div className="container-fluid py-4">
-      <Row className="mb-4">
-        <Col>
-          <h2 className="text-dark">
-            <BsTrash className="me-2" />
-            Exclusão de Solípedes
-          </h2>
-          <p className="text-muted">
-            Gerencie a exclusão de solípedes (os dados são movidos para histórico)
-          </p>
+    <div className="container-fluid mt-4 px-4">
+      {/* Header - Estilo Gestão FVR */}
+      <Row className="mb-4 g-3">
+        <Col md={12}>
+          <Card className="h-100 shadow-sm">
+            <Card.Body>
+              <div className="d-flex align-items-center">
+                <GiHorseHead size={50} className="text-primary me-3" />
+                <div>
+                  <h4 className="mb-1">
+                    <BsTrash className="me-2" />
+                    Exclusão de Solípedes
+                  </h4>
+                  <small className="text-muted">
+                    Gerencie a exclusão de solípedes - os dados são preservados no histórico
+                  </small>
+                </div>
+              </div>
+            </Card.Body>
+          </Card>
         </Col>
       </Row>
 
-      {/* Indicadores */}
-      <Row className="mb-4">
-        <Col md={4}>
+      {/* Indicadores - Estilo Gestão FVR */}
+      <Row className="mb-4 g-3">
+        <Col md={6}>
           <Card
-            className={`text-center cursor-pointer ${
-              visualizacao === "ativos" ? "border-primary" : ""
-            }`}
+            className="indicator-card indicator-success"
+            role="button"
             onClick={() => setVisualizacao("ativos")}
-            style={{ cursor: "pointer" }}
           >
             <Card.Body>
-              <h3 className="text-primary">{solipedes.length}</h3>
-              <p className="mb-0">Solípedes Ativos</p>
+              <div className="indicator-icon">
+                <BsCheckCircle />
+              </div>
+              <small>Solípedes Ativos</small>
+              <h4>{solipedes.length}</h4>
             </Card.Body>
           </Card>
         </Col>
-        <Col md={4}>
+        <Col md={6}>
           <Card
-            className={`text-center cursor-pointer ${
-              visualizacao === "excluidos" ? "border-danger" : ""
-            }`}
+            className="indicator-card indicator-danger"
+            role="button"
             onClick={() => setVisualizacao("excluidos")}
-            style={{ cursor: "pointer" }}
           >
             <Card.Body>
-              <h3 className="text-danger">{excluidos.length}</h3>
-              <p className="mb-0">Solípedes Excluídos</p>
+              <div className="indicator-icon">
+                <BsXCircle />
+              </div>
+              <small>Solípedes Excluídos</small>
+              <h4>{excluidos.length}</h4>
             </Card.Body>
           </Card>
         </Col>
       </Row>
 
-      {/* Filtros */}
-      <Card className="mb-4">
+      {/* Filtros com design melhorado */}
+      <Card className="mb-4 border-0 shadow-sm">
+        <Card.Header className="bg-light border-0">
+          <h5 className="mb-0">
+            <BsFilter className="me-2" />
+            Filtros de Pesquisa
+          </h5>
+        </Card.Header>
         <Card.Body>
-          <Row>
+          <Row className="g-3">
             <Col md={4}>
               <Form.Group>
-                <Form.Label>Filtrar por Número</Form.Label>
+                <Form.Label className="fw-semibold">
+                  <BsSearch className="me-2" />
+                  Filtrar por Número
+                </Form.Label>
                 <Form.Control
                   type="text"
                   placeholder="Digite o número..."
                   value={filtroNumero}
                   onChange={(e) => setFiltroNumero(e.target.value)}
+                  className="border-2"
                 />
               </Form.Group>
             </Col>
             <Col md={4}>
               <Form.Group>
-                <Form.Label>Filtrar por Nome</Form.Label>
+                <Form.Label className="fw-semibold">
+                  <BsSearch className="me-2" />
+                  Filtrar por Nome
+                </Form.Label>
                 <Form.Control
                   type="text"
                   placeholder="Digite o nome..."
                   value={filtroNome}
                   onChange={(e) => setFiltroNome(e.target.value)}
+                  className="border-2"
                 />
               </Form.Group>
             </Col>
             <Col md={4} className="d-flex align-items-end">
               <Button
-                variant="secondary"
+                variant="outline-secondary"
+                className="w-100"
                 onClick={() => {
                   setFiltroNumero("");
                   setFiltroNome("");
                 }}
               >
+                <BsXCircle className="me-2" />
                 Limpar Filtros
               </Button>
             </Col>
@@ -267,15 +305,19 @@ const ExclusaoSolipede = () => {
         </Card.Body>
       </Card>
 
-      {/* Tabela */}
-      <Card>
-        <Card.Header className="d-flex justify-content-between align-items-center">
-          <span>
-            {visualizacao === "ativos"
-              ? "Solípedes Ativos"
-              : "Histórico de Excluídos"}
-          </span>
-          <Badge bg="info">{dadosFiltrados.length} registros</Badge>
+      {/* Tabela com design melhorado */}
+      <Card className="border-0 shadow-sm">
+        <Card.Header className="bg-white border-bottom d-flex justify-content-between align-items-center py-3">
+          <h5 className="mb-0">
+            {visualizacao === "ativos" ? (
+              <><BsCheckCircle className="me-2 text-success" />Solípedes Ativos</>
+            ) : (
+              <><BsArchive className="me-2 text-danger" />Histórico de Excluídos</>
+            )}
+          </h5>
+          <Badge bg={visualizacao === "ativos" ? "success" : "danger"} className="px-3 py-2">
+            {dadosFiltrados.length} {dadosFiltrados.length === 1 ? 'registro' : 'registros'}
+          </Badge>
         </Card.Header>
         <Card.Body className="p-0">
           {currentItems.length === 0 ? (
@@ -357,76 +399,112 @@ const ExclusaoSolipede = () => {
         </Card.Body>
       </Card>
 
-      {/* Paginação */}
+      {/* Paginação com design melhorado */}
       {totalPages > 1 && (
-        <Row className="mt-3">
-          <Col className="d-flex justify-content-between align-items-center">
-            <div>
-              <Form.Label className="me-2">Itens por página:</Form.Label>
-              <Form.Select
-                style={{ width: "auto", display: "inline-block" }}
-                value={itemsPerPage}
-                onChange={(e) => {
-                  setItemsPerPage(Number(e.target.value));
-                  setCurrentPage(1);
-                }}
-              >
-                <option value={10}>10</option>
-                <option value={25}>25</option>
-                <option value={50}>50</option>
-                <option value={100}>100</option>
-              </Form.Select>
-            </div>
-            <div>
-              <Button
-                variant="outline-primary"
-                size="sm"
-                disabled={currentPage === 1}
-                onClick={() => setCurrentPage(currentPage - 1)}
-              >
-                Anterior
-              </Button>
-              <span className="mx-3">
-                Página {currentPage} de {totalPages}
-              </span>
-              <Button
-                variant="outline-primary"
-                size="sm"
-                disabled={currentPage === totalPages}
-                onClick={() => setCurrentPage(currentPage + 1)}
-              >
-                Próxima
-              </Button>
-            </div>
-          </Col>
-        </Row>
+        <Card className="mt-3 border-0 shadow-sm">
+          <Card.Body>
+            <Row className="align-items-center">
+              <Col md={6}>
+                <div className="d-flex align-items-center">
+                  <Form.Label className="me-2 mb-0 fw-semibold">Itens por página:</Form.Label>
+                  <Form.Select
+                    style={{ width: "80px" }}
+                    value={itemsPerPage}
+                    onChange={(e) => {
+                      setItemsPerPage(Number(e.target.value));
+                      setCurrentPage(1);
+                    }}
+                    className="border-2"
+                  >
+                    <option value={10}>10</option>
+                    <option value={25}>25</option>
+                    <option value={50}>50</option>
+                    <option value={100}>100</option>
+                  </Form.Select>
+                </div>
+              </Col>
+              <Col md={6}>
+                <div className="d-flex justify-content-end align-items-center">
+                  <Button
+                    variant="outline-primary"
+                    size="sm"
+                    disabled={currentPage === 1}
+                    onClick={() => setCurrentPage(currentPage - 1)}
+                    className="me-2"
+                  >
+                    ← Anterior
+                  </Button>
+                  <Badge bg="primary" className="px-3 py-2 mx-2">
+                    Página {currentPage} de {totalPages}
+                  </Badge>
+                  <Button
+                    variant="outline-primary"
+                    size="sm"
+                    disabled={currentPage === totalPages}
+                    onClick={() => setCurrentPage(currentPage + 1)}
+                    className="ms-2"
+                  >
+                    Próxima →
+                  </Button>
+                </div>
+              </Col>
+            </Row>
+          </Card.Body>
+        </Card>
       )}
 
-      {/* Modal de Confirmação */}
-      <Modal show={showModal} onHide={() => setShowModal(false)} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>
-            <BsTrash className="text-danger me-2" />
-            Confirmar Exclusão
+      {/* Modal de Confirmação com design melhorado */}
+      <Modal show={showModal} onHide={() => setShowModal(false)} centered size="lg">
+        <Modal.Header closeButton className="bg-light border-0">
+          <Modal.Title className="d-flex align-items-center">
+            <div style={{
+              backgroundColor: '#f8d7da',
+              borderRadius: '8px',
+              width: '40px',
+              height: '40px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginRight: '12px'
+            }}>
+              <BsTrash className="text-danger" size={20} />
+            </div>
+            Confirmar Exclusão de Solípede
           </Modal.Title>
         </Modal.Header>
-        <Modal.Body>
-          {erro && <Alert variant="danger">{erro}</Alert>}
-          {sucesso && <Alert variant="success">{sucesso}</Alert>}
+        <Modal.Body className="px-4 py-3">
+          {erro && <Alert variant="danger" className="d-flex align-items-center"><BsXCircle className="me-2" />{erro}</Alert>}
+          {sucesso && <Alert variant="success" className="d-flex align-items-center"><BsCheckCircle className="me-2" />{sucesso}</Alert>}
 
           {solipedeSelecionado && (
-            <div className="mb-3">
-              <p>
-                <strong>Número:</strong> {solipedeSelecionado.numero}
-              </p>
-              <p>
-                <strong>Nome:</strong> {solipedeSelecionado.nome || "—"}
-              </p>
-              <p>
-                <strong>Alocação:</strong>{" "}
-                {solipedeSelecionado.alocacao || "—"}
-              </p>
-            </div>
+            <Card className="mb-3 border-0" style={{ backgroundColor: '#f8f9fa' }}>
+              <Card.Body>
+                <h6 className="text-muted mb-3">Informações do Solípede:</h6>
+                <Row>
+                  <Col md={4}>
+                    <p className="mb-2">
+                      <strong className="text-primary">Número:</strong>
+                      <br />
+                      <span className="fs-5">{solipedeSelecionado.numero}</span>
+                    </p>
+                  </Col>
+                  <Col md={4}>
+                    <p className="mb-2">
+                      <strong className="text-primary">Nome:</strong>
+                      <br />
+                      <span className="fs-5">{solipedeSelecionado.nome || "—"}</span>
+                    </p>
+                  </Col>
+                  <Col md={4}>
+                    <p className="mb-2">
+                      <strong className="text-primary">Alocação:</strong>
+                      <br />
+                      <span className="fs-5">{solipedeSelecionado.alocacao || "—"}</span>
+                    </p>
+                  </Col>
+                </Row>
+              </Card.Body>
+            </Card>
           )}
 
           <Alert variant="warning">

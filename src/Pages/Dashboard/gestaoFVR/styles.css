@@ -12,10 +12,10 @@
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
 }
 
-/* variações de cor no hover */
+/* variações de cor no hover
 .card-hover.total:hover {
-  background-color: rgba(13, 110, 253, 0.08); /* azul claro */
-}
+  background-color: rgba(13, 110, 253, 0.08); /* azul claro} */
+ 
 
 .card-hover.success:hover {
   background-color: rgba(25, 135, 84, 0.10); /* verde claro */
@@ -28,7 +28,6 @@
 .card-hover.warning:hover {
   background-color: rgba(255, 193, 7, 0.15); /* amarelo claro */
 }
-
 
 body{
     background-color: #eee;

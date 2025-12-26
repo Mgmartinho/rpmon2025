@@ -25,7 +25,7 @@ import ProntuarioSolipedeEdit from "../Pages/Dashboard/gestaoFVR/pronturarioEdit
 import ConfiguracaoPerfil from "../Pages/Dashboard/usuarios/configPerfil";
 import EstatisticasGestaoFVR from "../Pages/Dashboard/gestaoFVR/EstatisticasGestaoFVR";
 import ExclusaoSolipede from "../Pages/Dashboard/gestaoFVR/ExclusaoSolipede";
-
+import Ferradoria from "../Pages/Dashboard/gestaoFVR/Ferradoria";
 const MainRoutes = () => {
   return (
     <Routes>
@@ -47,6 +47,7 @@ const MainRoutes = () => {
 
         {/* Rotas COM autenticação */}
         <Route path="estatisticasfvr" element={<ProtectedRoute><EstatisticasGestaoFVR /></ProtectedRoute>} />
+        <Route path="ferradoria" element={<ProtectedRoute><Ferradoria /></ProtectedRoute>} />
         <Route path="gestaofvr" element={<ProtectedRoute><GestaoFvr /></ProtectedRoute>} />
         <Route path="gestaofvr/taskcreatepage" element={<ProtectedRoute><TaskCreatePage /></ProtectedRoute>} />
         <Route path="gestaofvr/solipede/create" element={<ProtectedRoute><CadastrarSolipede /></ProtectedRoute>} />

@@ -1,0 +1,62 @@
+/* Estilos específicos para a página de Exclusão de Solípedes */
+
+.indicator-card {
+  transition: all 0.3s ease;
+  border-radius: 12px;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.indicator-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.indicator-card .card-body {
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.indicator-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+  font-size: 24px;
+}
+
+.indicator-card small {
+  display: block;
+  color: #6c757d;
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.indicator-card h4 {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.indicator-success .indicator-icon {
+  background-color: #d1f2dd;
+  color: #198754;
+}
+
+.indicator-success h4 {
+  color: #198754;
+}
+
+.indicator-danger .indicator-icon {
+  background-color: #f8d7da;
+  color: #dc3545;
+}
+
+.indicator-danger h4 {
+  color: #dc3545;
+}
