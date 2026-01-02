@@ -15,7 +15,7 @@ const CriarUsuario = () => {
     email: "",
     senha: "",
     confirmarSenha: "",
-    perfil: "",
+    perfil: "Consulta",
   });
 
   const handleChange = (e) => {
@@ -146,7 +146,7 @@ const CriarUsuario = () => {
               <div className="text-center mt-3">
                 <Button
                   variant="link"
-                  onClick={() => navigate("/login")}
+                  onClick={() => navigate("/dashboard")}
                 >
                   Já tenho conta
                 </Button>

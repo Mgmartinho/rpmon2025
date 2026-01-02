@@ -25,18 +25,22 @@ import {
   FaUserShield,
 } from "react-icons/fa";
 import { BsShieldCheck, BsPersonBadge } from "react-icons/bs";
+import { temPermissao, isAdmin } from "../../../utils/permissions";
 
 // ===== CONSTANTES =====
+const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
+
 const PERFIS_SISTEMA = [
   { valor: "Desenvolvedor", label: "Desenvolvedor", descricao: "Acesso completo ao sistema e desenvolvimento", cor: "danger" },
   { valor: "Veterinario Admin", label: "Veterinário Admin", descricao: "Gestão veterinária completa", cor: "primary" },
   { valor: "Veterinario", label: "Veterinário", descricao: "Atendimento e consultas veterinárias", cor: "info" },
-  { valor: "Pagador de cavalo", label: "Pagador de Cavalo", descricao: "Gestão de pagamentos e recursos", cor: "warning" },
-  { valor: "Consulta", label: "Consulta", descricao: "Apenas visualização de dados", cor: "secondary" },
+  { valor: "Ferrador", label: "Ferrador", descricao: "Gestão de ferrageamento", cor: "dark" },
+  { valor: "Pagador de cavalo", label: "Pagador de Cavalo", descricao: "Gestão de pagamentos e carga horária", cor: "warning" },
+  { valor: "Consulta", label: "Consulta", descricao: "Apenas visualização de dados públicos", cor: "secondary" },
 ];
 
 const getPerfilInfo = (perfil) => {
-  return PERFIS_SISTEMA.find(p => p.valor === perfil) || PERFIS_SISTEMA[4];
+  return PERFIS_SISTEMA.find(p => p.valor === perfil) || PERFIS_SISTEMA[5];
 };
 
 const ConfiguracaoPerfil = () => {
@@ -86,7 +90,7 @@ const ConfiguracaoPerfil = () => {
 
       if (usuario) {
         try {
-          const response = await fetch(`http://10.37.20.250:3000/auth/usuarios/${usuario.id}`, {
+          const response = await fetch(`${API_BASE_URL}/auth/usuarios/${usuario.id}`, {
             headers: {
               "Authorization": `Bearer ${localStorage.getItem("token")}`,
             },
@@ -134,7 +138,7 @@ const ConfiguracaoPerfil = () => {
   const carregarUsuarios = async () => {
     try {
       setLoading(true);
-      const response = await fetch("http://10.37.20.250:3000/auth/usuarios", {
+      const response = await fetch(`${API_BASE_URL}/auth/usuarios`, {
         headers: {
           "Authorization": `Bearer ${localStorage.getItem("token")}`,
         },
@@ -165,7 +169,7 @@ const ConfiguracaoPerfil = () => {
       setLoading(true);
       const usuario = JSON.parse(localStorage.getItem("usuario"));
       
-      const response = await fetch(`http://10.37.20.250:3000/auth/usuarios/${usuario.id}`, {
+      const response = await fetch(`${API_BASE_URL}/auth/usuarios/${usuario.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -221,7 +225,7 @@ const ConfiguracaoPerfil = () => {
 
     try {
       setLoading(true);
-      const response = await fetch("http://10.37.20.250:3000/auth/alterar-senha", {
+      const response = await fetch(`${API_BASE_URL}/auth/alterar-senha`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -272,7 +276,7 @@ const ConfiguracaoPerfil = () => {
   const salvarEdicaoUsuario = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`http://10.37.20.250:3000/auth/usuarios/${usuarioSelecionado.id}`, {
+      const response = await fetch(`${API_BASE_URL}/auth/usuarios/${usuarioSelecionado.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -319,7 +323,7 @@ const ConfiguracaoPerfil = () => {
   const salvarPerfilUsuario = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`http://10.37.20.250:3000/auth/usuarios/${usuarioSelecionado.id}/perfil`, {
+      const response = await fetch(`${API_BASE_URL}/auth/usuarios/${usuarioSelecionado.id}/perfil`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -379,7 +383,7 @@ const ConfiguracaoPerfil = () => {
 
     try {
       setLoading(true);
-      const response = await fetch(`http://10.37.20.250:3000/auth/usuarios/${usuarioSelecionado.id}/senha`, {
+      const response = await fetch(`${API_BASE_URL}/auth/usuarios/${usuarioSelecionado.id}/senha`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -640,7 +644,8 @@ const ConfiguracaoPerfil = () => {
           </Row>
         </Tab>
 
-        {/* ABA 2: GERENCIAMENTO DE USUÁRIOS */}
+        {/* ABA 2: GERENCIAMENTO DE USUÁRIOS - Apenas Veterinário Admin e Desenvolvedor */}
+        {temPermissao(perfil, "VISUALIZAR_USUARIOS") && (
         <Tab 
           eventKey="gerenciamento" 
           title={
@@ -716,6 +721,7 @@ const ConfiguracaoPerfil = () => {
                             </small>
                           </td>
                           <td className="text-center">
+                            {temPermissao(perfil, "EDITAR_USUARIO") && (
                             <Button
                               size="sm"
                               variant="outline-primary"
@@ -725,6 +731,8 @@ const ConfiguracaoPerfil = () => {
                             >
                               <FaEdit /> Editar
                             </Button>
+                            )}
+                            {temPermissao(perfil, "ALTERAR_PERFIL_USUARIO") && (
                             <Button
                               size="sm"
                               variant="outline-warning"
@@ -734,6 +742,8 @@ const ConfiguracaoPerfil = () => {
                             >
                               <FaUserShield /> Perfil
                             </Button>
+                            )}
+                            {temPermissao(perfil, "ALTERAR_SENHA_USUARIO") && (
                             <Button
                               size="sm"
                               variant="outline-danger"
@@ -743,6 +753,12 @@ const ConfiguracaoPerfil = () => {
                             >
                               <FaKey /> Senha
                             </Button>
+                            )}
+                            {!temPermissao(perfil, "EDITAR_USUARIO") && 
+                             !temPermissao(perfil, "ALTERAR_PERFIL_USUARIO") && 
+                             !temPermissao(perfil, "ALTERAR_SENHA_USUARIO") && (
+                              <Badge bg="secondary">Sem permissões</Badge>
+                            )}
                           </td>
                         </tr>
                       ))}
@@ -753,6 +769,7 @@ const ConfiguracaoPerfil = () => {
             </Card>
           </div>
         </Tab>
+        )}
       </Tabs>
 
       {/* MODAL: EDITAR USUÁRIO */}

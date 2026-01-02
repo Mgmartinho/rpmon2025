@@ -26,11 +26,13 @@ import ConfiguracaoPerfil from "../Pages/Dashboard/usuarios/configPerfil";
 import EstatisticasGestaoFVR from "../Pages/Dashboard/gestaoFVR/EstatisticasGestaoFVR";
 import ExclusaoSolipede from "../Pages/Dashboard/gestaoFVR/ExclusaoSolipede";
 import Ferradoria from "../Pages/Dashboard/gestaoFVR/Ferradoria";
+import Exames from "../Pages/Dashboard/gestaoFVR/exames";
+
 const MainRoutes = () => {
   return (
     <Routes>
 
-      {/* PÚBLICO */}
+      {/* PÚBLICO - Acessível a todos */}
       <Route element={<PublicLayout />}>
         <Route path="/" element={<Home />} />
         <Route path="nossaHistoria" element={<NossaHistoria />} />
@@ -40,26 +42,92 @@ const MainRoutes = () => {
 
       {/* DASHBOARD */}
       <Route path="/dashboard" element={<DashboardLayout />}>
-        {/* Rota padrão */}
+        {/* Rota padrão - Estatísticas públicas */}
         <Route index element={<Estatisticas />} />
         <Route path="list" element={<DashboardList />} />
+        
+        {/* Carga Horária - Página pública (botões internos com controle de permissão) */}
         <Route path="AdminCargaHoraria" element={<AdminCargaHoraria />} />
 
-        {/* Rotas COM autenticação */}
-        <Route path="estatisticasfvr" element={<ProtectedRoute><EstatisticasGestaoFVR /></ProtectedRoute>} />
-        <Route path="ferradoria" element={<ProtectedRoute><Ferradoria /></ProtectedRoute>} />
-        <Route path="gestaofvr" element={<ProtectedRoute><GestaoFvr /></ProtectedRoute>} />
-        <Route path="gestaofvr/taskcreatepage" element={<ProtectedRoute><TaskCreatePage /></ProtectedRoute>} />
-        <Route path="gestaofvr/solipede/create" element={<ProtectedRoute><CadastrarSolipede /></ProtectedRoute>} />
-        <Route path="gestaofvr/solipede/:numero/prontuario" element={<ProtectedRoute><ProntuarioSolipede /></ProtectedRoute>} />
-        <Route path="gestaofvr/solipede/prontuario/edit/:numero" element={<ProtectedRoute><ProntuarioSolipedeEdit /></ProtectedRoute>} />
-        <Route path="gestaofvr/solipede/edit/:numero" element={<ProtectedRoute><EditarSolipede /></ProtectedRoute>} />
-        <Route path="gestaofvr/exclusao" element={<ProtectedRoute><ExclusaoSolipede /></ProtectedRoute>} />
-        <Route path="gestaofvr/configPerfil" element={<ProtectedRoute><ConfiguracaoPerfil /></ProtectedRoute>} />
+        {/* Estatísticas GestãoFVR - Veterinários e acima */}
+        <Route path="estatisticasfvr" element={
+          <ProtectedRoute requiredPermission="GESTAO_SOLIPEDES">
+            <EstatisticasGestaoFVR />
+          </ProtectedRoute>
+        } />
+        
+        {/* Ferradoria - Ferrador, Veterinários e acima */}
+        <Route path="ferradoria" element={
+          <ProtectedRoute requiredPermission="GESTAO_FERRAGEAMENTO">
+            <Ferradoria />
+          </ProtectedRoute>
+        } />
+        
+        {/* Gestão de Solípedes - Ferrador, Pagador e acima */}
+        <Route path="gestaofvr" element={
+          <ProtectedRoute requiredPermission="GESTAO_SOLIPEDES">
+            <GestaoFvr />
+          </ProtectedRoute>
+        } />
+        
+        {/* Tasks/Lançamentos - Veterinários e acima */}
+        <Route path="gestaofvr/taskcreatepage" element={
+          <ProtectedRoute requiredPermission="VISUALIZAR_TASKS">
+            <TaskCreatePage />
+          </ProtectedRoute>
+        } />
+        
+        {/* Cadastrar Solípede - Veterinários e acima */}
+        <Route path="gestaofvr/solipede/create" element={
+          <ProtectedRoute requiredPermission="CRIAR_SOLIPEDE">
+            <CadastrarSolipede />
+          </ProtectedRoute>
+        } />
+        
+        {/* Prontuário - Veterinários e acima */}
+        <Route path="gestaofvr/solipede/:numero/prontuario" element={
+          <ProtectedRoute requiredPermission="GESTAO_PRONTUARIO">
+            <ProntuarioSolipede />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="gestaofvr/solipede/prontuario/edit/:numero" element={
+          <ProtectedRoute requiredPermission="GESTAO_PRONTUARIO">
+            <ProntuarioSolipedeEdit />
+          </ProtectedRoute>
+        } />
+        
+        {/* Editar Solípede - Veterinários e acima */}
+        <Route path="gestaofvr/solipede/edit/:numero" element={
+          <ProtectedRoute requiredPermission="EDITAR_SOLIPEDE">
+            <EditarSolipede />
+          </ProtectedRoute>
+        } />
+        
+        {/* Exames - Veterinários e acima */}
+        <Route path="gestaofvr/solipede/:numero/exames" element={
+          <ProtectedRoute requiredPermission="GESTAO_PRONTUARIO">
+            <Exames />
+          </ProtectedRoute>
+        } />
+
+        {/* Exclusão - Veterinário Admin e Desenvolvedor */}
+        <Route path="gestaofvr/exclusao" element={
+          <ProtectedRoute requiredPermission="EXCLUIR_SOLIPEDE">
+            <ExclusaoSolipede />
+          </ProtectedRoute>
+        } />
+        
+        {/* Configuração de Perfil - Todos autenticados */}
+        <Route path="gestaofvr/configPerfil" element={
+          <ProtectedRoute>
+            <ConfiguracaoPerfil />
+          </ProtectedRoute>
+        } />
 
       </Route>
 
-      {/* Usuários - Sem autenticação */}
+      {/* Criar Usuário - Rota pública para auto-cadastro */}
       <Route path="dashboard/criarusuario" element={<CriarUsuario />} />
 
       {/* 404 */}

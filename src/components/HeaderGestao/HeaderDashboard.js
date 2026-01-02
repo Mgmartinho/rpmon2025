@@ -26,13 +26,14 @@ import {
 } from "react-icons/bs";
 
 import { GiHorseshoe } from "react-icons/gi";
-
+import { FaClipboardList } from "react-icons/fa";
 
 import { HiCog8Tooth } from "react-icons/hi2";
 
 
 import { GiHorseHead } from "react-icons/gi";
 import { api } from "../../services/api";
+import { temPermissao } from "../../utils/permissions";
 
 import "./styles.css";
 
@@ -92,6 +93,7 @@ const HeaderDashboard = () => {
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("usuario");
+    window.location.href = "/dashboard";
     setUsuario(null);
   };
 
@@ -124,6 +126,7 @@ const HeaderDashboard = () => {
               </Nav.Link>
             </OverlayTrigger>
 
+            {/* Carga Horária - Todos podem visualizar */}
             <OverlayTrigger overlay={<Tooltip>Carga Horária</Tooltip>}>
               <Nav.Link as={NavLink} to="/dashboard/AdminCargaHoraria">
                 <BsClockHistory />
@@ -133,36 +136,52 @@ const HeaderDashboard = () => {
             {/* ABAS PROTEGIDAS - SÓ MOSTRA SE LOGADO */}
             {usuario && (
               <>
+                {/* Ferradoria - Ferrador e acima */}
+                {temPermissao(usuario.perfil, "GESTAO_FERRAGEAMENTO") && (
                 <OverlayTrigger overlay={<Tooltip>Ferradoria</Tooltip>}>
                   <Nav.Link as={NavLink} to="/dashboard/ferradoria">
                     <GiHorseshoe />
                   </Nav.Link>
                 </OverlayTrigger>
+                )}
 
+                {/* Estatísticas - Acesso gerencial */}
+                {temPermissao(usuario.perfil, "GESTAO_SOLIPEDES") && (
                 <OverlayTrigger overlay={<Tooltip>Estatísticas</Tooltip>}>
                   <Nav.Link as={NavLink} to="/dashboard/estatisticasfvr">
                     <BsBarChart />
                   </Nav.Link>
                 </OverlayTrigger>
+                )}
 
-
+                {/* Gestão FVR - Acesso gerencial */}
+                {temPermissao(usuario.perfil, "GESTAO_SOLIPEDES") && (
+                <>
                 <OverlayTrigger overlay={<Tooltip>Gestão FVR</Tooltip>}>
                   <Nav.Link as={NavLink} to="/dashboard/gestaofvr">
                     <GiHorseHead />
                   </Nav.Link>
                 </OverlayTrigger>
+                </>
+                )}
 
-                <OverlayTrigger overlay={<Tooltip>Nova Tarefa</Tooltip>}>
+                {/* Lançamentos - Veterinários */}
+                {temPermissao(usuario.perfil, "VISUALIZAR_TASKS") && (
+                <OverlayTrigger overlay={<Tooltip>Lançamentos</Tooltip>}>
                   <Nav.Link as={NavLink} to="/dashboard/gestaofvr/taskcreatepage">
-                    <BsClipboardPlus />
+                    <FaClipboardList />
                   </Nav.Link>
                 </OverlayTrigger>
+                )}
 
+                {/* Exclusão - Veterinário Admin e Desenvolvedor */}
+                {temPermissao(usuario.perfil, "EXCLUIR_SOLIPEDE") && (
                 <OverlayTrigger overlay={<Tooltip>Exclusão de Solípedes</Tooltip>}>
                   <Nav.Link as={NavLink} to="/dashboard/gestaofvr/exclusao">
                     <BsTrash />
                   </Nav.Link>
                 </OverlayTrigger>
+                )}
               </>
             )}
           </Nav>

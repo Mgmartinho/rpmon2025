@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://10.37.20.250:3000";
+const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
 
 export const api = {
   // Auth
@@ -120,14 +120,7 @@ export const api = {
     return { error: raw || "Falha desconhecida" };
   },
 
-  excluirSolipede: async (numero) => {
-    const token = localStorage.getItem("token");
-    const response = await fetch(`${API_BASE_URL}/gestaoFVR/solipedes/${numero}`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    return response.json();
-  },
+  // ⚠️ Função removida - use a versão com soft delete abaixo (linha ~283)
 
  adicionarHoras: async (dados) => {
   const token = localStorage.getItem("token");
@@ -183,6 +176,20 @@ export const api = {
     return response.json();
   },
 
+  // Histórico de Movimentação
+  historicoMovimentacao: async (numero) => {
+    const token = localStorage.getItem("token");
+    const response = await fetch(`${API_BASE_URL}/gestaoFVR/solipedes/historico-movimentacao/${numero}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.json();
+  },
+
+  historicoMovimentacaoPublico: async (numero) => {
+    const response = await fetch(`${API_BASE_URL}/solipedes/historico-movimentacao/${numero}`);
+    return response.json();
+  },
+
   // Prontuário
   salvarProntuario: async (dados) => {
     const token = localStorage.getItem("token");
@@ -204,6 +211,31 @@ export const api = {
     const resultado = await response.json();
     console.log("📥 Resposta do servidor:", resultado);
     return resultado;
+  },
+
+  listarTodosProntuarios: async () => {
+    const token = localStorage.getItem("token");
+    console.log("🔐 Token presente:", token ? "✅ Sim" : "❌ Não");
+    
+    if (!token) {
+      return { error: "Você precisa estar logado para acessar os lançamentos" };
+    }
+    
+    try {
+      const response = await fetch(`${API_BASE_URL}/gestaoFVR/prontuario/todos`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      
+      console.log("📡 Status da resposta:", response.status);
+      
+      const data = await response.json();
+      console.log("📦 Dados recebidos:", data);
+      
+      return data;
+    } catch (error) {
+      console.error("❌ Erro na requisição:", error);
+      return { error: "Erro de conexão com o servidor" };
+    }
   },
 
   listarProntuario: async (numero) => {

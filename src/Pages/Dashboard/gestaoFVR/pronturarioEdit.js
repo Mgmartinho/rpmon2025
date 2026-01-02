@@ -13,6 +13,7 @@ import {
   ListGroup,
   Alert,
   Modal,
+  Accordion,
 } from "react-bootstrap";
 import {
   BsPlusCircle,
@@ -64,6 +65,63 @@ export default function ProntuarioSolipedeEdit() {
   const [concluindo, setConcluindo] = useState(false);
   const [erroConclusao, setErroConclusao] = useState("");
 
+  // Estados para exames laboratoriais (quando tipoObservacao === "Exame")
+  const [examesSelecionados, setExamesSelecionados] = useState({
+    // Hematologia
+    hemogramaCompleto: false,
+    hemacias: false,
+    hemoglobina: false,
+    hematocrito: false,
+    indices: false,
+    leucograma: false,
+    plaquetas: false,
+    // Bioquímica - Função hepática
+    ast: false,
+    alt: false,
+    ggt: false,
+    fosfataseAlcalina: false,
+    bilirrubinaTotal: false,
+    bilirrubinaDireta: false,
+    bilirrubinaIndireta: false,
+    // Bioquímica - Função renal
+    ureia: false,
+    creatinina: false,
+    // Bioquímica - Músculos
+    ck: false,
+    ldh: false,
+    // Bioquímica - Metabolismo e proteínas
+    proteinasTotais: false,
+    albumina: false,
+    globulinas: false,
+    relacaoAG: false,
+    // Bioquímica - Eletrólitos
+    sodio: false,
+    potassio: false,
+    cloro: false,
+    calcio: false,
+    fosforo: false,
+    magnesio: false,
+    // Bioquímica - Outros
+    glicose: false,
+    colesterol: false,
+    triglicerideos: false,
+    lactato: false,
+    // Sorologia
+    aie: false,
+    mormo: false,
+    leptospirose: false,
+    brucelose: false,
+    influenzaEquina: false,
+    herpesvirusEquino: false,
+    raiva: false,
+    encefalomieliteEquina: false,
+    arteriteViralEquina: false,
+    // Parasitologia
+    coproparasitologico: false,
+    opg: false,
+    coprocultura: false,
+  });
+
 
   useEffect(() => {
     const fetchSolipede = async () => {
@@ -99,7 +157,7 @@ export default function ProntuarioSolipedeEdit() {
 
   // Função para gerar documento formatado
   const gerarDocumentoFormatado = () => {
-    if (!historico || historico.length === 0) return '';
+    if (!historico || !Array.isArray(historico) || historico.length === 0) return '';
 
     const dataAtual = new Date().toLocaleDateString('pt-BR', {
       day: '2-digit',
@@ -249,13 +307,15 @@ export default function ProntuarioSolipedeEdit() {
     async function carregarProntuario() {
       try {
         const response = await api.listarProntuario(solipede.numero);
-        setHistorico(response);
+        // Garantir que response seja sempre um array
+        setHistorico(Array.isArray(response) ? response : []);
 
         // Carregar contador de baixas pendentes
         const baixas = await api.contarBaixasPendentes(solipede.numero);
         setBaixasPendentes(baixas.total || 0);
       } catch (error) {
         console.error("Erro ao carregar prontuário", error);
+        setHistorico([]); // Define array vazio em caso de erro
       } finally {
         setLoadingHistorico(false);
       }
@@ -268,7 +328,7 @@ export default function ProntuarioSolipedeEdit() {
 
   // Atualizar visão geral quando histórico mudar
   useEffect(() => {
-    if (historico && historico.length > 0 && solipede) {
+    if (historico && Array.isArray(historico) && historico.length > 0 && solipede) {
       const documentoFormatado = gerarDocumentoFormatado();
       setVisaoGeralTexto(documentoFormatado);
     } else if (solipede) {
@@ -281,7 +341,217 @@ export default function ProntuarioSolipedeEdit() {
     }
   }, [historico, solipede]);
 
+  // Funções para gerenciar exames
+  const handleCheckboxChange = (exame) => {
+    setExamesSelecionados((prev) => ({
+      ...prev,
+      [exame]: !prev[exame],
+    }));
+  };
+
+  const marcarTodosCategoria = (categoria) => {
+    const novosExames = { ...examesSelecionados };
+    
+    switch (categoria) {
+      case "hematologia":
+        novosExames.hemogramaCompleto = true;
+        novosExames.hemacias = true;
+        novosExames.hemoglobina = true;
+        novosExames.hematocrito = true;
+        novosExames.indices = true;
+        novosExames.leucograma = true;
+        novosExames.plaquetas = true;
+        break;
+      case "funcaoHepatica":
+        novosExames.ast = true;
+        novosExames.alt = true;
+        novosExames.ggt = true;
+        novosExames.fosfataseAlcalina = true;
+        novosExames.bilirrubinaTotal = true;
+        novosExames.bilirrubinaDireta = true;
+        novosExames.bilirrubinaIndireta = true;
+        break;
+      case "funcaoRenal":
+        novosExames.ureia = true;
+        novosExames.creatinina = true;
+        break;
+      case "musculos":
+        novosExames.ck = true;
+        novosExames.ldh = true;
+        break;
+      case "metabolismo":
+        novosExames.proteinasTotais = true;
+        novosExames.albumina = true;
+        novosExames.globulinas = true;
+        novosExames.relacaoAG = true;
+        break;
+      case "eletrolitos":
+        novosExames.sodio = true;
+        novosExames.potassio = true;
+        novosExames.cloro = true;
+        novosExames.calcio = true;
+        novosExames.fosforo = true;
+        novosExames.magnesio = true;
+        break;
+      case "outrosBioq":
+        novosExames.glicose = true;
+        novosExames.colesterol = true;
+        novosExames.triglicerideos = true;
+        novosExames.lactato = true;
+        break;
+      case "sorologia":
+        novosExames.aie = true;
+        novosExames.mormo = true;
+        novosExames.leptospirose = true;
+        novosExames.brucelose = true;
+        novosExames.influenzaEquina = true;
+        novosExames.herpesvirusEquino = true;
+        novosExames.raiva = true;
+        novosExames.encefalomieliteEquina = true;
+        novosExames.arteriteViralEquina = true;
+        break;
+      case "parasitologia":
+        novosExames.coproparasitologico = true;
+        novosExames.opg = true;
+        novosExames.coprocultura = true;
+        break;
+      default:
+        break;
+    }
+    
+    setExamesSelecionados(novosExames);
+  };
+
   const handleAdicionarObservacao = async () => {
+    // Se for tipo "Exame", verificar se algum exame foi selecionado
+    if (tipoObservacao === "Exame") {
+      const algumSelecionado = Object.values(examesSelecionados).some((v) => v === true);
+      
+      if (!algumSelecionado && !observacao.trim()) {
+        setMensagem({
+          tipo: "warning",
+          texto: "Selecione pelo menos um exame ou adicione uma observação!",
+        });
+        return;
+      }
+
+      // Se houver exames selecionados, gerar o texto formatado
+      if (algumSelecionado) {
+        const examesLista = [];
+        
+        // Hematologia
+        if (examesSelecionados.hemogramaCompleto) examesLista.push("• Hemograma completo");
+        if (examesSelecionados.hemacias) examesLista.push("• Hemácias");
+        if (examesSelecionados.hemoglobina) examesLista.push("• Hemoglobina");
+        if (examesSelecionados.hematocrito) examesLista.push("• Hematócrito");
+        if (examesSelecionados.indices) examesLista.push("• VCM, HCM, CHCM");
+        if (examesSelecionados.leucograma) examesLista.push("• Leucograma");
+        if (examesSelecionados.plaquetas) examesLista.push("• Plaquetas");
+        
+        // Bioquímica - Função Hepática
+        if (examesSelecionados.ast) examesLista.push("• AST (TGO)");
+        if (examesSelecionados.alt) examesLista.push("• ALT (TGP)");
+        if (examesSelecionados.ggt) examesLista.push("• GGT");
+        if (examesSelecionados.fosfataseAlcalina) examesLista.push("• FA (Fosfatase Alcalina)");
+        if (examesSelecionados.bilirrubinaTotal) examesLista.push("• Bilirrubina total");
+        if (examesSelecionados.bilirrubinaDireta) examesLista.push("• Bilirrubina direta");
+        if (examesSelecionados.bilirrubinaIndireta) examesLista.push("• Bilirrubina indireta");
+        
+        // Bioquímica - Função Renal
+        if (examesSelecionados.ureia) examesLista.push("• Ureia");
+        if (examesSelecionados.creatinina) examesLista.push("• Creatinina");
+        
+        // Bioquímica - Músculos
+        if (examesSelecionados.ck) examesLista.push("• CK (Creatina Quinase)");
+        if (examesSelecionados.ldh) examesLista.push("• LDH");
+        
+        // Bioquímica - Metabolismo
+        if (examesSelecionados.proteinasTotais) examesLista.push("• Proteínas totais");
+        if (examesSelecionados.albumina) examesLista.push("• Albumina");
+        if (examesSelecionados.globulinas) examesLista.push("• Globulinas");
+        if (examesSelecionados.relacaoAG) examesLista.push("• Relação A/G");
+        
+        // Bioquímica - Eletrólitos
+        if (examesSelecionados.sodio) examesLista.push("• Sódio (Na⁺)");
+        if (examesSelecionados.potassio) examesLista.push("• Potássio (K⁺)");
+        if (examesSelecionados.cloro) examesLista.push("• Cloro (Cl⁻)");
+        if (examesSelecionados.calcio) examesLista.push("• Cálcio (Ca²⁺)");
+        if (examesSelecionados.fosforo) examesLista.push("• Fósforo (P)");
+        if (examesSelecionados.magnesio) examesLista.push("• Magnésio (Mg²⁺)");
+        
+        // Bioquímica - Outros
+        if (examesSelecionados.glicose) examesLista.push("• Glicose");
+        if (examesSelecionados.colesterol) examesLista.push("• Colesterol");
+        if (examesSelecionados.triglicerideos) examesLista.push("• Triglicerídeos");
+        if (examesSelecionados.lactato) examesLista.push("• Lactato");
+        
+        // Sorologia
+        if (examesSelecionados.aie) examesLista.push("• Anemia Infecciosa Equina (AIE – Coggins)");
+        if (examesSelecionados.mormo) examesLista.push("• Mormo");
+        if (examesSelecionados.leptospirose) examesLista.push("• Leptospirose");
+        if (examesSelecionados.brucelose) examesLista.push("• Brucelose");
+        if (examesSelecionados.influenzaEquina) examesLista.push("• Influenza Equina");
+        if (examesSelecionados.herpesvirusEquino) examesLista.push("• Herpesvírus Equino (EHV-1/EHV-4)");
+        if (examesSelecionados.raiva) examesLista.push("• Raiva");
+        if (examesSelecionados.encefalomieliteEquina) examesLista.push("• Encefalomielite Equina");
+        if (examesSelecionados.arteriteViralEquina) examesLista.push("• Arterite Viral Equina");
+        
+        // Parasitologia
+        if (examesSelecionados.coproparasitologico) examesLista.push("• Exame coproparasitológico");
+        if (examesSelecionados.opg) examesLista.push("• OPG (Ovos Por Grama)");
+        if (examesSelecionados.coprocultura) examesLista.push("• Coprocultura");
+
+        // Montar texto formatado
+        const textoExames = `SOLICITAÇÃO DE EXAMES LABORATORIAIS\n\n` +
+          `Exames solicitados:\n${examesLista.join("\n")}\n\n` +
+          (observacao ? `Observações adicionais: ${observacao}\n\n` : "") +
+          `Data da solicitação: ${new Date().toLocaleDateString("pt-BR")} às ${new Date().toLocaleTimeString("pt-BR")}`;
+
+        // Substituir a observação pelo texto dos exames
+        setObservacao(textoExames);
+        
+        // Continuar com o salvamento usando o texto gerado
+        setSalvando(true);
+        try {
+          const response = await api.salvarProntuario({
+            numero_solipede: numero,
+            tipo: tipoObservacao,
+            observacao: textoExames,
+            recomendacoes: recomendacoes || null,
+          });
+
+          if (response.success || response.id) {
+            const historicoAtualizado = await api.listarProntuario(numero);
+            setHistorico(historicoAtualizado);
+
+            setMensagem({
+              tipo: "success",
+              texto: "Solicitação de exames registrada com sucesso!",
+            });
+            
+            // Limpar formulário
+            setObservacao("");
+            setRecomendacoes("");
+            // Resetar checkboxes de exames
+            setExamesSelecionados(Object.keys(examesSelecionados).reduce((acc, key) => {
+              acc[key] = false;
+              return acc;
+            }, {}));
+          }
+        } catch (error) {
+          console.error("Erro ao salvar:", error);
+          setMensagem({
+            tipo: "danger",
+            texto: "Erro ao salvar solicitação de exames",
+          });
+        } finally {
+          setSalvando(false);
+        }
+        return;
+      }
+    }
+
+    // Validação padrão para outros tipos
     if (!observacao.trim()) {
       setMensagem({
         tipo: "warning",
@@ -809,13 +1079,273 @@ export default function ProntuarioSolipedeEdit() {
                         </div>
                       )}
 
+                      {/* Interface completa de exames laboratoriais */}
+                      {tipoObservacao === "Exame" && (
+                        <div className="mt-3 mb-3">
+                          <Alert variant="primary" className="mb-3">
+                            <strong>🧪 Solicitação de Exames</strong><br />
+                            Selecione os exames laboratoriais que deseja solicitar para este solípede.
+                          </Alert>
+
+                          <Accordion defaultActiveKey="0" className="mb-3">
+                            {/* 1. HEMATOLOGIA */}
+                            <Accordion.Item eventKey="0">
+                              <Accordion.Header>
+                                🧪 1. Hematologia (Sangue)
+                                <small className="text-muted ms-2">
+                                  - Avalia estado geral, inflamações, infecções e anemia
+                                </small>
+                              </Accordion.Header>
+                              <Accordion.Body>
+                                <div className="mb-2">
+                                  <Button 
+                                    size="sm" 
+                                    variant="outline-primary"
+                                    onClick={() => marcarTodosCategoria("hematologia")}
+                                  >
+                                    Marcar todos
+                                  </Button>
+                                </div>
+                                <Row>
+                                  <Col md={6}>
+                                    <Form.Check
+                                      type="checkbox"
+                                      label="Hemograma completo"
+                                      checked={examesSelecionados.hemogramaCompleto}
+                                      onChange={() => handleCheckboxChange("hemogramaCompleto")}
+                                    />
+                                    <Form.Check
+                                      type="checkbox"
+                                      label="Hemácias"
+                                      checked={examesSelecionados.hemacias}
+                                      onChange={() => handleCheckboxChange("hemacias")}
+                                    />
+                                    <Form.Check
+                                      type="checkbox"
+                                      label="Hemoglobina"
+                                      checked={examesSelecionados.hemoglobina}
+                                      onChange={() => handleCheckboxChange("hemoglobina")}
+                                    />
+                                    <Form.Check
+                                      type="checkbox"
+                                      label="Hematócrito"
+                                      checked={examesSelecionados.hematocrito}
+                                      onChange={() => handleCheckboxChange("hematocrito")}
+                                    />
+                                  </Col>
+                                  <Col md={6}>
+                                    <Form.Check
+                                      type="checkbox"
+                                      label="VCM, HCM, CHCM"
+                                      checked={examesSelecionados.indices}
+                                      onChange={() => handleCheckboxChange("indices")}
+                                    />
+                                    <Form.Check
+                                      type="checkbox"
+                                      label="Leucograma"
+                                      checked={examesSelecionados.leucograma}
+                                      onChange={() => handleCheckboxChange("leucograma")}
+                                    />
+                                    <Form.Check
+                                      type="checkbox"
+                                      label="Plaquetas"
+                                      checked={examesSelecionados.plaquetas}
+                                      onChange={() => handleCheckboxChange("plaquetas")}
+                                    />
+                                  </Col>
+                                </Row>
+                              </Accordion.Body>
+                            </Accordion.Item>
+
+                            {/* 2. BIOQUÍMICA */}
+                            <Accordion.Item eventKey="1">
+                              <Accordion.Header>
+                                🧬 2. Bioquímica Sanguínea
+                              </Accordion.Header>
+                              <Accordion.Body>
+                                {/* Função Hepática */}
+                                <h6 className="text-primary mt-2">Função Hepática</h6>
+                                <Button size="sm" variant="outline-primary" className="mb-2"
+                                  onClick={() => marcarTodosCategoria("funcaoHepatica")}>
+                                  Marcar todos
+                                </Button>
+                                <Row className="mb-3">
+                                  <Col md={6}>
+                                    <Form.Check type="checkbox" label="AST (TGO)"
+                                      checked={examesSelecionados.ast}
+                                      onChange={() => handleCheckboxChange("ast")} />
+                                    <Form.Check type="checkbox" label="ALT (TGP)"
+                                      checked={examesSelecionados.alt}
+                                      onChange={() => handleCheckboxChange("alt")} />
+                                    <Form.Check type="checkbox" label="GGT"
+                                      checked={examesSelecionados.ggt}
+                                      onChange={() => handleCheckboxChange("ggt")} />
+                                  </Col>
+                                  <Col md={6}>
+                                    <Form.Check type="checkbox" label="FA (Fosfatase Alcalina)"
+                                      checked={examesSelecionados.fosfataseAlcalina}
+                                      onChange={() => handleCheckboxChange("fosfataseAlcalina")} />
+                                    <Form.Check type="checkbox" label="Bilirrubina total"
+                                      checked={examesSelecionados.bilirrubinaTotal}
+                                      onChange={() => handleCheckboxChange("bilirrubinaTotal")} />
+                                    <Form.Check type="checkbox" label="Bilirrubina direta"
+                                      checked={examesSelecionados.bilirrubinaDireta}
+                                      onChange={() => handleCheckboxChange("bilirrubinaDireta")} />
+                                  </Col>
+                                </Row>
+
+                                {/* Função Renal */}
+                                <h6 className="text-primary mt-2">Função Renal</h6>
+                                <Button size="sm" variant="outline-primary" className="mb-2"
+                                  onClick={() => marcarTodosCategoria("funcaoRenal")}>
+                                  Marcar todos
+                                </Button>
+                                <Row className="mb-3">
+                                  <Col md={6}>
+                                    <Form.Check type="checkbox" label="Ureia"
+                                      checked={examesSelecionados.ureia}
+                                      onChange={() => handleCheckboxChange("ureia")} />
+                                  </Col>
+                                  <Col md={6}>
+                                    <Form.Check type="checkbox" label="Creatinina"
+                                      checked={examesSelecionados.creatinina}
+                                      onChange={() => handleCheckboxChange("creatinina")} />
+                                  </Col>
+                                </Row>
+
+                                {/* Músculos */}
+                                <h6 className="text-primary mt-2">Músculos</h6>
+                                <Button size="sm" variant="outline-primary" className="mb-2"
+                                  onClick={() => marcarTodosCategoria("musculos")}>
+                                  Marcar todos
+                                </Button>
+                                <Row className="mb-3">
+                                  <Col md={6}>
+                                    <Form.Check type="checkbox" label="CK (Creatina Quinase)"
+                                      checked={examesSelecionados.ck}
+                                      onChange={() => handleCheckboxChange("ck")} />
+                                  </Col>
+                                  <Col md={6}>
+                                    <Form.Check type="checkbox" label="LDH"
+                                      checked={examesSelecionados.ldh}
+                                      onChange={() => handleCheckboxChange("ldh")} />
+                                  </Col>
+                                </Row>
+
+                                {/* Eletrólitos */}
+                                <h6 className="text-primary mt-2">Eletrólitos</h6>
+                                <Button size="sm" variant="outline-primary" className="mb-2"
+                                  onClick={() => marcarTodosCategoria("eletrolitos")}>
+                                  Marcar todos
+                                </Button>
+                                <Row>
+                                  <Col md={6}>
+                                    <Form.Check type="checkbox" label="Sódio (Na⁺)"
+                                      checked={examesSelecionados.sodio}
+                                      onChange={() => handleCheckboxChange("sodio")} />
+                                    <Form.Check type="checkbox" label="Potássio (K⁺)"
+                                      checked={examesSelecionados.potassio}
+                                      onChange={() => handleCheckboxChange("potassio")} />
+                                    <Form.Check type="checkbox" label="Cloro (Cl⁻)"
+                                      checked={examesSelecionados.cloro}
+                                      onChange={() => handleCheckboxChange("cloro")} />
+                                  </Col>
+                                  <Col md={6}>
+                                    <Form.Check type="checkbox" label="Cálcio (Ca²⁺)"
+                                      checked={examesSelecionados.calcio}
+                                      onChange={() => handleCheckboxChange("calcio")} />
+                                    <Form.Check type="checkbox" label="Fósforo (P)"
+                                      checked={examesSelecionados.fosforo}
+                                      onChange={() => handleCheckboxChange("fosforo")} />
+                                    <Form.Check type="checkbox" label="Glicose"
+                                      checked={examesSelecionados.glicose}
+                                      onChange={() => handleCheckboxChange("glicose")} />
+                                  </Col>
+                                </Row>
+                              </Accordion.Body>
+                            </Accordion.Item>
+
+                            {/* 3. SOROLOGIA */}
+                            <Accordion.Item eventKey="2">
+                              <Accordion.Header>
+                                🦠 3. Sorologia (Doenças Infecciosas)
+                              </Accordion.Header>
+                              <Accordion.Body>
+                                <Button size="sm" variant="outline-primary" className="mb-2"
+                                  onClick={() => marcarTodosCategoria("sorologia")}>
+                                  Marcar todos
+                                </Button>
+                                <Row>
+                                  <Col md={6}>
+                                    <Form.Check type="checkbox" label="AIE (Coggins)"
+                                      checked={examesSelecionados.aie}
+                                      onChange={() => handleCheckboxChange("aie")} />
+                                    <Form.Check type="checkbox" label="Mormo"
+                                      checked={examesSelecionados.mormo}
+                                      onChange={() => handleCheckboxChange("mormo")} />
+                                    <Form.Check type="checkbox" label="Leptospirose"
+                                      checked={examesSelecionados.leptospirose}
+                                      onChange={() => handleCheckboxChange("leptospirose")} />
+                                    <Form.Check type="checkbox" label="Influenza Equina"
+                                      checked={examesSelecionados.influenzaEquina}
+                                      onChange={() => handleCheckboxChange("influenzaEquina")} />
+                                  </Col>
+                                  <Col md={6}>
+                                    <Form.Check type="checkbox" label="Herpesvírus Equino"
+                                      checked={examesSelecionados.herpesvirusEquino}
+                                      onChange={() => handleCheckboxChange("herpesvirusEquino")} />
+                                    <Form.Check type="checkbox" label="Raiva"
+                                      checked={examesSelecionados.raiva}
+                                      onChange={() => handleCheckboxChange("raiva")} />
+                                    <Form.Check type="checkbox" label="Encefalomielite"
+                                      checked={examesSelecionados.encefalomieliteEquina}
+                                      onChange={() => handleCheckboxChange("encefalomieliteEquina")} />
+                                    <Form.Check type="checkbox" label="Arterite Viral"
+                                      checked={examesSelecionados.arteriteViralEquina}
+                                      onChange={() => handleCheckboxChange("arteriteViralEquina")} />
+                                  </Col>
+                                </Row>
+                              </Accordion.Body>
+                            </Accordion.Item>
+
+                            {/* 4. PARASITOLOGIA */}
+                            <Accordion.Item eventKey="3">
+                              <Accordion.Header>
+                                🧫 4. Parasitologia
+                              </Accordion.Header>
+                              <Accordion.Body>
+                                <Button size="sm" variant="outline-primary" className="mb-2"
+                                  onClick={() => marcarTodosCategoria("parasitologia")}>
+                                  Marcar todos
+                                </Button>
+                                <Form.Check type="checkbox" label="Exame coproparasitológico"
+                                  checked={examesSelecionados.coproparasitologico}
+                                  onChange={() => handleCheckboxChange("coproparasitologico")} />
+                                <Form.Check type="checkbox" label="OPG (Ovos Por Grama)"
+                                  checked={examesSelecionados.opg}
+                                  onChange={() => handleCheckboxChange("opg")} />
+                                <Form.Check type="checkbox" label="Coprocultura"
+                                  checked={examesSelecionados.coprocultura}
+                                  onChange={() => handleCheckboxChange("coprocultura")} />
+                              </Accordion.Body>
+                            </Accordion.Item>
+                          </Accordion>
+                        </div>
+                      )}
+
 
                       <Form.Group className="mb-3">
-                        <Form.Label className="fw-bold">Observação</Form.Label>
+                        <Form.Label className="fw-bold">
+                          {tipoObservacao === "Exame" ? "Observações Adicionais (opcional)" : "Observação"}
+                        </Form.Label>
                         <Form.Control
                           as="textarea"
                           rows={5}
-                          placeholder="Descreva detalhadamente a observação clínica..."
+                          placeholder={
+                            tipoObservacao === "Exame"
+                              ? "Adicione informações complementares sobre a solicitação de exames (opcional)..."
+                              : "Descreva detalhadamente a observação clínica..."
+                          }
                           value={observacao}
                           onChange={(e) => setObservacao(e.target.value)}
                           style={{ resize: "none" }}
@@ -823,6 +1353,7 @@ export default function ProntuarioSolipedeEdit() {
                         />
                         <small className="text-muted d-block mt-1">
                           {observacao.length} caracteres
+                          {tipoObservacao === "Exame" && " (opcional - os exames serão automaticamente listados)"}
                         </small>
                       </Form.Group>
 
@@ -845,7 +1376,13 @@ export default function ProntuarioSolipedeEdit() {
                         <Button
                           variant="success"
                           onClick={handleAdicionarObservacao}
-                          disabled={!observacao.trim() || salvando}
+                          disabled={
+                            salvando || 
+                            (tipoObservacao === "Exame" 
+                              ? !Object.values(examesSelecionados).some(v => v) && !observacao.trim()
+                              : !observacao.trim()
+                            )
+                          }
                         >
                           {salvando ? (
                             <>
@@ -869,6 +1406,11 @@ export default function ProntuarioSolipedeEdit() {
                             setPartidaLote("");
                             setValidadeProduto("");
                             setNomeProduto("");
+                            // Resetar checkboxes de exames
+                            setExamesSelecionados(Object.keys(examesSelecionados).reduce((acc, key) => {
+                              acc[key] = false;
+                              return acc;
+                            }, {}));
                           }}
                           disabled={salvando}
                         >

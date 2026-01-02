@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import {
   Card,
   Row,
@@ -15,6 +15,7 @@ import {
   BsPlusCircle,
   BsClockHistory,
   BsFilePdf,
+  BsClipboardPlus,
 } from "react-icons/bs";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
@@ -28,6 +29,9 @@ export default function ProntuarioSolipede() {
   const [historico, setHistorico] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  
+  // Filtro por tipo de registro
+  const [filtroTipo, setFiltroTipo] = useState("Todos");
 
   const [novoRegistro, setNovoRegistro] = useState({
     tipo: "Consulta",
@@ -157,6 +161,16 @@ export default function ProntuarioSolipede() {
             </Col>
 
             <Col className="text-end">
+              <Link to={`/dashboard/gestaofvr/solipede/${numero}/exames`}>
+                <Button
+                  size="sm"
+                  variant="outline-primary"
+                  className="me-2"
+                >
+                  <BsClipboardPlus className="me-1" />
+                  Solicitar Exames
+                </Button>
+              </Link>
               {abaAtiva === "geral" && (
                 <Button
                   size="sm"
@@ -306,49 +320,87 @@ export default function ProntuarioSolipede() {
           {abaAtiva === "historico" && (
             <Card className="shadow-sm">
               <Card.Body>
-                <h6 className="fw-semibold mb-3">
-                  <BsClockHistory className="me-1" />
-                  Histórico de Atendimentos
-                </h6>
+                <div className="d-flex justify-content-between align-items-center mb-3">
+                  <h6 className="fw-semibold mb-0">
+                    <BsClockHistory className="me-1" />
+                    Histórico de Atendimentos
+                  </h6>
+                  
+                  <Form.Select
+                    size="sm"
+                    style={{ width: "200px" }}
+                    value={filtroTipo}
+                    onChange={(e) => setFiltroTipo(e.target.value)}
+                  >
+                    <option value="Todos">Todos os tipos</option>
+                    <option value="Exame">🧪 Exames</option>
+                    <option value="Consulta">Consultas</option>
+                    <option value="Tratamento">Tratamentos</option>
+                    <option value="Observação Geral">Observações</option>
+                  </Form.Select>
+                </div>
 
-                {historico.length === 0 && (
+                {historico.filter(item => filtroTipo === "Todos" || item.tipo === filtroTipo).length === 0 && (
                   <p className="text-muted text-center">
-                    Nenhum registro clínico no momento
+                    {filtroTipo === "Todos" 
+                      ? "Nenhum registro clínico no momento"
+                      : `Nenhum registro do tipo "${filtroTipo}" encontrado`
+                    }
                   </p>
                 )}
 
-                {historico.map((item, index) => (
-                  <Card
-                    key={item.id || index}
-                    className="mb-3 border-start border-4 border-secondary"
-                  >
-                    <Card.Body>
-                      <Row>
-                        <Col md={8}>
-                          <Badge bg="secondary" className="mb-2">
-                            {item.tipo}
-                          </Badge>
+                {historico
+                  .filter(item => filtroTipo === "Todos" || item.tipo === filtroTipo)
+                  .map((item, index) => {
+                  // Determinar cor do badge baseado no tipo
+                  const badgeColor = 
+                    item.tipo === "Exame" ? "primary" :
+                    item.tipo === "Tratamento" ? "success" :
+                    item.tipo === "Consulta" ? "info" :
+                    "secondary";
 
-                          <p className="mb-1">
-                            <strong>Observação:</strong> {item.observacao}
-                          </p>
+                  // Determinar cor da borda
+                  const borderColor =
+                    item.tipo === "Exame" ? "border-primary" :
+                    item.tipo === "Tratamento" ? "border-success" :
+                    item.tipo === "Consulta" ? "border-info" :
+                    "border-secondary";
 
-                          {item.recomendacoes && (
-                            <p className="mb-0">
-                              <strong>Recomendações:</strong> {item.recomendacoes}
+                  return (
+                    <Card
+                      key={item.id || index}
+                      className={`mb-3 border-start border-4 ${borderColor}`}
+                    >
+                      <Card.Body>
+                        <Row>
+                          <Col md={8}>
+                            <Badge bg={badgeColor} className="mb-2">
+                              {item.tipo === "Exame" ? "🧪 " : ""}
+                              {item.tipo}
+                            </Badge>
+
+                            <p className="mb-1" style={{ whiteSpace: "pre-line" }}>
+                              <strong>Observação:</strong><br />
+                              {item.observacao}
                             </p>
-                          )}
-                        </Col>
 
-                        <Col md={4} className="text-end">
-                          <small className="text-muted">
-                            {new Date(item.data_criacao).toLocaleDateString("pt-BR")}
-                          </small>
-                        </Col>
-                      </Row>
-                    </Card.Body>
-                  </Card>
-                ))}
+                            {item.recomendacoes && (
+                              <p className="mb-0">
+                                <strong>Recomendações:</strong> {item.recomendacoes}
+                              </p>
+                            )}
+                          </Col>
+
+                          <Col md={4} className="text-end">
+                            <small className="text-muted">
+                              {new Date(item.data_criacao).toLocaleDateString("pt-BR")}
+                            </small>
+                          </Col>
+                        </Row>
+                      </Card.Body>
+                    </Card>
+                  );
+                })}
               </Card.Body>
             </Card>
           )}

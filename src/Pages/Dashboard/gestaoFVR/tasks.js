@@ -1,157 +1,276 @@
+import { useState, useEffect } from "react";
 import {
   Card,
   Row,
   Col,
   Container,
-  Button,
-  Form,
   Badge,
-  ProgressBar,
+  Spinner,
+  Alert,
+  Form,
+  Button,
 } from "react-bootstrap";
-import { FaPlay, FaStop, FaPaperclip } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+import { BsClockHistory, BsClipboard2 } from "react-icons/bs";
+import { api } from "../../../services/api";
 
 export default function TaskCreatePage() {
+  const navigate = useNavigate();
+  const [lancamentos, setLancamentos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [filtroTipo, setFiltroTipo] = useState("Todos");
+
+  useEffect(() => {
+    carregarLancamentos();
+  }, []);
+
+  const carregarLancamentos = async () => {
+    try {
+      setLoading(true);
+      
+      console.log("🔄 Iniciando carregamento de lançamentos...");
+      const data = await api.listarTodosProntuarios();
+      
+      console.log("📦 Dados retornados:", data);
+      console.log("📊 Tipo dos dados:", typeof data);
+      console.log("📊 É array?", Array.isArray(data));
+      console.log("📊 Quantidade:", Array.isArray(data) ? data.length : "não é array");
+      
+      if (Array.isArray(data)) {
+        console.log("✅ Setando lançamentos:", data.length, "registros");
+        setLancamentos(data);
+      } else {
+        console.log("⚠️ Dados não são array, setando vazio");
+        setLancamentos([]);
+      }
+    } catch (err) {
+      console.error("❌ Erro ao carregar lançamentos:", err);
+      setLancamentos([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getTipoColor = (tipo) => {
+    const cores = {
+      "Consulta Clínica": "primary",
+      "Tratamento": "danger",
+      "Exame": "secondary",
+      "Vacinação": "success",
+      "Vermifugação": "info",
+      "Exames AIE / Mormo": "warning",
+      "Restrições": "warning",
+    };
+    return cores[tipo] || "secondary";
+  };
+
+  const lancamentosFiltrados =
+    filtroTipo === "Todos"
+      ? lancamentos
+      : lancamentos.filter((l) => l.tipo === filtroTipo);
+
+  const tiposDisponiveis = ["Todos", "Consulta Clínica", "Tratamento", "Exame", "Vacinação", "Vermifugação", "Exames AIE / Mormo", "Restrições"];
+
+  const contagemPorTipo = lancamentos.reduce((acc, l) => {
+    acc[l.tipo] = (acc[l.tipo] || 0) + 1;
+    return acc;
+  }, {});
+
+  const abrirProntuario = (numeroSolipede) => {
+    navigate(`/dashboard/gestaofvr/solipede/prontuario/edit/${numeroSolipede}`);
+  };
+
+  if (loading) {
+    return (
+      <Container fluid className="py-4 text-center">
+        <Spinner animation="border" variant="primary" />
+        <p className="mt-3">Carregando lançamentos...</p>
+      </Container>
+    );
+  }
+
   return (
     <Container fluid className="py-4">
-
       {/* TÍTULO */}
       <Row className="mb-4">
         <Col>
-          <h5 className="fw-semibold">Task Details</h5>
+          <h5 className="fw-semibold">
+            <BsClipboard2 className="me-2" />
+            Lançamentos de Prontuário
+          </h5>
           <small className="text-muted">
-            Criação e acompanhamento de tarefas veterinárias
+            Histórico completo de todos os lançamentos veterinários
           </small>
         </Col>
       </Row>
 
       <Row className="g-4">
-
-        {/* COLUNA ESQUERDA */}
-        <Col xl={4} lg={5}>
-
-          {/* TIME TRACKING */}
+        {/* COLUNA ESQUERDA - Filtros e Estatísticas */}
+        <Col xl={3} lg={4}>
+          {/* FILTRO POR TIPO */}
           <Card className="shadow-sm mb-3">
-            <Card.Body className="text-center">
-              <h6 className="text-muted mb-3">Time Tracking</h6>
-
-              <ProgressBar now={60} className="mb-3" />
-
-              <h5 className="mb-0">0 hrs 0 min</h5>
-              <small className="text-muted">New Task</small>
-
-              <div className="d-flex justify-content-center gap-2 mt-3">
-                <Button size="sm" variant="success">
-                  <FaPlay className="me-1" /> Start
-                </Button>
-                <Button size="sm" variant="danger">
-                  <FaStop className="me-1" /> Stop
-                </Button>
-              </div>
+            <Card.Body>
+              <h6 className="mb-3">Filtrar por Tipo</h6>
+              <Form.Select
+                size="sm"
+                value={filtroTipo}
+                onChange={(e) => setFiltroTipo(e.target.value)}
+              >
+                {tiposDisponiveis.map((tipo) => (
+                  <option key={tipo} value={tipo}>
+                    {tipo} {tipo !== "Todos" && contagemPorTipo[tipo] ? `(${contagemPorTipo[tipo]})` : ""}
+                  </option>
+                ))}
+              </Form.Select>
             </Card.Body>
           </Card>
 
-          {/* META */}
+          {/* ESTATÍSTICAS */}
           <Card className="shadow-sm">
             <Card.Body>
-              <Form.Group className="mb-3">
-                <Form.Label>Status</Form.Label>
-                <Form.Select size="sm">
-                  <option>New</option>
-                  <option>In Progress</option>
-                  <option>Pending</option>
-                  <option>Completed</option>
-                </Form.Select>
-              </Form.Group>
-
-              <Form.Group className="mb-3">
-                <Form.Label>Priority</Form.Label>
-                <Form.Select size="sm">
-                  <option>Low</option>
-                  <option>Medium</option>
-                  <option>High</option>
-                </Form.Select>
-              </Form.Group>
-
-              <Form.Group className="mb-3">
-                <Form.Label>Due Date</Form.Label>
-                <Form.Control size="sm" type="date" />
-              </Form.Group>
-
-              <Form.Group>
-                <Form.Label>Assigned To</Form.Label>
-                <Form.Control
-                  size="sm"
-                  placeholder="Veterinário responsável"
-                />
-              </Form.Group>
+              <h6 className="mb-3">Estatísticas</h6>
+              <div className="d-flex flex-column gap-2">
+                <div>
+                  <strong>Total de Lançamentos:</strong>
+                  <Badge bg="primary" className="ms-2">
+                    {lancamentos.length}
+                  </Badge>
+                </div>
+                <hr className="my-2" />
+                {Object.entries(contagemPorTipo).map(([tipo, qtd]) => (
+                  <div
+                    key={tipo}
+                    className="d-flex justify-content-between align-items-center"
+                  >
+                    <Badge bg={getTipoColor(tipo)}>{tipo}</Badge>
+                    <span className="text-muted">{qtd}</span>
+                  </div>
+                ))}
+              </div>
             </Card.Body>
           </Card>
         </Col>
 
-        {/* COLUNA DIREITA */}
-        <Col xl={8} lg={7}>
-
-          {/* RESUMO */}
-          <Card className="shadow-sm mb-3">
-            <Card.Body>
-              <Form.Group className="mb-3">
-                <Form.Label>Task Title</Form.Label>
-                <Form.Control placeholder="Ex: Avaliação clínica do solípede" />
-              </Form.Group>
-
-              <Form.Group className="mb-3">
-                <Form.Label>Summary</Form.Label>
-                <Form.Control
-                  as="textarea"
-                  rows={4}
-                  placeholder="Descrição da tarefa..."
-                />
-              </Form.Group>
-
-              <Form.Group className="mb-3">
-                <Form.Label>Subtasks</Form.Label>
-                <Form.Check label="Avaliação inicial" />
-                <Form.Check label="Registro fotográfico" />
-                <Form.Check label="Atualizar prontuário" />
-              </Form.Group>
-
-              <div className="d-flex gap-2 flex-wrap">
-                <Badge bg="secondary">Veterinária</Badge>
-                <Badge bg="info">Solípede</Badge>
-                <Badge bg="primary">Urgente</Badge>
-              </div>
-            </Card.Body>
-          </Card>
-
-          {/* ANEXOS */}
-          <Card className="shadow-sm mb-3">
-            <Card.Body className="d-flex justify-content-between align-items-center">
-              <h6 className="mb-0">Attachments</h6>
-              <Button size="sm" variant="outline-primary">
-                <FaPaperclip className="me-1" /> Add File
-              </Button>
-            </Card.Body>
-          </Card>
-
-          {/* COMENTÁRIOS */}
+        {/* COLUNA DIREITA - Lista de Lançamentos */}
+        <Col xl={9} lg={8}>
           <Card className="shadow-sm">
-            <Card.Body>
-              <h6 className="mb-3">Comments</h6>
+            <Card.Header className="bg-white">
+              <h6 className="mb-0">
+                {filtroTipo !== "Todos" ? `Lançamentos: ${filtroTipo}` : "Todos os Lançamentos"}
+                <Badge bg="secondary" className="ms-2">
+                  {lancamentosFiltrados.length}
+                </Badge>
+              </h6>
+            </Card.Header>
+            <Card.Body style={{ maxHeight: "70vh", overflowY: "auto" }}>
+              {lancamentosFiltrados.length === 0 ? (
+                <Card className="shadow-sm border-0">
+                  <Card.Body className="text-center py-5">
+                    <p className="text-muted mb-0">
+                      <BsClockHistory
+                        style={{ fontSize: "30px", marginBottom: "10px" }}
+                      />
+                      <br />
+                      Nenhum lançamento encontrado para o filtro selecionado
+                    </p>
+                  </Card.Body>
+                </Card>
+              ) : (
+                lancamentosFiltrados.map((registro) => {
+                  // Proteção contra dados inválidos
+                  if (!registro || !registro.id) {
+                    console.warn("⚠️ Registro inválido encontrado:", registro);
+                    return null;
+                  }
 
-              <Form.Control
-                as="textarea"
-                rows={3}
-                placeholder="Leave a comment..."
-              />
+                  const dataBR = registro.data_criacao 
+                    ? new Date(registro.data_criacao).toLocaleDateString('pt-BR')
+                    : "Data não disponível";
+                  const horaBR = registro.data_criacao
+                    ? new Date(registro.data_criacao).toLocaleTimeString('pt-BR')
+                    : "Hora não disponível";
 
-              <div className="text-end mt-3">
-                <Button size="sm" variant="success">
-                  Post Comment
-                </Button>
-              </div>
+                  return (
+                    <Card
+                      key={registro.id}
+                      className="shadow-sm border-0 mb-3 border-start border-4"
+                      style={{ 
+                        borderLeftColor: `var(--bs-${getTipoColor(registro.tipo || 'Observação Geral')})`,
+                        cursor: "pointer"
+                      }}
+                      onClick={() => abrirProntuario(registro.numero_solipede)}
+                    >
+                      <Card.Body>
+                        <Row className="align-items-start mb-2">
+                          <Col md={6}>
+                            <Badge bg={getTipoColor(registro.tipo)} className="mb-2">
+                              {registro.tipo}
+                            </Badge>
+                            <p
+                              className="mb-1"
+                              style={{ fontSize: "12px", color: "#999" }}
+                            >
+                              <BsClockHistory className="me-1" />
+                              <strong>{dataBR}</strong> às {horaBR}
+                            </p>
+                            <p className="mb-0" style={{ fontSize: "13px" }}>
+                              <strong>🐴 {registro.solipede_nome || "N/A"}</strong> - Nº {registro.numero_solipede}
+                              {registro.solipede_esquadrao && (
+                                <Badge bg="light" text="dark" className="ms-2">
+                                  {registro.solipede_esquadrao}
+                                </Badge>
+                              )}
+                            </p>
+                          </Col>
+                          <Col md={6} className="text-end">
+                            <div style={{ fontSize: "13px" }}>
+                              <p className="mb-1">
+                                <strong>{registro.usuario_nome || "Sistema"}</strong>
+                              </p>
+                              <small className="text-muted d-block">
+                                {registro.usuario_registro && `Registro: ${registro.usuario_registro}`}
+                              </small>
+                              <Badge bg="secondary" style={{ fontSize: "11px" }}>
+                                {registro.usuario_perfil || "Desconhecido"}
+                              </Badge>
+                            </div>
+                          </Col>
+                        </Row>
+                        <div className="bg-light p-2 rounded mb-2">
+                          <p
+                            className="mb-0"
+                            style={{ fontSize: "14px", lineHeight: "1.6", whiteSpace: "pre-line" }}
+                          >
+                            {registro.observacao}
+                          </p>
+                        </div>
+                        {registro.recomendacoes && (
+                          <div className="bg-warning bg-opacity-10 p-2 rounded border-start border-warning">
+                            <small className="text-muted">
+                              <strong>📌 Recomendação:</strong>{" "}
+                              {registro.recomendacoes}
+                            </small>
+                          </div>
+                        )}
+                        <div className="text-end mt-2">
+                          <Button
+                            size="sm"
+                            variant="outline-primary"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              abrirProntuario(registro.numero_solipede);
+                            }}
+                          >
+                            Ver Prontuário Completo
+                          </Button>
+                        </div>
+                      </Card.Body>
+                    </Card>
+                  );
+                })
+              )}
             </Card.Body>
           </Card>
-
         </Col>
       </Row>
     </Container>

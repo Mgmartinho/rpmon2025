@@ -7,10 +7,16 @@ import {
   InputGroup,
   FormControl,
   Spinner,
+  Col,
 } from "react-bootstrap";
+
+import { GoArrowSwitch } from "react-icons/go";
+
+
 import { FaClock, FaFileExcel, FaFilePdf, FaInfoCircle } from "react-icons/fa";
 import { OverlayTrigger, Tooltip } from "react-bootstrap";
 import { api } from "../../../services/api";
+import { temPermissao } from "../../../utils/permissions";
 
 import * as XLSX from "xlsx";
 
@@ -51,6 +57,7 @@ const AdminCargaHoraria = () => {
   const [showConfirmSenha, setShowConfirmSenha] = useState(false);
   const [showHistorico, setShowHistorico] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
+  const [showMovimentacao, setShowMovimentacao] = useState(false);
 
   const [feedbackMessage, setFeedbackMessage] = useState("");
   const [feedbackSuccess, setFeedbackSuccess] = useState(true);
@@ -62,6 +69,11 @@ const AdminCargaHoraria = () => {
 
   const [historico, setHistorico] = useState([]);
   const [historicoNumero, setHistoricoNumero] = useState(null);
+
+  const [solipedeMovimentacao, setSolipedeMovimentacao] = useState(null);
+  const [historicoMovimentacao, setHistoricoMovimentacao] = useState([]);
+  const [esquadraoDestino, setEsquadraoDestino] = useState("");
+  const [senhaMovimentacao, setSenhaMovimentacao] = useState("");
 
   const [filtroEsqd, setFiltroEsqd] = useState("Todos");
   const [filtroNome, setFiltroNome] = useState("");
@@ -224,6 +236,89 @@ const AdminCargaHoraria = () => {
     }
   };
 
+  /* ===== MOVIMENTAÇÃO ===== */
+  const abrirMovimentacao = async (solipede) => {
+    try {
+      // Buscar histórico
+      const response = usuarioLogado
+        ? await api.historicoMovimentacao(solipede.numero)
+        : await api.historicoMovimentacaoPublico(solipede.numero);
+
+      if (Array.isArray(response)) {
+        setHistoricoMovimentacao(response);
+      } else {
+        console.warn("Histórico de movimentação não é array:", response);
+        setHistoricoMovimentacao([]);
+      }
+
+      setSolipedeMovimentacao(solipede);
+      setEsquadraoDestino(solipede.esquadrao);
+      setSenhaMovimentacao("");
+      setShowMovimentacao(true);
+    } catch (err) {
+      console.error(err);
+      setHistoricoMovimentacao([]);
+      setSolipedeMovimentacao(solipede);
+      setEsquadraoDestino(solipede.esquadrao);
+      setSenhaMovimentacao("");
+      setShowMovimentacao(true);
+    }
+  };
+
+  const aplicarMovimentacao = async () => {
+    if (!esquadraoDestino || !senhaMovimentacao.trim()) {
+      setFeedbackMessage("Selecione o esquadrão e confirme sua senha.");
+      setFeedbackSuccess(false);
+      setShowFeedback(true);
+      return;
+    }
+
+    if (esquadraoDestino === solipedeMovimentacao.esquadrao) {
+      setFeedbackMessage("O solípede já está neste esquadrão.");
+      setFeedbackSuccess(false);
+      setShowFeedback(true);
+      return;
+    }
+
+    setCarregando(true);
+    try {
+      if (!usuarioLogado?.id) {
+        throw new Error("Usuário não identificado. Faça login novamente.");
+      }
+
+      const dados = {
+        esquadrao: esquadraoDestino,
+        senha: senhaMovimentacao,
+        usuarioId: usuarioLogado.id,
+        esquadraoOrigem: solipedeMovimentacao.esquadrao,
+      };
+
+      console.log("🔄 Enviando movimentação:", dados);
+      console.log("   Número:", solipedeMovimentacao.numero);
+
+      // Atualizar o esquadrão do solípede
+      await api.atualizarSolipede(solipedeMovimentacao.numero, dados);
+
+      await fetchDados();
+
+      setFeedbackMessage(`${solipedeMovimentacao.nome} movimentado para ${esquadraoDestino} com sucesso!`);
+      setFeedbackSuccess(true);
+      setShowFeedback(true);
+
+      setShowMovimentacao(false);
+      setSolipedeMovimentacao(null);
+      setEsquadraoDestino("");
+      setSenhaMovimentacao("");
+    } catch (err) {
+      console.error("Erro completo:", err);
+      setFeedbackMessage(err.message || "Erro ao realizar movimentação.");
+      setFeedbackSuccess(false);
+      setShowFeedback(true);
+    } finally {
+      setCarregando(false);
+    }
+  };
+
   /* ===== EXPORTAÇÕES (LAZY LOAD) ===== */
 
   const exportExcel = () => {
@@ -315,7 +410,7 @@ const AdminCargaHoraria = () => {
 
 
             <div className="d-flex gap-2">
-              {usuarioLogado && (
+              {usuarioLogado && temPermissao(usuarioLogado.perfil, "ADICIONAR_HORAS") && (
                 <Button onClick={() => setShowModal(true)}>
                   <FaClock className="me-1" />
                   Aplicar Carga Horária
@@ -349,15 +444,26 @@ const AdminCargaHoraria = () => {
                   <td>{s.esquadrao}</td>
                   <td>{s.cargaHoraria || 0} h</td>
                   <td>
-                   <Button
-  variant="link"
-  className="rounded-2 shadow-sm"
-  style={{ border: "1px solid black", color: "black" }}
-  onClick={() => abrirHistorico(s.numero)}
->
-  <FaClock />
-</Button>
-
+                    <div className="d-flex gap-2 justify-content-center">
+                      <Button
+                        variant="link"
+                        className="rounded-2 shadow-sm"
+                        style={{ border: "1px solid black", color: "black" }}
+                        onClick={() => abrirHistorico(s.numero)}
+                        title="Alteração de carga horária"
+                      >
+                        <FaClock />
+                      </Button>
+                      <Button
+                        variant="link"
+                        className="rounded-2 shadow-sm"
+                        style={{ border: "1px solid black", color: "black" }}
+                        onClick={() => abrirMovimentacao(s)}
+                        title="Movimentação"
+                      >
+                        <GoArrowSwitch />
+                      </Button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -380,6 +486,7 @@ const AdminCargaHoraria = () => {
             <Modal.Title>Aplicar Carga Horária</Modal.Title>
           </Modal.Header>
 
+          {/* Filtros e tabeoa */}
           <Modal.Body>
             {/* ===== FILTROS ===== */}
             <Form.Group className="mb-3">
@@ -408,7 +515,77 @@ const AdminCargaHoraria = () => {
             </Form.Group>
 
 
-            {/* ===== TABELA COMPLETA (SEM PAGINAÇÃO) ===== */}
+            {/* ===== TABELA COMPLETA LANÇAMENTO EM LOTE (SEM PAGINAÇÃO) ===== */}
+            <Table striped bordered hover size="sm">
+              <thead className="table-secondary">
+                <tr>
+                  <th></th>
+                  <th>Número</th>
+                  <th>Nome</th>
+                  <th>Esquadrão</th>
+                  <th>Carga Atual</th>
+                </tr>
+              </thead>
+              <tbody>
+                {solipedesModal.map((s) => (
+                  <tr key={s.numero}>
+                    <td className="text-center">
+                      <Form.Check
+                        type="checkbox"
+                        checked={selecionados.includes(s.numero)}
+                        onChange={() => handleSelecionar(s.numero)}
+                      />
+                    </td>
+                    <td>{s.numero}</td>
+                    <td>{s.nome}</td>
+                    <td>{s.esquadrao}</td>
+                    <td>{s.cargaHoraria || 0} h</td>
+                  </tr>
+                ))}
+
+                {!solipedesModal.length && (
+                  <tr>
+                    <td colSpan={5} className="text-center text-muted">
+                      Nenhum cavalo encontrado
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </Table>
+
+
+          </Modal.Body>
+
+           {/* Movimentação entre esquadrões */}
+          <Modal.Body>
+            {/* ===== FILTROS ===== */}
+            <Form.Group className="mb-3">
+              <Form.Label>Filtros</Form.Label>
+
+              <div className="row">
+                <div className="col-md-6">
+                  <Form.Label>Filtrar por número</Form.Label>
+                  <FormControl
+                    placeholder="Ex: 1935"
+                    value={filtroNumeroModal}
+                    onChange={(e) => setFiltroNumeroModal(e.target.value)}
+                  />
+                </div>
+
+                <div className="col-md-6">
+                  <Form.Label>Horas a adicionar</Form.Label>
+                  <FormControl
+                    type="number"
+                    min="1"
+                    value={horasAdicionar}
+                    onChange={(e) => setHorasAdicionar(e.target.value)}
+                  />
+                </div>
+              </div>
+            </Form.Group>
+
+
+            {/* ===== TABELA COMPLETA LANÇAMENTO EM LOTE (SEM PAGINAÇÃO) ===== */}
             <Table striped bordered hover size="sm">
               <thead className="table-secondary">
                 <tr>
@@ -482,7 +659,9 @@ const AdminCargaHoraria = () => {
               <OverlayTrigger
                 overlay={
                   <Tooltip>
-                    Apenas usuários logados podem editar lançamentos
+                    {usuarioLogado && temPermissao(usuarioLogado.perfil, "ADICIONAR_HORAS")
+                      ? "Você pode editar os lançamentos"
+                      : "Apenas usuários com permissão podem editar lançamentos"}
                   </Tooltip>
                 }
               >
@@ -497,7 +676,7 @@ const AdminCargaHoraria = () => {
                 <tr>
                   <th>Data</th>
                   <th>Horas</th>
-                  {usuarioLogado && <th>Ações</th>}
+                  {usuarioLogado && temPermissao(usuarioLogado.perfil, "ADICIONAR_HORAS") && <th>Ações</th>}
                 </tr>
               </thead>
 
@@ -516,9 +695,9 @@ const AdminCargaHoraria = () => {
                       <FormControl
                         type="number"
                         value={h.horas}
-                        disabled={!usuarioLogado}
+                        disabled={!usuarioLogado || !temPermissao(usuarioLogado.perfil, "ADICIONAR_HORAS")}
                         onChange={(e) =>
-                          usuarioLogado &&
+                          usuarioLogado && temPermissao(usuarioLogado.perfil, "ADICIONAR_HORAS") &&
                           setHistorico((prev) =>
                             prev.map((x) =>
                               x.id === h.id
@@ -530,7 +709,7 @@ const AdminCargaHoraria = () => {
                       />
                     </td>
 
-                    {usuarioLogado && (
+                    {usuarioLogado && temPermissao(usuarioLogado.perfil, "ADICIONAR_HORAS") && (
                       <td>
                         <Button
                           size="sm"
@@ -599,6 +778,120 @@ const AdminCargaHoraria = () => {
         </Modal>
       )}
 
+
+      {/* ===== MODAL MOVIMENTAÇÃO ===== */}
+      {showMovimentacao && solipedeMovimentacao && (
+        <Modal
+          show={showMovimentacao}
+          onHide={() => setShowMovimentacao(false)}
+          centered
+          size="lg"
+        >
+          <Modal.Header closeButton>
+            <Modal.Title>Movimentação de Solípede</Modal.Title>
+          </Modal.Header>
+
+          <Modal.Body>
+            <div className="mb-4">
+              <h6>Informações do Solípede</h6>
+              <p className="mb-1">
+                <strong>Nome:</strong> {solipedeMovimentacao.nome}
+              </p>
+              <p className="mb-1">
+                <strong>Número:</strong> {solipedeMovimentacao.numero}
+              </p>
+              <p className="mb-3">
+                <strong>Esquadrão Atual:</strong> {solipedeMovimentacao.esquadrao}
+              </p>
+
+              <Form.Group className="mb-3">
+                <Form.Label>Novo Esquadrão</Form.Label>
+                <Form.Select
+                  value={esquadraoDestino}
+                  onChange={(e) => setEsquadraoDestino(e.target.value)}
+                  disabled={!usuarioLogado || !temPermissao(usuarioLogado.perfil, "ADICIONAR_HORAS")}
+                >
+                  <option value="">Selecione o esquadrão</option>
+                  <option value="1 Esquadrao">1º Esquadrão</option>
+                  <option value="2 Esquadrao">2º Esquadrão</option>
+                  <option value="3 Esquadrao">3º Esquadrão</option>
+                  <option value="4 Esquadrao">4º Esquadrão</option>
+                  <option value="Equoterapia">Equoterapia</option>
+                  <option value="Representacao">Representação</option>
+                </Form.Select>
+              </Form.Group>
+
+              {usuarioLogado && temPermissao(usuarioLogado.perfil, "ADICIONAR_HORAS") && (
+                <Form.Group className="mb-3">
+                  <Form.Label>Confirme sua senha</Form.Label>
+                  <FormControl
+                    type="password"
+                    placeholder="Digite sua senha"
+                    value={senhaMovimentacao}
+                    onChange={(e) => setSenhaMovimentacao(e.target.value)}
+                  />
+                </Form.Group>
+              )}
+
+              {usuarioLogado && temPermissao(usuarioLogado.perfil, "ADICIONAR_HORAS") && (
+                <Button
+                  variant="info"
+                  onClick={aplicarMovimentacao}
+                  disabled={!esquadraoDestino || !senhaMovimentacao || carregando || esquadraoDestino === solipedeMovimentacao.esquadrao}
+                  className="w-100"
+                >
+                  {carregando ? "Movimentando..." : "Confirmar Movimentação"}
+                </Button>
+              )}
+            </div>
+
+            <hr />
+
+            <div>
+              <h6 className="mb-3">Histórico de Movimentações</h6>
+              <Table striped bordered size="sm">
+                <thead>
+                  <tr>
+                    <th>Data</th>
+                    <th>Origem</th>
+                    <th>Destino</th>
+                    <th>Usuário</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {historicoMovimentacao.map((h) => (
+                    <tr key={h.id}>
+                      <td>{new Date(h.dataMovimentacao).toLocaleString()}</td>
+                      <td>{h.esquadraoOrigem}</td>
+                      <td>{h.esquadraoDestino}</td>
+                      <td className="text-muted" style={{ fontSize: "0.875rem" }}>
+                        {h.usuarioNome || "Usuário não identificado"}
+                      </td>
+                    </tr>
+                  ))}
+
+                  {!historicoMovimentacao.length && (
+                    <tr>
+                      <td colSpan={4} className="text-center text-muted">
+                        Nenhuma movimentação registrada
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </Table>
+            </div>
+          </Modal.Body>
+
+          <Modal.Footer>
+            <Button
+              variant="secondary"
+              onClick={() => setShowMovimentacao(false)}
+            >
+              Fechar
+            </Button>
+          </Modal.Footer>
+        </Modal>
+      )}
 
       {/* ===== FEEDBACK ===== */}
       <Modal show={showFeedback} onHide={() => setShowFeedback(false)} centered>
