@@ -8,6 +8,7 @@ import {
   Spinner,
   Card,
   Button,
+  Modal,
 } from "react-bootstrap";
 import {
   BsClockHistory,
@@ -33,6 +34,14 @@ const DashboardList = () => {
   // ordenação
   const [campoOrdenacao, setCampoOrdenacao] = useState("numero");
   const [direcaoOrdenacao, setDirecaoOrdenacao] = useState("asc");
+
+  // modal prontuário
+  const [showModalProntuario, setShowModalProntuario] = useState(false);
+  const [prontuarioSelecionado, setProntuarioSelecionado] = useState(null);
+  const [prontuarios, setProntuarios] = useState([]);
+  const [loadingProntuario, setLoadingProntuario] = useState(false);
+  const [solipedesComRestricao, setSolipedesComRestricao] = useState(new Set());
+  const [solipedesSemRestricao, setSolipedesSemRestricao] = useState(new Set());
 
   // 🔹 BUSCA DADOS
   useEffect(() => {
@@ -165,6 +174,37 @@ const DashboardList = () => {
     doc.save("solipedes_rpmon.pdf");
   };
 
+  // 📋 ABRIR MODAL DE PRONTUÁRIO
+  const abrirProntuario = async (solipede) => {
+    // Se já verificamos e não tem restrições, não faz nada
+    if (solipedesSemRestricao.has(solipede.numero)) {
+      return;
+    }
+
+    setLoadingProntuario(true);
+    setProntuarioSelecionado(solipede);
+
+    try {
+      const response = await api.listarProntuarioPublico(solipede.numero);
+      
+      // A API já retorna apenas restrições (tipo = 'restrições')
+      if (Array.isArray(response) && response.length > 0) {
+        setProntuarios(response);
+        setSolipedesComRestricao((prev) => new Set([...prev, solipede.numero]));
+        setShowModalProntuario(true); // Só abre modal se houver restrições
+      } else {
+        // Marca como "sem restrições" para não tentar novamente
+        setSolipedesSemRestricao((prev) => new Set([...prev, solipede.numero]));
+        setProntuarios([]);
+      }
+    } catch (error) {
+      console.error("Erro ao buscar prontuário:", error);
+      setProntuarios([]);
+    } finally {
+      setLoadingProntuario(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="text-center py-5">
@@ -294,8 +334,35 @@ const DashboardList = () => {
                       {item.status}
                     </Badge>
                   </td>
-                  <td className="text-center text-muted">
-                    <BsClockHistory />
+                  <td className="text-center">
+                    <BsClockHistory
+                      role="button"
+                      className={
+                        solipedesComRestricao.has(item.numero)
+                          ? "text-danger"
+                          : solipedesSemRestricao.has(item.numero)
+                          ? "text-muted"
+                          : "text-secondary"
+                      }
+                      style={{
+                        cursor: solipedesSemRestricao.has(item.numero) ? "not-allowed" : "pointer",
+                        fontSize: "1.2rem",
+                        opacity: solipedesComRestricao.has(item.numero) 
+                          ? 1 
+                          : solipedesSemRestricao.has(item.numero) 
+                          ? 0.3 
+                          : 0.6,
+                        pointerEvents: solipedesSemRestricao.has(item.numero) ? "none" : "auto",
+                      }}
+                      onClick={() => abrirProntuario(item)}
+                      title={
+                        solipedesComRestricao.has(item.numero)
+                          ? "Possui restrições ativas - Clique para ver"
+                          : solipedesSemRestricao.has(item.numero)
+                          ? "Sem restrições ativas"
+                          : "Clique para verificar restrições"
+                      }
+                    />
                   </td>
                 </tr>
               );
@@ -330,6 +397,72 @@ const DashboardList = () => {
           </Button>
         </div>
       )}
+
+      {/* 📋 MODAL PRONTUÁRIO/RESTRIÇÕES */}
+      <Modal
+        show={showModalProntuario}
+        onHide={() => setShowModalProntuario(false)}
+        centered
+        size="lg"
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>
+            Restrições - {prontuarioSelecionado?.nome} (#{prontuarioSelecionado?.numero})
+          </Modal.Title>
+        </Modal.Header>
+
+        <Modal.Body>
+          {loadingProntuario ? (
+            <div className="text-center py-4">
+              <Spinner animation="border" variant="primary" size="sm" />
+              <div className="text-muted mt-2">Carregando restrições...</div>
+            </div>
+          ) : prontuarios.length === 0 ? (
+            <div className="text-center text-muted py-4">
+              <BsClockHistory size={48} className="mb-3 opacity-50" />
+              <p>Nenhuma restrição ativa encontrada</p>
+            </div>
+          ) : (
+            <Table striped bordered hover size="sm">
+              <thead className="table-light">
+                <tr>
+                  <th style={{ width: "20%" }}>Data</th>
+                  <th>Restrição</th>
+                  <th style={{ width: "25%" }}>Recomendações</th>
+                </tr>
+              </thead>
+              <tbody>
+                {prontuarios.map((p) => (
+                  <tr key={p.id}>
+                    <td>
+                      {new Date(p.data_criacao).toLocaleDateString("pt-BR")}
+                    </td>
+                    <td>
+                      <div className="fw-semibold text-danger">
+                        {p.observacao}
+                      </div>
+                    </td>
+                    <td>
+                      <small className="text-muted">
+                        {p.recomendacoes || "-"}
+                      </small>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          )}
+        </Modal.Body>
+
+        <Modal.Footer>
+          <Button
+            variant="secondary"
+            onClick={() => setShowModalProntuario(false)}
+          >
+            Fechar
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </>
   );
 };

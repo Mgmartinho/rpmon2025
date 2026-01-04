@@ -1023,6 +1023,13 @@ export default function ProntuarioSolipedeEdit() {
                         </Alert>
                       )}
 
+                      {/* Mensagem informativa para Restrições */}
+                      {tipoObservacao === "Restrições" && (
+                        <Alert variant="info" className="mb-3">
+                          <strong>ℹ️ Importante:</strong> As Restrições são utilizadas para alertar a tropa com informações pertinentes ao animal <strong>Recomenda-se utilizar, para manter a boa saúde e integridade do cavalo e do policial.</strong>.
+                        </Alert>
+                      )}
+
                       {/* Campos específicos para Vacinação, Vermifugação e AIE/Mormo */}
                       {(tipoObservacao === "Vacinação" || tipoObservacao === "Vermifugação" || tipoObservacao === "Exames AIE / Mormo") && (
                         <div className="mt-3 mb-3 p-3 rounded" style={{ backgroundColor: "#f8f9fa", border: "1px solid #dee2e6" }}>

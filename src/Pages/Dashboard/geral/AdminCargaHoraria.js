@@ -40,12 +40,8 @@ const AdminCargaHoraria = () => {
     updateUsuario();
     window.addEventListener('storage', updateUsuario);
 
-    // Verificar a cada 100ms para mudanças no localStorage
-    const interval = setInterval(updateUsuario, 100);
-
     return () => {
       window.removeEventListener('storage', updateUsuario);
-      clearInterval(interval);
     };
   }, []);
 
@@ -79,7 +75,9 @@ const AdminCargaHoraria = () => {
   const [filtroNome, setFiltroNome] = useState("");
 
   const [filtroNumeroModal, setFiltroNumeroModal] = useState("");
-
+  const [horasMensais, setHorasMensais] = useState({});
+  const [horasMensaisCache, setHorasMensaisCache] = useState({});
+  const [loadingHoras, setLoadingHoras] = useState(true);
 
   /* ===== PAGINAÇÃO ===== */
   const [limiteVisualizacao, setLimiteVisualizacao] = useState(10);
@@ -87,6 +85,7 @@ const AdminCargaHoraria = () => {
 
   /* ===== LOAD INICIAL ===== */
   const fetchDados = async () => {
+    console.log("🔴 AdminCargaHoraria - fetchDados chamado");
     setLoadingDados(true);
     try {
       const lista = usuarioLogado
@@ -103,8 +102,53 @@ const AdminCargaHoraria = () => {
   };
 
   useEffect(() => {
+    console.log("🟢 AdminCargaHoraria - useEffect fetchDados executado");
     fetchDados();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Buscar horas mensais do backend (otimizado - uma única requisição)
+  useEffect(() => {
+    if (dados.length === 0) return;
+
+    const buscarHorasMensais = async () => {
+      try {
+        console.log("🔍 Buscando horas do mês atual do backend...");
+        const horasDoBackend = await api.horasMesAtual();
+        console.log("✅ Horas recebidas do backend:", horasDoBackend);
+        
+        // Verificar se é um objeto válido
+        if (horasDoBackend && typeof horasDoBackend === 'object' && !horasDoBackend.error) {
+          setHorasMensais(horasDoBackend);
+          setHorasMensaisCache(horasDoBackend);
+          console.log(`📊 Total de solípedes com horas: ${Object.keys(horasDoBackend).length}`);
+        } else {
+          console.error("❌ Resposta inválida do backend:", horasDoBackend);
+          setHorasMensais({});
+        }
+        setLoadingHoras(false);
+      } catch (err) {
+        console.error("❌ Erro ao buscar horas mensais:", err);
+        setHorasMensais({});
+        setLoadingHoras(false);
+      }
+    };
+
+    buscarHorasMensais();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dados.length]);
+
+  // Função para invalidar cache de horas de solípedes específicos
+  const invalidarCacheHoras = async (numeros) => {
+    // Rebuscar todas as horas do backend para garantir consistência
+    try {
+      const horasDoBackend = await api.horasMesAtual();
+      setHorasMensais(horasDoBackend);
+      setHorasMensaisCache(horasDoBackend);
+    } catch (err) {
+      console.error("Erro ao atualizar cache de horas:", err);
+    }
+  };
 
   /* =====================================================
      FILTRO RPMon + FILTROS DE TELA (SEM DEPENDER DE LOGIN)
@@ -163,7 +207,8 @@ const AdminCargaHoraria = () => {
         throw new Error("Usuário não identificado. Faça login novamente.");
       }
       console.log("Aplicando horas, usuarioId:", usuarioLogado?.id, "usuarioLogado:", usuarioLogado);
-      await Promise.all(
+      
+      const resultados = await Promise.all(
         selecionados.map((numero) =>
           api.adicionarHoras({
             numero,
@@ -174,6 +219,19 @@ const AdminCargaHoraria = () => {
         )
       );
 
+      // Verificar se algum resultado contém erro
+      const erros = resultados.filter(r => r.error || r.message?.includes("Senha"));
+      if (erros.length > 0) {
+        const mensagemErro = erros[0].error || erros[0].message || "Erro ao aplicar horas";
+        throw new Error(mensagemErro);
+      }
+
+      // Aguardar um pouco para o backend processar
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Invalidar cache apenas dos solípedes afetados
+      invalidarCacheHoras(selecionados);
+      
       await fetchDados();
 
       setFeedbackMessage("Horas aplicadas com sucesso!");
@@ -196,13 +254,26 @@ const AdminCargaHoraria = () => {
   };
 
   const abrirHistorico = async (numero) => {
+    console.log("🟦 AdminCargaHoraria - abrirHistorico chamado para número:", numero);
     try {
       const response = usuarioLogado
         ? await api.historicoHoras(numero)
         : await api.historicoHorasPublico(numero);
 
       if (Array.isArray(response)) {
-        setHistorico(response);
+        // Filtrar pelo mês atual
+        const hoje = new Date();
+        const mesAtual = hoje.getMonth() + 1;
+        const anoAtual = hoje.getFullYear();
+        
+        const historicoFiltrado = response.filter((h) => {
+          const data = new Date(h.dataLancamento);
+          return (
+            data.getMonth() + 1 === mesAtual &&
+            data.getFullYear() === anoAtual
+          );
+        });
+        setHistorico(historicoFiltrado);
       } else {
         console.warn("Histórico não é array:", response);
         setHistorico([]);
@@ -223,13 +294,21 @@ const AdminCargaHoraria = () => {
   const atualizarHora = async (id, horas) => {
     try {
       await api.atualizarHistorico(id, Number(horas));
-      await abrirHistorico(historicoNumero);
+      
+      // Aguardar um pouco para o backend processar
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Invalidar cache do solípede atual
+      invalidarCacheHoras([historicoNumero]);
+      
       await fetchDados();
+      await abrirHistorico(historicoNumero);
 
       setFeedbackMessage("Histórico atualizado com sucesso!");
       setFeedbackSuccess(true);
       setShowFeedback(true);
-    } catch {
+    } catch (err) {
+      console.error(err);
       setFeedbackMessage("Erro ao atualizar histórico.");
       setFeedbackSuccess(false);
       setShowFeedback(true);
@@ -297,8 +376,19 @@ const AdminCargaHoraria = () => {
       console.log("   Número:", solipedeMovimentacao.numero);
 
       // Atualizar o esquadrão do solípede
-      await api.atualizarSolipede(solipedeMovimentacao.numero, dados);
+      const resultado = await api.atualizarSolipede(solipedeMovimentacao.numero, dados);
+      console.log("📥 Resultado da movimentação:", resultado);
 
+      if (resultado.error) {
+        throw new Error(resultado.error);
+      }
+
+      // Aguardar um pouco para o backend processar
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Invalidar cache do solípede movimentado
+      invalidarCacheHoras([solipedeMovimentacao.numero]);
+      
       await fetchDados();
 
       setFeedbackMessage(`${solipedeMovimentacao.nome} movimentado para ${esquadraoDestino} com sucesso!`);
@@ -310,7 +400,10 @@ const AdminCargaHoraria = () => {
       setEsquadraoDestino("");
       setSenhaMovimentacao("");
     } catch (err) {
-      console.error("Erro completo:", err);
+      console.error("❌ Erro completo na movimentação:", err);
+      console.error("   Tipo:", typeof err);
+      console.error("   Message:", err.message);
+      console.error("   Stack:", err.stack);
       setFeedbackMessage(err.message || "Erro ao realizar movimentação.");
       setFeedbackSuccess(false);
       setShowFeedback(true);
@@ -370,6 +463,12 @@ const AdminCargaHoraria = () => {
           <Spinner animation="border" />
           <p>Carregando solípedes...</p>
         </div>
+      ) : loadingHoras ? (
+        <div className="text-center p-5">
+          <Spinner animation="border" variant="primary" />
+          <p>Calculando horas do mês atual...</p>
+          <small className="text-muted">Isso pode levar alguns segundos na primeira vez</small>
+        </div>
       ) : (
         <>
           {/* ===== FILTROS ===== */}
@@ -395,7 +494,7 @@ const AdminCargaHoraria = () => {
               />
 
               <Form.Select
-                style={{ width: "160px" }}
+                style={{ width: "120px" }}
                 value={limiteVisualizacao}
                 onChange={(e) => setLimiteVisualizacao(e.target.value)}
                 placeholder="Limite por pagina"
@@ -432,7 +531,12 @@ const AdminCargaHoraria = () => {
                 <th>Número</th>
                 <th>Nome</th>
                 <th>Esquadrão</th>
-                <th>Carga Horária</th>
+                <th>
+                  Carga Horária (Mês Atual)
+                  <div style={{ fontSize: '0.75rem', fontWeight: 'normal' }}>
+                    {new Date().toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' })}
+                  </div>
+                </th>
                 <th>Histórico</th>
               </tr>
             </thead>
@@ -442,7 +546,7 @@ const AdminCargaHoraria = () => {
                   <td>{s.numero}</td>
                   <td className="text-start">{s.nome}</td>
                   <td>{s.esquadrao}</td>
-                  <td>{s.cargaHoraria || 0} h</td>
+                  <td>{horasMensais[s.numero] || 0} h</td>
                   <td>
                     <div className="d-flex gap-2 justify-content-center">
                       <Button
@@ -523,7 +627,7 @@ const AdminCargaHoraria = () => {
                   <th>Número</th>
                   <th>Nome</th>
                   <th>Esquadrão</th>
-                  <th>Carga Atual</th>
+                  <th>Carga Mês Atual</th>
                 </tr>
               </thead>
               <tbody>
@@ -539,7 +643,7 @@ const AdminCargaHoraria = () => {
                     <td>{s.numero}</td>
                     <td>{s.nome}</td>
                     <td>{s.esquadrao}</td>
-                    <td>{s.cargaHoraria || 0} h</td>
+                    <td>{horasMensais[s.numero] || 0} h</td>
                   </tr>
                 ))}
 
@@ -593,7 +697,7 @@ const AdminCargaHoraria = () => {
                   <th>Número</th>
                   <th>Nome</th>
                   <th>Esquadrão</th>
-                  <th>Carga Atual</th>
+                  <th>Carga Mês Atual</th>
                 </tr>
               </thead>
               <tbody>
@@ -609,7 +713,7 @@ const AdminCargaHoraria = () => {
                     <td>{s.numero}</td>
                     <td>{s.nome}</td>
                     <td>{s.esquadrao}</td>
-                    <td>{s.cargaHoraria || 0} h</td>
+                    <td>{horasMensais[s.numero] || 0} h</td>
                   </tr>
                 ))}
 
@@ -656,11 +760,14 @@ const AdminCargaHoraria = () => {
           <Modal.Header closeButton>
             <Modal.Title className="d-flex align-items-center gap-2">
               Histórico – {historicoNumero}
+              <span className="badge bg-info text-dark ms-2">
+                {new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}
+              </span>
               <OverlayTrigger
                 overlay={
                   <Tooltip>
                     {usuarioLogado && temPermissao(usuarioLogado.perfil, "ADICIONAR_HORAS")
-                      ? "Você pode editar os lançamentos"
+                      ? "Você pode editar os lançamentos, caso tenha inserido valores incorretos alterar para 0 ou valor correto e salvar."
                       : "Apenas usuários com permissão podem editar lançamentos"}
                   </Tooltip>
                 }
@@ -694,14 +801,15 @@ const AdminCargaHoraria = () => {
                     <td>
                       <FormControl
                         type="number"
-                        value={h.horas}
+                        step="1"
+                        value={Math.round(h.horas)}
                         disabled={!usuarioLogado || !temPermissao(usuarioLogado.perfil, "ADICIONAR_HORAS")}
                         onChange={(e) =>
                           usuarioLogado && temPermissao(usuarioLogado.perfil, "ADICIONAR_HORAS") &&
                           setHistorico((prev) =>
                             prev.map((x) =>
                               x.id === h.id
-                                ? { ...x, horas: e.target.value }
+                                ? { ...x, horas: parseInt(e.target.value) || 0 }
                                 : x
                             )
                           )

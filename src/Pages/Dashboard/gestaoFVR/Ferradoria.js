@@ -43,7 +43,7 @@ const Ferradoria = () => {
   const [showModal, setShowModal] = useState(false);
   const [solipedeSelecionado, setSolipedeSelecionado] = useState(null);
   const [dataFerrageamento, setDataFerrageamento] = useState("");
-  const [prazoValidade, setPrazoValidade] = useState(45); // dias padrão
+  const [prazoValidade, setPrazoValidade] = useState(32); // dias padrão
   const [tamanhoFerradura, setTamanhoFerradura] = useState("");
   const [responsavel, setResponsavel] = useState("");
   const [observacoes, setObservacoes] = useState("");
@@ -188,7 +188,7 @@ const Ferradoria = () => {
   const handleNovoFerrageamento = (solipede) => {
     setSolipedeSelecionado(solipede);
     setDataFerrageamento(new Date().toISOString().split('T')[0]);
-    setPrazoValidade(45);
+    setPrazoValidade(32);
     setTamanhoFerradura("");
     setResponsavel("");
     setObservacoes("");
@@ -776,7 +776,7 @@ const Ferradoria = () => {
                   disabled={processando}
                 />
                 <Form.Text className="text-muted">
-                  Padrão: 45 dias
+                  Padrão: 32 dias
                 </Form.Text>
               </Form.Group>
             </Col>

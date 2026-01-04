@@ -1,5 +1,39 @@
 const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
 
+// Função auxiliar para verificar se token está presente
+const checkAuth = () => {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    return false;
+  }
+  return true;
+};
+
+// Função para fazer logout e redirecionar
+const handleUnauthorized = () => {
+  localStorage.removeItem("token");
+  localStorage.removeItem("usuario");
+  window.location.href = "/dashboard";
+};
+
+// Wrapper para fetch que intercepta erros 401
+const fetchWithAuth = async (url, options = {}) => {
+  try {
+    const response = await fetch(url, options);
+    
+    // Se receber 401 (não autorizado), faz logout automático
+    if (response.status === 401) {
+      console.warn("⚠️ Token expirado ou inválido - fazendo logout automático");
+      handleUnauthorized();
+      throw new Error("Sessão expirada. Por favor, faça login novamente.");
+    }
+    
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const api = {
   // Auth
   login: async (email, senha) => {
@@ -35,7 +69,7 @@ export const api = {
   // Solípedes (com autenticação)
   listarSolipedes: async () => {
     const token = localStorage.getItem("token");
-    const response = await fetch(`${API_BASE_URL}/gestaoFVR/solipedes`, {
+    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/solipedes`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return response.json();
@@ -43,7 +77,7 @@ export const api = {
 
   obterSolipede: async (numero) => {
     const token = localStorage.getItem("token");
-    const response = await fetch(`${API_BASE_URL}/gestaoFVR/solipedes/${numero}`, {
+    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/solipedes/${numero}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return response.json();
@@ -51,7 +85,7 @@ export const api = {
 
   criarSolipede: async (dados) => {
     const token = localStorage.getItem("token");
-    const response = await fetch(`${API_BASE_URL}/gestaoFVR/solipedes`, {
+    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/solipedes`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -64,7 +98,7 @@ export const api = {
 
   atualizarSolipede: async (numero, dados) => {
     const token = localStorage.getItem("token");
-    const response = await fetch(`${API_BASE_URL}/gestaoFVR/solipedes/${numero}`, {
+    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/solipedes/${numero}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -91,7 +125,7 @@ export const api = {
     const body = { numeros, novaMovimentacao, observacao, senha };
     console.log("   - Body completo:", body);
     
-    const response = await fetch(url, {
+    const response = await fetchWithAuth(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -126,7 +160,7 @@ export const api = {
   const token = localStorage.getItem("token");
   console.log("API adicionarHoras - dados enviados:", dados);
 
-  const response = await fetch(
+  const response = await fetchWithAuth(
     `${API_BASE_URL}/gestaoFVR/solipedes/adicionarHoras`,
     {
       method: "POST",
@@ -144,7 +178,7 @@ export const api = {
 
   historicoHoras: async (numero) => {
     const token = localStorage.getItem("token");
-    const response = await fetch(`${API_BASE_URL}/gestaoFVR/solipedes/historico/${numero}`, {
+    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/solipedes/historico/${numero}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return response.json();
@@ -155,9 +189,14 @@ export const api = {
     return response.json();
   },
 
+  horasMesAtual: async () => {
+    const response = await fetch(`${API_BASE_URL}/solipedes/horas-mes-atual`);
+    return response.json();
+  },
+
   historicoMensal: async (numero) => {
     const token = localStorage.getItem("token");
-    const response = await fetch(`${API_BASE_URL}/gestaoFVR/solipedes/historico/mensal/${numero}`, {
+    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/solipedes/historico/mensal/${numero}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return response.json();
@@ -165,7 +204,7 @@ export const api = {
 
   atualizarHistorico: async (id, horas) => {
     const token = localStorage.getItem("token");
-    const response = await fetch(`${API_BASE_URL}/gestaoFVR/solipedes/historico/${id}`, {
+    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/solipedes/historico/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -179,7 +218,7 @@ export const api = {
   // Histórico de Movimentação
   historicoMovimentacao: async (numero) => {
     const token = localStorage.getItem("token");
-    const response = await fetch(`${API_BASE_URL}/gestaoFVR/solipedes/historico-movimentacao/${numero}`, {
+    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/solipedes/historico-movimentacao/${numero}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return response.json();
@@ -187,6 +226,12 @@ export const api = {
 
   historicoMovimentacaoPublico: async (numero) => {
     const response = await fetch(`${API_BASE_URL}/solipedes/historico-movimentacao/${numero}`);
+    return response.json();
+  },
+
+  // Prontuário Público
+  listarProntuarioPublico: async (numero) => {
+    const response = await fetch(`${API_BASE_URL}/solipedes/prontuario/${numero}`);
     return response.json();
   },
 
@@ -199,7 +244,7 @@ export const api = {
     console.log("   Token (primeiros 30 chars):", token ? token.substring(0, 30) + "..." : "N/A");
     console.log("   Dados sendo enviados:", dados);
     
-    const response = await fetch(`${API_BASE_URL}/gestaoFVR/prontuario`, {
+    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/prontuario`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -222,7 +267,7 @@ export const api = {
     }
     
     try {
-      const response = await fetch(`${API_BASE_URL}/gestaoFVR/prontuario/todos`, {
+      const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/prontuario/todos`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       
@@ -240,7 +285,7 @@ export const api = {
 
   listarProntuario: async (numero) => {
     const token = localStorage.getItem("token");
-    const response = await fetch(`${API_BASE_URL}/gestaoFVR/prontuario/${numero}`, {
+    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/prontuario/${numero}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return response.json();
@@ -248,7 +293,7 @@ export const api = {
 
   contarBaixasPendentes: async (numero) => {
     const token = localStorage.getItem("token");
-    const response = await fetch(`${API_BASE_URL}/gestaoFVR/prontuario/${numero}/baixas-pendentes`, {
+    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/prontuario/${numero}/baixas-pendentes`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return response.json();
@@ -256,7 +301,7 @@ export const api = {
 
   liberarBaixa: async (prontuarioId) => {
     const token = localStorage.getItem("token");
-    const response = await fetch(`${API_BASE_URL}/gestaoFVR/prontuario/${prontuarioId}/liberar-baixa`, {
+    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/prontuario/${prontuarioId}/liberar-baixa`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -269,7 +314,7 @@ export const api = {
   concluirTratamento: async (prontuarioId, email, senha) => {
     console.log(`🔐 API: Concluindo tratamento ${prontuarioId} para ${email}`);
     try {
-      const response = await fetch(`${API_BASE_URL}/gestaoFVR/prontuario/${prontuarioId}/concluir-tratamento`, {
+      const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/prontuario/${prontuarioId}/concluir-tratamento`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -291,7 +336,7 @@ export const api = {
 
   atualizarProntuario: async (id, dados) => {
     const token = localStorage.getItem("token");
-    const response = await fetch(`${API_BASE_URL}/gestaoFVR/prontuario/${id}`, {
+    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/prontuario/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -304,7 +349,7 @@ export const api = {
 
   deletarProntuario: async (id) => {
     const token = localStorage.getItem("token");
-    const response = await fetch(`${API_BASE_URL}/gestaoFVR/prontuario/${id}`, {
+    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/prontuario/${id}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` },
     });
@@ -314,7 +359,7 @@ export const api = {
   // Exclusão (soft delete)
   excluirSolipede: async (numero, motivoExclusao, senha) => {
     const token = localStorage.getItem("token");
-    const response = await fetch(`${API_BASE_URL}/gestaoFVR/solipedes/excluir`, {
+    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/solipedes/excluir`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -327,7 +372,7 @@ export const api = {
 
   listarExcluidos: async () => {
     const token = localStorage.getItem("token");
-    const response = await fetch(`${API_BASE_URL}/gestaoFVR/solipedes/excluidos/listar`, {
+    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/solipedes/excluidos/listar`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return response.json();
@@ -336,7 +381,7 @@ export const api = {
   // Ferrageamentos
   criarFerrageamento: async (dados) => {
     const token = localStorage.getItem("token");
-    const response = await fetch(`${API_BASE_URL}/gestaoFVR/ferrageamentos`, {
+    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/ferrageamentos`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -349,7 +394,7 @@ export const api = {
 
   listarFerrageamentos: async () => {
     const token = localStorage.getItem("token");
-    const response = await fetch(`${API_BASE_URL}/gestaoFVR/ferrageamentos`, {
+    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/ferrageamentos`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return response.json();
@@ -357,7 +402,7 @@ export const api = {
 
   listarFerrageamentosComStatus: async () => {
     const token = localStorage.getItem("token");
-    const response = await fetch(`${API_BASE_URL}/gestaoFVR/ferrageamentos/status`, {
+    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/ferrageamentos/status`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return response.json();
@@ -365,7 +410,7 @@ export const api = {
 
   historicoFerrageamento: async (numero) => {
     const token = localStorage.getItem("token");
-    const response = await fetch(`${API_BASE_URL}/gestaoFVR/ferrageamentos/historico/${numero}`, {
+    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/ferrageamentos/historico/${numero}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return response.json();
@@ -373,7 +418,7 @@ export const api = {
 
   ultimoFerrageamento: async (numero) => {
     const token = localStorage.getItem("token");
-    const response = await fetch(`${API_BASE_URL}/gestaoFVR/ferrageamentos/ultimo/${numero}`, {
+    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/ferrageamentos/ultimo/${numero}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return response.json();
@@ -381,7 +426,7 @@ export const api = {
 
   atualizarFerrageamento: async (id, dados) => {
     const token = localStorage.getItem("token");
-    const response = await fetch(`${API_BASE_URL}/gestaoFVR/ferrageamentos/${id}`, {
+    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/ferrageamentos/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -394,7 +439,7 @@ export const api = {
 
   deletarFerrageamento: async (id) => {
     const token = localStorage.getItem("token");
-    const response = await fetch(`${API_BASE_URL}/gestaoFVR/ferrageamentos/${id}`, {
+    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/ferrageamentos/${id}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` },
     });

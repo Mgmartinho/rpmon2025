@@ -26,6 +26,7 @@ const Estatisticas = () => {
     "Equoterapia",
     "Representacao",
   ]);
+  const [historicoCompleto, setHistoricoCompleto] = useState({});
 
   useEffect(() => {
     const fetchDados = async () => {
@@ -48,6 +49,33 @@ const Estatisticas = () => {
     };
     fetchDados();
   }, []);
+
+  // Buscar horas do mês atual do backend (otimizado)
+  useEffect(() => {
+    if (dados.length === 0) return;
+
+    const buscarHorasMesAtual = async () => {
+      try {
+        const horasMensais = await api.horasMesAtual();
+        
+        // Agrupar por esquadrão
+        const historicos = {};
+        dados.filter(d => d.alocacao === "RPMon").forEach(solipede => {
+          historicos[solipede.numero] = {
+            esquadrao: solipede.esquadrao,
+            horasMesAtual: horasMensais[solipede.numero] || 0
+          };
+        });
+        
+        setHistoricoCompleto(historicos);
+      } catch (err) {
+        console.error("Erro ao buscar horas do mês atual:", err);
+        setHistoricoCompleto({});
+      }
+    };
+
+    buscarHorasMesAtual();
+  }, [dados]);
 
   useEffect(() => {
     const fetchIndicadores = async () => {
@@ -106,20 +134,22 @@ const Estatisticas = () => {
       .sort((a, b) => a.esquadrao.localeCompare(b.esquadrao));
   }, [filtrados]);
 
-  // ===== Carga horária por esquadrão =====
+  // ===== Carga horária por esquadrão (MÊS ATUAL) =====
   const cargaPorEsqd = useMemo(() => {
     const agrupados = {};
-    dadosRPMon.forEach((d) => {
-      const esquadrao = d.esquadrao || "Sem Esquadrão";
-      const totalHoras = d.cargaHoraria || 0;
-      agrupados[esquadrao] = (agrupados[esquadrao] || 0) + totalHoras;
+    
+    Object.keys(historicoCompleto).forEach((numero) => {
+      const { esquadrao, horasMesAtual } = historicoCompleto[numero];
+      const esqdNome = esquadrao || "Sem Esquadrão";
+      
+      agrupados[esqdNome] = (agrupados[esqdNome] || 0) + horasMesAtual;
     });
 
     return Object.entries(agrupados)
       .filter(([esqd]) => filtroEsqd === "Todos" || esqd === filtroEsqd)
       .map(([esqd, horas]) => ({ esquadrao: esqd, horas }))
       .sort((a, b) => a.esquadrao.localeCompare(b.esquadrao));
-  }, [dadosRPMon, filtroEsqd]);
+  }, [historicoCompleto, filtroEsqd]);
 
   // ===== Status Pie =====
   const cores = ["#28a745", "#f14b6dff"];
