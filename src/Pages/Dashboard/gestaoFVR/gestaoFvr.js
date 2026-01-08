@@ -51,26 +51,6 @@ const GestaoFvr = () => {
   const [indicador, setIndicador] = useState("TOTAL");
 
   /* ===========================
-     MODAL – EXCLUSÃO
-  =========================== */
-  const [showExclusaoModal, setShowExclusaoModal] = useState(false);
-  const [solipedeExcluir, setSolipedeExcluir] = useState(null);
-  const [motivoExclusao, setMotivoExclusao] = useState("");
-  const [motivoOutro, setMotivoOutro] = useState("");
-  const [senhaExclusao, setSenhaExclusao] = useState("");
-  const [exclusaoLoading, setExclusaoLoading] = useState(false);
-  const [exclusaoErro, setExclusaoErro] = useState("");
-  const [exclusaoSucesso, setExclusaoSucesso] = useState("");
-
-  const motivosExclusao = [
-    { value: "", label: "Selecione o motivo..." },
-    { value: "Óbito", label: "Óbito" },
-    { value: "Eutanásia", label: "Eutanásia" },
-    { value: "Reforma", label: "Reforma" },
-    { value: "Outro", label: "Outro (especificar)" },
-  ];
-
-  /* ===========================
      FILTROS – SOLÍPEDES
   =========================== */
   const [filtroNumero, setFiltroNumero] = useState("");
@@ -667,66 +647,6 @@ const calcularIdade = (dataNascimento) => {
   };
 
   /* ===========================
-     FUNÇÕES DE EXCLUSÃO
-  =========================== */
-  const abrirModalExclusao = (solipede) => {
-    setSolipedeExcluir(solipede);
-    setMotivoExclusao("");
-    setMotivoOutro("");
-    setSenhaExclusao("");
-    setExclusaoErro("");
-    setExclusaoSucesso("");
-    setShowExclusaoModal(true);
-  };
-
-  const confirmarExclusao = async () => {
-    setExclusaoErro("");
-    setExclusaoSucesso("");
-
-    if (!motivoExclusao) {
-      setExclusaoErro("Selecione o motivo da exclusão");
-      return;
-    }
-
-    if (motivoExclusao === "Outro" && !motivoOutro.trim()) {
-      setExclusaoErro("Especifique o motivo da exclusão");
-      return;
-    }
-
-    if (!senhaExclusao) {
-      setExclusaoErro("Senha é obrigatória para confirmar a exclusão");
-      return;
-    }
-
-    const motivoFinal = motivoExclusao === "Outro" ? motivoOutro : motivoExclusao;
-
-    try {
-      setExclusaoLoading(true);
-      const resultado = await api.excluirSolipede(
-        solipedeExcluir.numero,
-        motivoFinal,
-        senhaExclusao
-      );
-
-      if (resultado.error) {
-        setExclusaoErro(resultado.error);
-        return;
-      }
-
-      setExclusaoSucesso("Solípede excluído com sucesso!");
-      setTimeout(() => {
-        setShowExclusaoModal(false);
-        carregarDados();
-      }, 2000);
-    } catch (error) {
-      console.error("Erro ao excluir:", error);
-      setExclusaoErro("Erro ao excluir solípede");
-    } finally {
-      setExclusaoLoading(false);
-    }
-  };
-
-  /* ===========================
      RENDER
   =========================== */
   if (loading) {
@@ -1026,13 +946,7 @@ const calcularIdade = (dataNascimento) => {
                       )}
 
                       <td className="text-nowrap">
-                        <Button
-                          size="sm"
-                          variant="light"
-                          className="me-1 border"
-                        >
-                          <BsClockHistory />
-                        </Button>
+                        
 
                         <Link
                           to={`/dashboard/gestaofvr/solipede/prontuario/edit/${item.numero}`}
@@ -1051,16 +965,6 @@ const calcularIdade = (dataNascimento) => {
                             <BsPencilSquare />
                           </Button>
                         </Link>
-
-                        <Button 
-                          size="sm" 
-                          variant="light" 
-                          className="border"
-                          onClick={() => abrirModalExclusao(item)}
-                          title="Excluir Solípede"
-                        >
-                          <BsTrash />
-                        </Button>
                       </td>
                     </tr>
                   ))}
@@ -1314,127 +1218,6 @@ const calcularIdade = (dataNascimento) => {
               }}
             >
               {movLoading ? "Aplicando..." : "Confirmar Movimentação"}
-            </Button>
-          </Modal.Footer>
-        </Modal>
-
-        {/* ===========================
-           MODAL DE EXCLUSÃO
-        =========================== */}
-        <Modal
-          show={showExclusaoModal}
-          onHide={() => setShowExclusaoModal(false)}
-          centered
-        >
-          <Modal.Header closeButton>
-            <Modal.Title>
-              <BsTrash className="text-danger me-2" />
-              Confirmar Exclusão
-            </Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            {exclusaoErro && <Alert variant="danger">{exclusaoErro}</Alert>}
-            {exclusaoSucesso && <Alert variant="success">{exclusaoSucesso}</Alert>}
-
-            {solipedeExcluir && (
-              <div className="mb-3">
-                <p>
-                  <strong>Número:</strong> {solipedeExcluir.numero}
-                </p>
-                <p>
-                  <strong>Nome:</strong> {solipedeExcluir.nome || "—"}
-                </p>
-                <p>
-                  <strong>Alocação:</strong> {solipedeExcluir.alocacao || "—"}
-                </p>
-                <p>
-                  <strong>Data de Exclusão:</strong>{" "}
-                  {new Date().toLocaleDateString("pt-BR")}
-                </p>
-              </div>
-            )}
-
-            <Alert variant="warning">
-              <strong>Atenção:</strong> Esta ação moverá o solípede para o
-              histórico de excluídos. Os dados não serão perdidos, mas o
-              solípede não aparecerá mais nas listagens principais.
-            </Alert>
-
-            <Form.Group className="mb-3">
-              <Form.Label>
-                Motivo da Exclusão <span className="text-danger">*</span>
-              </Form.Label>
-              <Form.Select
-                value={motivoExclusao}
-                onChange={(e) => setMotivoExclusao(e.target.value)}
-                disabled={exclusaoLoading}
-              >
-                {motivosExclusao.map((motivo) => (
-                  <option key={motivo.value} value={motivo.value}>
-                    {motivo.label}
-                  </option>
-                ))}
-              </Form.Select>
-            </Form.Group>
-
-            {motivoExclusao === "Outro" && (
-              <Form.Group className="mb-3">
-                <Form.Label>
-                  Especifique o Motivo <span className="text-danger">*</span>
-                </Form.Label>
-                <Form.Control
-                  as="textarea"
-                  rows={3}
-                  placeholder="Descreva o motivo da exclusão..."
-                  value={motivoOutro}
-                  onChange={(e) => setMotivoOutro(e.target.value)}
-                  disabled={exclusaoLoading}
-                />
-              </Form.Group>
-            )}
-
-            <Form.Group className="mb-3">
-              <Form.Label>
-                Senha de Confirmação <span className="text-danger">*</span>
-              </Form.Label>
-              <Form.Control
-                type="password"
-                placeholder="Digite sua senha..."
-                value={senhaExclusao}
-                onChange={(e) => setSenhaExclusao(e.target.value)}
-                disabled={exclusaoLoading}
-              />
-            </Form.Group>
-          </Modal.Body>
-          <Modal.Footer>
-            <Button
-              variant="secondary"
-              onClick={() => setShowExclusaoModal(false)}
-              disabled={exclusaoLoading}
-            >
-              Cancelar
-            </Button>
-            <Button
-              variant="danger"
-              onClick={confirmarExclusao}
-              disabled={exclusaoLoading}
-            >
-              {exclusaoLoading ? (
-                <>
-                  <Spinner
-                    as="span"
-                    animation="border"
-                    size="sm"
-                    className="me-2"
-                  />
-                  Processando...
-                </>
-              ) : (
-                <>
-                  <BsTrash className="me-2" />
-                  Confirmar Exclusão
-                </>
-              )}
             </Button>
           </Modal.Footer>
         </Modal>

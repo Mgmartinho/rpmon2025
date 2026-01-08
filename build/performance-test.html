@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Performance - RPMon 2025</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        h2 {
+            color: #764ba2;
+            margin: 30px 0 15px 0;
+            font-size: 1.8em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        h3 {
+            color: #555;
+            margin: 20px 0 10px 0;
+            font-size: 1.3em;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.1em;
+            margin-bottom: 30px;
+        }
+
+        .test-section {
+            background: #f8f9fa;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .metric {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .metric-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .metric-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .metric-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+            margin: 5px;
+        }
+
+        .status-good {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-bad {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px 5px;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        #results {
+            margin-top: 30px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: #e0e0e0;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .chart-container {
+            margin: 20px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background: #667eea;
+            color: white;
+            font-weight: bold;
+        }
+
+        tr:hover {
+            background: #f5f5f5;
+        }
+
+        .icon {
+            font-size: 1.5em;
+            margin-right: 10px;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Análise de Performance - RPMon 2025</h1>
+        <p class="subtitle">Frontend React - Testes de Desempenho e Requisitos</p>
+
+        <div class="test-section">
+            <h3>⚡ Testes Disponíveis</h3>
+            <button onclick="runAllTests()">🔥 Executar Todos os Testes</button>
+            <button onclick="testBrowserInfo()">🖥️ Informações do Navegador</button>
+            <button onclick="testPerformance()">📊 Performance Web Vitals</button>
+            <button onclick="testMemory()">💾 Uso de Memória</button>
+            <button onclick="testRenderTime()">⏱️ Tempo de Renderização</button>
+            <button onclick="testBundleSize()">📦 Tamanho do Bundle</button>
+        </div>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        // ============================================
+        // 🧪 SISTEMA DE TESTES DE PERFORMANCE
+        // ============================================
+
+        const results = document.getElementById('results');
+        let allResults = {
+            browser: {},
+            performance: {},
+            memory: {},
+            render: {},
+            bundle: {},
+            vitals: {}
+        };
+
+        // 🖥️ Informações do Navegador e Sistema
+        function testBrowserInfo() {
+            addSection('🖥️ INFORMAÇÕES DO SISTEMA E NAVEGADOR');
+
+            const info = {
+                userAgent: navigator.userAgent,
+                platform: navigator.platform,
+                language: navigator.language,
+                languages: navigator.languages.join(', '),
+                cookiesEnabled: navigator.cookieEnabled,
+                onLine: navigator.onLine,
+                cores: navigator.hardwareConcurrency || 'N/A',
+                memory: navigator.deviceMemory ? `${navigator.deviceMemory} GB` : 'N/A',
+                connection: getConnectionInfo(),
+                screen: `${screen.width}x${screen.height} (${screen.colorDepth}-bit)`,
+                viewport: `${window.innerWidth}x${window.innerHeight}`,
+                pixelRatio: window.devicePixelRatio
+            };
+
+            allResults.browser = info;
+
+            const metrics = [
+                { label: 'Navegador', value: getBrowserName() },
+                { label: 'Plataforma', value: info.platform },
+                { label: 'Núcleos CPU', value: info.cores },
+                { label: 'Memória RAM', value: info.memory },
+                { label: 'Resolução', value: info.screen },
+                { label: 'Viewport', value: info.viewport },
+                { label: 'Pixel Ratio', value: info.pixelRatio },
+                { label: 'Conexão', value: info.connection }
+            ];
+
+            displayMetrics(metrics);
+        }
+
+        // 📊 Performance Web Vitals
+        function testPerformance() {
+            addSection('📊 WEB VITALS & PERFORMANCE');
+
+            if (!window.performance) {
+                addResult('❌ Performance API não disponível', 'bad');
+                return;
+            }
+
+            const perfData = performance.getEntriesByType('navigation')[0];
+            const timing = performance.timing;
+
+            const metrics = {
+                dns: (timing.domainLookupEnd - timing.domainLookupStart).toFixed(2) + ' ms',
+                tcp: (timing.connectEnd - timing.connectStart).toFixed(2) + ' ms',
+                request: (timing.responseStart - timing.requestStart).toFixed(2) + ' ms',
+                response: (timing.responseEnd - timing.responseStart).toFixed(2) + ' ms',
+                domLoad: (timing.domContentLoadedEventEnd - timing.navigationStart).toFixed(2) + ' ms',
+                pageLoad: (timing.loadEventEnd - timing.navigationStart).toFixed(2) + ' ms',
+                domInteractive: (timing.domInteractive - timing.navigationStart).toFixed(2) + ' ms',
+                domComplete: (timing.domComplete - timing.navigationStart).toFixed(2) + ' ms'
+            };
+
+            allResults.performance = metrics;
+
+            const displayMetrics = [
+                { label: 'DNS Lookup', value: metrics.dns },
+                { label: 'TCP Connection', value: metrics.tcp },
+                { label: 'Request Time', value: metrics.request },
+                { label: 'Response Time', value: metrics.response },
+                { label: 'DOM Interactive', value: metrics.domInteractive },
+                { label: 'DOM Complete', value: metrics.domComplete },
+                { label: 'DOM Content Loaded', value: metrics.domLoad },
+                { label: 'Page Load', value: metrics.pageLoad }
+            ];
+
+            displayMetricsTable(displayMetrics);
+
+            // Análise
+            const pageLoadTime = parseFloat(metrics.pageLoad);
+            if (pageLoadTime < 1000) {
+                addResult('✅ Excelente! Tempo de carregamento < 1s', 'good');
+            } else if (pageLoadTime < 3000) {
+                addResult('⚠️ Bom. Tempo de carregamento entre 1-3s', 'warning');
+            } else {
+                addResult('❌ Lento. Tempo de carregamento > 3s', 'bad');
+            }
+        }
+
+        // 💾 Teste de Memória
+        function testMemory() {
+            addSection('💾 ANÁLISE DE MEMÓRIA');
+
+            if (!performance.memory) {
+                addResult('⚠️ Memory API não disponível (Chrome only)', 'warning');
+                return;
+            }
+
+            const memory = performance.memory;
+            const used = (memory.usedJSHeapSize / 1048576).toFixed(2);
+            const total = (memory.totalJSHeapSize / 1048576).toFixed(2);
+            const limit = (memory.jsHeapSizeLimit / 1048576).toFixed(2);
+            const percentage = ((memory.usedJSHeapSize / memory.jsHeapSizeLimit) * 100).toFixed(2);
+
+            allResults.memory = {
+                used: used + ' MB',
+                total: total + ' MB',
+                limit: limit + ' MB',
+                percentage: percentage + '%'
+            };
+
+            const metrics = [
+                { label: 'Heap Usado', value: used + ' MB' },
+                { label: 'Heap Total', value: total + ' MB' },
+                { label: 'Limite do Heap', value: limit + ' MB' },
+                { label: 'Uso Percentual', value: percentage + '%' }
+            ];
+
+            displayMetrics(metrics);
+
+            // Análise
+            if (parseFloat(percentage) < 50) {
+                addResult('✅ Uso de memória saudável (< 50%)', 'good');
+            } else if (parseFloat(percentage) < 80) {
+                addResult('⚠️ Uso moderado de memória (50-80%)', 'warning');
+            } else {
+                addResult('❌ Alto uso de memória (> 80%)', 'bad');
+            }
+        }
+
+        // ⏱️ Teste de Tempo de Renderização
+        async function testRenderTime() {
+            addSection('⏱️ TESTE DE RENDERIZAÇÃO');
+
+            const iterations = 100;
+            const results = [];
+
+            addResult('Executando ' + iterations + ' iterações...', 'warning');
+
+            for (let i = 0; i < iterations; i++) {
+                const start = performance.now();
+                
+                // Simula renderização de componentes
+                const div = document.createElement('div');
+                div.innerHTML = `<div class="test-component">
+                    <h3>Componente ${i}</h3>
+                    <p>Teste de renderização</p>
+                    <button>Ação</button>
+                </div>`;
+                document.body.appendChild(div);
+                
+                const end = performance.now();
+                results.push(end - start);
+                
+                document.body.removeChild(div);
+            }
+
+            const avg = (results.reduce((a, b) => a + b) / results.length).toFixed(4);
+            const min = Math.min(...results).toFixed(4);
+            const max = Math.max(...results).toFixed(4);
+
+            allResults.render = {
+                iterations,
+                avg: avg + ' ms',
+                min: min + ' ms',
+                max: max + ' ms'
+            };
+
+            const metrics = [
+                { label: 'Iterações', value: iterations },
+                { label: 'Tempo Médio', value: avg + ' ms' },
+                { label: 'Tempo Mínimo', value: min + ' ms' },
+                { label: 'Tempo Máximo', value: max + ' ms' }
+            ];
+
+            displayMetrics(metrics);
+
+            if (parseFloat(avg) < 1) {
+                addResult('✅ Renderização muito rápida (< 1ms)', 'good');
+            } else if (parseFloat(avg) < 5) {
+                addResult('⚠️ Renderização aceitável (1-5ms)', 'warning');
+            } else {
+                addResult('❌ Renderização lenta (> 5ms)', 'bad');
+            }
+        }
+
+        // 📦 Teste de Tamanho do Bundle
+        function testBundleSize() {
+            addSection('📦 ANÁLISE DO BUNDLE');
+
+            const resources = performance.getEntriesByType('resource');
+            let totalSize = 0;
+            let jsSize = 0;
+            let cssSize = 0;
+            let imageSize = 0;
+
+            const details = [];
+
+            resources.forEach(resource => {
+                const size = resource.transferSize || 0;
+                totalSize += size;
+
+                if (resource.name.endsWith('.js')) {
+                    jsSize += size;
+                    details.push({ type: 'JS', name: resource.name.split('/').pop(), size: formatBytes(size) });
+                } else if (resource.name.endsWith('.css')) {
+                    cssSize += size;
+                    details.push({ type: 'CSS', name: resource.name.split('/').pop(), size: formatBytes(size) });
+                } else if (resource.name.match(/\.(jpg|jpeg|png|gif|svg|webp)$/i)) {
+                    imageSize += size;
+                }
+            });
+
+            allResults.bundle = {
+                total: formatBytes(totalSize),
+                js: formatBytes(jsSize),
+                css: formatBytes(cssSize),
+                images: formatBytes(imageSize),
+                files: resources.length
+            };
+
+            const metrics = [
+                { label: 'Tamanho Total', value: formatBytes(totalSize) },
+                { label: 'JavaScript', value: formatBytes(jsSize) },
+                { label: 'CSS', value: formatBytes(cssSize) },
+                { label: 'Imagens', value: formatBytes(imageSize) },
+                { label: 'Total de Arquivos', value: resources.length }
+            ];
+
+            displayMetrics(metrics);
+
+            // Mostrar detalhes dos maiores arquivos
+            details.sort((a, b) => parseSize(b.size) - parseSize(a.size));
+            const topFiles = details.slice(0, 10);
+
+            let table = '<h3>📊 Top 10 Maiores Arquivos</h3><table><tr><th>Tipo</th><th>Arquivo</th><th>Tamanho</th></tr>';
+            topFiles.forEach(file => {
+                table += `<tr><td>${file.type}</td><td>${file.name}</td><td>${file.size}</td></tr>`;
+            });
+            table += '</table>';
+            results.innerHTML += table;
+
+            // Análise
+            const totalMB = totalSize / 1048576;
+            if (totalMB < 1) {
+                addResult('✅ Bundle otimizado (< 1 MB)', 'good');
+            } else if (totalMB < 3) {
+                addResult('⚠️ Bundle moderado (1-3 MB)', 'warning');
+            } else {
+                addResult('❌ Bundle grande (> 3 MB) - Considere otimizar', 'bad');
+            }
+        }
+
+        // 🔥 Executar todos os testes
+        async function runAllTests() {
+            results.innerHTML = '<h2>🔄 Executando todos os testes...</h2>';
+            
+            testBrowserInfo();
+            await sleep(500);
+            
+            testPerformance();
+            await sleep(500);
+            
+            testMemory();
+            await sleep(500);
+            
+            await testRenderTime();
+            await sleep(500);
+            
+            testBundleSize();
+            await sleep(500);
+
+            // Requisitos Mínimos
+            addSection('📋 REQUISITOS MÍNIMOS DO SISTEMA');
+            
+            const requirements = `
+                <table>
+                    <tr><th colspan="3" style="text-align: center;">REQUISITOS PARA O FRONTEND</th></tr>
+                    <tr><th>Componente</th><th>Mínimo</th><th>Recomendado</th></tr>
+                    <tr><td>Navegador</td><td>Chrome 90+, Firefox 88+, Edge 90+</td><td>Última versão</td></tr>
+                    <tr><td>RAM</td><td>2 GB disponível</td><td>4 GB disponível</td></tr>
+                    <tr><td>Resolução</td><td>1280x720</td><td>1920x1080 ou superior</td></tr>
+                    <tr><td>Conexão</td><td>5 Mbps</td><td>10 Mbps ou superior</td></tr>
+                    <tr><td>JavaScript</td><td>ES6 suportado</td><td>ES2020+</td></tr>
+                    <tr><td>Armazenamento</td><td>100 MB (cache)</td><td>500 MB</td></tr>
+                </table>
+            `;
+            results.innerHTML += requirements;
+
+            // Salvar relatório
+            addSection('💾 RELATÓRIO COMPLETO');
+            const reportButton = document.createElement('button');
+            reportButton.textContent = '📄 Baixar Relatório JSON';
+            reportButton.onclick = () => downloadReport();
+            results.appendChild(reportButton);
+
+            addResult('✅ Todos os testes concluídos!', 'good');
+        }
+
+        // 📄 Download do relatório
+        function downloadReport() {
+            const report = {
+                timestamp: new Date().toISOString(),
+                ...allResults
+            };
+
+            const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `performance-report-frontend-${Date.now()}.json`;
+            a.click();
+        }
+
+        // ⚙️ Funções Auxiliares
+        function addSection(title) {
+            const section = document.createElement('div');
+            section.className = 'test-section';
+            section.innerHTML = `<h2>${title}</h2>`;
+            results.appendChild(section);
+        }
+
+        function addResult(text, status) {
+            const p = document.createElement('p');
+            p.innerHTML = `<span class="status status-${status}">${text}</span>`;
+            results.appendChild(p);
+        }
+
+        function displayMetrics(metrics) {
+            const container = document.createElement('div');
+            container.className = 'metric';
+            
+            metrics.forEach(metric => {
+                const card = document.createElement('div');
+                card.className = 'metric-card';
+                card.innerHTML = `
+                    <div class="metric-label">${metric.label}</div>
+                    <div class="metric-value">${metric.value}</div>
+                `;
+                container.appendChild(card);
+            });
+            
+            results.appendChild(container);
+        }
+
+        function displayMetricsTable(metrics) {
+            let table = '<table><tr><th>Métrica</th><th>Valor</th></tr>';
+            metrics.forEach(metric => {
+                table += `<tr><td>${metric.label}</td><td><strong>${metric.value}</strong></td></tr>`;
+            });
+            table += '</table>';
+            results.innerHTML += table;
+        }
+
+        function getBrowserName() {
+            const ua = navigator.userAgent;
+            if (ua.indexOf('Firefox') > -1) return 'Firefox';
+            if (ua.indexOf('Chrome') > -1) return 'Chrome';
+            if (ua.indexOf('Safari') > -1) return 'Safari';
+            if (ua.indexOf('Edge') > -1) return 'Edge';
+            return 'Unknown';
+        }
+
+        function getConnectionInfo() {
+            if (!navigator.connection) return 'N/A';
+            const conn = navigator.connection;
+            return `${conn.effectiveType} (${conn.downlink} Mbps)`;
+        }
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
+        }
+
+        function parseSize(sizeStr) {
+            const match = sizeStr.match(/(\d+\.?\d*)\s*(\w+)/);
+            if (!match) return 0;
+            const value = parseFloat(match[1]);
+            const unit = match[2];
+            const multipliers = { 'Bytes': 1, 'KB': 1024, 'MB': 1048576, 'GB': 1073741824 };
+            return value * (multipliers[unit] || 0);
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // Auto-executar ao carregar
+        window.addEventListener('load', () => {
+            console.log('🚀 Sistema de testes de performance carregado!');
+            console.log('Use runAllTests() para executar todos os testes ou clique nos botões.');
+        });
+    </script>
+</body>
+</html>

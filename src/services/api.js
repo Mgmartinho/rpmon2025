@@ -1,4 +1,7 @@
-const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
+// Usa a configuração dinâmica do window.ENV se disponível, senão usa a variável de ambiente
+const API_BASE_URL = (window.ENV && window.ENV.API_URL) || process.env.REACT_APP_API_URL || "http://localhost:3000";
+
+console.log('🔗 API configurada para:', API_BASE_URL);
 
 // Função auxiliar para verificar se token está presente
 const checkAuth = () => {
@@ -60,6 +63,58 @@ export const api = {
     return response.json();
   },
 
+  // 🚀 OTIMIZADO: Busca apenas números de solípedes com restrições ativas
+  listarSolipedesComRestricao: async () => {
+    const response = await fetch(`${API_BASE_URL}/restricoes/solipedes-com-restricao`);
+    return response.json();
+  },
+  
+  // 🚀 OTIMIZADO: Busca apenas números de solípedes com observações
+  listarSolipedesComObservacoes: async () => {
+    const response = await fetch(`${API_BASE_URL}/observacoes/solipedes-com-observacoes`);
+    return response.json();
+  },
+
+  // ➕ Criar nova observação comportamental
+  criarObservacao: async (dados) => {
+    const token = localStorage.getItem("token");
+    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/prontuario`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(dados),
+    });
+    return response.json();
+  },
+
+  // ✏️ Editar observação comportamental
+  editarObservacao: async (id, dados) => {
+    const token = localStorage.getItem("token");
+    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/prontuario/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(dados),
+    });
+    return response.json();
+  },
+
+  // 🗑️ Deletar observação comportamental
+  deletarObservacao: async (id) => {
+    const token = localStorage.getItem("token");
+    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/prontuario/${id}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.json();
+  },
+
   indicadoresAnuais: async (ano) => {
     const anoParam = ano || new Date().getFullYear();
     const response = await fetch(`${API_BASE_URL}/solipedes/indicadores/anual?ano=${anoParam}`);
@@ -79,6 +134,19 @@ export const api = {
     const token = localStorage.getItem("token");
     const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/solipedes/${numero}`, {
       headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.json();
+  },
+  
+  atualizarStatusSolipede: async (numero, novoStatus) => {
+    const token = localStorage.getItem("token");
+    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/solipedes/${numero}/status`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ status: novoStatus }),
     });
     return response.json();
   },
@@ -234,6 +302,18 @@ export const api = {
     const response = await fetch(`${API_BASE_URL}/solipedes/prontuario/${numero}`);
     return response.json();
   },
+  
+  // Observações Gerais Público (todos os tipos exceto Restrições) - COM dados do usuário
+  listarObservacoesPublico: async (numero) => {
+    const response = await fetch(`${API_BASE_URL}/observacoes/${numero}`);
+    return response.json();
+  },
+  
+  // Ferrageamentos Público
+  listarFerrageamentosPublico: async () => {
+    const response = await fetch(`${API_BASE_URL}/solipedes/ferrageamentos`);
+    return response.json();
+  },
 
   // Prontuário
   salvarProntuario: async (dados) => {
@@ -299,6 +379,14 @@ export const api = {
     return response.json();
   },
 
+  contarTratamentosEmAndamento: async (numero) => {
+    const token = localStorage.getItem("token");
+    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/prontuario/${numero}/tratamentos-andamento`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.json();
+  },
+
   liberarBaixa: async (prontuarioId) => {
     const token = localStorage.getItem("token");
     const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/prontuario/${prontuarioId}/liberar-baixa`, {
@@ -311,15 +399,18 @@ export const api = {
     return response.json();
   },
 
-  concluirTratamento: async (prontuarioId, email, senha) => {
-    console.log(`🔐 API: Concluindo tratamento ${prontuarioId} para ${email}`);
+  concluirTratamento: async (prontuarioId, senha) => {
+    console.log(`🔐 API: Concluindo tratamento ${prontuarioId}`);
     try {
-      const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/prontuario/${prontuarioId}/concluir-tratamento`, {
+      const token = localStorage.getItem("token");
+      // Usar fetch normal, sem fetchWithAuth que intercepta 401
+      const response = await fetch(`${API_BASE_URL}/gestaoFVR/prontuario/${prontuarioId}/concluir-tratamento`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
         },
-        body: JSON.stringify({ email, senha }),
+        body: JSON.stringify({ senha }),
       });
       
       console.log(`📡 Status da resposta: ${response.status}`);
@@ -327,6 +418,44 @@ export const api = {
       const data = await response.json();
       console.log("📦 Dados recebidos:", data);
       
+      // Se o status HTTP é sucesso (200-299), retornar os dados
+      if (response.ok) {
+        return data;
+      }
+      
+      // Para erros HTTP, retornar os dados com erro
+      return data;
+    } catch (error) {
+      console.error("❌ Erro na requisição:", error);
+      return { error: "Erro de conexão com o servidor" };
+    }
+  },
+
+  concluirRegistro: async (prontuarioId, senha) => {
+    console.log(`🔐 API: Concluindo registro ${prontuarioId}`);
+    try {
+      const token = localStorage.getItem("token");
+      // Usar fetch normal, sem fetchWithAuth que intercepta 401
+      const response = await fetch(`${API_BASE_URL}/gestaoFVR/prontuario/${prontuarioId}/concluir-registro`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({ senha }),
+      });
+      
+      console.log(`📡 Status da resposta: ${response.status}`);
+      
+      const data = await response.json();
+      console.log("📦 Dados recebidos:", data);
+      
+      // Se o status HTTP é sucesso (200-299), retornar os dados
+      if (response.ok) {
+        return data;
+      }
+      
+      // Para erros HTTP, retornar os dados com erro
       return data;
     } catch (error) {
       console.error("❌ Erro na requisição:", error);
