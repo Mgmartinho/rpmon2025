@@ -167,12 +167,12 @@ const NossaHistoria = () => {
               texto="Em 1932, não empunhamos armas por ambição, mas por princípio: lutar para que a lei fosse maior que os homens."
             />
 
-            <DestaqueLivro
+            {/* <DestaqueLivro
               titulo='Regimento de Cavalaria - "9 de Julho"'
               resumo="Um relato histórico sobre a participação do Regimento na história do Brasil..."
               autor="Cel PM Ricardo Andrioli"
               linkPdf="/LetraHinos/9 de julho - paris belfort.pdf"
-            />
+            /> */}
           </div>
         </Col>
       </Row>

@@ -114,20 +114,20 @@ const HeaderDashboard = () => {
           {/* CENTRO - MENUS (COLUNA 2) */}
           <Nav className="dashboard-nav d-flex gap-3 justify-content-center">
             {/* ABAS PÚBLICAS - SEMPRE VISÍVEIS */}
-            <OverlayTrigger overlay={<Tooltip>Dashboard</Tooltip>}>
+            <OverlayTrigger placement="bottom" overlay={<Tooltip>Dashboard</Tooltip>}>
               <Nav.Link as={NavLink} to="/dashboard">
                 <BsHouse />
               </Nav.Link>
             </OverlayTrigger>
 
-            <OverlayTrigger overlay={<Tooltip>Listagem</Tooltip>}>
+            <OverlayTrigger placement="bottom" overlay={<Tooltip>Listagem</Tooltip>}>
               <Nav.Link as={NavLink} to="/dashboard/list">
                 <BsListCheck />
               </Nav.Link>
             </OverlayTrigger>
 
             {/* Carga Horária - Todos podem visualizar */}
-            <OverlayTrigger overlay={<Tooltip>Carga Horária</Tooltip>}>
+            <OverlayTrigger placement="bottom" overlay={<Tooltip>Carga Horária</Tooltip>}>
               <Nav.Link as={NavLink} to="/dashboard/AdminCargaHoraria">
                 <BsClockHistory />
               </Nav.Link>
@@ -138,7 +138,7 @@ const HeaderDashboard = () => {
               <>
                 {/* Ferradoria - Ferrador e acima */}
                 {temPermissao(usuario.perfil, "GESTAO_FERRAGEAMENTO") && (
-                <OverlayTrigger overlay={<Tooltip>Ferradoria</Tooltip>}>
+                <OverlayTrigger placement="bottom" overlay={<Tooltip>Ferradoria</Tooltip>}>
                   <Nav.Link as={NavLink} to="/dashboard/ferradoria">
                     <GiHorseshoe />
                   </Nav.Link>
@@ -147,7 +147,7 @@ const HeaderDashboard = () => {
 
                 {/* Estatísticas - Acesso gerencial */}
                 {temPermissao(usuario.perfil, "GESTAO_SOLIPEDES") && (
-                <OverlayTrigger overlay={<Tooltip>Estatísticas</Tooltip>}>
+                <OverlayTrigger placement="bottom" overlay={<Tooltip>Estatísticas</Tooltip>}>
                   <Nav.Link as={NavLink} to="/dashboard/estatisticasfvr">
                     <BsBarChart />
                   </Nav.Link>
@@ -157,7 +157,7 @@ const HeaderDashboard = () => {
                 {/* Gestão FVR - Acesso gerencial */}
                 {temPermissao(usuario.perfil, "GESTAO_SOLIPEDES") && (
                 <>
-                <OverlayTrigger overlay={<Tooltip>Gestão FVR</Tooltip>}>
+                <OverlayTrigger placement="bottom" overlay={<Tooltip>Gestão FVR</Tooltip>}>
                   <Nav.Link as={NavLink} to="/dashboard/gestaofvr">
                     <GiHorseHead />
                   </Nav.Link>
@@ -167,7 +167,7 @@ const HeaderDashboard = () => {
 
                 {/* Lançamentos - Veterinários */}
                 {temPermissao(usuario.perfil, "VISUALIZAR_TASKS") && (
-                <OverlayTrigger overlay={<Tooltip>Lançamentos</Tooltip>}>
+                <OverlayTrigger placement="bottom" overlay={<Tooltip>Lançamentos</Tooltip>}>
                   <Nav.Link as={NavLink} to="/dashboard/gestaofvr/taskcreatepage">
                     <FaClipboardList />
                   </Nav.Link>
@@ -176,7 +176,7 @@ const HeaderDashboard = () => {
 
                 {/* Exclusão - Veterinário Admin e Desenvolvedor */}
                 {temPermissao(usuario.perfil, "EXCLUIR_SOLIPEDE") && (
-                <OverlayTrigger overlay={<Tooltip>Exclusão de Solípedes</Tooltip>}>
+                <OverlayTrigger placement="bottom" overlay={<Tooltip>Exclusão de Solípedes</Tooltip>}>
                   <Nav.Link as={NavLink} to="/dashboard/gestaofvr/exclusao">
                     <BsTrash />
                   </Nav.Link>

@@ -212,6 +212,16 @@ const Ferradoria = () => {
       return;
     }
 
+    if (!tamanhoFerradura || tamanhoFerradura.trim() === "") {
+      setErro("Tamanho da ferradura é obrigatório");
+      return;
+    }
+
+    if (!responsavel || responsavel.trim() === "") {
+      setErro("Responsável pelo ferrageamento é obrigatório");
+      return;
+    }
+
     try {
       setProcessando(true);
       
@@ -785,13 +795,16 @@ const Ferradoria = () => {
           <Row>
             <Col md={6}>
               <Form.Group className="mb-3">
-                <Form.Label>Tamanho da Ferradura</Form.Label>
+                <Form.Label>
+                  Tamanho da Ferradura <span className="text-danger">*</span>
+                </Form.Label>
                 <Form.Control
                   type="text"
                   placeholder="Ex: 0, 1, 2, 3, 4, 5..."
                   value={tamanhoFerradura}
                   onChange={(e) => setTamanhoFerradura(e.target.value)}
                   disabled={processando}
+                  required
                 />
                 <Form.Text className="text-muted">
                   Informe o tamanho/número da ferradura
@@ -800,13 +813,16 @@ const Ferradoria = () => {
             </Col>
             <Col md={6}>
               <Form.Group className="mb-3">
-                <Form.Label>Responsável pelo Ferrageamento</Form.Label>
+                <Form.Label>
+                  Responsável pelo Ferrageamento <span className="text-danger">*</span>
+                </Form.Label>
                 <Form.Control
                   type="text"
                   placeholder="Nome do ferrador ou seção responsável"
                   value={responsavel}
                   onChange={(e) => setResponsavel(e.target.value)}
                   disabled={processando}
+                  required
                 />
               </Form.Group>
             </Col>

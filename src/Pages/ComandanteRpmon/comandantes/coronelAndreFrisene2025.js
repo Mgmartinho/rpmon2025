@@ -76,7 +76,7 @@ const AndreFrisene2025 = () => {
               </ul>
 
               {/* CURSOS – seu conteúdo original */}
-              <h4>Cursos:</h4>
+              {/* <h4>Cursos:</h4>
               <ul>
                 <li>Curso de força tatica – 24/11/1999</li>
                 <li>Tropa Montada – 08/03/2000</li>
@@ -100,10 +100,10 @@ const AndreFrisene2025 = () => {
                   Inacabado
                 </li>
                 <li>CSP – Curso Superior de Polícia – 03/03/2023</li>
-              </ul>
+              </ul> */}
 
               {/* MEDALHAS – seu conteúdo original */}
-              <h4>Medalhas:</h4>
+              {/* <h4>Medalhas:</h4>
               <ul>
                 <li>1º Centenário do RPMON – 24/01/2001</li>
                 <li>Mérito Comunitário – 30/09/2008</li>
@@ -121,20 +121,20 @@ const AndreFrisene2025 = () => {
                 <li>Solar dos Andradas – 18/06/2024</li>
                 <li>Ordem dos Cavaleiros de Rabelo – PMDF – 18/06/2024</li>
                 <li>“Comandos e Operações Especiais da PMESP” – 4º BPChq</li>
-              </ul>
+              </ul> */}
 
               {/* LAUREAS – seu conteúdo original */}
               <h4>Láureas de Mérito Pessoal:</h4>
               <ul>
-                <li>5º Grau – 27/10/1998</li>
-                <li>4º Grau – 22/07/1999</li>
-                <li>3º Grau – 08/11/2000</li>
-                <li>2º Grau – 11/02/2004</li>
-                <li>1º Grau – 23/07/2018</li>
+                <li>5º Grau – 30/09/1999</li>
+                <li>4º Grau – 14/05/2002</li>
+                <li>3º Grau – 25/10/2002</li>
+                <li>2º Grau – 21/12/2004</li>
+                <li>1º Grau – 23/10/2013</li>
               </ul>
 
               {/* CONSELHO PERMANENTE */}
-              <h4>Conselho Permanente de Justiça – Juiz Militar:</h4>
+              {/* <h4>Conselho Permanente de Justiça – Juiz Militar:</h4>
               <p>
                 <strong>Períodos:</strong>
               </p>
@@ -142,7 +142,7 @@ const AndreFrisene2025 = () => {
                 <li>05/01/2009 a 31/03/2009 – 1ª Auditoria</li>
                 <li>01/10/2014 a 19/12/2014 – 3ª Auditoria</li>
                 <li>02/10/2023 a 19/12/2023 – 1ª Auditoria</li>
-              </ul>
+              </ul> */}
             </div>
           </div>
         </div>

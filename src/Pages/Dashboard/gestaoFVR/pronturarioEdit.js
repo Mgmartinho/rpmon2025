@@ -22,8 +22,9 @@ import {
   BsExclamationTriangle,
   BsFilePdf,
   BsFileWord,
+  BsPencilSquare,
 } from "react-icons/bs";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { api } from "../../../services/api";
 import html2pdf from 'html2pdf.js';
 import htmlDocx from 'html-docx-js/dist/html-docx';
@@ -31,6 +32,7 @@ import { saveAs } from 'file-saver';
 
 export default function ProntuarioSolipedeEdit() {
   const { numero } = useParams();
+  const navigate = useNavigate();
   const [solipede, setSolipede] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -41,6 +43,7 @@ export default function ProntuarioSolipedeEdit() {
   const [salvando, setSalvando] = useState(false);
   const [mensagem, setMensagem] = useState("");
   const [visaoGeralTexto, setVisaoGeralTexto] = useState(""); // Novo estado para Visão Geral
+  const [tratamentosEmAndamento, setTratamentosEmAndamento] = useState(0);
 
   const [loadingHistorico, setLoadingHistorico] = useState(true);
 
@@ -56,6 +59,21 @@ export default function ProntuarioSolipedeEdit() {
   const [partidaLote, setPartidaLote] = useState("");
   const [validadeProduto, setValidadeProduto] = useState("");
   const [nomeProduto, setNomeProduto] = useState("");
+  
+  // Estados para edição de registros
+  const [registroEditando, setRegistroEditando] = useState(null);
+  const [showModalEdicao, setShowModalEdicao] = useState(false);
+  const [observacaoEdicao, setObservacaoEdicao] = useState("");
+  const [recomendacoesEdicao, setRecomendacoesEdicao] = useState("");
+  const [dataValidadeEdicao, setDataValidadeEdicao] = useState("");
+  
+  // Estados para conclusão manual de registros
+  const [showModalConclusaoRegistro, setShowModalConclusaoRegistro] = useState(false);
+  const [registroIdConcluir, setRegistroIdConcluir] = useState(null);
+  const [emailConclusaoRegistro, setEmailConclusaoRegistro] = useState("");
+  const [senhaConclusaoRegistro, setSenhaConclusaoRegistro] = useState("");
+  const [concluindoRegistro, setConcluindoRegistro] = useState(false);
+  const [erroConclusaoRegistro, setErroConclusaoRegistro] = useState("");
 
   // Estados para conclusão de tratamento
   const [showModalConclusao, setShowModalConclusao] = useState(false);
@@ -64,6 +82,16 @@ export default function ProntuarioSolipedeEdit() {
   const [senhaConclusao, setSenhaConclusao] = useState("");
   const [concluindo, setConcluindo] = useState(false);
   const [erroConclusao, setErroConclusao] = useState("");
+  
+  // Estados para alteração de status do solípede
+  const [novoStatus, setNovoStatus] = useState("");
+  const [precisaBaixar, setPrecisaBaixar] = useState(""); // Novo: Sim/Não para baixar solípede
+  const [showModalAlterarStatus, setShowModalAlterarStatus] = useState(false);
+  const [alterandoStatus, setAlterandoStatus] = useState(false);
+  const [erroAlterarStatus, setErroAlterarStatus] = useState("");
+
+  // Estado para usuário logado
+  const [usuarioLogado, setUsuarioLogado] = useState(null);
 
   // Estados para exames laboratoriais (quando tipoObservacao === "Exame")
   const [examesSelecionados, setExamesSelecionados] = useState({
@@ -227,17 +255,22 @@ export default function ProntuarioSolipedeEdit() {
           ${historico.map((registro, index) => {
       const dataBR = new Date(registro.data_criacao).toLocaleDateString('pt-BR');
       const horaBR = new Date(registro.data_criacao).toLocaleTimeString('pt-BR');
+      const tipo = registro.tipo ? registro.tipo.toUpperCase() : 'OBSERVAÇÃO GERAL';
+      const usuario = registro.usuario_nome || 'N/A';
+      const perfil = registro.usuario_perfil || 'N/A';
+      const observacao = registro.observacao || 'Sem observação registrada';
+      
       return `
               <div style="margin-bottom: 25px; page-break-inside: avoid;">
                 <p style="margin: 0 0 8px 0;">
-                  <strong>${index + 1}. ${registro.tipo.toUpperCase()}</strong>
+                  <strong>${index + 1}. ${tipo}</strong>
                 </p>
                 <p style="margin: 0 0 5px 0; font-size: 12px; color: #666;">
                   <em>Data: ${dataBR} às ${horaBR}</em>
-                  ${registro.usuario_nome ? ` | Responsável: ${registro.usuario_nome} (${registro.usuario_perfil})` : ''}
+                  ${registro.usuario_nome ? ` | Responsável: ${usuario} (${perfil})` : ''}
                 </p>
                 <p style="text-align: justify; line-height: 1.6; margin: 10px 0;">
-                  ${registro.observacao}
+                  ${observacao}
                 </p>
                 ${registro.recomendacoes ? `
                   <div style="background-color: #fffbea; border-left: 3px solid #f0ad4e; padding: 10px; margin-top: 10px;">
@@ -306,15 +339,45 @@ export default function ProntuarioSolipedeEdit() {
   useEffect(() => {
     async function carregarProntuario() {
       try {
+        console.log("🔍 Carregando prontuário para número:", solipede.numero);
         const response = await api.listarProntuario(solipede.numero);
+        console.log("📦 Resposta da API:", response);
+        console.log("📊 Total de registros recebidos:", response?.length);
+        
+        // Debug: verificar campo foi_responsavel_pela_baixa
+        if (Array.isArray(response)) {
+          response.forEach((reg, index) => {
+            if (reg.tipo === "Tratamento") {
+              console.log(`🩺 Tratamento ${index}:`, {
+                id: reg.id,
+                tipo: reg.tipo,
+                foi_responsavel_pela_baixa: reg.foi_responsavel_pela_baixa,
+                observacao: reg.observacao?.substring(0, 50)
+              });
+            }
+          });
+        }
+        
         // Garantir que response seja sempre um array
         setHistorico(Array.isArray(response) ? response : []);
+        
+        // Debug: mostrar tipos dos registros
+        if (Array.isArray(response) && response.length > 0) {
+          const tipos = response.map(r => r.tipo);
+          console.log("📋 Tipos encontrados:", tipos);
+          const restricoes = response.filter(r => r.tipo === "Restrições");
+          console.log("🚫 Total de Restrições:", restricoes.length);
+        }
 
         // Carregar contador de baixas pendentes
         const baixas = await api.contarBaixasPendentes(solipede.numero);
         setBaixasPendentes(baixas.total || 0);
+
+        // Carregar contador de tratamentos em andamento
+        const tratamentos = await api.contarTratamentosEmAndamento(solipede.numero);
+        setTratamentosEmAndamento(tratamentos.total || 0);
       } catch (error) {
-        console.error("Erro ao carregar prontuário", error);
+        console.error("❌ Erro ao carregar prontuário", error);
         setHistorico([]); // Define array vazio em caso de erro
       } finally {
         setLoadingHistorico(false);
@@ -325,6 +388,22 @@ export default function ProntuarioSolipedeEdit() {
       carregarProntuario();
     }
   }, [solipede]);
+
+  // Carregar dados do usuário logado
+  useEffect(() => {
+    const usuario = localStorage.getItem("usuario");
+    if (usuario) {
+      try {
+        const dadosUsuario = JSON.parse(usuario);
+        setUsuarioLogado(dadosUsuario);
+        // Pré-preencher emails nos estados
+        setEmailConclusao(dadosUsuario.email || "");
+        setEmailConclusaoRegistro(dadosUsuario.email || "");
+      } catch (error) {
+        console.error("Erro ao parsear usuário:", error);
+      }
+    }
+  }, []);
 
   // Atualizar visão geral quando histórico mudar
   useEffect(() => {
@@ -552,17 +631,31 @@ export default function ProntuarioSolipedeEdit() {
     }
 
     // Validação padrão para outros tipos
-    if (!observacao.trim()) {
-      setMensagem({
-        tipo: "warning",
-        texto: "Adicione uma observação antes de salvar!",
-      });
-      return;
+    if (tipoObservacao === "Tratamento") {
+      // Para tratamento, exige observação OU seleção de baixar
+      if (!observacao.trim() && !precisaBaixar) {
+        setMensagem({
+          tipo: "warning",
+          texto: "Adicione uma observação ou selecione se precisa baixar o solípede!",
+        });
+        return;
+      }
+    } else {
+      // Para outros tipos, observação é obrigatória
+      if (!observacao.trim()) {
+        setMensagem({
+          tipo: "warning",
+          texto: "Adicione uma observação antes de salvar!",
+        });
+        return;
+      }
     }
 
     setSalvando(true);
     try {
       console.log("📤 Enviando prontuário para servidor...");
+      console.log("🔍 Tipo:", tipoObservacao, "PrecisaBaixar:", precisaBaixar);
+      
       const response = await api.salvarProntuario({
         numero_solipede: numero,
         tipo: tipoObservacao,
@@ -570,13 +663,15 @@ export default function ProntuarioSolipedeEdit() {
         recomendacoes: recomendacoes || null,
         tipo_baixa: tipoObservacao === "Baixa" && tipoBaixa ? tipoBaixa : null,
         data_lancamento: tipoObservacao === "Baixa" && dataLancamento ? dataLancamento : null,
-        data_validade: tipoObservacao === "Baixa" && dataValidade ? dataValidade : null,
+        data_validade: (tipoObservacao === "Baixa" && dataValidade) || (tipoObservacao === "Restrições" && dataValidade) ? dataValidade : null,
+        precisa_baixar: tipoObservacao === "Tratamento" && precisaBaixar ? precisaBaixar : undefined, // Envia 'sim', 'nao' ou undefined
       });
 
       console.log("📥 Resposta do servidor:", response);
 
       if (response.success || response.id) {
         console.log("✅ Prontuário salvo com sucesso! Recarregando histórico...");
+        
         // Recarregar o histórico para pegar os dados do usuário
         const historicoAtualizado = await api.listarProntuario(numero);
         console.log("📖 Histórico atualizado:", historicoAtualizado);
@@ -591,15 +686,24 @@ export default function ProntuarioSolipedeEdit() {
           const dadosAtualizados = await api.obterSolipede(numero);
           setSolipede(dadosAtualizados);
         }
+        
+        // Recarregar dados do solípede se alterou status (baixou)
+        if (precisaBaixar === "sim") {
+          const dadosAtualizados = await api.obterSolipede(numero);
+          setSolipede(dadosAtualizados);
+        }
 
         setObservacao("");
         setRecomendacoes("");
         setDataLancamento("");
         setDataValidade("");
         setTipoBaixa("");
+        setPrecisaBaixar(""); // Resetar pergunta de baixa
         setMensagem({
           tipo: "success",
-          texto: "✅ Observação salva com sucesso!",
+          texto: precisaBaixar === "sim" 
+            ? "✅ Tratamento salvo e solípede baixado com sucesso!"
+            : "✅ Tratamento salvo com sucesso!",
         });
 
         setTimeout(() => setMensagem(""), 3000);
@@ -644,6 +748,226 @@ export default function ProntuarioSolipedeEdit() {
       </Container>
     );
   }
+
+  // Função para abrir modal de edição
+  const handleAbrirEdicao = (registro) => {
+    setRegistroEditando(registro);
+    setObservacaoEdicao(registro.observacao || "");
+    setRecomendacoesEdicao(registro.recomendacoes || "");
+    setDataValidadeEdicao(registro.data_validade ? registro.data_validade.split('T')[0] : "");
+    setShowModalEdicao(true);
+  };
+
+  // Função para fechar modal de edição
+  const handleFecharEdicao = () => {
+    setShowModalEdicao(false);
+    setRegistroEditando(null);
+    setObservacaoEdicao("");
+    setRecomendacoesEdicao("");
+    setDataValidadeEdicao("");
+  };
+
+  // Função para salvar edição
+  const handleSalvarEdicao = async () => {
+    if (!observacaoEdicao.trim()) {
+      setMensagem({
+        tipo: "warning",
+        texto: "A observação não pode estar vazia!",
+      });
+      return;
+    }
+
+    try {
+      console.log("💾 Salvando edição do registro:", registroEditando.id);
+      console.log("🏷️  Tipo do registro:", registroEditando.tipo);
+      
+      // Construir objeto de dados dinamicamente
+      const dadosAtualizacao = {
+        observacao: observacaoEdicao,
+        recomendacoes: recomendacoesEdicao || null,
+      };
+
+      // Apenas incluir data_validade se for uma Restrição
+      if (registroEditando.tipo === "Restrições") {
+        // Converter string vazia em null
+        dadosAtualizacao.data_validade = dataValidadeEdicao && dataValidadeEdicao.trim() !== "" 
+          ? dataValidadeEdicao 
+          : null;
+        console.log("📅 Data validade sendo enviada:", dadosAtualizacao.data_validade);
+      }
+
+      console.log("📝 Dados enviados:", dadosAtualizacao);
+      
+      const response = await api.atualizarProntuario(registroEditando.id, dadosAtualizacao);
+
+      console.log("✅ Resposta do backend:", response);
+
+      if (response.success) {
+        // Recarregar histórico
+        console.log("🔄 Recarregando histórico...");
+        const historicoAtualizado = await api.listarProntuario(numero);
+        console.log("📦 Histórico atualizado recebido:", historicoAtualizado);
+        console.log("📊 Total após atualização:", historicoAtualizado?.length);
+        setHistorico(historicoAtualizado);
+
+        setMensagem({
+          tipo: "success",
+          texto: "✅ Registro atualizado com sucesso!",
+        });
+
+        handleFecharEdicao();
+        setTimeout(() => setMensagem(""), 3000);
+      }
+    } catch (error) {
+      console.error("❌ Erro ao atualizar registro:", error);
+      setMensagem({
+        tipo: "danger",
+        texto: "❌ Erro ao atualizar registro",
+      });
+    }
+  };
+
+  // Função para verificar se restrição está expirada (usa data_validade)
+  const isRestricaoExpirada = (dataValidade) => {
+    if (!dataValidade) return false;
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+    const validade = new Date(dataValidade);
+    validade.setHours(0, 0, 0, 0);
+    return validade < hoje;
+  };
+  
+  // Função para abrir modal de alteração de status
+  const handleAbrirModalAlterarStatus = () => {
+    setNovoStatus(solipede?.status || "Operante");
+    setShowModalAlterarStatus(true);
+    setErroAlterarStatus("");
+  };
+  
+  // Função para fechar modal de alteração de status
+  const handleFecharModalAlterarStatus = () => {
+    setShowModalAlterarStatus(false);
+    setNovoStatus("");
+    setErroAlterarStatus("");
+  };
+  
+  // Função para confirmar alteração de status
+  const handleConfirmarAlterarStatus = async () => {
+    if (!novoStatus) {
+      setErroAlterarStatus("Selecione um status");
+      return;
+    }
+
+    setAlterandoStatus(true);
+    setErroAlterarStatus("");
+
+    try {
+      console.log("🔄 Alterando status do solípede:", numero, "para:", novoStatus);
+      
+      const response = await api.atualizarStatusSolipede(numero, novoStatus);
+      
+      if (response.success) {
+        // Recarregar dados do solípede
+        const dadosAtualizados = await api.obterSolipede(numero);
+        setSolipede(dadosAtualizados);
+        
+        // Exibir mensagem com informações de auditoria
+        const mensagemDetalhada = response.usuario 
+          ? `✅ ${response.message}\nAlterado por: ${response.usuario}\nEm: ${new Date(response.dataAtualizacao).toLocaleString('pt-BR')}`
+          : `✅ ${response.message}`;
+        
+        setMensagem({
+          tipo: "success",
+          texto: mensagemDetalhada,
+        });
+        
+        handleFecharModalAlterarStatus();
+        setTimeout(() => setMensagem(""), 5000);
+      } else {
+        setErroAlterarStatus("Erro ao alterar status");
+      }
+    } catch (error) {
+      console.error("❌ Erro ao alterar status:", error);
+      setErroAlterarStatus("Erro ao alterar status do solípede");
+    } finally {
+      setAlterandoStatus(false);
+    }
+  };
+
+  // Função para abrir modal de conclusão manual
+  const handleAbrirModalConclusaoRegistro = (registroId) => {
+    setRegistroIdConcluir(registroId);
+    setSenhaConclusaoRegistro("");
+    setShowModalConclusaoRegistro(true);
+    setErroConclusaoRegistro("");
+  };
+
+  // Função para fechar modal de conclusão manual
+  const handleFecharModalConclusaoRegistro = () => {
+    setShowModalConclusaoRegistro(false);
+    setRegistroIdConcluir(null);
+    setEmailConclusaoRegistro("");
+    setSenhaConclusaoRegistro("");
+    setErroConclusaoRegistro("");
+  };
+
+  // Função para concluir registro manualmente
+  const handleConcluirRegistro = async (e) => {
+    e.preventDefault();
+    setConcluindoRegistro(true);
+    setErroConclusaoRegistro("");
+
+    console.log("🚀 Iniciando conclusão de registro:", registroIdConcluir);
+
+    try {
+      const response = await api.concluirRegistro(registroIdConcluir, senhaConclusaoRegistro);
+
+      console.log("📦 Resposta completa:", response);
+      console.log("✅ response.success:", response.success);
+      console.log("❌ response.error:", response.error);
+      console.log("🔖 response.code:", response.code);
+
+      if (response.success) {
+        console.log("✅ SUCESSO CONFIRMADO - Recarregando dados...");
+        alert("✅ Registro concluído com sucesso!");
+        
+        // Fechar modal e recarregar dados
+        handleFecharModalConclusaoRegistro();
+        
+        // Recarregar histórico e dados do solípede
+        const historicoAtualizado = await api.listarProntuario(numero);
+        setHistorico(Array.isArray(historicoAtualizado) ? historicoAtualizado : []);
+        
+        // Recarregar dados do solípede
+        const solipedeAtualizado = await api.obterSolipede(numero);
+        if (solipedeAtualizado && !solipedeAtualizado.error) {
+          setSolipede(solipedeAtualizado);
+        }
+      } else {
+        console.log("❌ ERRO DETECTADO");
+        // Tratamento de erros específicos
+        let erroMsg = response.error || "Erro ao concluir registro";
+        
+        if (response.code === "ALREADY_CONCLUDED") {
+          erroMsg = "⚠️ Este registro já foi concluído anteriormente.";
+        } else if (response.error === "Senha inválida") {
+          erroMsg = "🔒 Senha incorreta. Por favor, tente novamente.";
+        } else if (response.error === "Registro não encontrado") {
+          erroMsg = "❌ Registro não encontrado no sistema.";
+        } else if (response.error === "Usuário não autenticado") {
+          erroMsg = "🔐 Sua sessão expirou. Por favor, faça login novamente.";
+        }
+        
+        console.log("📝 Mensagem de erro:", erroMsg);
+        setErroConclusaoRegistro(erroMsg);
+      }
+    } catch (error) {
+      console.error("💥 EXCEÇÃO CAPTURADA:", error);
+      setErroConclusaoRegistro("Erro ao conectar com o servidor");
+    } finally {
+      setConcluindoRegistro(false);
+    }
+  };
 
   const calcularIdade = (dataNascimento) => {
     if (!dataNascimento) return "N/A";
@@ -737,37 +1061,69 @@ export default function ProntuarioSolipedeEdit() {
 
     console.log("📝 Tentando concluir tratamento:", {
       prontuarioId: prontuarioIdConcluir,
-      email: emailConclusao
+      usuario: usuarioLogado?.nome
     });
 
     try {
       const response = await api.concluirTratamento(
         prontuarioIdConcluir,
-        emailConclusao,
         senhaConclusao
       );
 
       console.log("📦 Resposta da API:", response);
+      console.log("✅ response.success:", response.success);
+      console.log("❌ response.error:", response.error);
+      console.log("🔖 response.code:", response.code);
 
       if (response.success) {
-        // Recarregar histórico
-        const historicoAtualizado = await api.listarProntuario(numero);
-        setHistorico(historicoAtualizado);
+        console.log("✅ SUCESSO CONFIRMADO - Recarregando página...");
+        // Mensagem com informações sobre tratamentos restantes
+        let mensagemTexto = `✅ ${response.message}\n\nConcluído por: ${response.usuario_conclusao.nome}`;
+        if (response.tratamentosRestantes > 0) {
+          mensagemTexto += `\n⚠️ O solípede continuará com status "Baixado" até que todos os ${response.tratamentosRestantes} tratamento(s) sejam concluídos.`;
+        }
 
-        setMensagem({
-          tipo: "success",
-          texto: `✅ Tratamento concluído por ${response.usuario_conclusao.nome}`,
-        });
-
-        setTimeout(() => setMensagem(""), 5000);
+        alert(mensagemTexto);
+        
+        // Fechar modal e recarregar dados
         handleFecharModalConclusao();
+        
+        // Recarregar histórico e dados do solípede
+        const historicoAtualizado = await api.listarProntuario(numero);
+        setHistorico(Array.isArray(historicoAtualizado) ? historicoAtualizado : []);
+        
+        // Recarregar dados do solípede para atualizar status
+        const solipedeAtualizado = await api.obterSolipede(numero);
+        if (solipedeAtualizado && !solipedeAtualizado.error) {
+          setSolipede(solipedeAtualizado);
+        }
+        
+        // Recarregar contadores
+        const baixas = await api.contarBaixasPendentes(numero);
+        setBaixasPendentes(baixas.total || 0);
+        const tratamentos = await api.contarTratamentosEmAndamento(numero);
+        setTratamentosEmAndamento(tratamentos.total || 0);
       } else {
-        const erroMsg = response.error || "❌ Erro ao concluir tratamento";
+        console.log("❌ ERRO DETECTADO");
+        // Tratamento de erros específicos
+        let erroMsg = response.error || "Erro ao concluir tratamento";
+        
+        if (response.code === "ALREADY_CONCLUDED") {
+          erroMsg = "⚠️ Este tratamento já foi concluído anteriormente.";
+        } else if (response.error === "Senha inválida") {
+          erroMsg = "🔒 Senha incorreta. Por favor, tente novamente.";
+        } else if (response.error === "Tratamento não encontrado") {
+          erroMsg = "❌ Tratamento não encontrado no sistema.";
+        } else if (response.error === "Usuário não autenticado") {
+          erroMsg = "🔐 Sua sessão expirou. Por favor, faça login novamente.";
+        }
+        
         console.error("❌ Erro na resposta:", erroMsg);
+        console.log("📝 Mensagem de erro:", erroMsg);
         setErroConclusao(erroMsg);
       }
     } catch (error) {
-      console.error("❌ Erro ao concluir tratamento:", error);
+      console.error("💥 EXCEÇÃO CAPTURADA:", error);
       setErroConclusao("❌ Erro ao conectar com o servidor. Verifique sua conexão.");
     } finally {
       setConcluindo(false);
@@ -799,21 +1155,48 @@ export default function ProntuarioSolipedeEdit() {
                   height: "100px",
                   borderRadius: "50%",
                   backgroundColor: "#e9ecef",
-                  fontSize: "50px",
+                  fontSize: "50px"
                 }}
               >
                 🐴
               </div>
               <h5 className="fw-bold mb-1">{solipede.nome || "N/A"}</h5>
               <p className="text-muted mb-3">Nº {solipede.numero}</p>
-              <Badge
-                bg={statusBg(solipede.status)}
-                className="mb-3"
-                style={{ fontSize: "12px", padding: "6px 12px" }}
-              >
-                <BsCheckCircle className="me-1" />
-                {solipede.status || "N/A"}
-              </Badge>
+              <div style={{ position: "relative", display: "inline-block" }}>
+                <Badge
+                  bg={statusBg(solipede.status)}
+                  className="mb-3"
+                  style={{ fontSize: "12px", padding: "6px 12px" }}
+                >
+                  <BsCheckCircle className="me-1" />
+                  {solipede.status || "N/A"}
+                </Badge>
+                {tratamentosEmAndamento > 0 && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: "-10px",
+                      right: "-14px",
+                      backgroundColor: "#ff8c00",
+                      color: "white",
+                      borderRadius: "50%",
+                      width: "24px",
+                      height: "24px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "11px",
+                      fontWeight: "bold",
+                      border: "2px solid white",
+                      boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+                      cursor: "help"
+                    }}
+                    title="Tratamento em aberto"
+                  >
+                    {tratamentosEmAndamento}
+                  </div>
+                )}
+              </div>
 
               {baixasPendentes > 0 && (
                 <div className="mt-2">
@@ -1012,22 +1395,54 @@ export default function ProntuarioSolipedeEdit() {
                           <option>Vacinação</option>
                           <option>Vermifugação</option>
                           <option>Exames AIE / Mormo</option>
+                          <option>Observações Comportamentais</option>
                           <option>Restrições</option>
                         </Form.Select>
                       </Form.Group>
 
                       {/* Mensagem informativa para Tratamento */}
                       {tipoObservacao === "Tratamento" && (
-                        <Alert variant="info" className="mb-3">
-                          <strong>ℹ️ Importante:</strong> Ao iniciar um tratamento, o cavalo será automaticamente marcado com status de <strong>baixado</strong>.
-                        </Alert>
+                        <>
+                          <Alert variant="info" className="mb-3">
+                            <strong>ℹ️ Importante:</strong> Ao iniciar um tratamento,
+                             é opcional baixar o cavalo ou não, porém se houver mais de
+                              um tratamento e estiver como baixado, todos deverão ser 
+                              concluídos para voltar ao Status <strong>Ativo</strong>.
+                          </Alert>
+                          {tratamentosEmAndamento > 0 && (
+                            <Alert variant="warning" className="mb-3">
+                              <strong>⚠️ Atenção:</strong> Este solípede possui <strong>{tratamentosEmAndamento}</strong> tratamento(s) em andamento.
+                              {solipede?.status === "Baixado" && (
+                                <> Todos os tratamentos devem ser concluídos para que o status retorne a <strong>Ativo</strong>.</>
+                              )}
+                            </Alert>
+                          )}
+                        </>
                       )}
 
                       {/* Mensagem informativa para Restrições */}
                       {tipoObservacao === "Restrições" && (
-                        <Alert variant="info" className="mb-3">
-                          <strong>ℹ️ Importante:</strong> As Restrições são utilizadas para alertar a tropa com informações pertinentes ao animal <strong>Recomenda-se utilizar, para manter a boa saúde e integridade do cavalo e do policial.</strong>.
-                        </Alert>
+                        <>
+                          <Alert variant="info" className="mb-3">
+                            <strong>ℹ️ Importante:</strong> As Restrições são utilizadas para alertar a tropa com informações pertinentes ao animal. 
+                            <strong>Recomenda-se utilizar para manter a boa saúde e integridade do cavalo e do policial.</strong>
+                          </Alert>
+                          
+                          <div className="mt-3 mb-3 p-3 rounded" style={{ backgroundColor: "#f8f9fa", border: "1px solid #dee2e6" }}>
+                            <Form.Group className="mb-0">
+                              <Form.Label className="fw-bold">Data de Validade da Restrição (Opcional)</Form.Label>
+                              <Form.Control
+                                type="date"
+                                size="sm"
+                                value={dataValidade}
+                                onChange={(e) => setDataValidade(e.target.value)}
+                              />
+                              <Form.Text className="text-muted">
+                                Se informada, o registro será marcado como concluído automaticamente após esta data.
+                              </Form.Text>
+                            </Form.Group>
+                          </div>
+                        </>
                       )}
 
                       {/* Campos específicos para Vacinação, Vermifugação e AIE/Mormo */}
@@ -1379,6 +1794,35 @@ export default function ProntuarioSolipedeEdit() {
                         />
                       </Form.Group>
 
+                      {tipoObservacao === "Tratamento" && (
+                        <Form.Group className="mb-3">
+                          <Form.Label className="fw-bold">
+                            🩺 Precisa baixar o solípede para este tratamento?
+                          </Form.Label>
+                          <Form.Select
+                            value={precisaBaixar}
+                            onChange={(e) => setPrecisaBaixar(e.target.value)}
+                            disabled={salvando}
+                          >
+                            <option value="">Selecione...</option>
+                            <option value="sim">✅ Sim - Baixar o solípede durante este tratamento</option>
+                            <option value="nao">❌ Não - Manter status atual do solípede</option>
+                          </Form.Select>
+                          <Form.Text className="text-muted d-block mt-2">
+                            ⚠️ <strong>Importante:</strong> Se escolher "Sim", o solípede será baixado. 
+                            Ele só voltará a "Ativo" quando TODOS os tratamentos que baixaram forem concluídos.
+                          </Form.Text>
+                          {tratamentosEmAndamento > 0 && solipede?.status === "Baixado" && (
+                            <Alert variant="warning" className="mt-2 mb-0">
+                              <small>
+                                <strong>📊 Atenção:</strong> Há {tratamentosEmAndamento} tratamento(s) ativo(s). 
+                                Se escolher "Não", este tratamento não influenciará no status do solípede.
+                              </small>
+                            </Alert>
+                          )}
+                        </Form.Group>
+                      )}
+
                       <div className="d-flex gap-2">
                         <Button
                           variant="success"
@@ -1387,7 +1831,10 @@ export default function ProntuarioSolipedeEdit() {
                             salvando || 
                             (tipoObservacao === "Exame" 
                               ? !Object.values(examesSelecionados).some(v => v) && !observacao.trim()
-                              : !observacao.trim()
+                              : (tipoObservacao === "Tratamento" 
+                                  ? !observacao.trim() && !precisaBaixar
+                                  : !observacao.trim()
+                                )
                             )
                           }
                         >
@@ -1413,6 +1860,9 @@ export default function ProntuarioSolipedeEdit() {
                             setPartidaLote("");
                             setValidadeProduto("");
                             setNomeProduto("");
+                            setDataValidade("");
+                            setDataLancamento("");
+                            setPrecisaBaixar(""); // Resetar pergunta de baixa
                             // Resetar checkboxes de exames
                             setExamesSelecionados(Object.keys(examesSelecionados).reduce((acc, key) => {
                               acc[key] = false;
@@ -1447,6 +1897,9 @@ export default function ProntuarioSolipedeEdit() {
                   historico.map((registro) => {
                     const dataBR = new Date(registro.data_criacao).toLocaleDateString('pt-BR');
                     const horaBR = new Date(registro.data_criacao).toLocaleTimeString('pt-BR');
+                    const isRestricaoExpiradaReg = registro.tipo === "Restrições" && isRestricaoExpirada(registro.data_validade);
+                    const isConcluido = registro.status_conclusao === 'concluido';
+                    const mostrarBotaoConcluir = (registro.tipo === "Restrições" || registro.tipo === "Tratamento") && !isConcluido && !isRestricaoExpiradaReg;
 
                     return (
                       <Card
@@ -1459,6 +1912,47 @@ export default function ProntuarioSolipedeEdit() {
                               <Badge bg="info" className="mb-2">
                                 {registro.tipo}
                               </Badge>
+                              {registro.tipo === "Tratamento" && registro.foi_responsavel_pela_baixa === 1 && (
+                                <Badge 
+                                  className="mb-2 ms-2" 
+                                  style={{ 
+                                    backgroundColor: "#ffcccc", 
+                                    color: "#721c24", 
+                                    borderRadius: "12px",
+                                    fontSize: "11px",
+                                    padding: "4px 8px"
+                                  }}
+                                >
+                                   Usuário baixou o solipede
+                                </Badge>
+                              )}
+                              {(isRestricaoExpiradaReg || isConcluido) && (
+                                <Badge bg="success" className="mb-2 ms-2">
+                                  <BsCheckCircle className="me-1" />
+                                  Concluída
+                                </Badge>
+                              )}
+                              {registro.tipo === "Restrições" && registro.data_validade && (
+                                <p className="mb-1" style={{ fontSize: "11px", color: "#666" }}>
+                                  📅 Validade: {new Date(registro.data_validade).toLocaleDateString('pt-BR')}
+                                </p>
+                              )}
+                              {registro.tipo === "Tratamento" && registro.precisa_baixar && (
+                                <p className="mb-1 mt-2" style={{ fontSize: "12px", fontWeight: "500", color: registro.precisa_baixar === "sim" ? "#856404" : "#28a745" }}>
+                                  {registro.precisa_baixar === "sim" ? (
+                                    <>🩺 <strong>Usuário baixou o solípede</strong></>
+                                  ) : (
+                                    <>✅ <strong>Usuário NÃO baixou o solípede</strong></>
+                                  )}
+                                </p>
+                              )}
+                              {isConcluido && registro.usuario_conclusao_nome && (
+                                <p className="text-success mb-0" style={{ fontSize: "11px" }}>
+                                  ✅ Concluído por: <strong>{registro.usuario_conclusao_nome}</strong> ({registro.usuario_conclusao_registro})
+                                  <br />
+                                  📅 {new Date(registro.data_conclusao).toLocaleDateString('pt-BR')} às {new Date(registro.data_conclusao).toLocaleTimeString('pt-BR')}
+                                </p>
+                              )}
                               <p
                                 className="mb-1"
                                 style={{ fontSize: "12px", color: "#999" }}
@@ -1468,6 +1962,36 @@ export default function ProntuarioSolipedeEdit() {
                               </p>
                             </Col>
                             <Col md={6} className="text-end">
+                              <div className="d-flex gap-2 justify-content-end">
+                                {mostrarBotaoConcluir && (
+                                  <Button
+                                    size="sm"
+                                    variant="outline-success"
+                                    className="mb-2"
+                                    onClick={() => {
+                                      if (registro.tipo === "Tratamento") {
+                                        handleAbrirModalConclusao(registro.id);
+                                      } else {
+                                        handleAbrirModalConclusaoRegistro(registro.id);
+                                      }
+                                    }}
+                                  >
+                                    <BsCheckCircle className="me-1" />
+                                    Concluir
+                                  </Button>
+                                )}
+                                {!isConcluido && (
+                                  <Button
+                                    size="sm"
+                                    variant="outline-primary"
+                                    className="mb-2"
+                                    onClick={() => handleAbrirEdicao(registro)}
+                                  >
+                                    <BsPlusCircle className="me-1" />
+                                    Editar
+                                  </Button>
+                                )}
+                              </div>
                               <div style={{ fontSize: "13px" }}>
                                 <p className="mb-1">
                                   <strong>{registro.usuario_nome || "Sistema"}</strong>
@@ -1478,13 +2002,37 @@ export default function ProntuarioSolipedeEdit() {
                                 <Badge bg="secondary" style={{ fontSize: "11px" }}>
                                   {registro.usuario_perfil || "Desconhecido"}
                                 </Badge>
+                                {registro.status_anterior && registro.status_novo && (
+                                  <div className="mt-2 pt-2 border-top">
+                                    <small className="text-info d-block">
+                                      🔄 Status alterado: <strong>{registro.status_anterior}</strong> → <strong>{registro.status_novo}</strong>
+                                    </small>
+                                  </div>
+                                )}
+                                {registro.data_atualizacao && new Date(registro.data_atualizacao).getTime() !== new Date(registro.data_criacao).getTime() && (
+                                  <div className="mt-2 pt-2 border-top">
+                                    <small className="text-muted d-block">
+                                      <BsPencilSquare className="me-1" />
+                                      Atualizado em: {new Date(registro.data_atualizacao).toLocaleString('pt-BR')}
+                                      {registro.usuario_atualizacao_nome && (
+                                        <> por <strong>{registro.usuario_atualizacao_nome}</strong> ({registro.usuario_atualizacao_registro})</>
+                                      )}
+                                    </small>
+                                  </div>
+                                )}
                               </div>
                             </Col>
                           </Row>
                           <div className="bg-light p-2 rounded mb-2">
                             <p
                               className="mb-0"
-                              style={{ fontSize: "14px", lineHeight: "1.6", whiteSpace: "pre-line" }}
+                              style={{ 
+                                fontSize: "14px", 
+                                lineHeight: "1.6", 
+                                whiteSpace: "pre-line",
+                                textDecoration: (isRestricaoExpiradaReg || isConcluido) ? "none" : "none",
+                                color: (isRestricaoExpiradaReg || isConcluido) ? "#999" : "inherit"
+                              }}
                             >
                               {registro.observacao}
                             </p>
@@ -1493,7 +2041,11 @@ export default function ProntuarioSolipedeEdit() {
                             <div className="bg-warning bg-opacity-10 p-2 rounded border-start border-warning">
                               <small className="text-muted">
                                 <strong>📌 Recomendação:</strong>{" "}
-                                {registro.recomendacoes}
+                                <span style={{
+                                  textDecoration: (isRestricaoExpiradaReg || isConcluido) ? "none" : "none"
+                                }}>
+                                  {registro.recomendacoes}
+                                </span>
                               </small>
                             </div>
                           )}
@@ -1558,6 +2110,7 @@ export default function ProntuarioSolipedeEdit() {
                             historico.filter(reg => reg.tipo === "Consulta Clínica").map((registro) => {
                               const dataBR = new Date(registro.data_criacao).toLocaleDateString('pt-BR');
                               const horaBR = new Date(registro.data_criacao).toLocaleTimeString('pt-BR');
+                              const isConcluido = registro.status_conclusao === 'concluido';
 
                               return (
                                 <Card key={registro.id} className="mb-3 border-start border-4 border-primary">
@@ -1565,17 +2118,64 @@ export default function ProntuarioSolipedeEdit() {
                                     <Row className="align-items-start mb-2">
                                       <Col>
                                         <Badge bg="primary" className="mb-2">🩺 Consulta Clínica</Badge>
+                                        {isConcluido && (
+                                          <Badge bg="success" className="mb-2 ms-2">
+                                            <BsCheckCircle className="me-1" />
+                                            Concluída
+                                          </Badge>
+                                        )}
                                         <p className="text-muted mb-0" style={{ fontSize: "12px" }}>
                                           📅 {dataBR} às {horaBR}
                                         </p>
+                                        {isConcluido && registro.usuario_conclusao_nome && (
+                                          <p className="text-success mb-0" style={{ fontSize: "11px" }}>
+                                            ✅ Concluído por: <strong>{registro.usuario_conclusao_nome}</strong> ({registro.usuario_conclusao_registro})
+                                            <br />
+                                            📅 {new Date(registro.data_conclusao).toLocaleDateString('pt-BR')} às {new Date(registro.data_conclusao).toLocaleTimeString('pt-BR')}
+                                          </p>
+                                        )}
+                                      </Col>
+                                      <Col xs="auto">
+                                        <div className="d-flex gap-2">
+                                          {!isConcluido && (
+                                            <Button
+                                              size="sm"
+                                              variant="outline-success"
+                                              onClick={() => handleAbrirModalConclusaoRegistro(registro.id)}
+                                            >
+                                              <BsCheckCircle className="me-1" />
+                                              Concluir
+                                            </Button>
+                                          )}
+                                          <Button
+                                            size="sm"
+                                            variant="outline-primary"
+                                            onClick={() => handleAbrirEdicao(registro)}
+                                          >
+                                            <BsPlusCircle className="me-1" />
+                                            Editar
+                                          </Button>
+                                        </div>
                                       </Col>
                                     </Row>
                                     <hr />
-                                    <p style={{ fontSize: "14px", lineHeight: "1.6" }}>{registro.observacao}</p>
+                                    <p style={{ 
+                                      fontSize: "14px", 
+                                      lineHeight: "1.6",
+                                      textDecoration: isConcluido ? "none" : "none",
+                                      color: isConcluido ? "#999" : "inherit"
+                                    }}>
+                                      {registro.observacao}
+                                    </p>
                                     {registro.recomendacoes && (
                                       <div className="bg-warning bg-opacity-10 p-2 rounded border-start border-warning">
                                         <small className="text-muted">
-                                          <strong>📌 Recomendação:</strong> {registro.recomendacoes}
+                                          <strong>📌 Recomendação:</strong>{" "}
+                                          <span style={{
+                                            textDecoration: isConcluido ? "none" : "none"
+                                          }}>
+                                            {registro.recomendacoes}
+                                          </span>
                                         </small>
                                       </div>
                                     )}
@@ -1604,11 +2204,25 @@ export default function ProntuarioSolipedeEdit() {
                                     <Row className="align-items-start mb-2">
                                       <Col>
                                         <Badge bg="danger" className="mb-2">💊 Tratamento</Badge>
+                                        {registro.foi_responsavel_pela_baixa === 1 && (
+                                          <Badge bg="warning" text="dark" className="mb-2 ms-2">
+                                            🩺 Baixou o solípede
+                                          </Badge>
+                                        )}
                                         {isConcluido && (
                                           <Badge bg="success" className="mb-2 ms-2">
                                             <BsCheckCircle className="me-1" />
                                             Concluído
                                           </Badge>
+                                        )}
+                                        {registro.precisa_baixar && (
+                                          <p className="mb-1 mt-2" style={{ fontSize: "12px", fontWeight: "500", color: registro.precisa_baixar === "sim" ? "#856404" : "#28a745" }}>
+                                            {registro.precisa_baixar === "sim" ? (
+                                              <>🩺 <strong>Usuário baixou o solípede</strong></>
+                                            ) : (
+                                              <>✅ <strong>Usuário NÃO baixou o solípede</strong></>
+                                            )}
+                                          </p>
                                         )}
                                         <p className="text-muted mb-0" style={{ fontSize: "12px" }}>
                                           📅 {dataBR} às {horaBR}
@@ -1622,16 +2236,28 @@ export default function ProntuarioSolipedeEdit() {
                                         )}
                                       </Col>
                                       <Col xs="auto">
-                                        {!isConcluido && (
-                                          <Button
-                                            size="sm"
-                                            variant="outline-success"
-                                            onClick={() => handleAbrirModalConclusao(registro.id)}
-                                          >
-                                            <BsCheckCircle className="me-1" />
-                                            Concluir
-                                          </Button>
-                                        )}
+                                        <div className="d-flex gap-2">
+                                          {!isConcluido && (
+                                            <Button
+                                              size="sm"
+                                              variant="outline-success"
+                                              onClick={() => handleAbrirModalConclusao(registro.id)}
+                                            >
+                                              <BsCheckCircle className="me-1" />
+                                              Concluir
+                                            </Button>
+                                          )}
+                                          {!isConcluido && (
+                                            <Button
+                                              size="sm"
+                                              variant="outline-primary"
+                                              onClick={() => handleAbrirEdicao(registro)}
+                                            >
+                                              <BsPlusCircle className="me-1" />
+                                              Editar
+                                            </Button>
+                                          )}
+                                        </div>
                                       </Col>
                                     </Row>
                                     <hr />
@@ -1660,6 +2286,7 @@ export default function ProntuarioSolipedeEdit() {
                             historico.filter(reg => reg.tipo === "Exame").map((registro) => {
                               const dataBR = new Date(registro.data_criacao).toLocaleDateString('pt-BR');
                               const horaBR = new Date(registro.data_criacao).toLocaleTimeString('pt-BR');
+                              const isConcluido = registro.status_conclusao === 'concluido';
 
                               return (
                                 <Card key={registro.id} className="mb-3 border-start border-4 border-secondary">
@@ -1667,17 +2294,64 @@ export default function ProntuarioSolipedeEdit() {
                                     <Row className="align-items-start mb-2">
                                       <Col>
                                         <Badge bg="secondary" className="mb-2">🔬 Exame</Badge>
+                                        {isConcluido && (
+                                          <Badge bg="success" className="mb-2 ms-2">
+                                            <BsCheckCircle className="me-1" />
+                                            Concluído
+                                          </Badge>
+                                        )}
                                         <p className="text-muted mb-0" style={{ fontSize: "12px" }}>
                                           📅 {dataBR} às {horaBR}
                                         </p>
+                                        {isConcluido && registro.usuario_conclusao_nome && (
+                                          <p className="text-success mb-0" style={{ fontSize: "11px" }}>
+                                            ✅ Concluído por: <strong>{registro.usuario_conclusao_nome}</strong> ({registro.usuario_conclusao_registro})
+                                            <br />
+                                            📅 {new Date(registro.data_conclusao).toLocaleDateString('pt-BR')} às {new Date(registro.data_conclusao).toLocaleTimeString('pt-BR')}
+                                          </p>
+                                        )}
+                                      </Col>
+                                      <Col xs="auto">
+                                        <div className="d-flex gap-2">
+                                          {!isConcluido && (
+                                            <Button
+                                              size="sm"
+                                              variant="outline-success"
+                                              onClick={() => handleAbrirModalConclusaoRegistro(registro.id)}
+                                            >
+                                              <BsCheckCircle className="me-1" />
+                                              Concluir
+                                            </Button>
+                                          )}
+                                          <Button
+                                            size="sm"
+                                            variant="outline-primary"
+                                            onClick={() => handleAbrirEdicao(registro)}
+                                          >
+                                            <BsPlusCircle className="me-1" />
+                                            Editar
+                                          </Button>
+                                        </div>
                                       </Col>
                                     </Row>
                                     <hr />
-                                    <p style={{ fontSize: "14px", lineHeight: "1.6" }}>{registro.observacao}</p>
+                                    <p style={{ 
+                                      fontSize: "14px", 
+                                      lineHeight: "1.6",
+                                      textDecoration: isConcluido ? "none" : "none",
+                                      color: isConcluido ? "#999" : "inherit"
+                                    }}>
+                                      {registro.observacao}
+                                    </p>
                                     {registro.recomendacoes && (
                                       <div className="bg-warning bg-opacity-10 p-2 rounded border-start border-warning">
                                         <small className="text-muted">
-                                          <strong>📌 Recomendação:</strong> {registro.recomendacoes}
+                                          <strong>📌 Recomendação:</strong>{" "}
+                                          <span style={{
+                                            textDecoration: isConcluido ? "none" : "none"
+                                          }}>
+                                            {registro.recomendacoes}
+                                          </span>
                                         </small>
                                       </div>
                                     )}
@@ -1698,6 +2372,7 @@ export default function ProntuarioSolipedeEdit() {
                             historico.filter(reg => reg.tipo === "Vacinação").map((registro) => {
                               const dataBR = new Date(registro.data_criacao).toLocaleDateString('pt-BR');
                               const horaBR = new Date(registro.data_criacao).toLocaleTimeString('pt-BR');
+                              const isConcluido = registro.status_conclusao === 'concluido';
 
                               return (
                                 <Card key={registro.id} className="mb-3 border-start border-4 border-success">
@@ -1705,17 +2380,64 @@ export default function ProntuarioSolipedeEdit() {
                                     <Row className="align-items-start mb-2">
                                       <Col>
                                         <Badge bg="success" className="mb-2">💉 Vacinação</Badge>
+                                        {isConcluido && (
+                                          <Badge bg="success" className="mb-2 ms-2">
+                                            <BsCheckCircle className="me-1" />
+                                            Concluída
+                                          </Badge>
+                                        )}
                                         <p className="text-muted mb-0" style={{ fontSize: "12px" }}>
                                           📅 {dataBR} às {horaBR}
                                         </p>
+                                        {isConcluido && registro.usuario_conclusao_nome && (
+                                          <p className="text-success mb-0" style={{ fontSize: "11px" }}>
+                                            ✅ Concluído por: <strong>{registro.usuario_conclusao_nome}</strong> ({registro.usuario_conclusao_registro})
+                                            <br />
+                                            📅 {new Date(registro.data_conclusao).toLocaleDateString('pt-BR')} às {new Date(registro.data_conclusao).toLocaleTimeString('pt-BR')}
+                                          </p>
+                                        )}
+                                      </Col>
+                                      <Col xs="auto">
+                                        <div className="d-flex gap-2">
+                                          {!isConcluido && (
+                                            <Button
+                                              size="sm"
+                                              variant="outline-success"
+                                              onClick={() => handleAbrirModalConclusaoRegistro(registro.id)}
+                                            >
+                                              <BsCheckCircle className="me-1" />
+                                              Concluir
+                                            </Button>
+                                          )}
+                                          <Button
+                                            size="sm"
+                                            variant="outline-primary"
+                                            onClick={() => handleAbrirEdicao(registro)}
+                                          >
+                                            <BsPlusCircle className="me-1" />
+                                            Editar
+                                          </Button>
+                                        </div>
                                       </Col>
                                     </Row>
                                     <hr />
-                                    <p style={{ fontSize: "14px", lineHeight: "1.6" }}>{registro.observacao}</p>
+                                    <p style={{ 
+                                      fontSize: "14px", 
+                                      lineHeight: "1.6",
+                                      textDecoration: isConcluido ? "none" : "none",
+                                      color: isConcluido ? "#999" : "inherit"
+                                    }}>
+                                      {registro.observacao}
+                                    </p>
                                     {registro.recomendacoes && (
                                       <div className="bg-warning bg-opacity-10 p-2 rounded border-start border-warning">
                                         <small className="text-muted">
-                                          <strong>📌 Recomendação:</strong> {registro.recomendacoes}
+                                          <strong>📌 Recomendação:</strong>{" "}
+                                          <span style={{
+                                            textDecoration: isConcluido ? "none" : "none"
+                                          }}>
+                                            {registro.recomendacoes}
+                                          </span>
                                         </small>
                                       </div>
                                     )}
@@ -1736,6 +2458,7 @@ export default function ProntuarioSolipedeEdit() {
                             historico.filter(reg => reg.tipo === "Vermifugação").map((registro) => {
                               const dataBR = new Date(registro.data_criacao).toLocaleDateString('pt-BR');
                               const horaBR = new Date(registro.data_criacao).toLocaleTimeString('pt-BR');
+                              const isConcluido = registro.status_conclusao === 'concluido';
 
                               return (
                                 <Card key={registro.id} className="mb-3 border-start border-4 border-info">
@@ -1743,17 +2466,64 @@ export default function ProntuarioSolipedeEdit() {
                                     <Row className="align-items-start mb-2">
                                       <Col>
                                         <Badge bg="info" className="mb-2">💊 Vermifugação</Badge>
+                                        {isConcluido && (
+                                          <Badge bg="success" className="mb-2 ms-2">
+                                            <BsCheckCircle className="me-1" />
+                                            Concluída
+                                          </Badge>
+                                        )}
                                         <p className="text-muted mb-0" style={{ fontSize: "12px" }}>
                                           📅 {dataBR} às {horaBR}
                                         </p>
+                                        {isConcluido && registro.usuario_conclusao_nome && (
+                                          <p className="text-success mb-0" style={{ fontSize: "11px" }}>
+                                            ✅ Concluído por: <strong>{registro.usuario_conclusao_nome}</strong> ({registro.usuario_conclusao_registro})
+                                            <br />
+                                            📅 {new Date(registro.data_conclusao).toLocaleDateString('pt-BR')} às {new Date(registro.data_conclusao).toLocaleTimeString('pt-BR')}
+                                          </p>
+                                        )}
+                                      </Col>
+                                      <Col xs="auto">
+                                        <div className="d-flex gap-2">
+                                          {!isConcluido && (
+                                            <Button
+                                              size="sm"
+                                              variant="outline-success"
+                                              onClick={() => handleAbrirModalConclusaoRegistro(registro.id)}
+                                            >
+                                              <BsCheckCircle className="me-1" />
+                                              Concluir
+                                            </Button>
+                                          )}
+                                          <Button
+                                            size="sm"
+                                            variant="outline-primary"
+                                            onClick={() => handleAbrirEdicao(registro)}
+                                          >
+                                            <BsPlusCircle className="me-1" />
+                                            Editar
+                                          </Button>
+                                        </div>
                                       </Col>
                                     </Row>
                                     <hr />
-                                    <p style={{ fontSize: "14px", lineHeight: "1.6" }}>{registro.observacao}</p>
+                                    <p style={{ 
+                                      fontSize: "14px", 
+                                      lineHeight: "1.6",
+                                      textDecoration: isConcluido ? "none" : "none",
+                                      color: isConcluido ? "#999" : "inherit"
+                                    }}>
+                                      {registro.observacao}
+                                    </p>
                                     {registro.recomendacoes && (
                                       <div className="bg-warning bg-opacity-10 p-2 rounded border-start border-warning">
                                         <small className="text-muted">
-                                          <strong>📌 Recomendação:</strong> {registro.recomendacoes}
+                                          <strong>📌 Recomendação:</strong>{" "}
+                                          <span style={{
+                                            textDecoration: isConcluido ? "none" : "none"
+                                          }}>
+                                            {registro.recomendacoes}
+                                          </span>
                                         </small>
                                       </div>
                                     )}
@@ -1774,6 +2544,7 @@ export default function ProntuarioSolipedeEdit() {
                             historico.filter(reg => reg.tipo === "Exames AIE / Mormo").map((registro) => {
                               const dataBR = new Date(registro.data_criacao).toLocaleDateString('pt-BR');
                               const horaBR = new Date(registro.data_criacao).toLocaleTimeString('pt-BR');
+                              const isConcluido = registro.status_conclusao === 'concluido';
 
                               return (
                                 <Card key={registro.id} className="mb-3 border-start border-4 border-warning">
@@ -1781,17 +2552,64 @@ export default function ProntuarioSolipedeEdit() {
                                     <Row className="align-items-start mb-2">
                                       <Col>
                                         <Badge bg="warning" className="mb-2">🧪 Exames AIE / Mormo</Badge>
+                                        {isConcluido && (
+                                          <Badge bg="success" className="mb-2 ms-2">
+                                            <BsCheckCircle className="me-1" />
+                                            Concluído
+                                          </Badge>
+                                        )}
                                         <p className="text-muted mb-0" style={{ fontSize: "12px" }}>
                                           📅 {dataBR} às {horaBR}
                                         </p>
+                                        {isConcluido && registro.usuario_conclusao_nome && (
+                                          <p className="text-success mb-0" style={{ fontSize: "11px" }}>
+                                            ✅ Concluído por: <strong>{registro.usuario_conclusao_nome}</strong> ({registro.usuario_conclusao_registro})
+                                            <br />
+                                            📅 {new Date(registro.data_conclusao).toLocaleDateString('pt-BR')} às {new Date(registro.data_conclusao).toLocaleTimeString('pt-BR')}
+                                          </p>
+                                        )}
+                                      </Col>
+                                      <Col xs="auto">
+                                        <div className="d-flex gap-2">
+                                          {!isConcluido && (
+                                            <Button
+                                              size="sm"
+                                              variant="outline-success"
+                                              onClick={() => handleAbrirModalConclusaoRegistro(registro.id)}
+                                            >
+                                              <BsCheckCircle className="me-1" />
+                                              Concluir
+                                            </Button>
+                                          )}
+                                          <Button
+                                            size="sm"
+                                            variant="outline-primary"
+                                            onClick={() => handleAbrirEdicao(registro)}
+                                          >
+                                            <BsPlusCircle className="me-1" />
+                                            Editar
+                                          </Button>
+                                        </div>
                                       </Col>
                                     </Row>
                                     <hr />
-                                    <p style={{ fontSize: "14px", lineHeight: "1.6" }}>{registro.observacao}</p>
+                                    <p style={{ 
+                                      fontSize: "14px", 
+                                      lineHeight: "1.6",
+                                      textDecoration: isConcluido ? "none" : "none",
+                                      color: isConcluido ? "#999" : "inherit"
+                                    }}>
+                                      {registro.observacao}
+                                    </p>
                                     {registro.recomendacoes && (
                                       <div className="bg-warning bg-opacity-10 p-2 rounded border-start border-warning">
                                         <small className="text-muted">
-                                          <strong>📌 Recomendação:</strong> {registro.recomendacoes}
+                                          <strong>📌 Recomendação:</strong>{" "}
+                                          <span style={{
+                                            textDecoration: isConcluido ? "none" : "none"
+                                          }}>
+                                            {registro.recomendacoes}
+                                          </span>
                                         </small>
                                       </div>
                                     )}
@@ -1812,6 +2630,9 @@ export default function ProntuarioSolipedeEdit() {
                               historico.filter(reg => reg.tipo === "Restrições").map((registro) => {
                                 const dataBR = new Date(registro.data_criacao).toLocaleDateString('pt-BR');
                                 const horaBR = new Date(registro.data_criacao).toLocaleTimeString('pt-BR');
+                                const isRestricaoExpiradaReg = isRestricaoExpirada(registro.data_validade);
+                                const isConcluido = registro.status_conclusao === 'concluido';
+                                const mostrarBotaoConcluir = !isConcluido && !isRestricaoExpiradaReg;
   
                                 return (
                                   <Card key={registro.id} className="mb-3 border-start border-4 border-warning">
@@ -1819,17 +2640,71 @@ export default function ProntuarioSolipedeEdit() {
                                       <Row className="align-items-start mb-2">
                                         <Col>
                                           <Badge bg="warning" className="mb-2">⚠️ Restrições</Badge>
+                                          {(isRestricaoExpiradaReg || isConcluido) && (
+                                            <Badge bg="success" className="mb-2 ms-2">
+                                              <BsCheckCircle className="me-1" />
+                                              Concluída
+                                            </Badge>
+                                          )}
+                                          {registro.data_validade && (
+                                            <p className="mb-1" style={{ fontSize: "11px", color: "#666" }}>
+                                              📅 Validade: {new Date(registro.data_validade).toLocaleDateString('pt-BR')}
+                                            </p>
+                                          )}
+                                          {isConcluido && registro.usuario_conclusao_nome && (
+                                            <p className="text-success mb-0" style={{ fontSize: "11px" }}>
+                                              ✅ Concluído por: <strong>{registro.usuario_conclusao_nome}</strong> ({registro.usuario_conclusao_registro})
+                                              <br />
+                                              📅 {new Date(registro.data_conclusao).toLocaleDateString('pt-BR')} às {new Date(registro.data_conclusao).toLocaleTimeString('pt-BR')}
+                                            </p>
+                                          )}
                                           <p className="text-muted mb-0" style={{ fontSize: "12px" }}>
                                             📅 {dataBR} às {horaBR}
                                           </p>
                                         </Col>
+                                        <Col xs="auto">
+                                          <div className="d-flex gap-2">
+                                            {mostrarBotaoConcluir && (
+                                              <Button
+                                                size="sm"
+                                                variant="outline-success"
+                                                onClick={() => handleAbrirModalConclusaoRegistro(registro.id)}
+                                              >
+                                                <BsCheckCircle className="me-1" />
+                                                Concluir
+                                              </Button>
+                                            )}
+                                            {!isConcluido && (
+                                              <Button
+                                                size="sm"
+                                                variant="outline-primary"
+                                                onClick={() => handleAbrirEdicao(registro)}
+                                              >
+                                                <BsPlusCircle className="me-1" />
+                                                Editar
+                                              </Button>
+                                            )}
+                                          </div>
+                                        </Col>
                                       </Row>
                                       <hr />
-                                      <p style={{ fontSize: "14px", lineHeight: "1.6" }}>{registro.observacao}</p>
+                                      <p style={{ 
+                                        fontSize: "14px", 
+                                        lineHeight: "1.6",
+                                        textDecoration: (isRestricaoExpiradaReg || isConcluido) ? "none" : "none",
+                                        color: (isRestricaoExpiradaReg || isConcluido) ? "#999" : "inherit"
+                                      }}>
+                                        {registro.observacao}
+                                      </p>
                                       {registro.recomendacoes && (
                                         <div className="bg-warning bg-opacity-10 p-2 rounded border-start border-warning">
                                           <small className="text-muted">
-                                            <strong>📌 Recomendação:</strong> {registro.recomendacoes}
+                                            <strong>📌 Recomendação:</strong>{" "}
+                                            <span style={{
+                                              textDecoration: (isRestricaoExpiradaReg || isConcluido) ? "none" : "none"
+                                            }}>
+                                              {registro.recomendacoes}
+                                            </span>
                                           </small>
                                         </div>
                                       )}
@@ -1852,12 +2727,20 @@ export default function ProntuarioSolipedeEdit() {
       {/* Modal de Conclusão de Tratamento */}
       <Modal show={showModalConclusao} onHide={handleFecharModalConclusao} centered>
         <Modal.Header closeButton>
-          <Modal.Title>🔒 Autenticação Necessária</Modal.Title>
+          <Modal.Title>🔒 Confirmar Conclusão de Tratamento</Modal.Title>
         </Modal.Header>
         <Form onSubmit={handleConcluirTratamento}>
           <Modal.Body>
+            {usuarioLogado && (
+              <Alert variant="info" className="mb-3">
+                <strong>👤 Usuário:</strong> {usuarioLogado.nome}<br />
+                <strong>📧 Email:</strong> {usuarioLogado.email}<br />
+                {usuarioLogado.registro && <><strong>🆔 Registro:</strong> {usuarioLogado.registro}</>}
+              </Alert>
+            )}
+
             <p className="text-muted mb-3">
-              Para concluir este tratamento, confirme sua identidade:
+              Para confirmar a conclusão deste tratamento, digite sua senha:
             </p>
 
             {erroConclusao && (
@@ -1867,18 +2750,6 @@ export default function ProntuarioSolipedeEdit() {
             )}
 
             <Form.Group className="mb-3">
-              <Form.Label>📧 Email:</Form.Label>
-              <Form.Control
-                type="email"
-                value={emailConclusao}
-                onChange={(e) => setEmailConclusao(e.target.value)}
-                placeholder="seu.email@exemplo.com"
-                required
-                autoFocus
-              />
-            </Form.Group>
-
-            <Form.Group className="mb-3">
               <Form.Label>🔑 Senha:</Form.Label>
               <Form.Control
                 type="password"
@@ -1886,6 +2757,7 @@ export default function ProntuarioSolipedeEdit() {
                 onChange={(e) => setSenhaConclusao(e.target.value)}
                 placeholder="Digite sua senha"
                 required
+                autoFocus
               />
             </Form.Group>
           </Modal.Body>
@@ -1908,6 +2780,178 @@ export default function ProntuarioSolipedeEdit() {
             </Button>
           </Modal.Footer>
         </Form>
+      </Modal>
+
+      {/* Modal de Conclusão Manual de Registros */}
+      <Modal show={showModalConclusaoRegistro} onHide={handleFecharModalConclusaoRegistro} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>🔒 Confirmar Conclusão de Registro</Modal.Title>
+        </Modal.Header>
+        <Form onSubmit={handleConcluirRegistro}>
+          <Modal.Body>
+            {usuarioLogado && (
+              <Alert variant="info" className="mb-3">
+                <strong>👤 Usuário:</strong> {usuarioLogado.nome}<br />
+                <strong>📧 Email:</strong> {usuarioLogado.email}<br />
+                {usuarioLogado.registro && <><strong>🆔 Registro:</strong> {usuarioLogado.registro}</>}
+              </Alert>
+            )}
+
+            <p className="text-muted mb-3">
+              Para confirmar a conclusão deste registro, digite sua senha:
+            </p>
+
+            {erroConclusaoRegistro && (
+              <Alert variant="danger" className="py-2">
+                {erroConclusaoRegistro}
+              </Alert>
+            )}
+
+            <Form.Group className="mb-3">
+              <Form.Label>🔑 Senha:</Form.Label>
+              <Form.Control
+                type="password"
+                value={senhaConclusaoRegistro}
+                onChange={(e) => setSenhaConclusaoRegistro(e.target.value)}
+                placeholder="Digite sua senha"
+                required
+                autoFocus
+              />
+            </Form.Group>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={handleFecharModalConclusaoRegistro} disabled={concluindoRegistro}>
+              Cancelar
+            </Button>
+            <Button variant="success" type="submit" disabled={concluindoRegistro}>
+              {concluindoRegistro ? (
+                <>
+                  <Spinner size="sm" className="me-2" />
+                  Concluindo...
+                </>
+              ) : (
+                <>
+                  <BsCheckCircle className="me-2" />
+                  Confirmar Conclusão
+                </>
+              )}
+            </Button>
+          </Modal.Footer>
+        </Form>
+      </Modal>
+
+      {/* Modal de Edição de Registros */}
+      <Modal show={showModalEdicao} onHide={handleFecharEdicao} centered size="lg">
+        <Modal.Header closeButton>
+          <Modal.Title>✏️ Editar Registro</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {registroEditando && (
+            <>
+              <Alert variant="info" className="mb-3">
+                <strong>Tipo:</strong> {registroEditando.tipo}
+                <br />
+                <strong>Criado em:</strong> {new Date(registroEditando.data_criacao).toLocaleString('pt-BR')}
+              </Alert>
+
+              <Form.Group className="mb-3">
+                <Form.Label className="fw-bold">Observação</Form.Label>
+                <Form.Control
+                  as="textarea"
+                  rows={5}
+                  value={observacaoEdicao}
+                  onChange={(e) => setObservacaoEdicao(e.target.value)}
+                  style={{ resize: "none" }}
+                />
+              </Form.Group>
+
+              <Form.Group className="mb-3">
+                <Form.Label className="fw-bold">Recomendações</Form.Label>
+                <Form.Control
+                  as="textarea"
+                  rows={2}
+                  value={recomendacoesEdicao}
+                  onChange={(e) => setRecomendacoesEdicao(e.target.value)}
+                  style={{ resize: "none" }}
+                />
+              </Form.Group>
+
+              {registroEditando.tipo === "Restrições" && (
+                <Form.Group className="mb-3">
+                  <Form.Label className="fw-bold">Data de Validade da Restrição (Opcional)</Form.Label>
+                  <Form.Control
+                    type="date"
+                    value={dataValidadeEdicao}
+                    onChange={(e) => setDataValidadeEdicao(e.target.value)}
+                  />
+                  <Form.Text className="text-muted">
+                    Se informada, o registro será marcado como concluído automaticamente após esta data.
+                  </Form.Text>
+                </Form.Group>
+              )}
+            </>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleFecharEdicao}>
+            Cancelar
+          </Button>
+          <Button variant="primary" onClick={handleSalvarEdicao}>
+            💾 Salvar Alterações
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Modal de Alteração de Status */}
+      <Modal show={showModalAlterarStatus} onHide={handleFecharModalAlterarStatus} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>🔄 Alterar Status do Solípede</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p className="text-muted mb-3">
+            Solípede: <strong>{solipede?.nome}</strong> (Nº {solipede?.numero})
+            <br />
+            Status atual: <Badge bg={solipede?.status?.toLowerCase() === "baixado" ? "danger" : "success"}>
+              {solipede?.status}
+            </Badge>
+          </p>
+
+          {erroAlterarStatus && (
+            <Alert variant="danger" className="py-2">
+              {erroAlterarStatus}
+            </Alert>
+          )}
+
+          <Form.Group className="mb-3">
+            <Form.Label>Novo Status:</Form.Label>
+            <Form.Select
+              value={novoStatus}
+              onChange={(e) => setNovoStatus(e.target.value)}
+              disabled={alterandoStatus}
+            >
+              <option value="">Selecione...</option>
+              <option value="Operante">Operante</option>
+              <option value="Baixado">Baixado</option>
+              <option value="Em Tratamento">Em Tratamento</option>
+              <option value="Descanso">Descanso</option>
+            </Form.Select>
+          </Form.Group>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleFecharModalAlterarStatus} disabled={alterandoStatus}>
+            Cancelar
+          </Button>
+          <Button variant="primary" onClick={handleConfirmarAlterarStatus} disabled={alterandoStatus}>
+            {alterandoStatus ? (
+              <>
+                <Spinner size="sm" className="me-2" />
+                Alterando...
+              </>
+            ) : (
+              "Confirmar Alteração"
+            )}
+          </Button>
+        </Modal.Footer>
       </Modal>
     </div>
   );

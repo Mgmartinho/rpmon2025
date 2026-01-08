@@ -52,7 +52,7 @@ const CriarUsuario = () => {
 
       setSucesso("Usuário criado com sucesso!");
       setTimeout(() => {
-        navigate("/login");
+        navigate("/dashboard");
       }, 2000);
     } catch (erro) {
       console.error("Erro:", erro);

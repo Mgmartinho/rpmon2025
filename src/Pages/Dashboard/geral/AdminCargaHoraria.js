@@ -421,8 +421,7 @@ const AdminCargaHoraria = () => {
       Nome: item.nome,
       Alocacao: item.alocacao,
       Esquadrao: item.esquadrao,
-      Carga_Horaria: item.cargaHoraria || 0,
-
+      Carga_Horaria_Mes: horasMensais[item.numero] || 0,
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(dadosParaExportar);
@@ -441,12 +440,12 @@ const AdminCargaHoraria = () => {
     const doc = new jsPDF("landscape");
     doc.text("Carga Horária – RPMon", 14, 15);
     doc.autoTable({
-      head: [["Número", "Nome", "Esquadrão", "Carga Horária"]],
+      head: [["Número", "Nome", "Esquadrão", "Carga Horária (Mês)"]],
       body: solipedesFiltrados.map((s) => [
         s.numero,
         s.nome,
         s.esquadrao,
-        s.cargaHoraria || 0,
+        `${horasMensais[s.numero] || 0} h`,
       ]),
       startY: 25,
     });
@@ -617,46 +616,6 @@ const AdminCargaHoraria = () => {
                 </div>
               </div>
             </Form.Group>
-
-
-            {/* ===== TABELA COMPLETA LANÇAMENTO EM LOTE (SEM PAGINAÇÃO) ===== */}
-            <Table striped bordered hover size="sm">
-              <thead className="table-secondary">
-                <tr>
-                  <th></th>
-                  <th>Número</th>
-                  <th>Nome</th>
-                  <th>Esquadrão</th>
-                  <th>Carga Mês Atual</th>
-                </tr>
-              </thead>
-              <tbody>
-                {solipedesModal.map((s) => (
-                  <tr key={s.numero}>
-                    <td className="text-center">
-                      <Form.Check
-                        type="checkbox"
-                        checked={selecionados.includes(s.numero)}
-                        onChange={() => handleSelecionar(s.numero)}
-                      />
-                    </td>
-                    <td>{s.numero}</td>
-                    <td>{s.nome}</td>
-                    <td>{s.esquadrao}</td>
-                    <td>{horasMensais[s.numero] || 0} h</td>
-                  </tr>
-                ))}
-
-                {!solipedesModal.length && (
-                  <tr>
-                    <td colSpan={5} className="text-center text-muted">
-                      Nenhum cavalo encontrado
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </Table>
-
 
           </Modal.Body>
 

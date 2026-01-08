@@ -1,0 +1,4172 @@
+{
+  "totalSize": 261499549,
+  "files": [
+    {
+      "name": "asset-manifest.json",
+      "path": "asset-manifest.json",
+      "size": 11921,
+      "sizeFormatted": "11.64 KB",
+      "extension": ".json"
+    },
+    {
+      "name": "config.js",
+      "path": "config.js",
+      "size": 156,
+      "sizeFormatted": "156 Bytes",
+      "extension": ".js"
+    },
+    {
+      "name": "favicon.ico",
+      "path": "favicon.ico",
+      "size": 556773,
+      "sizeFormatted": "543.72 KB",
+      "extension": ".ico"
+    },
+    {
+      "name": "01-Canção da Infantaria.mp3",
+      "path": "Hinos\\01-Canção da Infantaria.mp3",
+      "size": 2472645,
+      "sizeFormatted": "2.36 MB",
+      "extension": ".mp3"
+    },
+    {
+      "name": "Arma de Herois - Canção da Cavalaria.mp3",
+      "path": "Hinos\\Arma de Herois - Canção da Cavalaria.mp3",
+      "size": 2335341,
+      "sizeFormatted": "2.23 MB",
+      "extension": ".mp3"
+    },
+    {
+      "name": "cancao_essd.mp3",
+      "path": "Hinos\\cancao_essd.mp3",
+      "size": 3112089,
+      "sizeFormatted": "2.97 MB",
+      "extension": ".mp3"
+    },
+    {
+      "name": "Canção da Cavalaria.mp3",
+      "path": "Hinos\\Canção da Cavalaria.mp3",
+      "size": 4704621,
+      "sizeFormatted": "4.49 MB",
+      "extension": ".mp3"
+    },
+    {
+      "name": "Canção da Polícia Militar - Vocal.mp3",
+      "path": "Hinos\\Canção da Polícia Militar - Vocal.mp3",
+      "size": 6310210,
+      "sizeFormatted": "6.02 MB",
+      "extension": ".mp3"
+    },
+    {
+      "name": "Canção do Patrulheiro - Vocal.mp3",
+      "path": "Hinos\\Canção do Patrulheiro - Vocal.mp3",
+      "size": 6936239,
+      "sizeFormatted": "6.61 MB",
+      "extension": ".mp3"
+    },
+    {
+      "name": "Essd - Vocal.mp3",
+      "path": "Hinos\\Essd - Vocal.mp3",
+      "size": 4661846,
+      "sizeFormatted": "4.45 MB",
+      "extension": ".mp3"
+    },
+    {
+      "name": "Eterno Regimento - Instrumental.mp3",
+      "path": "Hinos\\Eterno Regimento - Instrumental.mp3",
+      "size": 6246004,
+      "sizeFormatted": "5.96 MB",
+      "extension": ".mp3"
+    },
+    {
+      "name": "Eterno Regimento - Vocal.mp3",
+      "path": "Hinos\\Eterno Regimento - Vocal.mp3",
+      "size": 6202156,
+      "sizeFormatted": "5.91 MB",
+      "extension": ".mp3"
+    },
+    {
+      "name": "Hino da Proclamação da República  Vocal.mp3",
+      "path": "Hinos\\Hino da Proclamação da República  Vocal.mp3",
+      "size": 12390035,
+      "sizeFormatted": "11.82 MB",
+      "extension": ".mp3"
+    },
+    {
+      "name": "Hino Nacional Brasileiro  Continência.mp3",
+      "path": "Hinos\\Hino Nacional Brasileiro  Continência.mp3",
+      "size": 3436416,
+      "sizeFormatted": "3.28 MB",
+      "extension": ".mp3"
+    },
+    {
+      "name": "Hino Nacional Brasileiro - Vocal.mp3",
+      "path": "Hinos\\Hino Nacional Brasileiro - Vocal.mp3",
+      "size": 9007735,
+      "sizeFormatted": "8.59 MB",
+      "extension": ".mp3"
+    },
+    {
+      "name": "Hino á Bandeira - Vocal.mp3",
+      "path": "Hinos\\Hino á Bandeira - Vocal.mp3",
+      "size": 12736966,
+      "sizeFormatted": "12.15 MB",
+      "extension": ".mp3"
+    },
+    {
+      "name": "Música da Incorporação da Bandeira.mp3",
+      "path": "Hinos\\Música da Incorporação da Bandeira.mp3",
+      "size": 3841389,
+      "sizeFormatted": "3.66 MB",
+      "extension": ".mp3"
+    },
+    {
+      "name": "Paris Belfort (9 de Julho) - Vocal.mp3",
+      "path": "Hinos\\Paris Belfort (9 de Julho) - Vocal.mp3",
+      "size": 10666382,
+      "sizeFormatted": "10.17 MB",
+      "extension": ".mp3"
+    },
+    {
+      "name": "index.html",
+      "path": "index.html",
+      "size": 687,
+      "sizeFormatted": "687 Bytes",
+      "extension": ".html"
+    },
+    {
+      "name": "9 de julho - paris belfort.pdf",
+      "path": "LetraHinos\\9 de julho - paris belfort.pdf",
+      "size": 86690,
+      "sizeFormatted": "84.66 KB",
+      "extension": ".pdf"
+    },
+    {
+      "name": "cancao da cavalaria.pdf",
+      "path": "LetraHinos\\cancao da cavalaria.pdf",
+      "size": 113506,
+      "sizeFormatted": "110.85 KB",
+      "extension": ".pdf"
+    },
+    {
+      "name": "cancao da pm.pdf",
+      "path": "LetraHinos\\cancao da pm.pdf",
+      "size": 106922,
+      "sizeFormatted": "104.42 KB",
+      "extension": ".pdf"
+    },
+    {
+      "name": "cancao do patrulheiro.pdf",
+      "path": "LetraHinos\\cancao do patrulheiro.pdf",
+      "size": 106965,
+      "sizeFormatted": "104.46 KB",
+      "extension": ".pdf"
+    },
+    {
+      "name": "escola superior de soldados.pdf",
+      "path": "LetraHinos\\escola superior de soldados.pdf",
+      "size": 102452,
+      "sizeFormatted": "100.05 KB",
+      "extension": ".pdf"
+    },
+    {
+      "name": "Eterno Regimento.pdf",
+      "path": "LetraHinos\\Eterno Regimento.pdf",
+      "size": 103287,
+      "sizeFormatted": "100.87 KB",
+      "extension": ".pdf"
+    },
+    {
+      "name": "Hino Nacional Brasileiro.pdf",
+      "path": "LetraHinos\\Hino Nacional Brasileiro.pdf",
+      "size": 101407,
+      "sizeFormatted": "99.03 KB",
+      "extension": ".pdf"
+    },
+    {
+      "name": "Soldados a cavalaria.pdf",
+      "path": "LetraHinos\\Soldados a cavalaria.pdf",
+      "size": 103038,
+      "sizeFormatted": "100.62 KB",
+      "extension": ".pdf"
+    },
+    {
+      "name": "logo192.png",
+      "path": "logo192.png",
+      "size": 5347,
+      "sizeFormatted": "5.22 KB",
+      "extension": ".png"
+    },
+    {
+      "name": "logo512.png",
+      "path": "logo512.png",
+      "size": 9664,
+      "sizeFormatted": "9.44 KB",
+      "extension": ".png"
+    },
+    {
+      "name": "manifest.json",
+      "path": "manifest.json",
+      "size": 492,
+      "sizeFormatted": "492 Bytes",
+      "extension": ".json"
+    },
+    {
+      "name": "performance-test.html",
+      "path": "performance-test.html",
+      "size": 22835,
+      "sizeFormatted": "22.3 KB",
+      "extension": ".html"
+    },
+    {
+      "name": "robots.txt",
+      "path": "robots.txt",
+      "size": 67,
+      "sizeFormatted": "67 Bytes",
+      "extension": ".txt"
+    },
+    {
+      "name": "main.c22eb27d.css",
+      "path": "static\\css\\main.c22eb27d.css",
+      "size": 239484,
+      "sizeFormatted": "233.87 KB",
+      "extension": ".css"
+    },
+    {
+      "name": "main.c22eb27d.css.map",
+      "path": "static\\css\\main.c22eb27d.css.map",
+      "size": 557035,
+      "sizeFormatted": "543.98 KB",
+      "extension": ".map"
+    },
+    {
+      "name": "453.2511e63b.chunk.js",
+      "path": "static\\js\\453.2511e63b.chunk.js",
+      "size": 4519,
+      "sizeFormatted": "4.41 KB",
+      "extension": ".js"
+    },
+    {
+      "name": "453.2511e63b.chunk.js.map",
+      "path": "static\\js\\453.2511e63b.chunk.js.map",
+      "size": 10597,
+      "sizeFormatted": "10.35 KB",
+      "extension": ".map"
+    },
+    {
+      "name": "732.3808e366.chunk.js",
+      "path": "static\\js\\732.3808e366.chunk.js",
+      "size": 112013,
+      "sizeFormatted": "109.39 KB",
+      "extension": ".js"
+    },
+    {
+      "name": "732.3808e366.chunk.js.map",
+      "path": "static\\js\\732.3808e366.chunk.js.map",
+      "size": 142280,
+      "sizeFormatted": "138.95 KB",
+      "extension": ".map"
+    },
+    {
+      "name": "977.542a4f34.chunk.js",
+      "path": "static\\js\\977.542a4f34.chunk.js",
+      "size": 22944,
+      "sizeFormatted": "22.41 KB",
+      "extension": ".js"
+    },
+    {
+      "name": "977.542a4f34.chunk.js.LICENSE.txt",
+      "path": "static\\js\\977.542a4f34.chunk.js.LICENSE.txt",
+      "size": 188,
+      "sizeFormatted": "188 Bytes",
+      "extension": ".txt"
+    },
+    {
+      "name": "977.542a4f34.chunk.js.map",
+      "path": "static\\js\\977.542a4f34.chunk.js.map",
+      "size": 108778,
+      "sizeFormatted": "106.23 KB",
+      "extension": ".map"
+    },
+    {
+      "name": "main.e1d9b7de.js",
+      "path": "static\\js\\main.e1d9b7de.js",
+      "size": 2384568,
+      "sizeFormatted": "2.27 MB",
+      "extension": ".js"
+    },
+    {
+      "name": "main.e1d9b7de.js.LICENSE.txt",
+      "path": "static\\js\\main.e1d9b7de.js.LICENSE.txt",
+      "size": 77717,
+      "sizeFormatted": "75.9 KB",
+      "extension": ".txt"
+    },
+    {
+      "name": "main.e1d9b7de.js.map",
+      "path": "static\\js\\main.e1d9b7de.js.map",
+      "size": 25353590,
+      "sizeFormatted": "24.18 MB",
+      "extension": ".map"
+    },
+    {
+      "name": "1.02332da032e6226020cc.jpg",
+      "path": "static\\media\\1.02332da032e6226020cc.jpg",
+      "size": 10241,
+      "sizeFormatted": "10 KB",
+      "extension": ".jpg"
+    },
+    {
+      "name": "1.1.8b8d838f75fe898fc543.png",
+      "path": "static\\media\\1.1.8b8d838f75fe898fc543.png",
+      "size": 1559998,
+      "sizeFormatted": "1.49 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "10.1.ec1cc9a84afff8c21e15.png",
+      "path": "static\\media\\10.1.ec1cc9a84afff8c21e15.png",
+      "size": 1479443,
+      "sizeFormatted": "1.41 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "10.d6c42932e590c2adc8a1.jpg",
+      "path": "static\\media\\10.d6c42932e590c2adc8a1.jpg",
+      "size": 10285,
+      "sizeFormatted": "10.04 KB",
+      "extension": ".jpg"
+    },
+    {
+      "name": "11.1.99150b66a9be5aca07f5.png",
+      "path": "static\\media\\11.1.99150b66a9be5aca07f5.png",
+      "size": 1708987,
+      "sizeFormatted": "1.63 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "11.e0ca1ac37a7c5cb32a6c.jpg",
+      "path": "static\\media\\11.e0ca1ac37a7c5cb32a6c.jpg",
+      "size": 10227,
+      "sizeFormatted": "9.99 KB",
+      "extension": ".jpg"
+    },
+    {
+      "name": "12.1.55948dd179160059a44b.png",
+      "path": "static\\media\\12.1.55948dd179160059a44b.png",
+      "size": 1315492,
+      "sizeFormatted": "1.25 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "12.2dd23b7259cd4983d4ae.jpg",
+      "path": "static\\media\\12.2dd23b7259cd4983d4ae.jpg",
+      "size": 10491,
+      "sizeFormatted": "10.25 KB",
+      "extension": ".jpg"
+    },
+    {
+      "name": "13.1.c5775dacda950796c89b.png",
+      "path": "static\\media\\13.1.c5775dacda950796c89b.png",
+      "size": 1645947,
+      "sizeFormatted": "1.57 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "13.533147e736cfa01f7769.jpg",
+      "path": "static\\media\\13.533147e736cfa01f7769.jpg",
+      "size": 10403,
+      "sizeFormatted": "10.16 KB",
+      "extension": ".jpg"
+    },
+    {
+      "name": "14.1.3f31171cf30d20d7a223.png",
+      "path": "static\\media\\14.1.3f31171cf30d20d7a223.png",
+      "size": 1510958,
+      "sizeFormatted": "1.44 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "14.f25b2f225527c626dd27.jpg",
+      "path": "static\\media\\14.f25b2f225527c626dd27.jpg",
+      "size": 10400,
+      "sizeFormatted": "10.16 KB",
+      "extension": ".jpg"
+    },
+    {
+      "name": "15.1.b62844bf9ea6b28db1a7.png",
+      "path": "static\\media\\15.1.b62844bf9ea6b28db1a7.png",
+      "size": 1557873,
+      "sizeFormatted": "1.49 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "15.2.f93e9a0259d5146a9b82.png",
+      "path": "static\\media\\15.2.f93e9a0259d5146a9b82.png",
+      "size": 1852236,
+      "sizeFormatted": "1.77 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "15.b24061e2f09747ad2a14.jpg",
+      "path": "static\\media\\15.b24061e2f09747ad2a14.jpg",
+      "size": 10430,
+      "sizeFormatted": "10.19 KB",
+      "extension": ".jpg"
+    },
+    {
+      "name": "16.1.850236a9fce9fb0fce1b.png",
+      "path": "static\\media\\16.1.850236a9fce9fb0fce1b.png",
+      "size": 1519476,
+      "sizeFormatted": "1.45 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "16.5129cfe29211e2cd03a3.jpg",
+      "path": "static\\media\\16.5129cfe29211e2cd03a3.jpg",
+      "size": 10112,
+      "sizeFormatted": "9.88 KB",
+      "extension": ".jpg"
+    },
+    {
+      "name": "17.1.9dfa59d8494ffa6cf3a4.png",
+      "path": "static\\media\\17.1.9dfa59d8494ffa6cf3a4.png",
+      "size": 1579311,
+      "sizeFormatted": "1.51 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "17.2ce6b9c8465b0c3674df.jpg",
+      "path": "static\\media\\17.2ce6b9c8465b0c3674df.jpg",
+      "size": 10388,
+      "sizeFormatted": "10.14 KB",
+      "extension": ".jpg"
+    },
+    {
+      "name": "18.1.8645d09a41f453544c27.png",
+      "path": "static\\media\\18.1.8645d09a41f453544c27.png",
+      "size": 1672400,
+      "sizeFormatted": "1.59 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "18.eb07b4f3c2255950bf7b.jpg",
+      "path": "static\\media\\18.eb07b4f3c2255950bf7b.jpg",
+      "size": 10254,
+      "sizeFormatted": "10.01 KB",
+      "extension": ".jpg"
+    },
+    {
+      "name": "19.1.f9b90d25d90975f5737f.png",
+      "path": "static\\media\\19.1.f9b90d25d90975f5737f.png",
+      "size": 1484327,
+      "sizeFormatted": "1.42 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "19.2.cf2510010017d50097d8.png",
+      "path": "static\\media\\19.2.cf2510010017d50097d8.png",
+      "size": 1633214,
+      "sizeFormatted": "1.56 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "19.8b660afa032f5e570167.jpg",
+      "path": "static\\media\\19.8b660afa032f5e570167.jpg",
+      "size": 10542,
+      "sizeFormatted": "10.29 KB",
+      "extension": ".jpg"
+    },
+    {
+      "name": "2.1.46c00b421f0f930e56d5.png",
+      "path": "static\\media\\2.1.46c00b421f0f930e56d5.png",
+      "size": 1619845,
+      "sizeFormatted": "1.54 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "2.65fe295b2f9b89064ca7.jpg",
+      "path": "static\\media\\2.65fe295b2f9b89064ca7.jpg",
+      "size": 10786,
+      "sizeFormatted": "10.53 KB",
+      "extension": ".jpg"
+    },
+    {
+      "name": "20.1.cb1d5654e15c291f8e35.png",
+      "path": "static\\media\\20.1.cb1d5654e15c291f8e35.png",
+      "size": 1456123,
+      "sizeFormatted": "1.39 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "20.b493f8963829281bd54c.jpg",
+      "path": "static\\media\\20.b493f8963829281bd54c.jpg",
+      "size": 10166,
+      "sizeFormatted": "9.93 KB",
+      "extension": ".jpg"
+    },
+    {
+      "name": "21.1.f1e4ad2110bcf26c2773.png",
+      "path": "static\\media\\21.1.f1e4ad2110bcf26c2773.png",
+      "size": 1524736,
+      "sizeFormatted": "1.45 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "21.2.82ec2d07dafa7fd2c715.png",
+      "path": "static\\media\\21.2.82ec2d07dafa7fd2c715.png",
+      "size": 1601146,
+      "sizeFormatted": "1.53 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "21.f65ebd73cf42041f21a2.jpg",
+      "path": "static\\media\\21.f65ebd73cf42041f21a2.jpg",
+      "size": 10251,
+      "sizeFormatted": "10.01 KB",
+      "extension": ".jpg"
+    },
+    {
+      "name": "22.1.7e9d4cb4a0e94ab2d81e.png",
+      "path": "static\\media\\22.1.7e9d4cb4a0e94ab2d81e.png",
+      "size": 1426442,
+      "sizeFormatted": "1.36 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "22.b8db7467a7e59ff54f5c.jpg",
+      "path": "static\\media\\22.b8db7467a7e59ff54f5c.jpg",
+      "size": 10509,
+      "sizeFormatted": "10.26 KB",
+      "extension": ".jpg"
+    },
+    {
+      "name": "23.1.9f22dc563bebab66041c.png",
+      "path": "static\\media\\23.1.9f22dc563bebab66041c.png",
+      "size": 1441203,
+      "sizeFormatted": "1.37 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "23.626dd4365b8f576df40c.jpg",
+      "path": "static\\media\\23.626dd4365b8f576df40c.jpg",
+      "size": 10086,
+      "sizeFormatted": "9.85 KB",
+      "extension": ".jpg"
+    },
+    {
+      "name": "24.1.60832ee921008c7e155b.png",
+      "path": "static\\media\\24.1.60832ee921008c7e155b.png",
+      "size": 1429649,
+      "sizeFormatted": "1.36 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "24.2461814c618131aa39a7.jpg",
+      "path": "static\\media\\24.2461814c618131aa39a7.jpg",
+      "size": 10791,
+      "sizeFormatted": "10.54 KB",
+      "extension": ".jpg"
+    },
+    {
+      "name": "25.1.5b37c76a06aead9961f8.png",
+      "path": "static\\media\\25.1.5b37c76a06aead9961f8.png",
+      "size": 2053657,
+      "sizeFormatted": "1.96 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "25.933981e883a15ef03ce9.jpg",
+      "path": "static\\media\\25.933981e883a15ef03ce9.jpg",
+      "size": 10006,
+      "sizeFormatted": "9.77 KB",
+      "extension": ".jpg"
+    },
+    {
+      "name": "26.1.83c5e6b299dbcf4a7943.png",
+      "path": "static\\media\\26.1.83c5e6b299dbcf4a7943.png",
+      "size": 1518969,
+      "sizeFormatted": "1.45 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "26.2.fa6b8fb90be4e55fd05f.png",
+      "path": "static\\media\\26.2.fa6b8fb90be4e55fd05f.png",
+      "size": 1566722,
+      "sizeFormatted": "1.49 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "27.1.a17d6b517032febca0a1.png",
+      "path": "static\\media\\27.1.a17d6b517032febca0a1.png",
+      "size": 1539837,
+      "sizeFormatted": "1.47 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "27.160213cae415fa8d3d5b.jpg",
+      "path": "static\\media\\27.160213cae415fa8d3d5b.jpg",
+      "size": 10592,
+      "sizeFormatted": "10.34 KB",
+      "extension": ".jpg"
+    },
+    {
+      "name": "28.1.16e50cdcdf40a6fec542.png",
+      "path": "static\\media\\28.1.16e50cdcdf40a6fec542.png",
+      "size": 1507403,
+      "sizeFormatted": "1.44 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "28.f11f2bd9bbf7aa787e93.jpg",
+      "path": "static\\media\\28.f11f2bd9bbf7aa787e93.jpg",
+      "size": 10143,
+      "sizeFormatted": "9.91 KB",
+      "extension": ".jpg"
+    },
+    {
+      "name": "29.1.3bf57234ae3cca0a05f9.png",
+      "path": "static\\media\\29.1.3bf57234ae3cca0a05f9.png",
+      "size": 1457823,
+      "sizeFormatted": "1.39 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "29.506ad6be0445efe850ab.jpg",
+      "path": "static\\media\\29.506ad6be0445efe850ab.jpg",
+      "size": 10084,
+      "sizeFormatted": "9.85 KB",
+      "extension": ".jpg"
+    },
+    {
+      "name": "3.04e562960609ef8b7b54.jpg",
+      "path": "static\\media\\3.04e562960609ef8b7b54.jpg",
+      "size": 11286,
+      "sizeFormatted": "11.02 KB",
+      "extension": ".jpg"
+    },
+    {
+      "name": "3.1.46f80a01700eb50c172d.png",
+      "path": "static\\media\\3.1.46f80a01700eb50c172d.png",
+      "size": 1407962,
+      "sizeFormatted": "1.34 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "30.1.0400508be72084a6381e.png",
+      "path": "static\\media\\30.1.0400508be72084a6381e.png",
+      "size": 1531280,
+      "sizeFormatted": "1.46 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "30.8c44bcd602447a52a052.jpg",
+      "path": "static\\media\\30.8c44bcd602447a52a052.jpg",
+      "size": 10696,
+      "sizeFormatted": "10.45 KB",
+      "extension": ".jpg"
+    },
+    {
+      "name": "31.1.edfe756ddbbb43aea307.png",
+      "path": "static\\media\\31.1.edfe756ddbbb43aea307.png",
+      "size": 1781298,
+      "sizeFormatted": "1.7 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "31.2.8debe045e0e4b0be8614.png",
+      "path": "static\\media\\31.2.8debe045e0e4b0be8614.png",
+      "size": 1869341,
+      "sizeFormatted": "1.78 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "31.2c61d8dff0b971b70501.jpg",
+      "path": "static\\media\\31.2c61d8dff0b971b70501.jpg",
+      "size": 11616,
+      "sizeFormatted": "11.34 KB",
+      "extension": ".jpg"
+    },
+    {
+      "name": "32.1.a0b87d4eda98c284d131.png",
+      "path": "static\\media\\32.1.a0b87d4eda98c284d131.png",
+      "size": 1623796,
+      "sizeFormatted": "1.55 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "32.7314263defe0ed442a0e.jpg",
+      "path": "static\\media\\32.7314263defe0ed442a0e.jpg",
+      "size": 10486,
+      "sizeFormatted": "10.24 KB",
+      "extension": ".jpg"
+    },
+    {
+      "name": "33.1.829cdd36e52e6dea1f8f.png",
+      "path": "static\\media\\33.1.829cdd36e52e6dea1f8f.png",
+      "size": 1517276,
+      "sizeFormatted": "1.45 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "33.c3a5ade585d8196dca9d.jpg",
+      "path": "static\\media\\33.c3a5ade585d8196dca9d.jpg",
+      "size": 10470,
+      "sizeFormatted": "10.22 KB",
+      "extension": ".jpg"
+    },
+    {
+      "name": "34.1.0ae4d3e8340e41c28b16.png",
+      "path": "static\\media\\34.1.0ae4d3e8340e41c28b16.png",
+      "size": 1421616,
+      "sizeFormatted": "1.36 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "34.d090f19cb3c9faf0fefb.jpg",
+      "path": "static\\media\\34.d090f19cb3c9faf0fefb.jpg",
+      "size": 10163,
+      "sizeFormatted": "9.92 KB",
+      "extension": ".jpg"
+    },
+    {
+      "name": "35.1.95275e287c8814b09646.png",
+      "path": "static\\media\\35.1.95275e287c8814b09646.png",
+      "size": 1426516,
+      "sizeFormatted": "1.36 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "36.1.6b6d4aa604e1926bd9b1.png",
+      "path": "static\\media\\36.1.6b6d4aa604e1926bd9b1.png",
+      "size": 1540923,
+      "sizeFormatted": "1.47 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "37.1.0eafeeaa2390dfad1d39.png",
+      "path": "static\\media\\37.1.0eafeeaa2390dfad1d39.png",
+      "size": 1485996,
+      "sizeFormatted": "1.42 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "37.2.f2f8163c2f793d5d1594.png",
+      "path": "static\\media\\37.2.f2f8163c2f793d5d1594.png",
+      "size": 1491621,
+      "sizeFormatted": "1.42 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "38.1.9275a1f11916a749ecf3.png",
+      "path": "static\\media\\38.1.9275a1f11916a749ecf3.png",
+      "size": 1455919,
+      "sizeFormatted": "1.39 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "38.84564d5a0adee010a861.jpg",
+      "path": "static\\media\\38.84564d5a0adee010a861.jpg",
+      "size": 11295,
+      "sizeFormatted": "11.03 KB",
+      "extension": ".jpg"
+    },
+    {
+      "name": "39.1.4b4c86ec7ba01adf501c.png",
+      "path": "static\\media\\39.1.4b4c86ec7ba01adf501c.png",
+      "size": 1563791,
+      "sizeFormatted": "1.49 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "39.2.be4e09ed4e795d8cf900.png",
+      "path": "static\\media\\39.2.be4e09ed4e795d8cf900.png",
+      "size": 1476836,
+      "sizeFormatted": "1.41 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "4.1.f7c3db84666c6a59e5c3.png",
+      "path": "static\\media\\4.1.f7c3db84666c6a59e5c3.png",
+      "size": 1672622,
+      "sizeFormatted": "1.6 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "4.de96f85fc30d42f65fef.jpg",
+      "path": "static\\media\\4.de96f85fc30d42f65fef.jpg",
+      "size": 10712,
+      "sizeFormatted": "10.46 KB",
+      "extension": ".jpg"
+    },
+    {
+      "name": "40.1.1617e41830cca4d18405.png",
+      "path": "static\\media\\40.1.1617e41830cca4d18405.png",
+      "size": 1426425,
+      "sizeFormatted": "1.36 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "40.2.78d9fd1dd3eebe412adf.png",
+      "path": "static\\media\\40.2.78d9fd1dd3eebe412adf.png",
+      "size": 1481510,
+      "sizeFormatted": "1.41 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "40.3f4889b8745abf40e1d2.jpg",
+      "path": "static\\media\\40.3f4889b8745abf40e1d2.jpg",
+      "size": 10316,
+      "sizeFormatted": "10.07 KB",
+      "extension": ".jpg"
+    },
+    {
+      "name": "41.1.95aebf479887ebdf9ab8.png",
+      "path": "static\\media\\41.1.95aebf479887ebdf9ab8.png",
+      "size": 1555835,
+      "sizeFormatted": "1.48 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "41.8a8f350e6e3fc1b38767.jpg",
+      "path": "static\\media\\41.8a8f350e6e3fc1b38767.jpg",
+      "size": 11013,
+      "sizeFormatted": "10.75 KB",
+      "extension": ".jpg"
+    },
+    {
+      "name": "42.1.0351eea74528546801c6.png",
+      "path": "static\\media\\42.1.0351eea74528546801c6.png",
+      "size": 1647044,
+      "sizeFormatted": "1.57 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "42.e48a48d34e75a2847209.jpg",
+      "path": "static\\media\\42.e48a48d34e75a2847209.jpg",
+      "size": 10626,
+      "sizeFormatted": "10.38 KB",
+      "extension": ".jpg"
+    },
+    {
+      "name": "43.1.92954f71420acdc0936c.png",
+      "path": "static\\media\\43.1.92954f71420acdc0936c.png",
+      "size": 1470604,
+      "sizeFormatted": "1.4 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "43.d13bbda3f0c89a36b28d.jpg",
+      "path": "static\\media\\43.d13bbda3f0c89a36b28d.jpg",
+      "size": 10733,
+      "sizeFormatted": "10.48 KB",
+      "extension": ".jpg"
+    },
+    {
+      "name": "44.1.88d33d9b57efa7548d5a.png",
+      "path": "static\\media\\44.1.88d33d9b57efa7548d5a.png",
+      "size": 1524829,
+      "sizeFormatted": "1.45 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "44.53f254cf521ea9bb4a8c.jpg",
+      "path": "static\\media\\44.53f254cf521ea9bb4a8c.jpg",
+      "size": 10645,
+      "sizeFormatted": "10.4 KB",
+      "extension": ".jpg"
+    },
+    {
+      "name": "45.1.52e5854ec240eba74aa8.png",
+      "path": "static\\media\\45.1.52e5854ec240eba74aa8.png",
+      "size": 1417781,
+      "sizeFormatted": "1.35 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "45.3094a54c8f9dcf4bedc4.jpg",
+      "path": "static\\media\\45.3094a54c8f9dcf4bedc4.jpg",
+      "size": 11275,
+      "sizeFormatted": "11.01 KB",
+      "extension": ".jpg"
+    },
+    {
+      "name": "46.1.7f6365ff67de9e9047b3.png",
+      "path": "static\\media\\46.1.7f6365ff67de9e9047b3.png",
+      "size": 1449245,
+      "sizeFormatted": "1.38 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "46.ab431faa30d8fc8b1a3f.jpg",
+      "path": "static\\media\\46.ab431faa30d8fc8b1a3f.jpg",
+      "size": 10186,
+      "sizeFormatted": "9.95 KB",
+      "extension": ".jpg"
+    },
+    {
+      "name": "47.1.dd6a468813cf4c5ca0cc.png",
+      "path": "static\\media\\47.1.dd6a468813cf4c5ca0cc.png",
+      "size": 1582219,
+      "sizeFormatted": "1.51 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "47.939d3bb254d37c62280a.jpg",
+      "path": "static\\media\\47.939d3bb254d37c62280a.jpg",
+      "size": 10804,
+      "sizeFormatted": "10.55 KB",
+      "extension": ".jpg"
+    },
+    {
+      "name": "48.1.972993bb8414a0e20fc1.png",
+      "path": "static\\media\\48.1.972993bb8414a0e20fc1.png",
+      "size": 1522545,
+      "sizeFormatted": "1.45 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "48.2.0ecac9ef331e9d5c9e91.png",
+      "path": "static\\media\\48.2.0ecac9ef331e9d5c9e91.png",
+      "size": 1565058,
+      "sizeFormatted": "1.49 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "48.3.1ee8440bcfeb035767c9.png",
+      "path": "static\\media\\48.3.1ee8440bcfeb035767c9.png",
+      "size": 1609203,
+      "sizeFormatted": "1.53 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "48.3088b0c64fc5c9236c89.jpg",
+      "path": "static\\media\\48.3088b0c64fc5c9236c89.jpg",
+      "size": 11801,
+      "sizeFormatted": "11.52 KB",
+      "extension": ".jpg"
+    },
+    {
+      "name": "48.4.f94e3b7b2706518a2cee.png",
+      "path": "static\\media\\48.4.f94e3b7b2706518a2cee.png",
+      "size": 1442426,
+      "sizeFormatted": "1.38 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "49.1.a1577f1dd6e98cd35e71.png",
+      "path": "static\\media\\49.1.a1577f1dd6e98cd35e71.png",
+      "size": 1405077,
+      "sizeFormatted": "1.34 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "49.45149c8a6c12f50e7772.jpg",
+      "path": "static\\media\\49.45149c8a6c12f50e7772.jpg",
+      "size": 11063,
+      "sizeFormatted": "10.8 KB",
+      "extension": ".jpg"
+    },
+    {
+      "name": "5.1.08bb17bf2be22021f3af.png",
+      "path": "static\\media\\5.1.08bb17bf2be22021f3af.png",
+      "size": 1696028,
+      "sizeFormatted": "1.62 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "5.a8dd2df2cbc1909cc448.jpg",
+      "path": "static\\media\\5.a8dd2df2cbc1909cc448.jpg",
+      "size": 10275,
+      "sizeFormatted": "10.03 KB",
+      "extension": ".jpg"
+    },
+    {
+      "name": "50.1.a13a45b709d0d4f9804b.png",
+      "path": "static\\media\\50.1.a13a45b709d0d4f9804b.png",
+      "size": 1605509,
+      "sizeFormatted": "1.53 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "50.1b0ac6a7ec9d7dada934.jpg",
+      "path": "static\\media\\50.1b0ac6a7ec9d7dada934.jpg",
+      "size": 10857,
+      "sizeFormatted": "10.6 KB",
+      "extension": ".jpg"
+    },
+    {
+      "name": "50.2.22bb7c828f5be17b7d23.png",
+      "path": "static\\media\\50.2.22bb7c828f5be17b7d23.png",
+      "size": 1517046,
+      "sizeFormatted": "1.45 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "51.1.9bc86918e791c3a73061.png",
+      "path": "static\\media\\51.1.9bc86918e791c3a73061.png",
+      "size": 1683973,
+      "sizeFormatted": "1.61 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "51.63bd02cacf31549eb803.jpg",
+      "path": "static\\media\\51.63bd02cacf31549eb803.jpg",
+      "size": 10699,
+      "sizeFormatted": "10.45 KB",
+      "extension": ".jpg"
+    },
+    {
+      "name": "52.1.d1ad11029e60d4e0ee9b.png",
+      "path": "static\\media\\52.1.d1ad11029e60d4e0ee9b.png",
+      "size": 1425166,
+      "sizeFormatted": "1.36 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "52.4181bcf9c82d95da5ac7.jpg",
+      "path": "static\\media\\52.4181bcf9c82d95da5ac7.jpg",
+      "size": 11492,
+      "sizeFormatted": "11.22 KB",
+      "extension": ".jpg"
+    },
+    {
+      "name": "53.1.19a3695b342a2d3e4653.png",
+      "path": "static\\media\\53.1.19a3695b342a2d3e4653.png",
+      "size": 1691926,
+      "sizeFormatted": "1.61 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "53.2.c516525d371751109da9.png",
+      "path": "static\\media\\53.2.c516525d371751109da9.png",
+      "size": 1670849,
+      "sizeFormatted": "1.59 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "53.a9bd709701197f9d23a4.jpg",
+      "path": "static\\media\\53.a9bd709701197f9d23a4.jpg",
+      "size": 10406,
+      "sizeFormatted": "10.16 KB",
+      "extension": ".jpg"
+    },
+    {
+      "name": "54.1.8bdcd89083e44d9bc31e.png",
+      "path": "static\\media\\54.1.8bdcd89083e44d9bc31e.png",
+      "size": 1675234,
+      "sizeFormatted": "1.6 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "54.2.200368b2ab8cfc87a28e.png",
+      "path": "static\\media\\54.2.200368b2ab8cfc87a28e.png",
+      "size": 1573352,
+      "sizeFormatted": "1.5 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "54.70560798658159e92ca2.jpg",
+      "path": "static\\media\\54.70560798658159e92ca2.jpg",
+      "size": 10961,
+      "sizeFormatted": "10.7 KB",
+      "extension": ".jpg"
+    },
+    {
+      "name": "55.1.36d89007a4a8a9ed8072.png",
+      "path": "static\\media\\55.1.36d89007a4a8a9ed8072.png",
+      "size": 1834148,
+      "sizeFormatted": "1.75 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "55.2.882b76eb3e5f5b909a85.png",
+      "path": "static\\media\\55.2.882b76eb3e5f5b909a85.png",
+      "size": 1904052,
+      "sizeFormatted": "1.82 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "55.3.4023834064a1c7c3857b.png",
+      "path": "static\\media\\55.3.4023834064a1c7c3857b.png",
+      "size": 1825223,
+      "sizeFormatted": "1.74 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "55.4.b31da5d57a30e6ab4cd7.png",
+      "path": "static\\media\\55.4.b31da5d57a30e6ab4cd7.png",
+      "size": 1424782,
+      "sizeFormatted": "1.36 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "55.8ed6ec9af31df79ed8e4.jpg",
+      "path": "static\\media\\55.8ed6ec9af31df79ed8e4.jpg",
+      "size": 11601,
+      "sizeFormatted": "11.33 KB",
+      "extension": ".jpg"
+    },
+    {
+      "name": "56.1.a5e6aa493d8ba079ed9d.png",
+      "path": "static\\media\\56.1.a5e6aa493d8ba079ed9d.png",
+      "size": 1561350,
+      "sizeFormatted": "1.49 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "57.1.6a13c9ffede95a9ece2c.png",
+      "path": "static\\media\\57.1.6a13c9ffede95a9ece2c.png",
+      "size": 1594848,
+      "sizeFormatted": "1.52 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "58.1.05afef96d7cba21b8027.png",
+      "path": "static\\media\\58.1.05afef96d7cba21b8027.png",
+      "size": 1547196,
+      "sizeFormatted": "1.48 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "58.961b82b6476a5460df20.png",
+      "path": "static\\media\\58.961b82b6476a5460df20.png",
+      "size": 26726,
+      "sizeFormatted": "26.1 KB",
+      "extension": ".png"
+    },
+    {
+      "name": "59.1.7ba4085b35492793517a.png",
+      "path": "static\\media\\59.1.7ba4085b35492793517a.png",
+      "size": 1513269,
+      "sizeFormatted": "1.44 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "59.e725bf5b3b22e209e209.png",
+      "path": "static\\media\\59.e725bf5b3b22e209e209.png",
+      "size": 24746,
+      "sizeFormatted": "24.17 KB",
+      "extension": ".png"
+    },
+    {
+      "name": "6.1.7f27452762bb62b4df25.png",
+      "path": "static\\media\\6.1.7f27452762bb62b4df25.png",
+      "size": 1417305,
+      "sizeFormatted": "1.35 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "6.67c22de6c29d2250ef32.jpg",
+      "path": "static\\media\\6.67c22de6c29d2250ef32.jpg",
+      "size": 10360,
+      "sizeFormatted": "10.12 KB",
+      "extension": ".jpg"
+    },
+    {
+      "name": "60.1.20e469daa509b53f6b10.png",
+      "path": "static\\media\\60.1.20e469daa509b53f6b10.png",
+      "size": 1558185,
+      "sizeFormatted": "1.49 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "60.2.189216beccd80f232eaa.png",
+      "path": "static\\media\\60.2.189216beccd80f232eaa.png",
+      "size": 1541495,
+      "sizeFormatted": "1.47 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "60.3.0f34e8968d38087b36fa.png",
+      "path": "static\\media\\60.3.0f34e8968d38087b36fa.png",
+      "size": 1503298,
+      "sizeFormatted": "1.43 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "60.3dfe06cc8d9a5928e0e5.png",
+      "path": "static\\media\\60.3dfe06cc8d9a5928e0e5.png",
+      "size": 26189,
+      "sizeFormatted": "25.58 KB",
+      "extension": ".png"
+    },
+    {
+      "name": "61.1.b0dbca4bd2ce14d0238a.png",
+      "path": "static\\media\\61.1.b0dbca4bd2ce14d0238a.png",
+      "size": 1573564,
+      "sizeFormatted": "1.5 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "61.a766847612177c728285.png",
+      "path": "static\\media\\61.a766847612177c728285.png",
+      "size": 29120,
+      "sizeFormatted": "28.44 KB",
+      "extension": ".png"
+    },
+    {
+      "name": "62.1.1b850b1c0e2160c086ae.png",
+      "path": "static\\media\\62.1.1b850b1c0e2160c086ae.png",
+      "size": 1521418,
+      "sizeFormatted": "1.45 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "62.3c66cb440d49b581fefc.png",
+      "path": "static\\media\\62.3c66cb440d49b581fefc.png",
+      "size": 23870,
+      "sizeFormatted": "23.31 KB",
+      "extension": ".png"
+    },
+    {
+      "name": "63.1.2ec090bcf5fe0d63b5da.png",
+      "path": "static\\media\\63.1.2ec090bcf5fe0d63b5da.png",
+      "size": 1607608,
+      "sizeFormatted": "1.53 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "63.128b9ae71ae9d466dc23.png",
+      "path": "static\\media\\63.128b9ae71ae9d466dc23.png",
+      "size": 24262,
+      "sizeFormatted": "23.69 KB",
+      "extension": ".png"
+    },
+    {
+      "name": "64.1.f956e044b4aaaf986c9a.png",
+      "path": "static\\media\\64.1.f956e044b4aaaf986c9a.png",
+      "size": 666917,
+      "sizeFormatted": "651.29 KB",
+      "extension": ".png"
+    },
+    {
+      "name": "64.2.57b220e7e216572e3358.png",
+      "path": "static\\media\\64.2.57b220e7e216572e3358.png",
+      "size": 668098,
+      "sizeFormatted": "652.44 KB",
+      "extension": ".png"
+    },
+    {
+      "name": "64.80b88bad36be23db3489.jpg",
+      "path": "static\\media\\64.80b88bad36be23db3489.jpg",
+      "size": 31887,
+      "sizeFormatted": "31.14 KB",
+      "extension": ".jpg"
+    },
+    {
+      "name": "7.1.f28359bccc14ca077d27.png",
+      "path": "static\\media\\7.1.f28359bccc14ca077d27.png",
+      "size": 1462065,
+      "sizeFormatted": "1.39 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "7.51a59ea641d3dec2d462.jpg",
+      "path": "static\\media\\7.51a59ea641d3dec2d462.jpg",
+      "size": 10629,
+      "sizeFormatted": "10.38 KB",
+      "extension": ".jpg"
+    },
+    {
+      "name": "8.1.fdea992ee014ff66f67f.png",
+      "path": "static\\media\\8.1.fdea992ee014ff66f67f.png",
+      "size": 1469284,
+      "sizeFormatted": "1.4 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "8.6f4d2b8e431a7f3255fa.jpg",
+      "path": "static\\media\\8.6f4d2b8e431a7f3255fa.jpg",
+      "size": 10631,
+      "sizeFormatted": "10.38 KB",
+      "extension": ".jpg"
+    },
+    {
+      "name": "9.1.fd7c4f7dcd62174d6edb.png",
+      "path": "static\\media\\9.1.fd7c4f7dcd62174d6edb.png",
+      "size": 1549641,
+      "sizeFormatted": "1.48 MB",
+      "extension": ".png"
+    },
+    {
+      "name": "cav024.bcff3fdea7f04d5e6c2a.jpg",
+      "path": "static\\media\\cav024.bcff3fdea7f04d5e6c2a.jpg",
+      "size": 521492,
+      "sizeFormatted": "509.27 KB",
+      "extension": ".jpg"
+    },
+    {
+      "name": "cavalaria01.d38bdd8cc59e9f1e755a.jpeg",
+      "path": "static\\media\\cavalaria01.d38bdd8cc59e9f1e755a.jpeg",
+      "size": 184666,
+      "sizeFormatted": "180.34 KB",
+      "extension": ".jpeg"
+    },
+    {
+      "name": "cavalaria09.9f929987dd90ebf2e875.jpeg",
+      "path": "static\\media\\cavalaria09.9f929987dd90ebf2e875.jpeg",
+      "size": 173305,
+      "sizeFormatted": "169.24 KB",
+      "extension": ".jpeg"
+    },
+    {
+      "name": "CelFrisene.b7e947057b8b8b5b992d.jpg",
+      "path": "static\\media\\CelFrisene.b7e947057b8b8b5b992d.jpg",
+      "size": 310533,
+      "sizeFormatted": "303.25 KB",
+      "extension": ".jpg"
+    },
+    {
+      "name": "historia2.6006baba66ee61561fd0.jpg",
+      "path": "static\\media\\historia2.6006baba66ee61561fd0.jpg",
+      "size": 116919,
+      "sizeFormatted": "114.18 KB",
+      "extension": ".jpg"
+    },
+    {
+      "name": "Logo-PM.a3a74dfc1b59fa9ca581.png",
+      "path": "static\\media\\Logo-PM.a3a74dfc1b59fa9ca581.png",
+      "size": 250865,
+      "sizeFormatted": "244.99 KB",
+      "extension": ".png"
+    },
+    {
+      "name": "LOGORPMON.e636f84c625985ecef07.png",
+      "path": "static\\media\\LOGORPMON.e636f84c625985ecef07.png",
+      "size": 556773,
+      "sizeFormatted": "543.72 KB",
+      "extension": ".png"
+    },
+    {
+      "name": "SP_RG_Imediatas_2024.c774eaffb042a40bd83b1c15d13a3db3.svg",
+      "path": "static\\media\\SP_RG_Imediatas_2024.c774eaffb042a40bd83b1c15d13a3db3.svg",
+      "size": 3859276,
+      "sizeFormatted": "3.68 MB",
+      "extension": ".svg"
+    }
+  ],
+  "byType": {
+    ".json": {
+      "count": 2,
+      "totalSize": 12413,
+      "files": [
+        {
+          "name": "asset-manifest.json",
+          "path": "asset-manifest.json",
+          "size": 11921,
+          "sizeFormatted": "11.64 KB",
+          "extension": ".json"
+        },
+        {
+          "name": "manifest.json",
+          "path": "manifest.json",
+          "size": 492,
+          "sizeFormatted": "492 Bytes",
+          "extension": ".json"
+        }
+      ]
+    },
+    ".js": {
+      "count": 5,
+      "totalSize": 2524200,
+      "files": [
+        {
+          "name": "main.e1d9b7de.js",
+          "path": "static\\js\\main.e1d9b7de.js",
+          "size": 2384568,
+          "sizeFormatted": "2.27 MB",
+          "extension": ".js"
+        },
+        {
+          "name": "732.3808e366.chunk.js",
+          "path": "static\\js\\732.3808e366.chunk.js",
+          "size": 112013,
+          "sizeFormatted": "109.39 KB",
+          "extension": ".js"
+        },
+        {
+          "name": "977.542a4f34.chunk.js",
+          "path": "static\\js\\977.542a4f34.chunk.js",
+          "size": 22944,
+          "sizeFormatted": "22.41 KB",
+          "extension": ".js"
+        },
+        {
+          "name": "453.2511e63b.chunk.js",
+          "path": "static\\js\\453.2511e63b.chunk.js",
+          "size": 4519,
+          "sizeFormatted": "4.41 KB",
+          "extension": ".js"
+        },
+        {
+          "name": "config.js",
+          "path": "config.js",
+          "size": 156,
+          "sizeFormatted": "156 Bytes",
+          "extension": ".js"
+        }
+      ]
+    },
+    ".ico": {
+      "count": 1,
+      "totalSize": 556773,
+      "files": [
+        {
+          "name": "favicon.ico",
+          "path": "favicon.ico",
+          "size": 556773,
+          "sizeFormatted": "543.72 KB",
+          "extension": ".ico"
+        }
+      ]
+    },
+    ".mp3": {
+      "count": 15,
+      "totalSize": 95060074,
+      "files": [
+        {
+          "name": "01-Canção da Infantaria.mp3",
+          "path": "Hinos\\01-Canção da Infantaria.mp3",
+          "size": 2472645,
+          "sizeFormatted": "2.36 MB",
+          "extension": ".mp3"
+        },
+        {
+          "name": "Arma de Herois - Canção da Cavalaria.mp3",
+          "path": "Hinos\\Arma de Herois - Canção da Cavalaria.mp3",
+          "size": 2335341,
+          "sizeFormatted": "2.23 MB",
+          "extension": ".mp3"
+        },
+        {
+          "name": "cancao_essd.mp3",
+          "path": "Hinos\\cancao_essd.mp3",
+          "size": 3112089,
+          "sizeFormatted": "2.97 MB",
+          "extension": ".mp3"
+        },
+        {
+          "name": "Canção da Cavalaria.mp3",
+          "path": "Hinos\\Canção da Cavalaria.mp3",
+          "size": 4704621,
+          "sizeFormatted": "4.49 MB",
+          "extension": ".mp3"
+        },
+        {
+          "name": "Canção da Polícia Militar - Vocal.mp3",
+          "path": "Hinos\\Canção da Polícia Militar - Vocal.mp3",
+          "size": 6310210,
+          "sizeFormatted": "6.02 MB",
+          "extension": ".mp3"
+        },
+        {
+          "name": "Canção do Patrulheiro - Vocal.mp3",
+          "path": "Hinos\\Canção do Patrulheiro - Vocal.mp3",
+          "size": 6936239,
+          "sizeFormatted": "6.61 MB",
+          "extension": ".mp3"
+        },
+        {
+          "name": "Essd - Vocal.mp3",
+          "path": "Hinos\\Essd - Vocal.mp3",
+          "size": 4661846,
+          "sizeFormatted": "4.45 MB",
+          "extension": ".mp3"
+        },
+        {
+          "name": "Eterno Regimento - Instrumental.mp3",
+          "path": "Hinos\\Eterno Regimento - Instrumental.mp3",
+          "size": 6246004,
+          "sizeFormatted": "5.96 MB",
+          "extension": ".mp3"
+        },
+        {
+          "name": "Eterno Regimento - Vocal.mp3",
+          "path": "Hinos\\Eterno Regimento - Vocal.mp3",
+          "size": 6202156,
+          "sizeFormatted": "5.91 MB",
+          "extension": ".mp3"
+        },
+        {
+          "name": "Hino da Proclamação da República  Vocal.mp3",
+          "path": "Hinos\\Hino da Proclamação da República  Vocal.mp3",
+          "size": 12390035,
+          "sizeFormatted": "11.82 MB",
+          "extension": ".mp3"
+        },
+        {
+          "name": "Hino Nacional Brasileiro  Continência.mp3",
+          "path": "Hinos\\Hino Nacional Brasileiro  Continência.mp3",
+          "size": 3436416,
+          "sizeFormatted": "3.28 MB",
+          "extension": ".mp3"
+        },
+        {
+          "name": "Hino Nacional Brasileiro - Vocal.mp3",
+          "path": "Hinos\\Hino Nacional Brasileiro - Vocal.mp3",
+          "size": 9007735,
+          "sizeFormatted": "8.59 MB",
+          "extension": ".mp3"
+        },
+        {
+          "name": "Hino á Bandeira - Vocal.mp3",
+          "path": "Hinos\\Hino á Bandeira - Vocal.mp3",
+          "size": 12736966,
+          "sizeFormatted": "12.15 MB",
+          "extension": ".mp3"
+        },
+        {
+          "name": "Música da Incorporação da Bandeira.mp3",
+          "path": "Hinos\\Música da Incorporação da Bandeira.mp3",
+          "size": 3841389,
+          "sizeFormatted": "3.66 MB",
+          "extension": ".mp3"
+        },
+        {
+          "name": "Paris Belfort (9 de Julho) - Vocal.mp3",
+          "path": "Hinos\\Paris Belfort (9 de Julho) - Vocal.mp3",
+          "size": 10666382,
+          "sizeFormatted": "10.17 MB",
+          "extension": ".mp3"
+        }
+      ]
+    },
+    ".html": {
+      "count": 2,
+      "totalSize": 23522,
+      "files": [
+        {
+          "name": "index.html",
+          "path": "index.html",
+          "size": 687,
+          "sizeFormatted": "687 Bytes",
+          "extension": ".html"
+        },
+        {
+          "name": "performance-test.html",
+          "path": "performance-test.html",
+          "size": 22835,
+          "sizeFormatted": "22.3 KB",
+          "extension": ".html"
+        }
+      ]
+    },
+    ".pdf": {
+      "count": 8,
+      "totalSize": 824267,
+      "files": [
+        {
+          "name": "9 de julho - paris belfort.pdf",
+          "path": "LetraHinos\\9 de julho - paris belfort.pdf",
+          "size": 86690,
+          "sizeFormatted": "84.66 KB",
+          "extension": ".pdf"
+        },
+        {
+          "name": "cancao da cavalaria.pdf",
+          "path": "LetraHinos\\cancao da cavalaria.pdf",
+          "size": 113506,
+          "sizeFormatted": "110.85 KB",
+          "extension": ".pdf"
+        },
+        {
+          "name": "cancao da pm.pdf",
+          "path": "LetraHinos\\cancao da pm.pdf",
+          "size": 106922,
+          "sizeFormatted": "104.42 KB",
+          "extension": ".pdf"
+        },
+        {
+          "name": "cancao do patrulheiro.pdf",
+          "path": "LetraHinos\\cancao do patrulheiro.pdf",
+          "size": 106965,
+          "sizeFormatted": "104.46 KB",
+          "extension": ".pdf"
+        },
+        {
+          "name": "escola superior de soldados.pdf",
+          "path": "LetraHinos\\escola superior de soldados.pdf",
+          "size": 102452,
+          "sizeFormatted": "100.05 KB",
+          "extension": ".pdf"
+        },
+        {
+          "name": "Eterno Regimento.pdf",
+          "path": "LetraHinos\\Eterno Regimento.pdf",
+          "size": 103287,
+          "sizeFormatted": "100.87 KB",
+          "extension": ".pdf"
+        },
+        {
+          "name": "Hino Nacional Brasileiro.pdf",
+          "path": "LetraHinos\\Hino Nacional Brasileiro.pdf",
+          "size": 101407,
+          "sizeFormatted": "99.03 KB",
+          "extension": ".pdf"
+        },
+        {
+          "name": "Soldados a cavalaria.pdf",
+          "path": "LetraHinos\\Soldados a cavalaria.pdf",
+          "size": 103038,
+          "sizeFormatted": "100.62 KB",
+          "extension": ".pdf"
+        }
+      ]
+    },
+    ".png": {
+      "count": 94,
+      "totalSize": 130290202,
+      "files": [
+        {
+          "name": "logo192.png",
+          "path": "logo192.png",
+          "size": 5347,
+          "sizeFormatted": "5.22 KB",
+          "extension": ".png"
+        },
+        {
+          "name": "logo512.png",
+          "path": "logo512.png",
+          "size": 9664,
+          "sizeFormatted": "9.44 KB",
+          "extension": ".png"
+        },
+        {
+          "name": "1.1.8b8d838f75fe898fc543.png",
+          "path": "static\\media\\1.1.8b8d838f75fe898fc543.png",
+          "size": 1559998,
+          "sizeFormatted": "1.49 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "10.1.ec1cc9a84afff8c21e15.png",
+          "path": "static\\media\\10.1.ec1cc9a84afff8c21e15.png",
+          "size": 1479443,
+          "sizeFormatted": "1.41 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "11.1.99150b66a9be5aca07f5.png",
+          "path": "static\\media\\11.1.99150b66a9be5aca07f5.png",
+          "size": 1708987,
+          "sizeFormatted": "1.63 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "12.1.55948dd179160059a44b.png",
+          "path": "static\\media\\12.1.55948dd179160059a44b.png",
+          "size": 1315492,
+          "sizeFormatted": "1.25 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "13.1.c5775dacda950796c89b.png",
+          "path": "static\\media\\13.1.c5775dacda950796c89b.png",
+          "size": 1645947,
+          "sizeFormatted": "1.57 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "14.1.3f31171cf30d20d7a223.png",
+          "path": "static\\media\\14.1.3f31171cf30d20d7a223.png",
+          "size": 1510958,
+          "sizeFormatted": "1.44 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "15.1.b62844bf9ea6b28db1a7.png",
+          "path": "static\\media\\15.1.b62844bf9ea6b28db1a7.png",
+          "size": 1557873,
+          "sizeFormatted": "1.49 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "15.2.f93e9a0259d5146a9b82.png",
+          "path": "static\\media\\15.2.f93e9a0259d5146a9b82.png",
+          "size": 1852236,
+          "sizeFormatted": "1.77 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "16.1.850236a9fce9fb0fce1b.png",
+          "path": "static\\media\\16.1.850236a9fce9fb0fce1b.png",
+          "size": 1519476,
+          "sizeFormatted": "1.45 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "17.1.9dfa59d8494ffa6cf3a4.png",
+          "path": "static\\media\\17.1.9dfa59d8494ffa6cf3a4.png",
+          "size": 1579311,
+          "sizeFormatted": "1.51 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "18.1.8645d09a41f453544c27.png",
+          "path": "static\\media\\18.1.8645d09a41f453544c27.png",
+          "size": 1672400,
+          "sizeFormatted": "1.59 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "19.1.f9b90d25d90975f5737f.png",
+          "path": "static\\media\\19.1.f9b90d25d90975f5737f.png",
+          "size": 1484327,
+          "sizeFormatted": "1.42 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "19.2.cf2510010017d50097d8.png",
+          "path": "static\\media\\19.2.cf2510010017d50097d8.png",
+          "size": 1633214,
+          "sizeFormatted": "1.56 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "2.1.46c00b421f0f930e56d5.png",
+          "path": "static\\media\\2.1.46c00b421f0f930e56d5.png",
+          "size": 1619845,
+          "sizeFormatted": "1.54 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "20.1.cb1d5654e15c291f8e35.png",
+          "path": "static\\media\\20.1.cb1d5654e15c291f8e35.png",
+          "size": 1456123,
+          "sizeFormatted": "1.39 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "21.1.f1e4ad2110bcf26c2773.png",
+          "path": "static\\media\\21.1.f1e4ad2110bcf26c2773.png",
+          "size": 1524736,
+          "sizeFormatted": "1.45 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "21.2.82ec2d07dafa7fd2c715.png",
+          "path": "static\\media\\21.2.82ec2d07dafa7fd2c715.png",
+          "size": 1601146,
+          "sizeFormatted": "1.53 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "22.1.7e9d4cb4a0e94ab2d81e.png",
+          "path": "static\\media\\22.1.7e9d4cb4a0e94ab2d81e.png",
+          "size": 1426442,
+          "sizeFormatted": "1.36 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "23.1.9f22dc563bebab66041c.png",
+          "path": "static\\media\\23.1.9f22dc563bebab66041c.png",
+          "size": 1441203,
+          "sizeFormatted": "1.37 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "24.1.60832ee921008c7e155b.png",
+          "path": "static\\media\\24.1.60832ee921008c7e155b.png",
+          "size": 1429649,
+          "sizeFormatted": "1.36 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "25.1.5b37c76a06aead9961f8.png",
+          "path": "static\\media\\25.1.5b37c76a06aead9961f8.png",
+          "size": 2053657,
+          "sizeFormatted": "1.96 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "26.1.83c5e6b299dbcf4a7943.png",
+          "path": "static\\media\\26.1.83c5e6b299dbcf4a7943.png",
+          "size": 1518969,
+          "sizeFormatted": "1.45 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "26.2.fa6b8fb90be4e55fd05f.png",
+          "path": "static\\media\\26.2.fa6b8fb90be4e55fd05f.png",
+          "size": 1566722,
+          "sizeFormatted": "1.49 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "27.1.a17d6b517032febca0a1.png",
+          "path": "static\\media\\27.1.a17d6b517032febca0a1.png",
+          "size": 1539837,
+          "sizeFormatted": "1.47 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "28.1.16e50cdcdf40a6fec542.png",
+          "path": "static\\media\\28.1.16e50cdcdf40a6fec542.png",
+          "size": 1507403,
+          "sizeFormatted": "1.44 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "29.1.3bf57234ae3cca0a05f9.png",
+          "path": "static\\media\\29.1.3bf57234ae3cca0a05f9.png",
+          "size": 1457823,
+          "sizeFormatted": "1.39 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "3.1.46f80a01700eb50c172d.png",
+          "path": "static\\media\\3.1.46f80a01700eb50c172d.png",
+          "size": 1407962,
+          "sizeFormatted": "1.34 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "30.1.0400508be72084a6381e.png",
+          "path": "static\\media\\30.1.0400508be72084a6381e.png",
+          "size": 1531280,
+          "sizeFormatted": "1.46 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "31.1.edfe756ddbbb43aea307.png",
+          "path": "static\\media\\31.1.edfe756ddbbb43aea307.png",
+          "size": 1781298,
+          "sizeFormatted": "1.7 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "31.2.8debe045e0e4b0be8614.png",
+          "path": "static\\media\\31.2.8debe045e0e4b0be8614.png",
+          "size": 1869341,
+          "sizeFormatted": "1.78 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "32.1.a0b87d4eda98c284d131.png",
+          "path": "static\\media\\32.1.a0b87d4eda98c284d131.png",
+          "size": 1623796,
+          "sizeFormatted": "1.55 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "33.1.829cdd36e52e6dea1f8f.png",
+          "path": "static\\media\\33.1.829cdd36e52e6dea1f8f.png",
+          "size": 1517276,
+          "sizeFormatted": "1.45 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "34.1.0ae4d3e8340e41c28b16.png",
+          "path": "static\\media\\34.1.0ae4d3e8340e41c28b16.png",
+          "size": 1421616,
+          "sizeFormatted": "1.36 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "35.1.95275e287c8814b09646.png",
+          "path": "static\\media\\35.1.95275e287c8814b09646.png",
+          "size": 1426516,
+          "sizeFormatted": "1.36 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "36.1.6b6d4aa604e1926bd9b1.png",
+          "path": "static\\media\\36.1.6b6d4aa604e1926bd9b1.png",
+          "size": 1540923,
+          "sizeFormatted": "1.47 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "37.1.0eafeeaa2390dfad1d39.png",
+          "path": "static\\media\\37.1.0eafeeaa2390dfad1d39.png",
+          "size": 1485996,
+          "sizeFormatted": "1.42 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "37.2.f2f8163c2f793d5d1594.png",
+          "path": "static\\media\\37.2.f2f8163c2f793d5d1594.png",
+          "size": 1491621,
+          "sizeFormatted": "1.42 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "38.1.9275a1f11916a749ecf3.png",
+          "path": "static\\media\\38.1.9275a1f11916a749ecf3.png",
+          "size": 1455919,
+          "sizeFormatted": "1.39 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "39.1.4b4c86ec7ba01adf501c.png",
+          "path": "static\\media\\39.1.4b4c86ec7ba01adf501c.png",
+          "size": 1563791,
+          "sizeFormatted": "1.49 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "39.2.be4e09ed4e795d8cf900.png",
+          "path": "static\\media\\39.2.be4e09ed4e795d8cf900.png",
+          "size": 1476836,
+          "sizeFormatted": "1.41 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "4.1.f7c3db84666c6a59e5c3.png",
+          "path": "static\\media\\4.1.f7c3db84666c6a59e5c3.png",
+          "size": 1672622,
+          "sizeFormatted": "1.6 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "40.1.1617e41830cca4d18405.png",
+          "path": "static\\media\\40.1.1617e41830cca4d18405.png",
+          "size": 1426425,
+          "sizeFormatted": "1.36 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "40.2.78d9fd1dd3eebe412adf.png",
+          "path": "static\\media\\40.2.78d9fd1dd3eebe412adf.png",
+          "size": 1481510,
+          "sizeFormatted": "1.41 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "41.1.95aebf479887ebdf9ab8.png",
+          "path": "static\\media\\41.1.95aebf479887ebdf9ab8.png",
+          "size": 1555835,
+          "sizeFormatted": "1.48 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "42.1.0351eea74528546801c6.png",
+          "path": "static\\media\\42.1.0351eea74528546801c6.png",
+          "size": 1647044,
+          "sizeFormatted": "1.57 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "43.1.92954f71420acdc0936c.png",
+          "path": "static\\media\\43.1.92954f71420acdc0936c.png",
+          "size": 1470604,
+          "sizeFormatted": "1.4 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "44.1.88d33d9b57efa7548d5a.png",
+          "path": "static\\media\\44.1.88d33d9b57efa7548d5a.png",
+          "size": 1524829,
+          "sizeFormatted": "1.45 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "45.1.52e5854ec240eba74aa8.png",
+          "path": "static\\media\\45.1.52e5854ec240eba74aa8.png",
+          "size": 1417781,
+          "sizeFormatted": "1.35 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "46.1.7f6365ff67de9e9047b3.png",
+          "path": "static\\media\\46.1.7f6365ff67de9e9047b3.png",
+          "size": 1449245,
+          "sizeFormatted": "1.38 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "47.1.dd6a468813cf4c5ca0cc.png",
+          "path": "static\\media\\47.1.dd6a468813cf4c5ca0cc.png",
+          "size": 1582219,
+          "sizeFormatted": "1.51 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "48.1.972993bb8414a0e20fc1.png",
+          "path": "static\\media\\48.1.972993bb8414a0e20fc1.png",
+          "size": 1522545,
+          "sizeFormatted": "1.45 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "48.2.0ecac9ef331e9d5c9e91.png",
+          "path": "static\\media\\48.2.0ecac9ef331e9d5c9e91.png",
+          "size": 1565058,
+          "sizeFormatted": "1.49 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "48.3.1ee8440bcfeb035767c9.png",
+          "path": "static\\media\\48.3.1ee8440bcfeb035767c9.png",
+          "size": 1609203,
+          "sizeFormatted": "1.53 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "48.4.f94e3b7b2706518a2cee.png",
+          "path": "static\\media\\48.4.f94e3b7b2706518a2cee.png",
+          "size": 1442426,
+          "sizeFormatted": "1.38 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "49.1.a1577f1dd6e98cd35e71.png",
+          "path": "static\\media\\49.1.a1577f1dd6e98cd35e71.png",
+          "size": 1405077,
+          "sizeFormatted": "1.34 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "5.1.08bb17bf2be22021f3af.png",
+          "path": "static\\media\\5.1.08bb17bf2be22021f3af.png",
+          "size": 1696028,
+          "sizeFormatted": "1.62 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "50.1.a13a45b709d0d4f9804b.png",
+          "path": "static\\media\\50.1.a13a45b709d0d4f9804b.png",
+          "size": 1605509,
+          "sizeFormatted": "1.53 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "50.2.22bb7c828f5be17b7d23.png",
+          "path": "static\\media\\50.2.22bb7c828f5be17b7d23.png",
+          "size": 1517046,
+          "sizeFormatted": "1.45 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "51.1.9bc86918e791c3a73061.png",
+          "path": "static\\media\\51.1.9bc86918e791c3a73061.png",
+          "size": 1683973,
+          "sizeFormatted": "1.61 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "52.1.d1ad11029e60d4e0ee9b.png",
+          "path": "static\\media\\52.1.d1ad11029e60d4e0ee9b.png",
+          "size": 1425166,
+          "sizeFormatted": "1.36 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "53.1.19a3695b342a2d3e4653.png",
+          "path": "static\\media\\53.1.19a3695b342a2d3e4653.png",
+          "size": 1691926,
+          "sizeFormatted": "1.61 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "53.2.c516525d371751109da9.png",
+          "path": "static\\media\\53.2.c516525d371751109da9.png",
+          "size": 1670849,
+          "sizeFormatted": "1.59 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "54.1.8bdcd89083e44d9bc31e.png",
+          "path": "static\\media\\54.1.8bdcd89083e44d9bc31e.png",
+          "size": 1675234,
+          "sizeFormatted": "1.6 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "54.2.200368b2ab8cfc87a28e.png",
+          "path": "static\\media\\54.2.200368b2ab8cfc87a28e.png",
+          "size": 1573352,
+          "sizeFormatted": "1.5 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "55.1.36d89007a4a8a9ed8072.png",
+          "path": "static\\media\\55.1.36d89007a4a8a9ed8072.png",
+          "size": 1834148,
+          "sizeFormatted": "1.75 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "55.2.882b76eb3e5f5b909a85.png",
+          "path": "static\\media\\55.2.882b76eb3e5f5b909a85.png",
+          "size": 1904052,
+          "sizeFormatted": "1.82 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "55.3.4023834064a1c7c3857b.png",
+          "path": "static\\media\\55.3.4023834064a1c7c3857b.png",
+          "size": 1825223,
+          "sizeFormatted": "1.74 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "55.4.b31da5d57a30e6ab4cd7.png",
+          "path": "static\\media\\55.4.b31da5d57a30e6ab4cd7.png",
+          "size": 1424782,
+          "sizeFormatted": "1.36 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "56.1.a5e6aa493d8ba079ed9d.png",
+          "path": "static\\media\\56.1.a5e6aa493d8ba079ed9d.png",
+          "size": 1561350,
+          "sizeFormatted": "1.49 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "57.1.6a13c9ffede95a9ece2c.png",
+          "path": "static\\media\\57.1.6a13c9ffede95a9ece2c.png",
+          "size": 1594848,
+          "sizeFormatted": "1.52 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "58.1.05afef96d7cba21b8027.png",
+          "path": "static\\media\\58.1.05afef96d7cba21b8027.png",
+          "size": 1547196,
+          "sizeFormatted": "1.48 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "58.961b82b6476a5460df20.png",
+          "path": "static\\media\\58.961b82b6476a5460df20.png",
+          "size": 26726,
+          "sizeFormatted": "26.1 KB",
+          "extension": ".png"
+        },
+        {
+          "name": "59.1.7ba4085b35492793517a.png",
+          "path": "static\\media\\59.1.7ba4085b35492793517a.png",
+          "size": 1513269,
+          "sizeFormatted": "1.44 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "59.e725bf5b3b22e209e209.png",
+          "path": "static\\media\\59.e725bf5b3b22e209e209.png",
+          "size": 24746,
+          "sizeFormatted": "24.17 KB",
+          "extension": ".png"
+        },
+        {
+          "name": "6.1.7f27452762bb62b4df25.png",
+          "path": "static\\media\\6.1.7f27452762bb62b4df25.png",
+          "size": 1417305,
+          "sizeFormatted": "1.35 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "60.1.20e469daa509b53f6b10.png",
+          "path": "static\\media\\60.1.20e469daa509b53f6b10.png",
+          "size": 1558185,
+          "sizeFormatted": "1.49 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "60.2.189216beccd80f232eaa.png",
+          "path": "static\\media\\60.2.189216beccd80f232eaa.png",
+          "size": 1541495,
+          "sizeFormatted": "1.47 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "60.3.0f34e8968d38087b36fa.png",
+          "path": "static\\media\\60.3.0f34e8968d38087b36fa.png",
+          "size": 1503298,
+          "sizeFormatted": "1.43 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "60.3dfe06cc8d9a5928e0e5.png",
+          "path": "static\\media\\60.3dfe06cc8d9a5928e0e5.png",
+          "size": 26189,
+          "sizeFormatted": "25.58 KB",
+          "extension": ".png"
+        },
+        {
+          "name": "61.1.b0dbca4bd2ce14d0238a.png",
+          "path": "static\\media\\61.1.b0dbca4bd2ce14d0238a.png",
+          "size": 1573564,
+          "sizeFormatted": "1.5 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "61.a766847612177c728285.png",
+          "path": "static\\media\\61.a766847612177c728285.png",
+          "size": 29120,
+          "sizeFormatted": "28.44 KB",
+          "extension": ".png"
+        },
+        {
+          "name": "62.1.1b850b1c0e2160c086ae.png",
+          "path": "static\\media\\62.1.1b850b1c0e2160c086ae.png",
+          "size": 1521418,
+          "sizeFormatted": "1.45 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "62.3c66cb440d49b581fefc.png",
+          "path": "static\\media\\62.3c66cb440d49b581fefc.png",
+          "size": 23870,
+          "sizeFormatted": "23.31 KB",
+          "extension": ".png"
+        },
+        {
+          "name": "63.1.2ec090bcf5fe0d63b5da.png",
+          "path": "static\\media\\63.1.2ec090bcf5fe0d63b5da.png",
+          "size": 1607608,
+          "sizeFormatted": "1.53 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "63.128b9ae71ae9d466dc23.png",
+          "path": "static\\media\\63.128b9ae71ae9d466dc23.png",
+          "size": 24262,
+          "sizeFormatted": "23.69 KB",
+          "extension": ".png"
+        },
+        {
+          "name": "64.1.f956e044b4aaaf986c9a.png",
+          "path": "static\\media\\64.1.f956e044b4aaaf986c9a.png",
+          "size": 666917,
+          "sizeFormatted": "651.29 KB",
+          "extension": ".png"
+        },
+        {
+          "name": "64.2.57b220e7e216572e3358.png",
+          "path": "static\\media\\64.2.57b220e7e216572e3358.png",
+          "size": 668098,
+          "sizeFormatted": "652.44 KB",
+          "extension": ".png"
+        },
+        {
+          "name": "7.1.f28359bccc14ca077d27.png",
+          "path": "static\\media\\7.1.f28359bccc14ca077d27.png",
+          "size": 1462065,
+          "sizeFormatted": "1.39 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "8.1.fdea992ee014ff66f67f.png",
+          "path": "static\\media\\8.1.fdea992ee014ff66f67f.png",
+          "size": 1469284,
+          "sizeFormatted": "1.4 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "9.1.fd7c4f7dcd62174d6edb.png",
+          "path": "static\\media\\9.1.fd7c4f7dcd62174d6edb.png",
+          "size": 1549641,
+          "sizeFormatted": "1.48 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "Logo-PM.a3a74dfc1b59fa9ca581.png",
+          "path": "static\\media\\Logo-PM.a3a74dfc1b59fa9ca581.png",
+          "size": 250865,
+          "sizeFormatted": "244.99 KB",
+          "extension": ".png"
+        },
+        {
+          "name": "LOGORPMON.e636f84c625985ecef07.png",
+          "path": "static\\media\\LOGORPMON.e636f84c625985ecef07.png",
+          "size": 556773,
+          "sizeFormatted": "543.72 KB",
+          "extension": ".png"
+        }
+      ]
+    },
+    ".txt": {
+      "count": 3,
+      "totalSize": 77972,
+      "files": [
+        {
+          "name": "robots.txt",
+          "path": "robots.txt",
+          "size": 67,
+          "sizeFormatted": "67 Bytes",
+          "extension": ".txt"
+        },
+        {
+          "name": "977.542a4f34.chunk.js.LICENSE.txt",
+          "path": "static\\js\\977.542a4f34.chunk.js.LICENSE.txt",
+          "size": 188,
+          "sizeFormatted": "188 Bytes",
+          "extension": ".txt"
+        },
+        {
+          "name": "main.e1d9b7de.js.LICENSE.txt",
+          "path": "static\\js\\main.e1d9b7de.js.LICENSE.txt",
+          "size": 77717,
+          "sizeFormatted": "75.9 KB",
+          "extension": ".txt"
+        }
+      ]
+    },
+    ".css": {
+      "count": 1,
+      "totalSize": 239484,
+      "files": [
+        {
+          "name": "main.c22eb27d.css",
+          "path": "static\\css\\main.c22eb27d.css",
+          "size": 239484,
+          "sizeFormatted": "233.87 KB",
+          "extension": ".css"
+        }
+      ]
+    },
+    ".map": {
+      "count": 5,
+      "totalSize": 26172280,
+      "files": [
+        {
+          "name": "main.c22eb27d.css.map",
+          "path": "static\\css\\main.c22eb27d.css.map",
+          "size": 557035,
+          "sizeFormatted": "543.98 KB",
+          "extension": ".map"
+        },
+        {
+          "name": "453.2511e63b.chunk.js.map",
+          "path": "static\\js\\453.2511e63b.chunk.js.map",
+          "size": 10597,
+          "sizeFormatted": "10.35 KB",
+          "extension": ".map"
+        },
+        {
+          "name": "732.3808e366.chunk.js.map",
+          "path": "static\\js\\732.3808e366.chunk.js.map",
+          "size": 142280,
+          "sizeFormatted": "138.95 KB",
+          "extension": ".map"
+        },
+        {
+          "name": "977.542a4f34.chunk.js.map",
+          "path": "static\\js\\977.542a4f34.chunk.js.map",
+          "size": 108778,
+          "sizeFormatted": "106.23 KB",
+          "extension": ".map"
+        },
+        {
+          "name": "main.e1d9b7de.js.map",
+          "path": "static\\js\\main.e1d9b7de.js.map",
+          "size": 25353590,
+          "sizeFormatted": "24.18 MB",
+          "extension": ".map"
+        }
+      ]
+    },
+    ".jpg": {
+      "count": 53,
+      "totalSize": 1501115,
+      "files": [
+        {
+          "name": "1.02332da032e6226020cc.jpg",
+          "path": "static\\media\\1.02332da032e6226020cc.jpg",
+          "size": 10241,
+          "sizeFormatted": "10 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "10.d6c42932e590c2adc8a1.jpg",
+          "path": "static\\media\\10.d6c42932e590c2adc8a1.jpg",
+          "size": 10285,
+          "sizeFormatted": "10.04 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "11.e0ca1ac37a7c5cb32a6c.jpg",
+          "path": "static\\media\\11.e0ca1ac37a7c5cb32a6c.jpg",
+          "size": 10227,
+          "sizeFormatted": "9.99 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "12.2dd23b7259cd4983d4ae.jpg",
+          "path": "static\\media\\12.2dd23b7259cd4983d4ae.jpg",
+          "size": 10491,
+          "sizeFormatted": "10.25 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "13.533147e736cfa01f7769.jpg",
+          "path": "static\\media\\13.533147e736cfa01f7769.jpg",
+          "size": 10403,
+          "sizeFormatted": "10.16 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "14.f25b2f225527c626dd27.jpg",
+          "path": "static\\media\\14.f25b2f225527c626dd27.jpg",
+          "size": 10400,
+          "sizeFormatted": "10.16 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "15.b24061e2f09747ad2a14.jpg",
+          "path": "static\\media\\15.b24061e2f09747ad2a14.jpg",
+          "size": 10430,
+          "sizeFormatted": "10.19 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "16.5129cfe29211e2cd03a3.jpg",
+          "path": "static\\media\\16.5129cfe29211e2cd03a3.jpg",
+          "size": 10112,
+          "sizeFormatted": "9.88 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "17.2ce6b9c8465b0c3674df.jpg",
+          "path": "static\\media\\17.2ce6b9c8465b0c3674df.jpg",
+          "size": 10388,
+          "sizeFormatted": "10.14 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "18.eb07b4f3c2255950bf7b.jpg",
+          "path": "static\\media\\18.eb07b4f3c2255950bf7b.jpg",
+          "size": 10254,
+          "sizeFormatted": "10.01 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "19.8b660afa032f5e570167.jpg",
+          "path": "static\\media\\19.8b660afa032f5e570167.jpg",
+          "size": 10542,
+          "sizeFormatted": "10.29 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "2.65fe295b2f9b89064ca7.jpg",
+          "path": "static\\media\\2.65fe295b2f9b89064ca7.jpg",
+          "size": 10786,
+          "sizeFormatted": "10.53 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "20.b493f8963829281bd54c.jpg",
+          "path": "static\\media\\20.b493f8963829281bd54c.jpg",
+          "size": 10166,
+          "sizeFormatted": "9.93 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "21.f65ebd73cf42041f21a2.jpg",
+          "path": "static\\media\\21.f65ebd73cf42041f21a2.jpg",
+          "size": 10251,
+          "sizeFormatted": "10.01 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "22.b8db7467a7e59ff54f5c.jpg",
+          "path": "static\\media\\22.b8db7467a7e59ff54f5c.jpg",
+          "size": 10509,
+          "sizeFormatted": "10.26 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "23.626dd4365b8f576df40c.jpg",
+          "path": "static\\media\\23.626dd4365b8f576df40c.jpg",
+          "size": 10086,
+          "sizeFormatted": "9.85 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "24.2461814c618131aa39a7.jpg",
+          "path": "static\\media\\24.2461814c618131aa39a7.jpg",
+          "size": 10791,
+          "sizeFormatted": "10.54 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "25.933981e883a15ef03ce9.jpg",
+          "path": "static\\media\\25.933981e883a15ef03ce9.jpg",
+          "size": 10006,
+          "sizeFormatted": "9.77 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "27.160213cae415fa8d3d5b.jpg",
+          "path": "static\\media\\27.160213cae415fa8d3d5b.jpg",
+          "size": 10592,
+          "sizeFormatted": "10.34 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "28.f11f2bd9bbf7aa787e93.jpg",
+          "path": "static\\media\\28.f11f2bd9bbf7aa787e93.jpg",
+          "size": 10143,
+          "sizeFormatted": "9.91 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "29.506ad6be0445efe850ab.jpg",
+          "path": "static\\media\\29.506ad6be0445efe850ab.jpg",
+          "size": 10084,
+          "sizeFormatted": "9.85 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "3.04e562960609ef8b7b54.jpg",
+          "path": "static\\media\\3.04e562960609ef8b7b54.jpg",
+          "size": 11286,
+          "sizeFormatted": "11.02 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "30.8c44bcd602447a52a052.jpg",
+          "path": "static\\media\\30.8c44bcd602447a52a052.jpg",
+          "size": 10696,
+          "sizeFormatted": "10.45 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "31.2c61d8dff0b971b70501.jpg",
+          "path": "static\\media\\31.2c61d8dff0b971b70501.jpg",
+          "size": 11616,
+          "sizeFormatted": "11.34 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "32.7314263defe0ed442a0e.jpg",
+          "path": "static\\media\\32.7314263defe0ed442a0e.jpg",
+          "size": 10486,
+          "sizeFormatted": "10.24 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "33.c3a5ade585d8196dca9d.jpg",
+          "path": "static\\media\\33.c3a5ade585d8196dca9d.jpg",
+          "size": 10470,
+          "sizeFormatted": "10.22 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "34.d090f19cb3c9faf0fefb.jpg",
+          "path": "static\\media\\34.d090f19cb3c9faf0fefb.jpg",
+          "size": 10163,
+          "sizeFormatted": "9.92 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "38.84564d5a0adee010a861.jpg",
+          "path": "static\\media\\38.84564d5a0adee010a861.jpg",
+          "size": 11295,
+          "sizeFormatted": "11.03 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "4.de96f85fc30d42f65fef.jpg",
+          "path": "static\\media\\4.de96f85fc30d42f65fef.jpg",
+          "size": 10712,
+          "sizeFormatted": "10.46 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "40.3f4889b8745abf40e1d2.jpg",
+          "path": "static\\media\\40.3f4889b8745abf40e1d2.jpg",
+          "size": 10316,
+          "sizeFormatted": "10.07 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "41.8a8f350e6e3fc1b38767.jpg",
+          "path": "static\\media\\41.8a8f350e6e3fc1b38767.jpg",
+          "size": 11013,
+          "sizeFormatted": "10.75 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "42.e48a48d34e75a2847209.jpg",
+          "path": "static\\media\\42.e48a48d34e75a2847209.jpg",
+          "size": 10626,
+          "sizeFormatted": "10.38 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "43.d13bbda3f0c89a36b28d.jpg",
+          "path": "static\\media\\43.d13bbda3f0c89a36b28d.jpg",
+          "size": 10733,
+          "sizeFormatted": "10.48 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "44.53f254cf521ea9bb4a8c.jpg",
+          "path": "static\\media\\44.53f254cf521ea9bb4a8c.jpg",
+          "size": 10645,
+          "sizeFormatted": "10.4 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "45.3094a54c8f9dcf4bedc4.jpg",
+          "path": "static\\media\\45.3094a54c8f9dcf4bedc4.jpg",
+          "size": 11275,
+          "sizeFormatted": "11.01 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "46.ab431faa30d8fc8b1a3f.jpg",
+          "path": "static\\media\\46.ab431faa30d8fc8b1a3f.jpg",
+          "size": 10186,
+          "sizeFormatted": "9.95 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "47.939d3bb254d37c62280a.jpg",
+          "path": "static\\media\\47.939d3bb254d37c62280a.jpg",
+          "size": 10804,
+          "sizeFormatted": "10.55 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "48.3088b0c64fc5c9236c89.jpg",
+          "path": "static\\media\\48.3088b0c64fc5c9236c89.jpg",
+          "size": 11801,
+          "sizeFormatted": "11.52 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "49.45149c8a6c12f50e7772.jpg",
+          "path": "static\\media\\49.45149c8a6c12f50e7772.jpg",
+          "size": 11063,
+          "sizeFormatted": "10.8 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "5.a8dd2df2cbc1909cc448.jpg",
+          "path": "static\\media\\5.a8dd2df2cbc1909cc448.jpg",
+          "size": 10275,
+          "sizeFormatted": "10.03 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "50.1b0ac6a7ec9d7dada934.jpg",
+          "path": "static\\media\\50.1b0ac6a7ec9d7dada934.jpg",
+          "size": 10857,
+          "sizeFormatted": "10.6 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "51.63bd02cacf31549eb803.jpg",
+          "path": "static\\media\\51.63bd02cacf31549eb803.jpg",
+          "size": 10699,
+          "sizeFormatted": "10.45 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "52.4181bcf9c82d95da5ac7.jpg",
+          "path": "static\\media\\52.4181bcf9c82d95da5ac7.jpg",
+          "size": 11492,
+          "sizeFormatted": "11.22 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "53.a9bd709701197f9d23a4.jpg",
+          "path": "static\\media\\53.a9bd709701197f9d23a4.jpg",
+          "size": 10406,
+          "sizeFormatted": "10.16 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "54.70560798658159e92ca2.jpg",
+          "path": "static\\media\\54.70560798658159e92ca2.jpg",
+          "size": 10961,
+          "sizeFormatted": "10.7 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "55.8ed6ec9af31df79ed8e4.jpg",
+          "path": "static\\media\\55.8ed6ec9af31df79ed8e4.jpg",
+          "size": 11601,
+          "sizeFormatted": "11.33 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "6.67c22de6c29d2250ef32.jpg",
+          "path": "static\\media\\6.67c22de6c29d2250ef32.jpg",
+          "size": 10360,
+          "sizeFormatted": "10.12 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "64.80b88bad36be23db3489.jpg",
+          "path": "static\\media\\64.80b88bad36be23db3489.jpg",
+          "size": 31887,
+          "sizeFormatted": "31.14 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "7.51a59ea641d3dec2d462.jpg",
+          "path": "static\\media\\7.51a59ea641d3dec2d462.jpg",
+          "size": 10629,
+          "sizeFormatted": "10.38 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "8.6f4d2b8e431a7f3255fa.jpg",
+          "path": "static\\media\\8.6f4d2b8e431a7f3255fa.jpg",
+          "size": 10631,
+          "sizeFormatted": "10.38 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "cav024.bcff3fdea7f04d5e6c2a.jpg",
+          "path": "static\\media\\cav024.bcff3fdea7f04d5e6c2a.jpg",
+          "size": 521492,
+          "sizeFormatted": "509.27 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "CelFrisene.b7e947057b8b8b5b992d.jpg",
+          "path": "static\\media\\CelFrisene.b7e947057b8b8b5b992d.jpg",
+          "size": 310533,
+          "sizeFormatted": "303.25 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "historia2.6006baba66ee61561fd0.jpg",
+          "path": "static\\media\\historia2.6006baba66ee61561fd0.jpg",
+          "size": 116919,
+          "sizeFormatted": "114.18 KB",
+          "extension": ".jpg"
+        }
+      ]
+    },
+    ".jpeg": {
+      "count": 2,
+      "totalSize": 357971,
+      "files": [
+        {
+          "name": "cavalaria01.d38bdd8cc59e9f1e755a.jpeg",
+          "path": "static\\media\\cavalaria01.d38bdd8cc59e9f1e755a.jpeg",
+          "size": 184666,
+          "sizeFormatted": "180.34 KB",
+          "extension": ".jpeg"
+        },
+        {
+          "name": "cavalaria09.9f929987dd90ebf2e875.jpeg",
+          "path": "static\\media\\cavalaria09.9f929987dd90ebf2e875.jpeg",
+          "size": 173305,
+          "sizeFormatted": "169.24 KB",
+          "extension": ".jpeg"
+        }
+      ]
+    },
+    ".svg": {
+      "count": 1,
+      "totalSize": 3859276,
+      "files": [
+        {
+          "name": "SP_RG_Imediatas_2024.c774eaffb042a40bd83b1c15d13a3db3.svg",
+          "path": "static\\media\\SP_RG_Imediatas_2024.c774eaffb042a40bd83b1c15d13a3db3.svg",
+          "size": 3859276,
+          "sizeFormatted": "3.68 MB",
+          "extension": ".svg"
+        }
+      ]
+    }
+  },
+  "byDirectory": {
+    ".": {
+      "count": 9,
+      "totalSize": 607942,
+      "files": [
+        {
+          "name": "asset-manifest.json",
+          "path": "asset-manifest.json",
+          "size": 11921,
+          "sizeFormatted": "11.64 KB",
+          "extension": ".json"
+        },
+        {
+          "name": "config.js",
+          "path": "config.js",
+          "size": 156,
+          "sizeFormatted": "156 Bytes",
+          "extension": ".js"
+        },
+        {
+          "name": "favicon.ico",
+          "path": "favicon.ico",
+          "size": 556773,
+          "sizeFormatted": "543.72 KB",
+          "extension": ".ico"
+        },
+        {
+          "name": "index.html",
+          "path": "index.html",
+          "size": 687,
+          "sizeFormatted": "687 Bytes",
+          "extension": ".html"
+        },
+        {
+          "name": "logo192.png",
+          "path": "logo192.png",
+          "size": 5347,
+          "sizeFormatted": "5.22 KB",
+          "extension": ".png"
+        },
+        {
+          "name": "logo512.png",
+          "path": "logo512.png",
+          "size": 9664,
+          "sizeFormatted": "9.44 KB",
+          "extension": ".png"
+        },
+        {
+          "name": "manifest.json",
+          "path": "manifest.json",
+          "size": 492,
+          "sizeFormatted": "492 Bytes",
+          "extension": ".json"
+        },
+        {
+          "name": "performance-test.html",
+          "path": "performance-test.html",
+          "size": 22835,
+          "sizeFormatted": "22.3 KB",
+          "extension": ".html"
+        },
+        {
+          "name": "robots.txt",
+          "path": "robots.txt",
+          "size": 67,
+          "sizeFormatted": "67 Bytes",
+          "extension": ".txt"
+        }
+      ]
+    },
+    "Hinos": {
+      "count": 15,
+      "totalSize": 95060074,
+      "files": [
+        {
+          "name": "01-Canção da Infantaria.mp3",
+          "path": "Hinos\\01-Canção da Infantaria.mp3",
+          "size": 2472645,
+          "sizeFormatted": "2.36 MB",
+          "extension": ".mp3"
+        },
+        {
+          "name": "Arma de Herois - Canção da Cavalaria.mp3",
+          "path": "Hinos\\Arma de Herois - Canção da Cavalaria.mp3",
+          "size": 2335341,
+          "sizeFormatted": "2.23 MB",
+          "extension": ".mp3"
+        },
+        {
+          "name": "cancao_essd.mp3",
+          "path": "Hinos\\cancao_essd.mp3",
+          "size": 3112089,
+          "sizeFormatted": "2.97 MB",
+          "extension": ".mp3"
+        },
+        {
+          "name": "Canção da Cavalaria.mp3",
+          "path": "Hinos\\Canção da Cavalaria.mp3",
+          "size": 4704621,
+          "sizeFormatted": "4.49 MB",
+          "extension": ".mp3"
+        },
+        {
+          "name": "Canção da Polícia Militar - Vocal.mp3",
+          "path": "Hinos\\Canção da Polícia Militar - Vocal.mp3",
+          "size": 6310210,
+          "sizeFormatted": "6.02 MB",
+          "extension": ".mp3"
+        },
+        {
+          "name": "Canção do Patrulheiro - Vocal.mp3",
+          "path": "Hinos\\Canção do Patrulheiro - Vocal.mp3",
+          "size": 6936239,
+          "sizeFormatted": "6.61 MB",
+          "extension": ".mp3"
+        },
+        {
+          "name": "Essd - Vocal.mp3",
+          "path": "Hinos\\Essd - Vocal.mp3",
+          "size": 4661846,
+          "sizeFormatted": "4.45 MB",
+          "extension": ".mp3"
+        },
+        {
+          "name": "Eterno Regimento - Instrumental.mp3",
+          "path": "Hinos\\Eterno Regimento - Instrumental.mp3",
+          "size": 6246004,
+          "sizeFormatted": "5.96 MB",
+          "extension": ".mp3"
+        },
+        {
+          "name": "Eterno Regimento - Vocal.mp3",
+          "path": "Hinos\\Eterno Regimento - Vocal.mp3",
+          "size": 6202156,
+          "sizeFormatted": "5.91 MB",
+          "extension": ".mp3"
+        },
+        {
+          "name": "Hino da Proclamação da República  Vocal.mp3",
+          "path": "Hinos\\Hino da Proclamação da República  Vocal.mp3",
+          "size": 12390035,
+          "sizeFormatted": "11.82 MB",
+          "extension": ".mp3"
+        },
+        {
+          "name": "Hino Nacional Brasileiro  Continência.mp3",
+          "path": "Hinos\\Hino Nacional Brasileiro  Continência.mp3",
+          "size": 3436416,
+          "sizeFormatted": "3.28 MB",
+          "extension": ".mp3"
+        },
+        {
+          "name": "Hino Nacional Brasileiro - Vocal.mp3",
+          "path": "Hinos\\Hino Nacional Brasileiro - Vocal.mp3",
+          "size": 9007735,
+          "sizeFormatted": "8.59 MB",
+          "extension": ".mp3"
+        },
+        {
+          "name": "Hino á Bandeira - Vocal.mp3",
+          "path": "Hinos\\Hino á Bandeira - Vocal.mp3",
+          "size": 12736966,
+          "sizeFormatted": "12.15 MB",
+          "extension": ".mp3"
+        },
+        {
+          "name": "Música da Incorporação da Bandeira.mp3",
+          "path": "Hinos\\Música da Incorporação da Bandeira.mp3",
+          "size": 3841389,
+          "sizeFormatted": "3.66 MB",
+          "extension": ".mp3"
+        },
+        {
+          "name": "Paris Belfort (9 de Julho) - Vocal.mp3",
+          "path": "Hinos\\Paris Belfort (9 de Julho) - Vocal.mp3",
+          "size": 10666382,
+          "sizeFormatted": "10.17 MB",
+          "extension": ".mp3"
+        }
+      ]
+    },
+    "LetraHinos": {
+      "count": 8,
+      "totalSize": 824267,
+      "files": [
+        {
+          "name": "9 de julho - paris belfort.pdf",
+          "path": "LetraHinos\\9 de julho - paris belfort.pdf",
+          "size": 86690,
+          "sizeFormatted": "84.66 KB",
+          "extension": ".pdf"
+        },
+        {
+          "name": "cancao da cavalaria.pdf",
+          "path": "LetraHinos\\cancao da cavalaria.pdf",
+          "size": 113506,
+          "sizeFormatted": "110.85 KB",
+          "extension": ".pdf"
+        },
+        {
+          "name": "cancao da pm.pdf",
+          "path": "LetraHinos\\cancao da pm.pdf",
+          "size": 106922,
+          "sizeFormatted": "104.42 KB",
+          "extension": ".pdf"
+        },
+        {
+          "name": "cancao do patrulheiro.pdf",
+          "path": "LetraHinos\\cancao do patrulheiro.pdf",
+          "size": 106965,
+          "sizeFormatted": "104.46 KB",
+          "extension": ".pdf"
+        },
+        {
+          "name": "escola superior de soldados.pdf",
+          "path": "LetraHinos\\escola superior de soldados.pdf",
+          "size": 102452,
+          "sizeFormatted": "100.05 KB",
+          "extension": ".pdf"
+        },
+        {
+          "name": "Eterno Regimento.pdf",
+          "path": "LetraHinos\\Eterno Regimento.pdf",
+          "size": 103287,
+          "sizeFormatted": "100.87 KB",
+          "extension": ".pdf"
+        },
+        {
+          "name": "Hino Nacional Brasileiro.pdf",
+          "path": "LetraHinos\\Hino Nacional Brasileiro.pdf",
+          "size": 101407,
+          "sizeFormatted": "99.03 KB",
+          "extension": ".pdf"
+        },
+        {
+          "name": "Soldados a cavalaria.pdf",
+          "path": "LetraHinos\\Soldados a cavalaria.pdf",
+          "size": 103038,
+          "sizeFormatted": "100.62 KB",
+          "extension": ".pdf"
+        }
+      ]
+    },
+    "static\\css": {
+      "count": 2,
+      "totalSize": 796519,
+      "files": [
+        {
+          "name": "main.c22eb27d.css",
+          "path": "static\\css\\main.c22eb27d.css",
+          "size": 239484,
+          "sizeFormatted": "233.87 KB",
+          "extension": ".css"
+        },
+        {
+          "name": "main.c22eb27d.css.map",
+          "path": "static\\css\\main.c22eb27d.css.map",
+          "size": 557035,
+          "sizeFormatted": "543.98 KB",
+          "extension": ".map"
+        }
+      ]
+    },
+    "static\\js": {
+      "count": 10,
+      "totalSize": 28217194,
+      "files": [
+        {
+          "name": "453.2511e63b.chunk.js",
+          "path": "static\\js\\453.2511e63b.chunk.js",
+          "size": 4519,
+          "sizeFormatted": "4.41 KB",
+          "extension": ".js"
+        },
+        {
+          "name": "453.2511e63b.chunk.js.map",
+          "path": "static\\js\\453.2511e63b.chunk.js.map",
+          "size": 10597,
+          "sizeFormatted": "10.35 KB",
+          "extension": ".map"
+        },
+        {
+          "name": "732.3808e366.chunk.js",
+          "path": "static\\js\\732.3808e366.chunk.js",
+          "size": 112013,
+          "sizeFormatted": "109.39 KB",
+          "extension": ".js"
+        },
+        {
+          "name": "732.3808e366.chunk.js.map",
+          "path": "static\\js\\732.3808e366.chunk.js.map",
+          "size": 142280,
+          "sizeFormatted": "138.95 KB",
+          "extension": ".map"
+        },
+        {
+          "name": "977.542a4f34.chunk.js",
+          "path": "static\\js\\977.542a4f34.chunk.js",
+          "size": 22944,
+          "sizeFormatted": "22.41 KB",
+          "extension": ".js"
+        },
+        {
+          "name": "977.542a4f34.chunk.js.LICENSE.txt",
+          "path": "static\\js\\977.542a4f34.chunk.js.LICENSE.txt",
+          "size": 188,
+          "sizeFormatted": "188 Bytes",
+          "extension": ".txt"
+        },
+        {
+          "name": "977.542a4f34.chunk.js.map",
+          "path": "static\\js\\977.542a4f34.chunk.js.map",
+          "size": 108778,
+          "sizeFormatted": "106.23 KB",
+          "extension": ".map"
+        },
+        {
+          "name": "main.e1d9b7de.js",
+          "path": "static\\js\\main.e1d9b7de.js",
+          "size": 2384568,
+          "sizeFormatted": "2.27 MB",
+          "extension": ".js"
+        },
+        {
+          "name": "main.e1d9b7de.js.LICENSE.txt",
+          "path": "static\\js\\main.e1d9b7de.js.LICENSE.txt",
+          "size": 77717,
+          "sizeFormatted": "75.9 KB",
+          "extension": ".txt"
+        },
+        {
+          "name": "main.e1d9b7de.js.map",
+          "path": "static\\js\\main.e1d9b7de.js.map",
+          "size": 25353590,
+          "sizeFormatted": "24.18 MB",
+          "extension": ".map"
+        }
+      ]
+    },
+    "static\\media": {
+      "count": 148,
+      "totalSize": 135993553,
+      "files": [
+        {
+          "name": "1.02332da032e6226020cc.jpg",
+          "path": "static\\media\\1.02332da032e6226020cc.jpg",
+          "size": 10241,
+          "sizeFormatted": "10 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "1.1.8b8d838f75fe898fc543.png",
+          "path": "static\\media\\1.1.8b8d838f75fe898fc543.png",
+          "size": 1559998,
+          "sizeFormatted": "1.49 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "10.1.ec1cc9a84afff8c21e15.png",
+          "path": "static\\media\\10.1.ec1cc9a84afff8c21e15.png",
+          "size": 1479443,
+          "sizeFormatted": "1.41 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "10.d6c42932e590c2adc8a1.jpg",
+          "path": "static\\media\\10.d6c42932e590c2adc8a1.jpg",
+          "size": 10285,
+          "sizeFormatted": "10.04 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "11.1.99150b66a9be5aca07f5.png",
+          "path": "static\\media\\11.1.99150b66a9be5aca07f5.png",
+          "size": 1708987,
+          "sizeFormatted": "1.63 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "11.e0ca1ac37a7c5cb32a6c.jpg",
+          "path": "static\\media\\11.e0ca1ac37a7c5cb32a6c.jpg",
+          "size": 10227,
+          "sizeFormatted": "9.99 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "12.1.55948dd179160059a44b.png",
+          "path": "static\\media\\12.1.55948dd179160059a44b.png",
+          "size": 1315492,
+          "sizeFormatted": "1.25 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "12.2dd23b7259cd4983d4ae.jpg",
+          "path": "static\\media\\12.2dd23b7259cd4983d4ae.jpg",
+          "size": 10491,
+          "sizeFormatted": "10.25 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "13.1.c5775dacda950796c89b.png",
+          "path": "static\\media\\13.1.c5775dacda950796c89b.png",
+          "size": 1645947,
+          "sizeFormatted": "1.57 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "13.533147e736cfa01f7769.jpg",
+          "path": "static\\media\\13.533147e736cfa01f7769.jpg",
+          "size": 10403,
+          "sizeFormatted": "10.16 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "14.1.3f31171cf30d20d7a223.png",
+          "path": "static\\media\\14.1.3f31171cf30d20d7a223.png",
+          "size": 1510958,
+          "sizeFormatted": "1.44 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "14.f25b2f225527c626dd27.jpg",
+          "path": "static\\media\\14.f25b2f225527c626dd27.jpg",
+          "size": 10400,
+          "sizeFormatted": "10.16 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "15.1.b62844bf9ea6b28db1a7.png",
+          "path": "static\\media\\15.1.b62844bf9ea6b28db1a7.png",
+          "size": 1557873,
+          "sizeFormatted": "1.49 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "15.2.f93e9a0259d5146a9b82.png",
+          "path": "static\\media\\15.2.f93e9a0259d5146a9b82.png",
+          "size": 1852236,
+          "sizeFormatted": "1.77 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "15.b24061e2f09747ad2a14.jpg",
+          "path": "static\\media\\15.b24061e2f09747ad2a14.jpg",
+          "size": 10430,
+          "sizeFormatted": "10.19 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "16.1.850236a9fce9fb0fce1b.png",
+          "path": "static\\media\\16.1.850236a9fce9fb0fce1b.png",
+          "size": 1519476,
+          "sizeFormatted": "1.45 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "16.5129cfe29211e2cd03a3.jpg",
+          "path": "static\\media\\16.5129cfe29211e2cd03a3.jpg",
+          "size": 10112,
+          "sizeFormatted": "9.88 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "17.1.9dfa59d8494ffa6cf3a4.png",
+          "path": "static\\media\\17.1.9dfa59d8494ffa6cf3a4.png",
+          "size": 1579311,
+          "sizeFormatted": "1.51 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "17.2ce6b9c8465b0c3674df.jpg",
+          "path": "static\\media\\17.2ce6b9c8465b0c3674df.jpg",
+          "size": 10388,
+          "sizeFormatted": "10.14 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "18.1.8645d09a41f453544c27.png",
+          "path": "static\\media\\18.1.8645d09a41f453544c27.png",
+          "size": 1672400,
+          "sizeFormatted": "1.59 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "18.eb07b4f3c2255950bf7b.jpg",
+          "path": "static\\media\\18.eb07b4f3c2255950bf7b.jpg",
+          "size": 10254,
+          "sizeFormatted": "10.01 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "19.1.f9b90d25d90975f5737f.png",
+          "path": "static\\media\\19.1.f9b90d25d90975f5737f.png",
+          "size": 1484327,
+          "sizeFormatted": "1.42 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "19.2.cf2510010017d50097d8.png",
+          "path": "static\\media\\19.2.cf2510010017d50097d8.png",
+          "size": 1633214,
+          "sizeFormatted": "1.56 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "19.8b660afa032f5e570167.jpg",
+          "path": "static\\media\\19.8b660afa032f5e570167.jpg",
+          "size": 10542,
+          "sizeFormatted": "10.29 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "2.1.46c00b421f0f930e56d5.png",
+          "path": "static\\media\\2.1.46c00b421f0f930e56d5.png",
+          "size": 1619845,
+          "sizeFormatted": "1.54 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "2.65fe295b2f9b89064ca7.jpg",
+          "path": "static\\media\\2.65fe295b2f9b89064ca7.jpg",
+          "size": 10786,
+          "sizeFormatted": "10.53 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "20.1.cb1d5654e15c291f8e35.png",
+          "path": "static\\media\\20.1.cb1d5654e15c291f8e35.png",
+          "size": 1456123,
+          "sizeFormatted": "1.39 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "20.b493f8963829281bd54c.jpg",
+          "path": "static\\media\\20.b493f8963829281bd54c.jpg",
+          "size": 10166,
+          "sizeFormatted": "9.93 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "21.1.f1e4ad2110bcf26c2773.png",
+          "path": "static\\media\\21.1.f1e4ad2110bcf26c2773.png",
+          "size": 1524736,
+          "sizeFormatted": "1.45 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "21.2.82ec2d07dafa7fd2c715.png",
+          "path": "static\\media\\21.2.82ec2d07dafa7fd2c715.png",
+          "size": 1601146,
+          "sizeFormatted": "1.53 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "21.f65ebd73cf42041f21a2.jpg",
+          "path": "static\\media\\21.f65ebd73cf42041f21a2.jpg",
+          "size": 10251,
+          "sizeFormatted": "10.01 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "22.1.7e9d4cb4a0e94ab2d81e.png",
+          "path": "static\\media\\22.1.7e9d4cb4a0e94ab2d81e.png",
+          "size": 1426442,
+          "sizeFormatted": "1.36 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "22.b8db7467a7e59ff54f5c.jpg",
+          "path": "static\\media\\22.b8db7467a7e59ff54f5c.jpg",
+          "size": 10509,
+          "sizeFormatted": "10.26 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "23.1.9f22dc563bebab66041c.png",
+          "path": "static\\media\\23.1.9f22dc563bebab66041c.png",
+          "size": 1441203,
+          "sizeFormatted": "1.37 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "23.626dd4365b8f576df40c.jpg",
+          "path": "static\\media\\23.626dd4365b8f576df40c.jpg",
+          "size": 10086,
+          "sizeFormatted": "9.85 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "24.1.60832ee921008c7e155b.png",
+          "path": "static\\media\\24.1.60832ee921008c7e155b.png",
+          "size": 1429649,
+          "sizeFormatted": "1.36 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "24.2461814c618131aa39a7.jpg",
+          "path": "static\\media\\24.2461814c618131aa39a7.jpg",
+          "size": 10791,
+          "sizeFormatted": "10.54 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "25.1.5b37c76a06aead9961f8.png",
+          "path": "static\\media\\25.1.5b37c76a06aead9961f8.png",
+          "size": 2053657,
+          "sizeFormatted": "1.96 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "25.933981e883a15ef03ce9.jpg",
+          "path": "static\\media\\25.933981e883a15ef03ce9.jpg",
+          "size": 10006,
+          "sizeFormatted": "9.77 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "26.1.83c5e6b299dbcf4a7943.png",
+          "path": "static\\media\\26.1.83c5e6b299dbcf4a7943.png",
+          "size": 1518969,
+          "sizeFormatted": "1.45 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "26.2.fa6b8fb90be4e55fd05f.png",
+          "path": "static\\media\\26.2.fa6b8fb90be4e55fd05f.png",
+          "size": 1566722,
+          "sizeFormatted": "1.49 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "27.1.a17d6b517032febca0a1.png",
+          "path": "static\\media\\27.1.a17d6b517032febca0a1.png",
+          "size": 1539837,
+          "sizeFormatted": "1.47 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "27.160213cae415fa8d3d5b.jpg",
+          "path": "static\\media\\27.160213cae415fa8d3d5b.jpg",
+          "size": 10592,
+          "sizeFormatted": "10.34 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "28.1.16e50cdcdf40a6fec542.png",
+          "path": "static\\media\\28.1.16e50cdcdf40a6fec542.png",
+          "size": 1507403,
+          "sizeFormatted": "1.44 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "28.f11f2bd9bbf7aa787e93.jpg",
+          "path": "static\\media\\28.f11f2bd9bbf7aa787e93.jpg",
+          "size": 10143,
+          "sizeFormatted": "9.91 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "29.1.3bf57234ae3cca0a05f9.png",
+          "path": "static\\media\\29.1.3bf57234ae3cca0a05f9.png",
+          "size": 1457823,
+          "sizeFormatted": "1.39 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "29.506ad6be0445efe850ab.jpg",
+          "path": "static\\media\\29.506ad6be0445efe850ab.jpg",
+          "size": 10084,
+          "sizeFormatted": "9.85 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "3.04e562960609ef8b7b54.jpg",
+          "path": "static\\media\\3.04e562960609ef8b7b54.jpg",
+          "size": 11286,
+          "sizeFormatted": "11.02 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "3.1.46f80a01700eb50c172d.png",
+          "path": "static\\media\\3.1.46f80a01700eb50c172d.png",
+          "size": 1407962,
+          "sizeFormatted": "1.34 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "30.1.0400508be72084a6381e.png",
+          "path": "static\\media\\30.1.0400508be72084a6381e.png",
+          "size": 1531280,
+          "sizeFormatted": "1.46 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "30.8c44bcd602447a52a052.jpg",
+          "path": "static\\media\\30.8c44bcd602447a52a052.jpg",
+          "size": 10696,
+          "sizeFormatted": "10.45 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "31.1.edfe756ddbbb43aea307.png",
+          "path": "static\\media\\31.1.edfe756ddbbb43aea307.png",
+          "size": 1781298,
+          "sizeFormatted": "1.7 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "31.2.8debe045e0e4b0be8614.png",
+          "path": "static\\media\\31.2.8debe045e0e4b0be8614.png",
+          "size": 1869341,
+          "sizeFormatted": "1.78 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "31.2c61d8dff0b971b70501.jpg",
+          "path": "static\\media\\31.2c61d8dff0b971b70501.jpg",
+          "size": 11616,
+          "sizeFormatted": "11.34 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "32.1.a0b87d4eda98c284d131.png",
+          "path": "static\\media\\32.1.a0b87d4eda98c284d131.png",
+          "size": 1623796,
+          "sizeFormatted": "1.55 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "32.7314263defe0ed442a0e.jpg",
+          "path": "static\\media\\32.7314263defe0ed442a0e.jpg",
+          "size": 10486,
+          "sizeFormatted": "10.24 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "33.1.829cdd36e52e6dea1f8f.png",
+          "path": "static\\media\\33.1.829cdd36e52e6dea1f8f.png",
+          "size": 1517276,
+          "sizeFormatted": "1.45 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "33.c3a5ade585d8196dca9d.jpg",
+          "path": "static\\media\\33.c3a5ade585d8196dca9d.jpg",
+          "size": 10470,
+          "sizeFormatted": "10.22 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "34.1.0ae4d3e8340e41c28b16.png",
+          "path": "static\\media\\34.1.0ae4d3e8340e41c28b16.png",
+          "size": 1421616,
+          "sizeFormatted": "1.36 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "34.d090f19cb3c9faf0fefb.jpg",
+          "path": "static\\media\\34.d090f19cb3c9faf0fefb.jpg",
+          "size": 10163,
+          "sizeFormatted": "9.92 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "35.1.95275e287c8814b09646.png",
+          "path": "static\\media\\35.1.95275e287c8814b09646.png",
+          "size": 1426516,
+          "sizeFormatted": "1.36 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "36.1.6b6d4aa604e1926bd9b1.png",
+          "path": "static\\media\\36.1.6b6d4aa604e1926bd9b1.png",
+          "size": 1540923,
+          "sizeFormatted": "1.47 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "37.1.0eafeeaa2390dfad1d39.png",
+          "path": "static\\media\\37.1.0eafeeaa2390dfad1d39.png",
+          "size": 1485996,
+          "sizeFormatted": "1.42 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "37.2.f2f8163c2f793d5d1594.png",
+          "path": "static\\media\\37.2.f2f8163c2f793d5d1594.png",
+          "size": 1491621,
+          "sizeFormatted": "1.42 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "38.1.9275a1f11916a749ecf3.png",
+          "path": "static\\media\\38.1.9275a1f11916a749ecf3.png",
+          "size": 1455919,
+          "sizeFormatted": "1.39 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "38.84564d5a0adee010a861.jpg",
+          "path": "static\\media\\38.84564d5a0adee010a861.jpg",
+          "size": 11295,
+          "sizeFormatted": "11.03 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "39.1.4b4c86ec7ba01adf501c.png",
+          "path": "static\\media\\39.1.4b4c86ec7ba01adf501c.png",
+          "size": 1563791,
+          "sizeFormatted": "1.49 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "39.2.be4e09ed4e795d8cf900.png",
+          "path": "static\\media\\39.2.be4e09ed4e795d8cf900.png",
+          "size": 1476836,
+          "sizeFormatted": "1.41 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "4.1.f7c3db84666c6a59e5c3.png",
+          "path": "static\\media\\4.1.f7c3db84666c6a59e5c3.png",
+          "size": 1672622,
+          "sizeFormatted": "1.6 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "4.de96f85fc30d42f65fef.jpg",
+          "path": "static\\media\\4.de96f85fc30d42f65fef.jpg",
+          "size": 10712,
+          "sizeFormatted": "10.46 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "40.1.1617e41830cca4d18405.png",
+          "path": "static\\media\\40.1.1617e41830cca4d18405.png",
+          "size": 1426425,
+          "sizeFormatted": "1.36 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "40.2.78d9fd1dd3eebe412adf.png",
+          "path": "static\\media\\40.2.78d9fd1dd3eebe412adf.png",
+          "size": 1481510,
+          "sizeFormatted": "1.41 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "40.3f4889b8745abf40e1d2.jpg",
+          "path": "static\\media\\40.3f4889b8745abf40e1d2.jpg",
+          "size": 10316,
+          "sizeFormatted": "10.07 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "41.1.95aebf479887ebdf9ab8.png",
+          "path": "static\\media\\41.1.95aebf479887ebdf9ab8.png",
+          "size": 1555835,
+          "sizeFormatted": "1.48 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "41.8a8f350e6e3fc1b38767.jpg",
+          "path": "static\\media\\41.8a8f350e6e3fc1b38767.jpg",
+          "size": 11013,
+          "sizeFormatted": "10.75 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "42.1.0351eea74528546801c6.png",
+          "path": "static\\media\\42.1.0351eea74528546801c6.png",
+          "size": 1647044,
+          "sizeFormatted": "1.57 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "42.e48a48d34e75a2847209.jpg",
+          "path": "static\\media\\42.e48a48d34e75a2847209.jpg",
+          "size": 10626,
+          "sizeFormatted": "10.38 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "43.1.92954f71420acdc0936c.png",
+          "path": "static\\media\\43.1.92954f71420acdc0936c.png",
+          "size": 1470604,
+          "sizeFormatted": "1.4 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "43.d13bbda3f0c89a36b28d.jpg",
+          "path": "static\\media\\43.d13bbda3f0c89a36b28d.jpg",
+          "size": 10733,
+          "sizeFormatted": "10.48 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "44.1.88d33d9b57efa7548d5a.png",
+          "path": "static\\media\\44.1.88d33d9b57efa7548d5a.png",
+          "size": 1524829,
+          "sizeFormatted": "1.45 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "44.53f254cf521ea9bb4a8c.jpg",
+          "path": "static\\media\\44.53f254cf521ea9bb4a8c.jpg",
+          "size": 10645,
+          "sizeFormatted": "10.4 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "45.1.52e5854ec240eba74aa8.png",
+          "path": "static\\media\\45.1.52e5854ec240eba74aa8.png",
+          "size": 1417781,
+          "sizeFormatted": "1.35 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "45.3094a54c8f9dcf4bedc4.jpg",
+          "path": "static\\media\\45.3094a54c8f9dcf4bedc4.jpg",
+          "size": 11275,
+          "sizeFormatted": "11.01 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "46.1.7f6365ff67de9e9047b3.png",
+          "path": "static\\media\\46.1.7f6365ff67de9e9047b3.png",
+          "size": 1449245,
+          "sizeFormatted": "1.38 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "46.ab431faa30d8fc8b1a3f.jpg",
+          "path": "static\\media\\46.ab431faa30d8fc8b1a3f.jpg",
+          "size": 10186,
+          "sizeFormatted": "9.95 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "47.1.dd6a468813cf4c5ca0cc.png",
+          "path": "static\\media\\47.1.dd6a468813cf4c5ca0cc.png",
+          "size": 1582219,
+          "sizeFormatted": "1.51 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "47.939d3bb254d37c62280a.jpg",
+          "path": "static\\media\\47.939d3bb254d37c62280a.jpg",
+          "size": 10804,
+          "sizeFormatted": "10.55 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "48.1.972993bb8414a0e20fc1.png",
+          "path": "static\\media\\48.1.972993bb8414a0e20fc1.png",
+          "size": 1522545,
+          "sizeFormatted": "1.45 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "48.2.0ecac9ef331e9d5c9e91.png",
+          "path": "static\\media\\48.2.0ecac9ef331e9d5c9e91.png",
+          "size": 1565058,
+          "sizeFormatted": "1.49 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "48.3.1ee8440bcfeb035767c9.png",
+          "path": "static\\media\\48.3.1ee8440bcfeb035767c9.png",
+          "size": 1609203,
+          "sizeFormatted": "1.53 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "48.3088b0c64fc5c9236c89.jpg",
+          "path": "static\\media\\48.3088b0c64fc5c9236c89.jpg",
+          "size": 11801,
+          "sizeFormatted": "11.52 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "48.4.f94e3b7b2706518a2cee.png",
+          "path": "static\\media\\48.4.f94e3b7b2706518a2cee.png",
+          "size": 1442426,
+          "sizeFormatted": "1.38 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "49.1.a1577f1dd6e98cd35e71.png",
+          "path": "static\\media\\49.1.a1577f1dd6e98cd35e71.png",
+          "size": 1405077,
+          "sizeFormatted": "1.34 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "49.45149c8a6c12f50e7772.jpg",
+          "path": "static\\media\\49.45149c8a6c12f50e7772.jpg",
+          "size": 11063,
+          "sizeFormatted": "10.8 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "5.1.08bb17bf2be22021f3af.png",
+          "path": "static\\media\\5.1.08bb17bf2be22021f3af.png",
+          "size": 1696028,
+          "sizeFormatted": "1.62 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "5.a8dd2df2cbc1909cc448.jpg",
+          "path": "static\\media\\5.a8dd2df2cbc1909cc448.jpg",
+          "size": 10275,
+          "sizeFormatted": "10.03 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "50.1.a13a45b709d0d4f9804b.png",
+          "path": "static\\media\\50.1.a13a45b709d0d4f9804b.png",
+          "size": 1605509,
+          "sizeFormatted": "1.53 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "50.1b0ac6a7ec9d7dada934.jpg",
+          "path": "static\\media\\50.1b0ac6a7ec9d7dada934.jpg",
+          "size": 10857,
+          "sizeFormatted": "10.6 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "50.2.22bb7c828f5be17b7d23.png",
+          "path": "static\\media\\50.2.22bb7c828f5be17b7d23.png",
+          "size": 1517046,
+          "sizeFormatted": "1.45 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "51.1.9bc86918e791c3a73061.png",
+          "path": "static\\media\\51.1.9bc86918e791c3a73061.png",
+          "size": 1683973,
+          "sizeFormatted": "1.61 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "51.63bd02cacf31549eb803.jpg",
+          "path": "static\\media\\51.63bd02cacf31549eb803.jpg",
+          "size": 10699,
+          "sizeFormatted": "10.45 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "52.1.d1ad11029e60d4e0ee9b.png",
+          "path": "static\\media\\52.1.d1ad11029e60d4e0ee9b.png",
+          "size": 1425166,
+          "sizeFormatted": "1.36 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "52.4181bcf9c82d95da5ac7.jpg",
+          "path": "static\\media\\52.4181bcf9c82d95da5ac7.jpg",
+          "size": 11492,
+          "sizeFormatted": "11.22 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "53.1.19a3695b342a2d3e4653.png",
+          "path": "static\\media\\53.1.19a3695b342a2d3e4653.png",
+          "size": 1691926,
+          "sizeFormatted": "1.61 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "53.2.c516525d371751109da9.png",
+          "path": "static\\media\\53.2.c516525d371751109da9.png",
+          "size": 1670849,
+          "sizeFormatted": "1.59 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "53.a9bd709701197f9d23a4.jpg",
+          "path": "static\\media\\53.a9bd709701197f9d23a4.jpg",
+          "size": 10406,
+          "sizeFormatted": "10.16 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "54.1.8bdcd89083e44d9bc31e.png",
+          "path": "static\\media\\54.1.8bdcd89083e44d9bc31e.png",
+          "size": 1675234,
+          "sizeFormatted": "1.6 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "54.2.200368b2ab8cfc87a28e.png",
+          "path": "static\\media\\54.2.200368b2ab8cfc87a28e.png",
+          "size": 1573352,
+          "sizeFormatted": "1.5 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "54.70560798658159e92ca2.jpg",
+          "path": "static\\media\\54.70560798658159e92ca2.jpg",
+          "size": 10961,
+          "sizeFormatted": "10.7 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "55.1.36d89007a4a8a9ed8072.png",
+          "path": "static\\media\\55.1.36d89007a4a8a9ed8072.png",
+          "size": 1834148,
+          "sizeFormatted": "1.75 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "55.2.882b76eb3e5f5b909a85.png",
+          "path": "static\\media\\55.2.882b76eb3e5f5b909a85.png",
+          "size": 1904052,
+          "sizeFormatted": "1.82 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "55.3.4023834064a1c7c3857b.png",
+          "path": "static\\media\\55.3.4023834064a1c7c3857b.png",
+          "size": 1825223,
+          "sizeFormatted": "1.74 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "55.4.b31da5d57a30e6ab4cd7.png",
+          "path": "static\\media\\55.4.b31da5d57a30e6ab4cd7.png",
+          "size": 1424782,
+          "sizeFormatted": "1.36 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "55.8ed6ec9af31df79ed8e4.jpg",
+          "path": "static\\media\\55.8ed6ec9af31df79ed8e4.jpg",
+          "size": 11601,
+          "sizeFormatted": "11.33 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "56.1.a5e6aa493d8ba079ed9d.png",
+          "path": "static\\media\\56.1.a5e6aa493d8ba079ed9d.png",
+          "size": 1561350,
+          "sizeFormatted": "1.49 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "57.1.6a13c9ffede95a9ece2c.png",
+          "path": "static\\media\\57.1.6a13c9ffede95a9ece2c.png",
+          "size": 1594848,
+          "sizeFormatted": "1.52 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "58.1.05afef96d7cba21b8027.png",
+          "path": "static\\media\\58.1.05afef96d7cba21b8027.png",
+          "size": 1547196,
+          "sizeFormatted": "1.48 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "58.961b82b6476a5460df20.png",
+          "path": "static\\media\\58.961b82b6476a5460df20.png",
+          "size": 26726,
+          "sizeFormatted": "26.1 KB",
+          "extension": ".png"
+        },
+        {
+          "name": "59.1.7ba4085b35492793517a.png",
+          "path": "static\\media\\59.1.7ba4085b35492793517a.png",
+          "size": 1513269,
+          "sizeFormatted": "1.44 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "59.e725bf5b3b22e209e209.png",
+          "path": "static\\media\\59.e725bf5b3b22e209e209.png",
+          "size": 24746,
+          "sizeFormatted": "24.17 KB",
+          "extension": ".png"
+        },
+        {
+          "name": "6.1.7f27452762bb62b4df25.png",
+          "path": "static\\media\\6.1.7f27452762bb62b4df25.png",
+          "size": 1417305,
+          "sizeFormatted": "1.35 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "6.67c22de6c29d2250ef32.jpg",
+          "path": "static\\media\\6.67c22de6c29d2250ef32.jpg",
+          "size": 10360,
+          "sizeFormatted": "10.12 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "60.1.20e469daa509b53f6b10.png",
+          "path": "static\\media\\60.1.20e469daa509b53f6b10.png",
+          "size": 1558185,
+          "sizeFormatted": "1.49 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "60.2.189216beccd80f232eaa.png",
+          "path": "static\\media\\60.2.189216beccd80f232eaa.png",
+          "size": 1541495,
+          "sizeFormatted": "1.47 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "60.3.0f34e8968d38087b36fa.png",
+          "path": "static\\media\\60.3.0f34e8968d38087b36fa.png",
+          "size": 1503298,
+          "sizeFormatted": "1.43 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "60.3dfe06cc8d9a5928e0e5.png",
+          "path": "static\\media\\60.3dfe06cc8d9a5928e0e5.png",
+          "size": 26189,
+          "sizeFormatted": "25.58 KB",
+          "extension": ".png"
+        },
+        {
+          "name": "61.1.b0dbca4bd2ce14d0238a.png",
+          "path": "static\\media\\61.1.b0dbca4bd2ce14d0238a.png",
+          "size": 1573564,
+          "sizeFormatted": "1.5 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "61.a766847612177c728285.png",
+          "path": "static\\media\\61.a766847612177c728285.png",
+          "size": 29120,
+          "sizeFormatted": "28.44 KB",
+          "extension": ".png"
+        },
+        {
+          "name": "62.1.1b850b1c0e2160c086ae.png",
+          "path": "static\\media\\62.1.1b850b1c0e2160c086ae.png",
+          "size": 1521418,
+          "sizeFormatted": "1.45 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "62.3c66cb440d49b581fefc.png",
+          "path": "static\\media\\62.3c66cb440d49b581fefc.png",
+          "size": 23870,
+          "sizeFormatted": "23.31 KB",
+          "extension": ".png"
+        },
+        {
+          "name": "63.1.2ec090bcf5fe0d63b5da.png",
+          "path": "static\\media\\63.1.2ec090bcf5fe0d63b5da.png",
+          "size": 1607608,
+          "sizeFormatted": "1.53 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "63.128b9ae71ae9d466dc23.png",
+          "path": "static\\media\\63.128b9ae71ae9d466dc23.png",
+          "size": 24262,
+          "sizeFormatted": "23.69 KB",
+          "extension": ".png"
+        },
+        {
+          "name": "64.1.f956e044b4aaaf986c9a.png",
+          "path": "static\\media\\64.1.f956e044b4aaaf986c9a.png",
+          "size": 666917,
+          "sizeFormatted": "651.29 KB",
+          "extension": ".png"
+        },
+        {
+          "name": "64.2.57b220e7e216572e3358.png",
+          "path": "static\\media\\64.2.57b220e7e216572e3358.png",
+          "size": 668098,
+          "sizeFormatted": "652.44 KB",
+          "extension": ".png"
+        },
+        {
+          "name": "64.80b88bad36be23db3489.jpg",
+          "path": "static\\media\\64.80b88bad36be23db3489.jpg",
+          "size": 31887,
+          "sizeFormatted": "31.14 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "7.1.f28359bccc14ca077d27.png",
+          "path": "static\\media\\7.1.f28359bccc14ca077d27.png",
+          "size": 1462065,
+          "sizeFormatted": "1.39 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "7.51a59ea641d3dec2d462.jpg",
+          "path": "static\\media\\7.51a59ea641d3dec2d462.jpg",
+          "size": 10629,
+          "sizeFormatted": "10.38 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "8.1.fdea992ee014ff66f67f.png",
+          "path": "static\\media\\8.1.fdea992ee014ff66f67f.png",
+          "size": 1469284,
+          "sizeFormatted": "1.4 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "8.6f4d2b8e431a7f3255fa.jpg",
+          "path": "static\\media\\8.6f4d2b8e431a7f3255fa.jpg",
+          "size": 10631,
+          "sizeFormatted": "10.38 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "9.1.fd7c4f7dcd62174d6edb.png",
+          "path": "static\\media\\9.1.fd7c4f7dcd62174d6edb.png",
+          "size": 1549641,
+          "sizeFormatted": "1.48 MB",
+          "extension": ".png"
+        },
+        {
+          "name": "cav024.bcff3fdea7f04d5e6c2a.jpg",
+          "path": "static\\media\\cav024.bcff3fdea7f04d5e6c2a.jpg",
+          "size": 521492,
+          "sizeFormatted": "509.27 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "cavalaria01.d38bdd8cc59e9f1e755a.jpeg",
+          "path": "static\\media\\cavalaria01.d38bdd8cc59e9f1e755a.jpeg",
+          "size": 184666,
+          "sizeFormatted": "180.34 KB",
+          "extension": ".jpeg"
+        },
+        {
+          "name": "cavalaria09.9f929987dd90ebf2e875.jpeg",
+          "path": "static\\media\\cavalaria09.9f929987dd90ebf2e875.jpeg",
+          "size": 173305,
+          "sizeFormatted": "169.24 KB",
+          "extension": ".jpeg"
+        },
+        {
+          "name": "CelFrisene.b7e947057b8b8b5b992d.jpg",
+          "path": "static\\media\\CelFrisene.b7e947057b8b8b5b992d.jpg",
+          "size": 310533,
+          "sizeFormatted": "303.25 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "historia2.6006baba66ee61561fd0.jpg",
+          "path": "static\\media\\historia2.6006baba66ee61561fd0.jpg",
+          "size": 116919,
+          "sizeFormatted": "114.18 KB",
+          "extension": ".jpg"
+        },
+        {
+          "name": "Logo-PM.a3a74dfc1b59fa9ca581.png",
+          "path": "static\\media\\Logo-PM.a3a74dfc1b59fa9ca581.png",
+          "size": 250865,
+          "sizeFormatted": "244.99 KB",
+          "extension": ".png"
+        },
+        {
+          "name": "LOGORPMON.e636f84c625985ecef07.png",
+          "path": "static\\media\\LOGORPMON.e636f84c625985ecef07.png",
+          "size": 556773,
+          "sizeFormatted": "543.72 KB",
+          "extension": ".png"
+        },
+        {
+          "name": "SP_RG_Imediatas_2024.c774eaffb042a40bd83b1c15d13a3db3.svg",
+          "path": "static\\media\\SP_RG_Imediatas_2024.c774eaffb042a40bd83b1c15d13a3db3.svg",
+          "size": 3859276,
+          "sizeFormatted": "3.68 MB",
+          "extension": ".svg"
+        }
+      ]
+    }
+  },
+  "buildSizeMB": 249.38540363311768,
+  "estimatedRAM": 748.156210899353,
+  "score": 50,
+  "recommendations": [
+    "⚠️  Build muito grande (> 5 MB). Considere:",
+    "   - Implementar code splitting",
+    "   - Lazy loading de rotas",
+    "   - Otimizar/comprimir imagens",
+    "⚠️  Imagens grandes detectadas. Considere:",
+    "   - Converter para WebP",
+    "   - Implementar lazy loading",
+    "   - Usar CDN para assets",
+    "⚠️  JavaScript grande (> 1 MB). Considere:",
+    "   - Analisar dependências com webpack-bundle-analyzer",
+    "   - Remover bibliotecas não utilizadas",
+    "   - Code splitting por rota"
+  ]
+}
