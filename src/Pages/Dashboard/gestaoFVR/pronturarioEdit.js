@@ -38,7 +38,7 @@ export default function ProntuarioSolipedeEdit() {
   const [error, setError] = useState(null);
   const [observacao, setObservacao] = useState("");
   const [recomendacoes, setRecomendacoes] = useState("");
-  const [tipoObservacao, setTipoObservacao] = useState("Consulta Clínica");
+  const [tipoObservacao, setTipoObservacao] = useState("Tratamento");
   const [historico, setHistorico] = useState([]);
   const [salvando, setSalvando] = useState(false);
   const [mensagem, setMensagem] = useState("");
@@ -1389,13 +1389,13 @@ export default function ProntuarioSolipedeEdit() {
                           value={tipoObservacao}
                           onChange={(e) => setTipoObservacao(e.target.value)}
                         >
-                          <option>Consulta Clínica</option>
+                          {/* <option>Consulta Clínica</option> */}
                           <option>Tratamento</option>
-                          <option>Exame</option>
+                          {/* <option>Exame</option>
                           <option>Vacinação</option>
                           <option>Vermifugação</option>
                           <option>Exames AIE / Mormo</option>
-                          <option>Observações Comportamentais</option>
+                          <option>Observações Comportamentais</option> */}
                           <option>Restrições</option>
                         </Form.Select>
                       </Form.Group>
@@ -1445,6 +1445,7 @@ export default function ProntuarioSolipedeEdit() {
                         </>
                       )}
 
+                      
                       {/* Campos específicos para Vacinação, Vermifugação e AIE/Mormo */}
                       {(tipoObservacao === "Vacinação" || tipoObservacao === "Vermifugação" || tipoObservacao === "Exames AIE / Mormo") && (
                         <div className="mt-3 mb-3 p-3 rounded" style={{ backgroundColor: "#f8f9fa", border: "1px solid #dee2e6" }}>
@@ -1499,10 +1500,10 @@ export default function ProntuarioSolipedeEdit() {
                             </Col>
                           </Row>
                         </div>
-                      )}
+                      )} 
 
                       {/* Interface completa de exames laboratoriais */}
-                      {tipoObservacao === "Exame" && (
+                       {tipoObservacao === "Exame" && (
                         <div className="mt-3 mb-3">
                           <Alert variant="primary" className="mb-3">
                             <strong>🧪 Solicitação de Exames</strong><br />
@@ -1579,7 +1580,7 @@ export default function ProntuarioSolipedeEdit() {
                               </Accordion.Body>
                             </Accordion.Item>
 
-                            {/* 2. BIOQUÍMICA */}
+                            /{/* 2. BIOQUÍMICA */}
                             <Accordion.Item eventKey="1">
                               <Accordion.Header>
                                 🧬 2. Bioquímica Sanguínea
@@ -1753,7 +1754,7 @@ export default function ProntuarioSolipedeEdit() {
                             </Accordion.Item>
                           </Accordion>
                         </div>
-                      )}
+                      )}  
 
 
                       <Form.Group className="mb-3">
@@ -2062,17 +2063,17 @@ export default function ProntuarioSolipedeEdit() {
                   <Card.Body>
                     <Tab.Container defaultActiveKey="vacinacao">
                       <Nav variant="pills" className="mb-3">
-                        <Nav.Item>
+                        {/* <Nav.Item>
                           <Nav.Link eventKey="consulta" className="me-2">
                             🩺 Consulta Clínica
                           </Nav.Link>
-                        </Nav.Item>
+                        </Nav.Item> */}
                         <Nav.Item>
                           <Nav.Link eventKey="tratamento" className="me-2">
                             💊 Tratamento
                           </Nav.Link>
                         </Nav.Item>
-                        <Nav.Item>
+                        {/* <Nav.Item>
                           <Nav.Link eventKey="exame" className="me-2">
                             🔬 Exame
                           </Nav.Link>
@@ -2091,7 +2092,7 @@ export default function ProntuarioSolipedeEdit() {
                           <Nav.Link eventKey="aie" className="me-2">
                             🧪 Exames AIE/Mormo
                           </Nav.Link>
-                        </Nav.Item>
+                        </Nav.Item> */}
                         <Nav.Item>
                           <Nav.Link eventKey="restricoes">
                             ⚠️ Restrições
