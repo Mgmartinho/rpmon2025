@@ -93,6 +93,21 @@ export default function ProntuarioSolipedeEdit() {
   // Estado para usuário logado
   const [usuarioLogado, setUsuarioLogado] = useState(null);
 
+  // Estados para dieta (quando tipoObservacao === "Dieta")
+  const [dietaSelecionada, setDietaSelecionada] = useState({
+    fenoSoFeno: false,
+    umQuintoRacao: false,
+    fenoMolhado: false,
+    jejum: false,
+  });
+
+  // Estados para suplementação (quando tipoObservacao === "Suplementação")
+  const [suplementacao, setSuplementacao] = useState({
+    produto: "",
+    dose: "",
+    frequencia: "",
+  });
+
   // Estados para exames laboratoriais (quando tipoObservacao === "Exame")
   const [examesSelecionados, setExamesSelecionados] = useState({
     // Hematologia
@@ -198,10 +213,10 @@ export default function ProntuarioSolipedeEdit() {
         <!-- Cabeçalho Oficial -->
         <div style="text-align: center; margin-bottom: 30px;">
           <h2 style="margin: 0; font-size: 18px; font-weight: bold; text-transform: uppercase;">
-            REGIMENTO DE POLÍCIA MONTADA
+            REGIMENTO DE POLÍCIA MONTADA "9 De Julho"
           </h2>
           <h3 style="margin: 5px 0; font-size: 16px; font-weight: bold;">
-            SEÇÃO DE SAÚDE VETERINÁRIA
+            FORMAÇÃO VETERINÁRIA REGIMENTAL
           </h3>
           <p style="margin: 5px 0; font-size: 12px;">PRONTUÁRIO VETERINÁRIO</p>
         </div>
@@ -628,6 +643,141 @@ export default function ProntuarioSolipedeEdit() {
         }
         return;
       }
+    }
+
+    // Validação para Dieta
+    if (tipoObservacao === "Dieta") {
+      const algumaDietaSelecionada = Object.values(dietaSelecionada).some((v) => v === true);
+      
+      if (!algumaDietaSelecionada && !observacao.trim()) {
+        setMensagem({
+          tipo: "warning",
+          texto: "Selecione pelo menos uma opção de dieta ou adicione uma observação!",
+        });
+        return;
+      }
+
+      // Se houver dietas selecionadas, gerar o texto formatado
+      if (algumaDietaSelecionada) {
+        const dietasLista = [];
+        
+        if (dietaSelecionada.fenoSoFeno) dietasLista.push("• Feno (só feno)");
+        if (dietaSelecionada.umQuintoRacao) dietasLista.push("• 1/5 ração");
+        if (dietaSelecionada.fenoMolhado) dietasLista.push("• Feno molhado");
+        if (dietaSelecionada.jejum) dietasLista.push("• Jejum");
+
+        // Montar texto formatado
+        const textoDieta = `DIETA PRESCRITA\n\n` +
+          `Opções de dieta:\n${dietasLista.join("\n")}\n\n` +
+          (observacao ? `Observações adicionais: ${observacao}\n\n` : "") +
+          `Data da prescrição: ${new Date().toLocaleDateString("pt-BR")} às ${new Date().toLocaleTimeString("pt-BR")}`;
+
+        // Usar o texto gerado
+        setObservacao(textoDieta);
+        
+        // Continuar com o salvamento usando o texto gerado
+        setSalvando(true);
+        try {
+          const response = await api.salvarProntuario({
+            numero_solipede: numero,
+            tipo: tipoObservacao,
+            observacao: textoDieta,
+            recomendacoes: null, // Dieta não usa recomendações
+          });
+
+          if (response.success || response.id) {
+            const historicoAtualizado = await api.listarProntuario(numero);
+            setHistorico(historicoAtualizado);
+
+            setMensagem({
+              tipo: "success",
+              texto: "Dieta registrada com sucesso!",
+            });
+            
+            // Limpar formulário
+            setObservacao("");
+            setRecomendacoes("");
+            // Resetar checkboxes de dieta
+            setDietaSelecionada({
+              fenoSoFeno: false,
+              umQuintoRacao: false,
+              fenoMolhado: false,
+              jejum: false,
+            });
+          }
+        } catch (error) {
+          console.error("Erro ao salvar:", error);
+          setMensagem({
+            tipo: "danger",
+            texto: "Erro ao salvar dieta",
+          });
+        } finally {
+          setSalvando(false);
+        }
+        return;
+      }
+    }
+
+    // Validação para Suplementação
+    if (tipoObservacao === "Suplementação") {
+      if (!suplementacao.produto.trim() || !suplementacao.dose.trim() || !suplementacao.frequencia.trim()) {
+        setMensagem({
+          tipo: "warning",
+          texto: "Preencha todos os campos obrigatórios da suplementação (Produto, Dose e Frequência)!",
+        });
+        return;
+      }
+
+      // Gerar o texto formatado
+      const textoSuplementacao = `SUPLEMENTAÇÃO PRESCRITA\n\n` +
+        `Produto: ${suplementacao.produto}\n` +
+        `Dose: ${suplementacao.dose}\n` +
+        `Frequência: ${suplementacao.frequencia}\n\n` +
+        (observacao ? `Observações adicionais: ${observacao}\n\n` : "") +
+        `Data da prescrição: ${new Date().toLocaleDateString("pt-BR")} às ${new Date().toLocaleTimeString("pt-BR")}`;
+
+      // Usar o texto gerado
+      setObservacao(textoSuplementacao);
+      
+      // Continuar com o salvamento usando o texto gerado
+      setSalvando(true);
+      try {
+        const response = await api.salvarProntuario({
+          numero_solipede: numero,
+          tipo: tipoObservacao,
+          observacao: textoSuplementacao,
+          recomendacoes: null, // Suplementação não usa recomendações
+        });
+
+        if (response.success || response.id) {
+          const historicoAtualizado = await api.listarProntuario(numero);
+          setHistorico(historicoAtualizado);
+
+          setMensagem({
+            tipo: "success",
+            texto: "Suplementação registrada com sucesso!",
+          });
+          
+          // Limpar formulário
+          setObservacao("");
+          setRecomendacoes("");
+          // Resetar campos de suplementação
+          setSuplementacao({
+            produto: "",
+            dose: "",
+            frequencia: "",
+          });
+        }
+      } catch (error) {
+        console.error("Erro ao salvar:", error);
+        setMensagem({
+          tipo: "danger",
+          texto: "Erro ao salvar suplementação",
+        });
+      } finally {
+        setSalvando(false);
+      }
+      return;
     }
 
     // Validação padrão para outros tipos
@@ -1391,12 +1541,14 @@ export default function ProntuarioSolipedeEdit() {
                         >
                           {/* <option>Consulta Clínica</option> */}
                           <option>Tratamento</option>
+                          <option>Restrições</option>
+                          <option>Dieta</option>
+                          <option>Suplementação</option>
                           {/* <option>Exame</option>
                           <option>Vacinação</option>
                           <option>Vermifugação</option>
                           <option>Exames AIE / Mormo</option>
                           <option>Observações Comportamentais</option> */}
-                          <option>Restrições</option>
                         </Form.Select>
                       </Form.Group>
 
@@ -1443,6 +1595,91 @@ export default function ProntuarioSolipedeEdit() {
                             </Form.Group>
                           </div>
                         </>
+                      )}
+
+                      {/* Opções de Dieta */}
+                      {tipoObservacao === "Dieta" && (
+                        <div className="mt-3 mb-3 p-3 rounded" style={{ backgroundColor: "#f8f9fa", border: "1px solid #dee2e6" }}>
+                          <Form.Label className="fw-bold mb-3">🥕 Selecione a(s) opção(ões) de dieta:</Form.Label>
+                          <Form.Check
+                            type="checkbox"
+                            label="Feno (só feno)"
+                            className="mb-2"
+                            checked={dietaSelecionada.fenoSoFeno}
+                            onChange={(e) => setDietaSelecionada({...dietaSelecionada, fenoSoFeno: e.target.checked})}
+                          />
+                          <Form.Check
+                            type="checkbox"
+                            label="1/2 ração"
+                            className="mb-2"
+                            checked={dietaSelecionada.umQuintoRacao}
+                            onChange={(e) => setDietaSelecionada({...dietaSelecionada, umQuintoRacao: e.target.checked})}
+                          />
+                          <Form.Check
+                            type="checkbox"
+                            label="Feno molhado"
+                            className="mb-2"
+                            checked={dietaSelecionada.fenoMolhado}
+                            onChange={(e) => setDietaSelecionada({...dietaSelecionada, fenoMolhado: e.target.checked})}
+                          />
+                          <Form.Check
+                            type="checkbox"
+                            label="Jejum"
+                            className="mb-2"
+                            checked={dietaSelecionada.jejum}
+                            onChange={(e) => setDietaSelecionada({...dietaSelecionada, jejum: e.target.checked})}
+                          />
+                        </div>
+                      )}
+
+                      {/* Campos de Suplementação */}
+                      {tipoObservacao === "Suplementação" && (
+                        <div className="mt-3 mb-3 p-3 rounded" style={{ backgroundColor: "#f8f9fa", border: "1px solid #dee2e6" }}>
+                          <Form.Label className="fw-bold mb-3">💊 Dados da Suplementação:</Form.Label>
+                          <Row>
+                            <Col md={12}>
+                              <Form.Group className="mb-3">
+                                <Form.Label className="fw-bold">Produto *</Form.Label>
+                                <Form.Control
+                                  type="text"
+                                  size="sm"
+                                  placeholder="Nome do produto/suplemento"
+                                  value={suplementacao.produto}
+                                  onChange={(e) => setSuplementacao({...suplementacao, produto: e.target.value})}
+                                  disabled={salvando}
+                                />
+                              </Form.Group>
+                            </Col>
+                          </Row>
+                          <Row>
+                            <Col md={6}>
+                              <Form.Group className="mb-3">
+                                <Form.Label className="fw-bold">Dose *</Form.Label>
+                                <Form.Control
+                                  type="text"
+                                  size="sm"
+                                  placeholder="Ex: 50g, 2 comprimidos"
+                                  value={suplementacao.dose}
+                                  onChange={(e) => setSuplementacao({...suplementacao, dose: e.target.value})}
+                                  disabled={salvando}
+                                />
+                              </Form.Group>
+                            </Col>
+                            <Col md={6}>
+                              <Form.Group className="mb-3">
+                                <Form.Label className="fw-bold">Frequência *</Form.Label>
+                                <Form.Control
+                                  type="text"
+                                  size="sm"
+                                  placeholder="Ex: 2x ao dia, a cada 12h"
+                                  value={suplementacao.frequencia}
+                                  onChange={(e) => setSuplementacao({...suplementacao, frequencia: e.target.value})}
+                                  disabled={salvando}
+                                />
+                              </Form.Group>
+                            </Col>
+                          </Row>
+                        </div>
                       )}
 
                       
@@ -1780,20 +2017,22 @@ export default function ProntuarioSolipedeEdit() {
                         </small>
                       </Form.Group>
 
-                      <Form.Group className="mb-3">
-                        <Form.Label className="fw-bold">
-                          Recomendações
-                        </Form.Label>
-                        <Form.Control
-                          as="textarea"
-                          rows={2}
-                          placeholder="Próximas ações, reavaliações..."
-                          value={recomendacoes}
-                          onChange={(e) => setRecomendacoes(e.target.value)}
-                          style={{ resize: "none" }}
-                          disabled={salvando}
-                        />
-                      </Form.Group>
+                      {tipoObservacao !== "Dieta" && tipoObservacao !== "Suplementação" && (
+                        <Form.Group className="mb-3">
+                          <Form.Label className="fw-bold">
+                            Recomendações
+                          </Form.Label>
+                          <Form.Control
+                            as="textarea"
+                            rows={2}
+                            placeholder="Próximas ações, reavaliações..."
+                            value={recomendacoes}
+                            onChange={(e) => setRecomendacoes(e.target.value)}
+                            style={{ resize: "none" }}
+                            disabled={salvando}
+                          />
+                        </Form.Group>
+                      )}
 
                       {tipoObservacao === "Tratamento" && (
                         <Form.Group className="mb-3">
@@ -1834,7 +2073,13 @@ export default function ProntuarioSolipedeEdit() {
                               ? !Object.values(examesSelecionados).some(v => v) && !observacao.trim()
                               : (tipoObservacao === "Tratamento" 
                                   ? !observacao.trim() && !precisaBaixar
-                                  : !observacao.trim()
+                                  : (tipoObservacao === "Dieta"
+                                      ? !Object.values(dietaSelecionada).some(v => v) && !observacao.trim()
+                                      : (tipoObservacao === "Suplementação"
+                                          ? !suplementacao.produto.trim() || !suplementacao.dose.trim() || !suplementacao.frequencia.trim()
+                                          : !observacao.trim()
+                                        )
+                                    )
                                 )
                             )
                           }
@@ -1869,6 +2114,19 @@ export default function ProntuarioSolipedeEdit() {
                               acc[key] = false;
                               return acc;
                             }, {}));
+                            // Resetar checkboxes de dieta
+                            setDietaSelecionada({
+                              fenoSoFeno: false,
+                              umQuintoRacao: false,
+                              fenoMolhado: false,
+                              jejum: false,
+                            });
+                            // Resetar campos de suplementação
+                            setSuplementacao({
+                              produto: "",
+                              dose: "",
+                              frequencia: "",
+                            });
                           }}
                           disabled={salvando}
                         >
@@ -1900,7 +2158,7 @@ export default function ProntuarioSolipedeEdit() {
                     const horaBR = new Date(registro.data_criacao).toLocaleTimeString('pt-BR');
                     const isRestricaoExpiradaReg = registro.tipo === "Restrições" && isRestricaoExpirada(registro.data_validade);
                     const isConcluido = registro.status_conclusao === 'concluido';
-                    const mostrarBotaoConcluir = (registro.tipo === "Restrições" || registro.tipo === "Tratamento") && !isConcluido && !isRestricaoExpiradaReg;
+                    const mostrarBotaoConcluir = (registro.tipo === "Restrições" || registro.tipo === "Tratamento" || registro.tipo === "Dieta" || registro.tipo === "Suplementação") && !isConcluido && !isRestricaoExpiradaReg;
 
                     return (
                       <Card

@@ -1,6 +1,16 @@
 import Poster1 from "../../Imagens/carroussel/cav024.jpg";
-import Poster2 from "../../Imagens/carroussel/cavalaria01.jpeg";
-import Poster3 from "../../Imagens/carroussel/cavalaria09.jpeg";
+import Poster2 from "../../Imagens/carroussel/cav052.jpg";
+import Poster3 from "../../Imagens/carroussel/cavalaria01.jpeg";
+import Poster4 from "../../Imagens/carroussel/cavalaria02.jpeg";
+import Poster5 from "../../Imagens/carroussel/cavalaria03.jpeg";
+import Poster6 from "../../Imagens/carroussel/cavalaria04.jpeg";
+import Poster7 from "../../Imagens/carroussel/cavalaria05.jpeg";
+import Poster8 from "../../Imagens/carroussel/cavalaria06.jpeg";
+import Poster9 from "../../Imagens/carroussel/cavalaria07.jpeg";
+import Poster10 from "../../Imagens/carroussel/cavalaria08.jpeg";
+import Poster11 from "../../Imagens/carroussel/cavalaria09.jpeg";
+import Poster12 from "../../Imagens/carroussel/cavalaria10.jpeg";
+import Poster13 from "../../Imagens/carroussel/sociais.jpeg";
 import MapaSVG2 from "../../Imagens/home/SP_RG_Imediatas_2024.svg";
 
 import SVG from "react-inlinesvg";
@@ -33,8 +43,8 @@ export default function Home() {
                         className="d-block w-100"
                         alt="Carrossel 1"
                         style={{
-                          height: "720px",
-                          objectFit: "cover",
+                          height: "920px",
+                          objectFit: "contain",
                           objectPosition: "center",
                         }}
                       />
@@ -46,8 +56,8 @@ export default function Home() {
                       className="d-block w-100"
                       alt="Carrossel 2"
                       style={{
-                        height: "720px",
-                        objectFit: "cover",
+                        height: "920px",
+                        objectFit: "contain",
                         objectPosition: "center",
                       }}
                     />
@@ -58,8 +68,128 @@ export default function Home() {
                       className="d-block w-100"
                       alt="Carrossel 3"
                       style={{
-                        height: "720px",
-                        objectFit: "cover",
+                        height: "920px",
+                        objectFit: "contain",
+                        objectPosition: "center",
+                      }}
+                    />
+                  </div>
+                  <div className="carousel-item">
+                    <img
+                      src={Poster4}
+                      className="d-block w-100"
+                      alt="Carrossel 4"
+                      style={{
+                        height: "920px",
+                        objectFit: "contain",
+                        objectPosition: "center",
+                      }}
+                    />
+                  </div>
+                  <div className="carousel-item">
+                    <img
+                      src={Poster5}
+                      className="d-block w-100"
+                      alt="Carrossel 5"
+                      style={{
+                        height: "920px",
+                        objectFit: "contain",
+                        objectPosition: "center",
+                      }}
+                    />
+                  </div>
+                  <div className="carousel-item">
+                    <img
+                      src={Poster6}
+                      className="d-block w-100"
+                      alt="Carrossel 6"
+                      style={{
+                        height: "920px",
+                        objectFit: "contain",
+                        objectPosition: "center",
+                      }}
+                    />
+                  </div>
+                  <div className="carousel-item">
+                    <img
+                      src={Poster7}
+                      className="d-block w-100"
+                      alt="Carrossel 7"
+                      style={{
+                        height: "920px",
+                        objectFit: "contain",
+                        objectPosition: "center",
+                      }}
+                    />
+                  </div>
+                  <div className="carousel-item">
+                    <img
+                      src={Poster8}
+                      className="d-block w-100"
+                      alt="Carrossel 8"
+                      style={{
+                        height: "920px",
+                        objectFit: "contain",
+                        objectPosition: "center",
+                      }}
+                    />
+                  </div>
+                  <div className="carousel-item">
+                    <img
+                      src={Poster9}
+                      className="d-block w-100"
+                      alt="Carrossel 9"
+                      style={{
+                        height: "920px",
+                        objectFit: "contain",
+                        objectPosition: "center",
+                      }}
+                    />
+                  </div>
+                  <div className="carousel-item">
+                    <img
+                      src={Poster10}
+                      className="d-block w-100"
+                      alt="Carrossel 10"
+                      style={{
+                        height: "920px",
+                        objectFit: "contain",
+                        objectPosition: "center",
+                      }}
+                    />
+                  </div>
+                  <div className="carousel-item">
+                    <img
+                      src={Poster11}
+                      className="d-block w-100"
+                      alt="Carrossel 11"
+                      style={{
+                        height: "920px",
+                        objectFit: "contain",
+                        objectPosition: "center",
+                      }}
+                    />
+                  </div>
+                  <div className="carousel-item">
+                    <img
+                      src={Poster12}
+                      className="d-block w-100"
+                      alt="Carrossel 12"
+                      style={{
+                        height: "920px",
+                        objectFit: "contain",
+                        objectPosition: "center",
+                      }}
+                    />
+                  </div>
+                  <div className="carousel-item">
+                    <img
+                      src={Poster13}
+                      className="d-block w-100"
+                      alt="Carrossel 13"
+                      style={{
+                        height: "920px",
+                        objectFit: "contain",
                         objectPosition: "center",
                       }}
                     />
@@ -289,7 +419,7 @@ export default function Home() {
                 src={MapaSVG2}
                 className="mapa-svg"
                 preProcessor={(code) =>
-                  code.replace(/<rect[^>]*fill="(#fff|#ffffff)"[^>]*\/>/gi, "")
+                  code.replace(/<rect[^>]*contain="(#fff|#ffffff)"[^>]*\/>/gi, "")
                 }
                 onSVGReady={(svg) => {
                   svg.querySelectorAll("path").forEach((pathEl, index) => {
@@ -307,9 +437,9 @@ export default function Home() {
 
                     if (dest) {
                       if (dest.Equoterapia === "Sim") {
-                        pathEl.setAttribute("fill", "#4CAF50"); // verde
+                        pathEl.setAttribute("contain", "#4CAF50"); // verde
                       } else {
-                        pathEl.setAttribute("fill", "#FFC107"); // amarelo
+                        pathEl.setAttribute("contain", "#FFC107"); // amarelo
                       }
                       pathEl.setAttribute("title", dest.destacamento);
                       pathEl.style.cursor = "pointer";
@@ -324,7 +454,7 @@ export default function Home() {
                         setDestacamentoSelecionado(dest);
                       };
                     } else {
-                      pathEl.setAttribute("fill", "#ccc"); // cinza padrão
+                      pathEl.setAttribute("contain", "#ccc"); // cinza padrão
                       pathEl.style.cursor = "default";
                       pathEl.onclick = null;
                     }

@@ -11,6 +11,7 @@ import {
 } from "react-bootstrap";
 
 import { GoArrowSwitch } from "react-icons/go";
+import { FaSort, FaSortUp, FaSortDown } from "react-icons/fa";
 
 
 import { FaClock, FaFileExcel, FaFilePdf, FaInfoCircle } from "react-icons/fa";
@@ -73,6 +74,7 @@ const AdminCargaHoraria = () => {
 
   const [filtroEsqd, setFiltroEsqd] = useState("Todos");
   const [filtroNome, setFiltroNome] = useState("");
+  const [ordenacaoHoras, setOrdenacaoHoras] = useState(null); // null, 'asc', 'desc'
 
   const [filtroNumeroModal, setFiltroNumeroModal] = useState("");
   const [horasMensais, setHorasMensais] = useState({});
@@ -150,11 +152,22 @@ const AdminCargaHoraria = () => {
     }
   };
 
+  /* ===== FUNÇÃO PARA ALTERNAR ORDENAÇÃO ===== */
+  const toggleOrdenacaoHoras = () => {
+    if (ordenacaoHoras === null) {
+      setOrdenacaoHoras('desc'); // Primeiro clique: maior para menor
+    } else if (ordenacaoHoras === 'desc') {
+      setOrdenacaoHoras('asc'); // Segundo clique: menor para maior
+    } else {
+      setOrdenacaoHoras(null); // Terceiro clique: sem ordenação
+    }
+  };
+
   /* =====================================================
      FILTRO RPMon + FILTROS DE TELA (SEM DEPENDER DE LOGIN)
   ===================================================== */
   const solipedesFiltrados = useMemo(() => {
-    return dados
+    let resultado = dados
       .filter(
         (d) =>
           d.alocacao === "RPMon"
@@ -162,9 +175,21 @@ const AdminCargaHoraria = () => {
       .filter(
         (d) =>
           (filtroEsqd === "Todos" || d.esquadrao === filtroEsqd) &&
-          (d.nome || "").toLowerCase().includes(filtroNome.toLowerCase())
+          ((d.nome || "").toLowerCase().includes(filtroNome.toLowerCase()) ||
+           String(d.numero).includes(filtroNome))
       );
-  }, [dados, filtroEsqd, filtroNome]);
+
+    // Aplicar ordenação por carga horária se ativa
+    if (ordenacaoHoras) {
+      resultado = [...resultado].sort((a, b) => {
+        const horasA = horasMensais[a.numero] || 0;
+        const horasB = horasMensais[b.numero] || 0;
+        return ordenacaoHoras === 'asc' ? horasA - horasB : horasB - horasA;
+      });
+    }
+
+    return resultado;
+  }, [dados, filtroEsqd, filtroNome, ordenacaoHoras, horasMensais]);
 
   /* ===== PAGINAÇÃO ===== */
   const solipedesPaginados = useMemo(() => {
@@ -487,7 +512,7 @@ const AdminCargaHoraria = () => {
               </Form.Select>
 
               <FormControl
-                placeholder="Pesquisar por nome"
+                placeholder="Pesquisar por nome ou número"
                 value={filtroNome}
                 onChange={(e) => setFiltroNome(e.target.value)}
               />
@@ -530,10 +555,23 @@ const AdminCargaHoraria = () => {
                 <th>Número</th>
                 <th>Nome</th>
                 <th>Esquadrão</th>
-                <th>
-                  Carga Horária (Mês Atual)
-                  <div style={{ fontSize: '0.75rem', fontWeight: 'normal' }}>
-                    {new Date().toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' })}
+                <th 
+                  style={{ cursor: 'pointer', userSelect: 'none' }}
+                  onClick={toggleOrdenacaoHoras}
+                  title="Clique para ordenar"
+                >
+                  <div className="d-flex align-items-center justify-content-center gap-2">
+                    <div>
+                      Carga Horária (Mês Atual)
+                      <div style={{ fontSize: '0.75rem', fontWeight: 'normal' }}>
+                        {new Date().toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' })}
+                      </div>
+                    </div>
+                    <div>
+                      {ordenacaoHoras === null && <FaSort />}
+                      {ordenacaoHoras === 'desc' && <FaSortDown />}
+                      {ordenacaoHoras === 'asc' && <FaSortUp />}
+                    </div>
                   </div>
                 </th>
                 <th>Histórico</th>

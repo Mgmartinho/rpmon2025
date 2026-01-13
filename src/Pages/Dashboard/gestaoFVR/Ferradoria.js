@@ -101,18 +101,42 @@ const Ferradoria = () => {
         }
 
         console.log('📋 Ferrageamentos mapeados:', Object.keys(ferrageamentosMap).length);
+        console.log('🔍 Exemplo de ferrageamento do mapa:', Object.values(ferrageamentosMap)[0]);
 
-        // Filtrar apenas solípedes alocados em RPMon ou Barro Branco
+        // Filtrar apenas solípedes alocados em RPMon ou Barro Branco (incluindo baixados dessas alocações)
         const solipedesFiltrados = solipedesData.filter(sol => {
           const alocacao = sol.alocacao?.toLowerCase() || '';
+          const situacao = sol.situacao?.toLowerCase() || '';
+          const status = sol.status?.toLowerCase() || '';
+          
+          console.log(`Solípede ${sol.numero}: alocacao="${alocacao}", situacao="${situacao}", status="${status}"`);
+          
+          // Incluir se alocação contém rpmon ou barro branco, independente do status
           return alocacao.includes('rpmon') || alocacao.includes('barro branco');
         });
 
         console.log('🏢 Solípedes filtrados (RPMon/Barro Branco):', solipedesFiltrados.length);
+        console.log('📊 Amostra de solípedes filtrados:', solipedesFiltrados.slice(0, 3).map(s => ({
+          numero: s.numero,
+          nome: s.nome,
+          alocacao: s.alocacao,
+          status: s.status
+        })));
 
         // Combinar dados
         const solipedesComFerrageamento = solipedesFiltrados.map(sol => {
           const ferrInfo = ferrageamentosMap[sol.numero];
+          
+          if (sol.numero === 1283 || sol.status?.toLowerCase().includes('baixado')) {
+            console.log(`🔍 DEBUG Solípede ${sol.numero}:`, {
+              nome: sol.nome,
+              alocacao: sol.alocacao,
+              status: sol.status,
+              temFerrageamento: !!ferrInfo,
+              ferrInfo: ferrInfo
+            });
+          }
+          
           return {
             ...sol,
             ultimoFerrageamento: ferrInfo?.ultimoFerrageamento || null,
@@ -122,6 +146,10 @@ const Ferradoria = () => {
             prazoValidade: ferrInfo?.prazoValidade || 45
           };
         });
+        
+        console.log('📦 Total de solípedes com ferrageamento:', solipedesComFerrageamento.length);
+        console.log('🔨 Solípedes COM data de ferrageamento:', solipedesComFerrageamento.filter(s => s.ultimoFerrageamento).length);
+        console.log('❌ Solípedes SEM data de ferrageamento:', solipedesComFerrageamento.filter(s => !s.ultimoFerrageamento).length);
         
         setSolipedes(solipedesComFerrageamento);
         console.log('✅ Dados carregados e combinados com sucesso!');
@@ -620,7 +648,7 @@ const Ferradoria = () => {
                     </td>
                     <td>
                       {item.diasRestantes !== null ? (
-                        <span className={item.diasRestantes < 0 ? 'text-danger fw-bold' : item.diasRestantes <= 7 ? 'text-warning fw-bold' : 'text-success'}>
+                        <span className={item.diasRestantes < 0 ? 'text-danger fw-bold' : item.diasRestantes <= 15 ? 'text-warning fw-bold' : 'text-success'}>
                           {item.diasRestantes} dias
                         </span>
                       ) : "—"}
