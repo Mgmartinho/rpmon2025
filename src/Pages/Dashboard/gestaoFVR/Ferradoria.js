@@ -22,6 +22,9 @@ import {
   BsFileEarmarkExcel,
   BsFileEarmarkPdf,
   BsHammer,
+  BsPlus,
+  BsChevronUp,
+  BsChevronDown,
 } from "react-icons/bs";
 
 import { GiHorseshoe } from "react-icons/gi";
@@ -59,12 +62,47 @@ const Ferradoria = () => {
   const [filtroNumero, setFiltroNumero] = useState("");
   const [filtroNome, setFiltroNome] = useState("");
   const [filtroAlocacao, setFiltroAlocacao] = useState("TODOS");
+  const [filtroIndocil, setFiltroIndocil] = useState("TODOS");
   const [filtroPeriodoInicio, setFiltroPeriodoInicio] = useState("");
   const [filtroPeriodoFim, setFiltroPeriodoFim] = useState("");
 
   // Paginação
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+
+  // Ordenação
+  const [campoOrdenacao, setCampoOrdenacao] = useState(null);
+  const [direcaoOrdenacao, setDirecaoOrdenacao] = useState("asc");
+
+  // Função de ordenação
+  const ordenarPor = (campo) => {
+    if (campoOrdenacao === campo) {
+      // Se já está ordenando por este campo, inverte a direção
+      setDirecaoOrdenacao(direcaoOrdenacao === "asc" ? "desc" : "asc");
+    } else {
+      // Novo campo, começa com ascendente
+      setCampoOrdenacao(campo);
+      setDirecaoOrdenacao("asc");
+    }
+  };
+
+  // Componente de cabeçalho ordenável
+  const CabecalhoOrdenavel = ({ label, campo }) => (
+    <span
+      role="button"
+      className="d-inline-flex align-items-center gap-1"
+      onClick={() => ordenarPor(campo)}
+      style={{ cursor: "pointer", userSelect: "none" }}
+    >
+      {label}
+      {campoOrdenacao === campo &&
+        (direcaoOrdenacao === "asc" ? (
+          <BsChevronUp size={12} />
+        ) : (
+          <BsChevronDown size={12} />
+        ))}
+    </span>
+  );
 
   // Carregar dados
   useEffect(() => {
@@ -164,18 +202,34 @@ const Ferradoria = () => {
 
   // Indicadores
   const indicadores = useMemo(() => {
-    const total = solipedes.length;
-    const emDia = solipedes.filter(s => s.statusFerrageamento === 'EM_DIA').length;
-    const proximoVencimento = solipedes.filter(s => s.statusFerrageamento === 'PROXIMO_VENCIMENTO').length;
-    const vencido = solipedes.filter(s => s.statusFerrageamento === 'VENCIDO').length;
-    const pendente = solipedes.filter(s => s.statusFerrageamento === 'PENDENTE').length;
+    // Filtrar solípedes pela alocação selecionada
+    let solipedesFiltradosParaIndicadores = solipedes;
+    
+    if (filtroAlocacao !== "TODOS") {
+      solipedesFiltradosParaIndicadores = solipedes.filter(s => {
+        const alocacao = s.alocacao?.toLowerCase() || '';
+        if (filtroAlocacao === "RPMON") {
+          return alocacao.includes('rpmon');
+        }
+        if (filtroAlocacao === "BARRO_BRANCO") {
+          return alocacao.includes('barro branco');
+        }
+        return true;
+      });
+    }
+
+    const total = solipedesFiltradosParaIndicadores.length;
+    const emDia = solipedesFiltradosParaIndicadores.filter(s => s.statusFerrageamento === 'EM_DIA').length;
+    const proximoVencimento = solipedesFiltradosParaIndicadores.filter(s => s.statusFerrageamento === 'PROXIMO_VENCIMENTO').length;
+    const vencido = solipedesFiltradosParaIndicadores.filter(s => s.statusFerrageamento === 'VENCIDO').length;
+    const pendente = solipedesFiltradosParaIndicadores.filter(s => s.statusFerrageamento === 'PENDENTE').length;
     
     return { total, emDia, proximoVencimento, vencido, pendente };
-  }, [solipedes]);
+  }, [solipedes, filtroAlocacao]);
 
-  // Filtrar dados
+  // Filtrar e ordenar dados
   const dadosFiltrados = useMemo(() => {
-    return solipedes.filter((item) => {
+    let resultado = solipedes.filter((item) => {
       // Filtro por status
       if (statusFilter !== "TODOS" && item.statusFerrageamento !== statusFilter) {
         return false;
@@ -192,6 +246,17 @@ const Ferradoria = () => {
         }
       }
 
+      // Filtro por indocibilidade
+      if (filtroIndocil !== "TODOS") {
+        const isIndocil = item.indocil === true || item.indocil === 1 || item.indocil === "Sim";
+        if (filtroIndocil === "SIM" && !isIndocil) {
+          return false;
+        }
+        if (filtroIndocil === "NAO" && isIndocil) {
+          return false;
+        }
+      }
+
       // Filtro por número
       const matchNumero = filtroNumero
         ? item.numero.toString().includes(filtroNumero)
@@ -204,7 +269,53 @@ const Ferradoria = () => {
 
       return matchNumero && matchNome;
     });
-  }, [solipedes, statusFilter, filtroAlocacao, filtroNumero, filtroNome]);
+
+    // Aplicar ordenação
+    if (campoOrdenacao) {
+      resultado = [...resultado].sort((a, b) => {
+        let valorA, valorB;
+
+        switch (campoOrdenacao) {
+          case "numero":
+            valorA = a.numero;
+            valorB = b.numero;
+            break;
+          case "nome":
+            valorA = (a.nome || "").toLowerCase();
+            valorB = (b.nome || "").toLowerCase();
+            break;
+          case "alocacao":
+            valorA = (a.alocacao || "").toLowerCase();
+            valorB = (b.alocacao || "").toLowerCase();
+            break;
+          case "ultimoFerrageamento":
+            valorA = a.ultimoFerrageamento ? new Date(a.ultimoFerrageamento).getTime() : 0;
+            valorB = b.ultimoFerrageamento ? new Date(b.ultimoFerrageamento).getTime() : 0;
+            break;
+          case "proximoFerrageamento":
+            valorA = a.proximoFerrageamento ? new Date(a.proximoFerrageamento).getTime() : 0;
+            valorB = b.proximoFerrageamento ? new Date(b.proximoFerrageamento).getTime() : 0;
+            break;
+          case "diasRestantes":
+            valorA = a.diasRestantes !== null ? a.diasRestantes : -999999;
+            valorB = b.diasRestantes !== null ? b.diasRestantes : -999999;
+            break;
+          case "status":
+            valorA = a.statusFerrageamento || "";
+            valorB = b.statusFerrageamento || "";
+            break;
+          default:
+            return 0;
+        }
+
+        if (valorA < valorB) return direcaoOrdenacao === "asc" ? -1 : 1;
+        if (valorA > valorB) return direcaoOrdenacao === "asc" ? 1 : -1;
+        return 0;
+      });
+    }
+
+    return resultado;
+  }, [solipedes, statusFilter, filtroAlocacao, filtroIndocil, filtroNumero, filtroNome, campoOrdenacao, direcaoOrdenacao]);
 
   // Paginação
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -377,7 +488,7 @@ const Ferradoria = () => {
       <div className="container-fluid py-4">
       {/* Header */}
       <Row className="mb-4 g-3">
-        <Col md={8}>
+        <Col md={6}>
           <Card className="h-100 shadow-sm">
             <Card.Body>
               <div className="d-flex align-items-center">
@@ -395,6 +506,20 @@ const Ferradoria = () => {
             </Card.Body>
           </Card>
         </Col>
+
+         {/* Botão de Indocibilidade */}
+        <Col md={2}>
+          <Card
+            className="h-100 text-center shadow-sm border-start"
+            onClick={exportarExcel}
+            style={{ cursor: "pointer" }}
+          >
+            <Card.Body className="d-flex flex-column justify-content-center">
+              <BsPlus size={32} className="mb-2 text-success mx-auto" />
+              <small className="fw-semibold">Definir Cavalor indóceis</small>
+            </Card.Body>
+          </Card>
+        </Col>
         
         {/* Botões de Exportação */}
         <Col md={2}>
@@ -404,7 +529,7 @@ const Ferradoria = () => {
             style={{ cursor: "pointer" }}
           >
             <Card.Body className="d-flex flex-column justify-content-center">
-              <BsFileEarmarkExcel size={22} className="mb-2 text-success" />
+              <BsFileEarmarkExcel size={22} className="mb-2 text-success mx-auto" />
               <small className="fw-semibold">Exportar Excel</small>
             </Card.Body>
           </Card>
@@ -417,14 +542,14 @@ const Ferradoria = () => {
             style={{ cursor: "pointer" }}
           >
             <Card.Body className="d-flex flex-column justify-content-center">
-              <BsFileEarmarkPdf size={22} className="mb-2 text-danger" />
+              <BsFileEarmarkPdf size={22} className="mb-2 text-danger mx-auto" />
               <small className="fw-semibold">Exportar PDF</small>
             </Card.Body>
           </Card>
         </Col>
       </Row>
 
-      {/* Indicadores */}
+      {/* Indicadores & Filtros */}
       <Row className="mb-4 g-3">
         <Col md={3}>
           <Card
@@ -501,7 +626,7 @@ const Ferradoria = () => {
               <Form.Group>
                 <Form.Label className="fw-semibold">
                   <BsSearch className="me-2" />
-                  Filtrar por Número
+                  Número
                 </Form.Label>
                 <Form.Control
                   type="text"
@@ -516,7 +641,7 @@ const Ferradoria = () => {
               <Form.Group>
                 <Form.Label className="fw-semibold">
                   <BsSearch className="me-2" />
-                  Filtrar por Nome
+                  Nome
                 </Form.Label>
                 <Form.Control
                   type="text"
@@ -546,27 +671,22 @@ const Ferradoria = () => {
             </Col>
             <Col md={2}>
               <Form.Group>
-                <Form.Label className="fw-semibold">Data Início</Form.Label>
-                <Form.Control
-                  type="date"
-                  value={filtroPeriodoInicio}
-                  onChange={(e) => setFiltroPeriodoInicio(e.target.value)}
+                <Form.Label className="fw-semibold">
+                  <BsExclamationTriangle className="me-2" />
+                  Indocibilidade
+                </Form.Label>
+                <Form.Select
+                  value={filtroIndocil}
+                  onChange={(e) => setFiltroIndocil(e.target.value)}
                   className="border-2"
-                />
+                >
+                  <option value="TODOS">Todos</option>
+                  <option value="SIM">Indóceis</option>
+                  <option value="NAO">Dóceis</option>
+                </Form.Select>
               </Form.Group>
             </Col>
-            <Col md={2}>
-              <Form.Group>
-                <Form.Label className="fw-semibold">Data Fim</Form.Label>
-                <Form.Control
-                  type="date"
-                  value={filtroPeriodoFim}
-                  onChange={(e) => setFiltroPeriodoFim(e.target.value)}
-                  className="border-2"
-                />
-              </Form.Group>
-            </Col>
-            <Col md={1} className="d-flex align-items-end">
+            <Col md={3} className="d-flex align-items-end">
               <Button
                 variant="outline-secondary"
                 className="w-100"
@@ -574,12 +694,14 @@ const Ferradoria = () => {
                   setFiltroNumero("");
                   setFiltroNome("");
                   setFiltroAlocacao("TODOS");
+                  setFiltroIndocil("TODOS");
+                  setStatusFilter("TODOS");
                   setFiltroPeriodoInicio("");
                   setFiltroPeriodoFim("");
                 }}
               >
                 <BsXCircle className="me-2" />
-                Limpar
+                Limpar Filtros
               </Button>
             </Col>
           </Row>
@@ -606,13 +728,13 @@ const Ferradoria = () => {
             <Table responsive hover className="mb-0">
               <thead>
                 <tr>
-                  <th>Número</th>
-                  <th>Nome</th>
-                  <th>Alocação</th>
-                  <th>Último Ferrageamento</th>
-                  <th>Próximo Ferrageamento</th>
-                  <th>Dias Restantes</th>
-                  <th>Status</th>
+                  <th><CabecalhoOrdenavel label="Número" campo="numero" /></th>
+                  <th><CabecalhoOrdenavel label="Nome" campo="nome" /></th>
+                  <th><CabecalhoOrdenavel label="Alocação" campo="alocacao" /></th>
+                  <th><CabecalhoOrdenavel label="Último Ferrageamento" campo="ultimoFerrageamento" /></th>
+                  <th><CabecalhoOrdenavel label="Próximo Ferrageamento" campo="proximoFerrageamento" /></th>
+                  <th><CabecalhoOrdenavel label="Dias Restantes" campo="diasRestantes" /></th>
+                  <th><CabecalhoOrdenavel label="Status" campo="status" /></th>
                   <th>Ações</th>
                 </tr>
               </thead>

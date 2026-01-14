@@ -627,7 +627,6 @@ const AdminCargaHoraria = () => {
             <Modal.Title>Aplicar Carga Horária</Modal.Title>
           </Modal.Header>
 
-          {/* Filtros e tabeoa */}
           <Modal.Body>
             {/* ===== FILTROS ===== */}
             <Form.Group className="mb-3">
@@ -654,37 +653,6 @@ const AdminCargaHoraria = () => {
                 </div>
               </div>
             </Form.Group>
-
-          </Modal.Body>
-
-           {/* Movimentação entre esquadrões */}
-          <Modal.Body>
-            {/* ===== FILTROS ===== */}
-            <Form.Group className="mb-3">
-              <Form.Label>Filtros</Form.Label>
-
-              <div className="row">
-                <div className="col-md-6">
-                  <Form.Label>Filtrar por número</Form.Label>
-                  <FormControl
-                    placeholder="Ex: 1935"
-                    value={filtroNumeroModal}
-                    onChange={(e) => setFiltroNumeroModal(e.target.value)}
-                  />
-                </div>
-
-                <div className="col-md-6">
-                  <Form.Label>Horas a adicionar</Form.Label>
-                  <FormControl
-                    type="number"
-                    min="1"
-                    value={horasAdicionar}
-                    onChange={(e) => setHorasAdicionar(e.target.value)}
-                  />
-                </div>
-              </div>
-            </Form.Group>
-
 
             {/* ===== TABELA COMPLETA LANÇAMENTO EM LOTE (SEM PAGINAÇÃO) ===== */}
             <Table striped bordered hover size="sm">

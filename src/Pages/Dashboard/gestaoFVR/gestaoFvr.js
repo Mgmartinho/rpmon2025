@@ -700,7 +700,7 @@ const calcularIdade = (dataNascimento) => {
                 </Link>
               </Col>
 
-              <Col md={1}>
+              {/* <Col md={1}>
                 <Card
                   className="h-100 text-center shadow-sm border-start"
                   onClick={() => setShowMovModal(true)}
@@ -724,10 +724,10 @@ const calcularIdade = (dataNascimento) => {
                     <small className="fw-semibold">Exames</small>
                   </Card.Body>
                 </Card>
-              </Col>
+              </Col> */}
 
               {/* EXPORTAR EXCEL */}
-              <Col md={1}>
+              <Col md={2}>
                 <Card
                   className="h-100 text-center shadow-sm border-start"
                   onClick={exportExcel}
@@ -741,7 +741,7 @@ const calcularIdade = (dataNascimento) => {
               </Col>
 
               {/* EXPORTAR PDF */}
-              <Col md={1}>
+              <Col md={2}>
                 <Card
                   className="h-100 text-center shadow-sm border-start"
                   onClick={exportPDF}
