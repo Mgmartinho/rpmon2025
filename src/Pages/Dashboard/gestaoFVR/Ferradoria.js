@@ -58,13 +58,23 @@ const Ferradoria = () => {
   const [showHistoricoModal, setShowHistoricoModal] = useState(false);
   const [historicoSolipede, setHistoricoSolipede] = useState([]);
 
+  // Modal de indocibilidade
+  const [showModalIndocibilidade, setShowModalIndocibilidade] = useState(false);
+  const [solipedesIndocibilidade, setSolipedesIndocibilidade] = useState([]);
+  const [processandoIndocibilidade, setProcessandoIndocibilidade] = useState(false);
+  const [filtroNumeroIndocibilidade, setFiltroNumeroIndocibilidade] = useState("");
+  const [filtroNomeIndocibilidade, setFiltroNomeIndocibilidade] = useState("");
+
+  // Feedback modal
+  const [showFeedback, setShowFeedback] = useState(false);
+  const [feedbackMessage, setFeedbackMessage] = useState("");
+  const [feedbackSuccess, setFeedbackSuccess] = useState(true);
+
   // Filtros
   const [filtroNumero, setFiltroNumero] = useState("");
   const [filtroNome, setFiltroNome] = useState("");
   const [filtroAlocacao, setFiltroAlocacao] = useState("TODOS");
   const [filtroIndocil, setFiltroIndocil] = useState("TODOS");
-  const [filtroPeriodoInicio, setFiltroPeriodoInicio] = useState("");
-  const [filtroPeriodoFim, setFiltroPeriodoFim] = useState("");
 
   // Paginação
   const [currentPage, setCurrentPage] = useState(1);
@@ -411,6 +421,84 @@ const Ferradoria = () => {
     setShowHistoricoModal(true);
   };
 
+  // Abrir modal de indocibilidade
+  const abrirModalIndocibilidade = () => {
+    // Copiar dados dos solípedes para edição
+    const solipedesCopia = solipedes.map(s => ({
+      ...s,
+      indocil: s.indocil || false
+    }));
+    setSolipedesIndocibilidade(solipedesCopia);
+    setFiltroNumeroIndocibilidade("");
+    setFiltroNomeIndocibilidade("");
+    setShowModalIndocibilidade(true);
+  };
+
+  // Alternar indocibilidade de um solípede
+  const toggleIndocibilidade = (numero) => {
+    setSolipedesIndocibilidade(prev =>
+      prev.map(s =>
+        s.numero === numero ? { ...s, indocil: !s.indocil } : s
+      )
+    );
+  };
+
+  // Salvar alterações de indocibilidade
+  const salvarIndocibilidade = async () => {
+    try {
+      setProcessandoIndocibilidade(true);
+      
+      // Filtrar apenas os solípedes que foram alterados
+      const alterados = solipedesIndocibilidade.filter(s => {
+        const original = solipedes.find(orig => orig.numero === s.numero);
+        return original && (original.indocil || false) !== s.indocil;
+      });
+
+      if (alterados.length === 0) {
+        setFeedbackMessage("Nenhuma alteração foi feita.");
+        setFeedbackSuccess(true);
+        setShowFeedback(true);
+        setShowModalIndocibilidade(false);
+        return;
+      }
+
+      // Atualizar cada solípede alterado
+      const promessas = alterados.map(s =>
+        api.atualizarSolipede(s.numero, { indocil: s.indocil })
+      );
+
+      await Promise.all(promessas);
+
+      // Recarregar dados
+      await carregarDados();
+
+      setFeedbackMessage(`${alterados.length} solípede(s) atualizado(s) com sucesso!`);
+      setFeedbackSuccess(true);
+      setShowFeedback(true);
+      setShowModalIndocibilidade(false);
+    } catch (error) {
+      console.error("Erro ao salvar indocibilidade:", error);
+      setFeedbackMessage("Erro ao salvar alterações.");
+      setFeedbackSuccess(false);
+      setShowFeedback(true);
+    } finally {
+      setProcessandoIndocibilidade(false);
+    }
+  };
+
+  // Filtrar solípedes na modal de indocibilidade
+  const solipedesFiltradosIndocibilidade = useMemo(() => {
+    return solipedesIndocibilidade.filter(s => {
+      const matchNumero = filtroNumeroIndocibilidade
+        ? s.numero.toString().includes(filtroNumeroIndocibilidade)
+        : true;
+      const matchNome = filtroNomeIndocibilidade
+        ? s.nome?.toLowerCase().includes(filtroNomeIndocibilidade.toLowerCase())
+        : true;
+      return matchNumero && matchNome;
+    });
+  }, [solipedesIndocibilidade, filtroNumeroIndocibilidade, filtroNomeIndocibilidade]);
+
   // Exportar Excel
   const exportarExcel = () => {
     const dadosExport = dadosFiltrados.map(item => ({
@@ -511,12 +599,12 @@ const Ferradoria = () => {
         <Col md={2}>
           <Card
             className="h-100 text-center shadow-sm border-start"
-            onClick={exportarExcel}
+            onClick={abrirModalIndocibilidade}
             style={{ cursor: "pointer" }}
           >
             <Card.Body className="d-flex flex-column justify-content-center">
               <BsPlus size={32} className="mb-2 text-success mx-auto" />
-              <small className="fw-semibold">Definir Cavalor indóceis</small>
+              <small className="fw-semibold">Definir Cavalo indóceis</small>
             </Card.Body>
           </Card>
         </Col>
@@ -696,8 +784,6 @@ const Ferradoria = () => {
                   setFiltroAlocacao("TODOS");
                   setFiltroIndocil("TODOS");
                   setStatusFilter("TODOS");
-                  setFiltroPeriodoInicio("");
-                  setFiltroPeriodoFim("");
                 }}
               >
                 <BsXCircle className="me-2" />
@@ -741,7 +827,29 @@ const Ferradoria = () => {
               <tbody>
                 {currentItems.map((item) => (
                   <tr key={item.numero}>
-                    <td className="fw-bold">{item.numero}</td>
+                    <td className="fw-bold">
+                      <span
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          padding: '4px 10px',
+                          borderRadius: '6px',
+                          backgroundColor: item.indocil ? '#f6cc91' : 'transparent',
+                          border: item.indocil ? '1px solid #f89946' : 'none',
+                          transition: 'all 0.2s'
+                        }}
+                        title={item.indocil ? 'Solípede Indócil - Requer cuidados especiais' : ''}
+                      >
+                        {!!item.indocil && (
+                          <BsExclamationTriangle 
+                            size={16} 
+                            style={{ color: '#ffc107', minWidth: '16px' }}
+                          />
+                        )}
+                        {item.numero}
+                      </span>
+                    </td>
                     <td>{item.nome || "—"}</td>
                     <td>
                       <span 
@@ -883,25 +991,42 @@ const Ferradoria = () => {
               <Card.Body>
                 <h6 className="text-muted mb-3">Informações do Solípede:</h6>
                 <Row>
-                  <Col md={4}>
+                  <Col md={3}>
                     <p className="mb-2">
                       <strong className="text-primary">Número:</strong>
                       <br />
                       <span className="fs-5">{solipedeSelecionado.numero}</span>
                     </p>
                   </Col>
-                  <Col md={4}>
+                  <Col md={3}>
                     <p className="mb-2">
                       <strong className="text-primary">Nome:</strong>
                       <br />
                       <span className="fs-5">{solipedeSelecionado.nome || "—"}</span>
                     </p>
                   </Col>
-                  <Col md={4}>
+                  <Col md={3}>
                     <p className="mb-2">
                       <strong className="text-primary">Alocação:</strong>
                       <br />
                       <span className="fs-5">{solipedeSelecionado.alocacao || "—"}</span>
+                    </p>
+                  </Col>
+                  <Col md={3}>
+                    <p className="mb-2">
+                      <strong className="text-primary">Temperamento:</strong>
+                      <br />
+                      {!!solipedeSelecionado.indocil ? (
+                        <Badge bg="warning" className="px-2 py-1">
+                          <BsExclamationTriangle className="me-1" size={12} />
+                          Indócil
+                        </Badge>
+                      ) : (
+                        <Badge bg="success" className="px-2 py-1">
+                          <BsCheckCircle className="me-1" size={12} />
+                          Dócil
+                        </Badge>
+                      )}
                     </p>
                   </Col>
                 </Row>
@@ -1046,9 +1171,51 @@ const Ferradoria = () => {
         </Modal.Header>
         <Modal.Body>
           {solipedeSelecionado && (
-            <div className="mb-3">
-              <strong>Solípede:</strong> {solipedeSelecionado.numero} - {solipedeSelecionado.nome || "—"}
-            </div>
+            <Card className="mb-3 border-0" style={{ backgroundColor: '#f8f9fa' }}>
+              <Card.Body>
+                <h6 className="text-muted mb-3">Informações do Solípede:</h6>
+                <Row>
+                  <Col md={3}>
+                    <p className="mb-2">
+                      <strong className="text-primary">Número:</strong>
+                      <br />
+                      <span className="fs-5">{solipedeSelecionado.numero}</span>
+                    </p>
+                  </Col>
+                  <Col md={3}>
+                    <p className="mb-2">
+                      <strong className="text-primary">Nome:</strong>
+                      <br />
+                      <span className="fs-5">{solipedeSelecionado.nome || "—"}</span>
+                    </p>
+                  </Col>
+                  <Col md={3}>
+                    <p className="mb-2">
+                      <strong className="text-primary">Alocação:</strong>
+                      <br />
+                      <span className="fs-5">{solipedeSelecionado.alocacao || "—"}</span>
+                    </p>
+                  </Col>
+                  <Col md={3}>
+                    <p className="mb-2">
+                      <strong className="text-primary">Temperamento:</strong>
+                      <br />
+                      {!!solipedeSelecionado.indocil ? (
+                        <Badge bg="warning" className="px-2 py-1">
+                          <BsExclamationTriangle className="me-1" size={12} />
+                          Indócil
+                        </Badge>
+                      ) : (
+                        <Badge bg="success" className="px-2 py-1">
+                          <BsCheckCircle className="me-1" size={12} />
+                          Dócil
+                        </Badge>
+                      )}
+                    </p>
+                  </Col>
+                </Row>
+              </Card.Body>
+            </Card>
           )}
 
           {historicoSolipede.length === 0 ? (
@@ -1083,9 +1250,166 @@ const Ferradoria = () => {
             </Table>
           )}
         </Modal.Body>
-        <Modal.Footer>
+        <Modal.Footer className="border-0">
           <Button variant="primary" onClick={() => setShowHistoricoModal(false)}>
             Fechar
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Modal de Indocibilidade */}
+      <Modal show={showModalIndocibilidade} onHide={() => setShowModalIndocibilidade(false)} centered size="xl">
+        <Modal.Header closeButton className="bg-light border-0">
+          <Modal.Title className="d-flex align-items-center">
+            <div style={{
+              backgroundColor: '#d1e7dd',
+              borderRadius: '8px',
+              width: '40px',
+              height: '40px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginRight: '12px'
+            }}>
+              <BsExclamationTriangle className="text-success" size={20} />
+            </div>
+            Definir Cavalos Indóceis
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Alert variant="info" className="mb-3">
+            <BsExclamationTriangle className="me-2" />
+            Selecione os cavalos indóceis clicando no botão ao lado do número. Os cavalos marcados como indóceis terão seu número destacado em azul claro.
+          </Alert>
+
+          {/* Filtros */}
+          <Row className="mb-3 g-2">
+            <Col md={4}>
+              <Form.Control
+                type="text"
+                placeholder="Filtrar por número..."
+                value={filtroNumeroIndocibilidade}
+                onChange={(e) => setFiltroNumeroIndocibilidade(e.target.value)}
+              />
+            </Col>
+            <Col md={4}>
+              <Form.Control
+                type="text"
+                placeholder="Filtrar por nome..."
+                value={filtroNomeIndocibilidade}
+                onChange={(e) => setFiltroNomeIndocibilidade(e.target.value)}
+              />
+            </Col>
+            <Col md={4}>
+              <Button
+                variant="outline-secondary"
+                className="w-100"
+                onClick={() => {
+                  setFiltroNumeroIndocibilidade("");
+                  setFiltroNomeIndocibilidade("");
+                }}
+              >
+                <BsXCircle className="me-2" />
+                Limpar Filtros
+              </Button>
+            </Col>
+          </Row>
+
+          {/* Tabela */}
+          <div style={{ maxHeight: '450px', overflowY: 'auto' }}>
+            <Table striped bordered hover size="sm">
+              <thead style={{ position: 'sticky', top: 0, backgroundColor: '#fff', zIndex: 1 }}>
+                <tr>
+                  <th style={{ width: '100px' }}>Número</th>
+                  <th>Nome</th>
+                  <th style={{ width: '150px' }}>Alocação</th>
+                  <th style={{ width: '150px', textAlign: 'center' }}>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {solipedesFiltradosIndocibilidade.map((s) => (
+                  <tr key={s.numero}>
+                    <td>
+                      <span
+                        style={{
+                          display: 'inline-block',
+                          padding: '4px 8px',
+                          borderRadius: '4px',
+                          backgroundColor: s.indocil ? '#cfe2ff' : 'transparent',
+                          border: s.indocil ? '1px solid #9ec5fe' : 'none',
+                          fontWeight: 'bold'
+                        }}
+                      >
+                        {s.numero}
+                      </span>
+                    </td>
+                    <td>{s.nome || "—"}</td>
+                    <td><small>{s.alocacao || "—"}</small></td>
+                    <td className="text-center">
+                      <Button
+                        size="sm"
+                        variant={s.indocil ? "danger" : "success"}
+                        onClick={() => toggleIndocibilidade(s.numero)}
+                        disabled={processandoIndocibilidade}
+                      >
+                        {s.indocil ? (
+                          <><BsXCircle className="me-1" /> Indócil</>
+                        ) : (
+                          <><BsCheckCircle className="me-1" /> Dócil</>
+                        )}
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          </div>
+
+          <Alert variant="secondary" className="mt-3 mb-0">
+            <strong>Resumo:</strong> {solipedesIndocibilidade.filter(s => s.indocil).length} indóceis de {solipedesIndocibilidade.length} solípedes
+          </Alert>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            variant="secondary"
+            onClick={() => setShowModalIndocibilidade(false)}
+            disabled={processandoIndocibilidade}
+          >
+            Cancelar
+          </Button>
+          <Button
+            variant="primary"
+            onClick={salvarIndocibilidade}
+            disabled={processandoIndocibilidade}
+          >
+            {processandoIndocibilidade ? (
+              <>
+                <Spinner as="span" animation="border" size="sm" className="me-2" />
+                Salvando...
+              </>
+            ) : (
+              <>
+                <BsCheckCircle className="me-2" />
+                Salvar Alterações
+              </>
+            )}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Modal de Feedback */}
+      <Modal show={showFeedback} onHide={() => setShowFeedback(false)} centered size="sm">
+        <Modal.Body className="text-center py-4">
+          {feedbackSuccess ? (
+            <BsCheckCircle size={48} className="text-success mb-3" />
+          ) : (
+            <BsXCircle size={48} className="text-danger mb-3" />
+          )}
+          <p className="mb-0">{feedbackMessage}</p>
+        </Modal.Body>
+        <Modal.Footer className="justify-content-center border-0">
+          <Button variant="primary" onClick={() => setShowFeedback(false)}>
+            OK
           </Button>
         </Modal.Footer>
       </Modal>

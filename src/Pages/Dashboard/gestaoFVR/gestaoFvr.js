@@ -700,7 +700,7 @@ const calcularIdade = (dataNascimento) => {
                 </Link>
               </Col>
 
-              {/* <Col md={1}>
+              <Col md={2}>
                 <Card
                   className="h-100 text-center shadow-sm border-start"
                   onClick={() => setShowMovModal(true)}
@@ -712,7 +712,7 @@ const calcularIdade = (dataNascimento) => {
                   </Card.Body>
                 </Card>
               </Col>
-
+ {/*
               <Col md={1}>
                 <Card
                   className="h-100 text-center shadow-sm border-start"
@@ -727,7 +727,7 @@ const calcularIdade = (dataNascimento) => {
               </Col> */}
 
               {/* EXPORTAR EXCEL */}
-              <Col md={2}>
+              <Col md={1}>
                 <Card
                   className="h-100 text-center shadow-sm border-start"
                   onClick={exportExcel}
@@ -741,7 +741,7 @@ const calcularIdade = (dataNascimento) => {
               </Col>
 
               {/* EXPORTAR PDF */}
-              <Col md={2}>
+              <Col md={1}>
                 <Card
                   className="h-100 text-center shadow-sm border-start"
                   onClick={exportPDF}
@@ -1001,26 +1001,33 @@ const calcularIdade = (dataNascimento) => {
           </Card.Body>
         </Card>
 
-        {/* ===== MODAL MOVIMENTAÇÃO EM LOTE ===== */}
+        {/* ===== MODAL MOVIMENTAÇÃO EM LOTE - ALTERA ALOCAÇÃO ===== */}
         <Modal
           show={showMovModal}
           onHide={() => setShowMovModal(false)}
           size="lg"
         >
           <Modal.Header closeButton>
-            <Modal.Title>Gerar Movimentação em Lote</Modal.Title>
+            <Modal.Title>Movimentar Solípedes (Alterar Alocação)</Modal.Title>
           </Modal.Header>
           <Modal.Body>
+            <Alert variant="info" className="mb-3">
+              <small>
+                ℹ️ Esta operação irá <strong>alterar a alocação</strong> dos solípedes selecionados e 
+                registrar o histórico no prontuário.
+              </small>
+            </Alert>
+
             <Row className="mb-3">
               <Col md={6}>
                 <Form.Group>
-                  <Form.Label>Movimentação (coluna movimentacao)</Form.Label>
+                  <Form.Label>Nova Alocação *</Form.Label>
                   <Form.Select
                     value={novaMovimentacao}
                     onChange={(e) => setNovaMovimentacao(e.target.value)}
                   >
-                    <option value="">Selecione ou deixe em branco para limpar</option>
-                    {opcoesMovimentacao.map((opt) => (
+                    <option value="">Selecione a nova alocação</option>
+                    {opcoesMovimentacao.filter(opt => opt !== "").map((opt) => (
                       <option key={opt} value={opt}>
                         {opt}
                       </option>
@@ -1030,7 +1037,7 @@ const calcularIdade = (dataNascimento) => {
               </Col>
               <Col md={6}>
                 <Form.Group>
-                  <Form.Label>Senha do Usuário</Form.Label>
+                  <Form.Label>Senha do Usuário *</Form.Label>
                   <Form.Control
                     type="password"
                     value={senhaConfirmacao}
@@ -1044,13 +1051,13 @@ const calcularIdade = (dataNascimento) => {
             <Row className="mb-3">
               <Col md={12}>
                 <Form.Group>
-                  <Form.Label>Observação (opcional)</Form.Label>
+                  <Form.Label>Motivo da Movimentação (opcional)</Form.Label>
                   <Form.Control
                     as="textarea"
                     rows={3}
                     value={observacaoMovimentacao}
                     onChange={(e) => setObservacaoMovimentacao(e.target.value)}
-                    placeholder="Descreva detalhes sobre esta movimentação..."
+                    placeholder="Descreva o motivo ou detalhes desta movimentação..."
                   />
                 </Form.Group>
               </Col>
@@ -1062,7 +1069,6 @@ const calcularIdade = (dataNascimento) => {
                 return (
                   s.nome?.toLowerCase().includes(termo) ||
                   s.numero?.toString().includes(termo) ||
-                  (s.movimentacao || "").toLowerCase().includes(termo) ||
                   (s.alocacao || "").toLowerCase().includes(termo)
                 );
               });
@@ -1078,7 +1084,7 @@ const calcularIdade = (dataNascimento) => {
                     <div className="d-flex gap-2">
                       <Form.Control
                         size="sm"
-                        placeholder="Filtrar por nº, nome, status ou mov."
+                        placeholder="Filtrar por nº, nome ou alocação atual"
                         value={filtroModal}
                         onChange={(e) => setFiltroModal(e.target.value)}
                         style={{ width: 260 }}
@@ -1107,8 +1113,8 @@ const calcularIdade = (dataNascimento) => {
                       <tr>
                         <th style={{ width: 40 }}></th>
                         <th>Nº</th>
-                        <th>Nome / Alocação</th>
-                        <th>Movimentação Atual</th>
+                        <th>Nome</th>
+                        <th>Alocação Atual</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -1129,11 +1135,12 @@ const calcularIdade = (dataNascimento) => {
                               />
                             </td>
                             <td className="fw-semibold">{s.numero}</td>
+                            <td className="fw-semibold">{s.nome}</td>
                             <td>
-                              <div className="fw-semibold">{s.nome}</div>
-                              <div className="text-muted small">{s.alocacao || "-"}</div>
+                              <Badge bg="secondary" className="bg-opacity-50">
+                                {s.alocacao || "Não definida"}
+                              </Badge>
                             </td>
-                            <td>{s.movimentacao || "-"}</td>
                           </tr>
                         );
                       })}
@@ -1162,16 +1169,22 @@ const calcularIdade = (dataNascimento) => {
               disabled={
                 movLoading ||
                 !senhaConfirmacao ||
+                !novaMovimentacao ||
                 selecionados.length === 0
               }
               onClick={async () => {
                 try {
-                  console.log("🎯 BOTÃO CLICADO - Iniciando movimentação em lote");
+                  console.log("🎯 BOTÃO CLICADO - Iniciando movimentação em lote (ALTERA ALOCAÇÃO)");
                   console.log("📦 Dados a serem enviados:");
                   console.log("   - selecionados:", selecionados);
-                  console.log("   - novaMovimentacao:", novaMovimentacao);
+                  console.log("   - novaAlocacao:", novaMovimentacao);
                   console.log("   - observacao:", observacaoMovimentacao);
                   console.log("   - senha:", senhaConfirmacao ? "****" : "vazia");
+                  
+                  if (!novaMovimentacao || novaMovimentacao === "") {
+                    setMovErro("Selecione uma nova alocação");
+                    return;
+                  }
                   
                   setMovErro("");
                   setMovSucesso("");
@@ -1180,7 +1193,7 @@ const calcularIdade = (dataNascimento) => {
                   console.log("📡 Chamando api.movimentacaoBulk...");
                   const resp = await api.movimentacaoBulk({
                     numeros: selecionados,
-                    novaMovimentacao: novaMovimentacao || null,
+                    novaAlocacao: novaMovimentacao,
                     observacao: observacaoMovimentacao || null,
                     senha: senhaConfirmacao,
                   });
@@ -1189,21 +1202,31 @@ const calcularIdade = (dataNascimento) => {
                   
                   if (resp && resp.success) {
                     console.log("✅ Sucesso! Atualizando dados localmente...");
-                    // Atualiza os dados locais
+                    // Atualiza a alocação dos solípedes selecionados
                     setDados((prev) =>
                       prev.map((d) =>
                         selecionados.includes(d.numero)
-                          ? { ...d, movimentacao: novaMovimentacao}
+                          ? { ...d, alocacao: novaMovimentacao }
                           : d
                       )
                     );
                     setMovSucesso(
-                      `Movimentação aplicada a ${resp.count} solípedes.`
+                      `Alocação alterada com sucesso para ${resp.count} solípede(s)!`
                     );
+                    
+                    // Limpar campos e fechar modal
                     setSelecionados([]);
                     setSenhaConfirmacao("");
                     setNovaMovimentacao("");
                     setObservacaoMovimentacao("");
+                    setFiltroModal("");
+                    
+                    // Recarregar dados para garantir sincronização
+                    setTimeout(async () => {
+                      await carregarDados();
+                      setShowMovModal(false);
+                      setMovSucesso("");
+                    }, 1500);
                   } else {
                     console.log("❌ Erro na resposta:", resp?.error);
                     setMovErro(resp?.error || "Falha ao aplicar movimentação");

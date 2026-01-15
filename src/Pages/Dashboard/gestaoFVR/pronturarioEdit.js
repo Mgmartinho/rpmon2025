@@ -24,7 +24,7 @@ import {
   BsFileWord,
   BsPencilSquare,
 } from "react-icons/bs";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { api } from "../../../services/api";
 import html2pdf from 'html2pdf.js';
 import htmlDocx from 'html-docx-js/dist/html-docx';
@@ -32,7 +32,6 @@ import { saveAs } from 'file-saver';
 
 export default function ProntuarioSolipedeEdit() {
   const { numero } = useParams();
-  const navigate = useNavigate();
   const [solipede, setSolipede] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -52,21 +51,20 @@ export default function ProntuarioSolipedeEdit() {
 
   const [tipoBaixa, setTipoBaixa] = useState("");
   const [baixasPendentes, setBaixasPendentes] = useState(0);
-  const [liberandoBaixa, setLiberandoBaixa] = useState(null);
 
   // Estados para Vacinação, Vermifugação e AIE
   const [dataAplicacao, setDataAplicacao] = useState("");
   const [partidaLote, setPartidaLote] = useState("");
   const [validadeProduto, setValidadeProduto] = useState("");
   const [nomeProduto, setNomeProduto] = useState("");
-  
+
   // Estados para edição de registros
   const [registroEditando, setRegistroEditando] = useState(null);
   const [showModalEdicao, setShowModalEdicao] = useState(false);
   const [observacaoEdicao, setObservacaoEdicao] = useState("");
   const [recomendacoesEdicao, setRecomendacoesEdicao] = useState("");
   const [dataValidadeEdicao, setDataValidadeEdicao] = useState("");
-  
+
   // Estados para conclusão manual de registros
   const [showModalConclusaoRegistro, setShowModalConclusaoRegistro] = useState(false);
   const [registroIdConcluir, setRegistroIdConcluir] = useState(null);
@@ -82,7 +80,7 @@ export default function ProntuarioSolipedeEdit() {
   const [senhaConclusao, setSenhaConclusao] = useState("");
   const [concluindo, setConcluindo] = useState(false);
   const [erroConclusao, setErroConclusao] = useState("");
-  
+
   // Estados para alteração de status do solípede
   const [novoStatus, setNovoStatus] = useState("");
   const [precisaBaixar, setPrecisaBaixar] = useState(""); // Novo: Sim/Não para baixar solípede
@@ -107,6 +105,48 @@ export default function ProntuarioSolipedeEdit() {
     dose: "",
     frequencia: "",
   });
+
+  // Estados para movimentação (quando tipoObservacao === "Movimentação")
+  const [novaAlocacao, setNovaAlocacao] = useState("");
+  const [showModalMovimentacao, setShowModalMovimentacao] = useState(false);
+  const [senhaMovimentacao, setSenhaMovimentacao] = useState("");
+  const [realizandoMovimentacao, setRealizandoMovimentacao] = useState(false);
+  const [erroMovimentacao, setErroMovimentacao] = useState("");
+  const opcoesMovimentacao = [
+    "",
+    "Colina",
+    "RPMon",
+    "Barro Branco",
+    "Hospital Veterinario",
+    "Escola de Equitação do Exército",
+    "Representação",
+    "Destacamento Montado de Campinas",
+    "Destacamento Montado de Santos",
+    "Destacamento Montado de Taubaté",
+    "Destacamento Montado de Mauá",
+    "Destacamento Montado de São Bernardo do Campo",
+    "Destacamento Montado de Presidente Prudente",
+    "Destacamento Montado de São José do Rio Preto",
+    "Destacamento Montado de Barretos",
+    "Destacamento Montado de Ribeirão Preto",
+    "Destacamento Montado de Bauru",
+    "Destacamento Montado de Marília",
+    "Destacamento Montado de Avaré",
+    "Destacamento Montado de Itapetininga",
+    "Destacamento Montado de Sorocaba",
+  ];
+
+  // Estado para paginação da Visão Geral
+  const [paginaAtual, setPaginaAtual] = useState(1);
+  const [totalPaginas, setTotalPaginas] = useState(1);
+
+  // Estados para paginação do Histórico
+  const [paginaHistorico, setPaginaHistorico] = useState(1);
+  const [itensPorPaginaHistorico, setItensPorPaginaHistorico] = useState(4);
+
+  // Estados para paginação dos Registros por Tipo
+  const [paginaRegistrosPorTipo, setPaginaRegistrosPorTipo] = useState(1);
+  const [itensPorPaginaRegistros, setItensPorPaginaRegistros] = useState(4);
 
   // Estados para exames laboratoriais (quando tipoObservacao === "Exame")
   const [examesSelecionados, setExamesSelecionados] = useState({
@@ -198,8 +238,8 @@ export default function ProntuarioSolipedeEdit() {
     }
   }, [numero]);
 
-  // Função para gerar documento formatado
-  const gerarDocumentoFormatado = () => {
+  // Função para gerar documento formatado com paginação (retorna apenas uma página por vez)
+  const gerarDocumentoFormatado = (numeroPagina = 1) => {
     if (!historico || !Array.isArray(historico) || historico.length === 0) return '';
 
     const dataAtual = new Date().toLocaleDateString('pt-BR', {
@@ -208,88 +248,216 @@ export default function ProntuarioSolipedeEdit() {
       year: 'numeric'
     });
 
-    let documento = `
-      <div style="font-family: 'Times New Roman', serif; max-width: 800px; margin: 0 auto; padding: 40px;">
-        <!-- Cabeçalho Oficial -->
-        <div style="text-align: center; margin-bottom: 30px;">
-          <h2 style="margin: 0; font-size: 18px; font-weight: bold; text-transform: uppercase;">
-            REGIMENTO DE POLÍCIA MONTADA "9 De Julho"
-          </h2>
-          <h3 style="margin: 5px 0; font-size: 16px; font-weight: bold;">
-            FORMAÇÃO VETERINÁRIA REGIMENTAL
-          </h3>
-          <p style="margin: 5px 0; font-size: 12px;">PRONTUÁRIO VETERINÁRIO</p>
+    // Primeira página: 2 registros (dados do solípede + 2 registros)
+    // Páginas seguintes: 5 registros cada
+    const registrosPrimeiraPagina = 2;
+    const registrosPorPaginaDemais = 5;
+
+    // Calcular total de páginas
+    const registrosRestantes = Math.max(0, historico.length - registrosPrimeiraPagina);
+    const paginasAdicionais = Math.ceil(registrosRestantes / registrosPorPaginaDemais);
+    const totalPags = 1 + paginasAdicionais; // 1 página de dados + páginas de registros
+
+    // Atualizar total de páginas no estado
+    if (totalPaginas !== totalPags) {
+      setTotalPaginas(totalPags);
+    }
+
+    // Função para gerar cabeçalho
+    const gerarCabecalho = (numPag, totalP) => `
+      <div style="text-align: center; margin-bottom: 25px;">
+        <h2 style="margin: 0; font-size: 18px; font-weight: bold; text-transform: uppercase;">
+          REGIMENTO DE POLÍCIA MONTADA "9 De Julho"
+        </h2>
+        <h3 style="margin: 5px 0; font-size: 16px; font-weight: bold;">
+          FORMAÇÃO VETERINÁRIA REGIMENTAL
+        </h3>
+        <p style="margin: 5px 0; font-size: 12px;">PRONTUÁRIO VETERINÁRIO</p>
+        <p style="margin: 5px 0; font-size: 11px; color: #666;">Página ${numPag} de ${totalP}</p>
+      </div>
+    `;
+
+    // Função para gerar rodapé
+    const gerarRodape = (numPag) => `
+      <div style="margin-top: 30px; padding-top: 15px; border-top: 1px solid #ccc; text-align: center; font-size: 10px; color: #666;">
+        <p style="margin: 3px 0;">Documento gerado em: ${dataAtual}</p>
+        <p style="margin: 3px 0;">Página ${numPag} | Total de registros: ${historico.length}</p>
+      </div>
+    `;
+
+    // Página 1: Dados do Solípede + Primeiros registros
+    if (numeroPagina === 1) {
+      return `
+        <div style="font-family: 'Times New Roman', serif; width: 21cm; height: 29.7cm; margin: 0 auto; padding: 1.5cm; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1); box-sizing: border-box; overflow: hidden;">
+          ${gerarCabecalho(1, totalPags)}
+          
+          <hr style="border: 1px solid #000; margin: 15px 0;">
+
+          <!-- Dados do Solípede -->
+          <div style="margin-bottom: 25px;">
+            <h4 style="font-size: 14px; font-weight: bold; margin-bottom: 12px; text-decoration: underline;">
+              I - DADOS DO SOLÍPEDE
+            </h4>
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 13px;">
+              <tr>
+                <td style="padding: 4px 0; width: 30%;"><strong>Nome:</strong></td>
+                <td style="padding: 4px 0;">${solipede.nome}</td>
+              </tr>
+              <tr>
+                <td style="padding: 4px 0;"><strong>Número:</strong></td>
+                <td style="padding: 4px 0;">${solipede.numero}</td>
+              </tr>
+              <tr>
+                <td style="padding: 4px 0;"><strong>Pelagem:</strong></td>
+                <td style="padding: 4px 0;">${solipede.pelagem || 'N/A'}</td>
+              </tr>
+              <tr>
+                <td style="padding: 4px 0;"><strong>Sexo:</strong></td>
+                <td style="padding: 4px 0;">${solipede.sexo || 'N/A'}</td>
+              </tr>
+              <tr>
+                <td style="padding: 4px 0;"><strong>Data de Nascimento:</strong></td>
+                <td style="padding: 4px 0;">${solipede.DataNascimento ? new Date(solipede.DataNascimento).toLocaleDateString('pt-BR') : 'N/A'}</td>
+              </tr>
+              <tr>
+                <td style="padding: 4px 0;"><strong>Idade:</strong></td>
+                <td style="padding: 4px 0;">${calcularIdade(solipede.DataNascimento)} anos</td>
+              </tr>
+              <tr>
+                <td style="padding: 4px 0;"><strong>Esquadrão:</strong></td>
+                <td style="padding: 4px 0;">${solipede.esquadrao || 'N/A'}</td>
+              </tr>
+              <tr>
+                <td style="padding: 4px 0;"><strong>Unidade:</strong></td>
+                <td style="padding: 4px 0;">${solipede.alocacao || 'N/A'}</td>
+              </tr>
+              <tr>
+                <td style="padding: 4px 0;"><strong>Status:</strong></td>
+                <td style="padding: 4px 0;"><strong>${solipede.status || 'N/A'}</strong></td>
+              </tr>
+            </table>
+          </div>
+
+          <hr style="border: 1px solid #000; margin: 15px 0;">
+
+          <!-- Início do Histórico Clínico -->
+          <div style="margin-bottom: 20px;">
+            <h4 style="font-size: 14px; font-weight: bold; margin-bottom: 12px; text-decoration: underline;">
+              II - HISTÓRICO CLÍNICO E EVOLUÇÃO
+            </h4>
+            ${historico.slice(0, registrosPrimeiraPagina).map((registro, index) => {
+        const dataBR = new Date(registro.data_criacao).toLocaleDateString('pt-BR');
+        const horaBR = new Date(registro.data_criacao).toLocaleTimeString('pt-BR');
+        const tipo = registro.tipo ? registro.tipo.toUpperCase() : 'OBSERVAÇÃO GERAL';
+        const usuario = registro.usuario_nome || 'N/A';
+        const registro_re = registro.usuario_registro || '';
+        const observacao = registro.observacao || 'Sem observação registrada';
+
+        const foiEditado = registro.data_atualizacao &&
+          new Date(registro.data_atualizacao).getTime() !== new Date(registro.data_criacao).getTime();
+
+        const isConcluido = registro.status_conclusao === 'concluido';
+
+        return `
+                <div style="margin-bottom: 20px; page-break-inside: avoid; border-left: 3px solid #007bff; padding-left: 12px;">
+                  <p style="margin: 0 0 6px 0; font-size: 13px;">
+                    <strong>${index + 1}. ${tipo}</strong>
+                    ${isConcluido ? ' <span style="color: #28a745; font-size: 11px;">[✓ CONCLUÍDO]</span>' : ''}
+                    ${registro.precisa_baixar === "sim" ? ' <span style="color: #dc3545; font-size: 11px;">[⚠ BAIXOU SOLÍPEDE]</span>' : ''}
+                  </p>
+                  <p style="margin: 0 0 4px 0; font-size: 11px; color: #666;">
+                    <em>Data: ${dataBR} às ${horaBR}</em>
+                    ${usuario !== 'N/A' ? ` | Responsável: ${usuario}${registro_re ? ' (RE: ' + registro_re + ')' : ''}` : ''}
+                  </p>
+                  <p style="text-align: justify; line-height: 1.5; margin: 8px 0; font-size: 12px;">
+                    ${observacao}
+                  </p>
+                  ${registro.recomendacoes ? `
+                    <div style="background-color: #fffbea; border-left: 3px solid #f0ad4e; padding: 8px; margin-top: 8px; font-size: 11px;">
+                      <strong>📌 Recomendações:</strong> ${registro.recomendacoes}
+                    </div>
+                  ` : ''}
+                  ${isConcluido && registro.usuario_conclusao_nome ? `
+                    <div style="background-color: #e8f5e9; border-left: 3px solid #28a745; padding: 8px; margin-top: 8px; font-size: 11px;">
+                      <strong>✓ Concluído por:</strong> ${registro.usuario_conclusao_nome}${registro.usuario_conclusao_registro ? ' (RE: ' + registro.usuario_conclusao_registro + ')' : ''}
+                      ${registro.data_conclusao ? '<br/><em>Em: ' + new Date(registro.data_conclusao).toLocaleDateString('pt-BR') + ' às ' + new Date(registro.data_conclusao).toLocaleTimeString('pt-BR') + '</em>' : ''}
+                    </div>
+                  ` : ''}
+                  ${foiEditado ? `
+                    <div style="background-color: #e3f2fd; border-left: 3px solid #2196f3; padding: 8px; margin-top: 8px; font-size: 10px;">
+                      <strong>✎ Atualizado em:</strong> ${new Date(registro.data_atualizacao).toLocaleDateString('pt-BR')} às ${new Date(registro.data_atualizacao).toLocaleTimeString('pt-BR')}
+                      ${registro.usuario_atualizacao_nome ? '<br/><strong>Por:</strong> ' + registro.usuario_atualizacao_nome + (registro.usuario_atualizacao_registro ? ' (RE: ' + registro.usuario_atualizacao_registro + ')' : '') : ''}
+                    </div>
+                  ` : ''}
+                </div>
+              `;
+      }).join('')}
+          </div>
+
+          ${gerarRodape(1)}
         </div>
+      `;
+    }
 
-        <hr style="border: 1px solid #000; margin: 20px 0;">
+    // Páginas subsequentes: Continuação do histórico
+    // Página 1 tem 3 registros, páginas seguintes têm 7
+    const inicio = registrosPrimeiraPagina + ((numeroPagina - 2) * registrosPorPaginaDemais);
+    const fim = Math.min(inicio + registrosPorPaginaDemais, historico.length);
+    const registrosDaPagina = historico.slice(inicio, fim);
 
-        <!-- Dados do Solípede -->
-        <div style="margin-bottom: 30px;">
-          <h4 style="font-size: 14px; font-weight: bold; margin-bottom: 15px; text-decoration: underline;">
-            I - DADOS DO SOLÍPEDE
+    return `
+      <div style="font-family: 'Times New Roman', serif; width: 21cm; height: 29.7cm; margin: 0 auto; padding: 1.5cm; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1); box-sizing: border-box; overflow: hidden;">
+        ${gerarCabecalho(numeroPagina, totalPags)}
+        
+        <hr style="border: 1px solid #000; margin: 15px 0;">
+
+        <div style="margin-bottom: 20px;">
+          <h4 style="font-size: 14px; font-weight: bold; margin-bottom: 12px; text-decoration: underline;">
+            II - HISTÓRICO CLÍNICO E EVOLUÇÃO (continuação)
           </h4>
-          <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px;">
-            <tr>
-              <td style="padding: 5px 0; width: 30%;"><strong>Nome:</strong></td>
-              <td style="padding: 5px 0;">${solipede.nome}</td>
-            </tr>
-            <tr>
-              <td style="padding: 5px 0;"><strong>Número:</strong></td>
-              <td style="padding: 5px 0;">${solipede.numero}</td>
-            </tr>
-            <tr>
-              <td style="padding: 5px 0;"><strong>Pelagem:</strong></td>
-              <td style="padding: 5px 0;">${solipede.pelagem || 'N/A'}</td>
-            </tr>
-            <tr>
-              <td style="padding: 5px 0;"><strong>Sexo:</strong></td>
-              <td style="padding: 5px 0;">${solipede.sexo || 'N/A'}</td>
-            </tr>
-            <tr>
-              <td style="padding: 5px 0;"><strong>Data de Nascimento:</strong></td>
-              <td style="padding: 5px 0;">${solipede.DataNascimento ? new Date(solipede.DataNascimento).toLocaleDateString('pt-BR') : 'N/A'}</td>
-            </tr>
-            <tr>
-              <td style="padding: 5px 0;"><strong>Esquadrão:</strong></td>
-              <td style="padding: 5px 0;">${solipede.esquadrao || 'N/A'}</td>
-            </tr>
-            <tr>
-              <td style="padding: 5px 0;"><strong>Status:</strong></td>
-              <td style="padding: 5px 0;">${solipede.status || 'N/A'}</td>
-            </tr>
-          </table>
-        </div>
-
-        <hr style="border: 1px solid #000; margin: 20px 0;">
-
-        <!-- Histórico Clínico -->
-        <div style="margin-bottom: 30px;">
-          <h4 style="font-size: 14px; font-weight: bold; margin-bottom: 15px; text-decoration: underline;">
-            II - HISTÓRICO CLÍNICO E EVOLUÇÃO
-          </h4>
-          ${historico.map((registro, index) => {
+          ${registrosDaPagina.map((registro, index) => {
+      const indexGlobal = inicio + index;
       const dataBR = new Date(registro.data_criacao).toLocaleDateString('pt-BR');
       const horaBR = new Date(registro.data_criacao).toLocaleTimeString('pt-BR');
       const tipo = registro.tipo ? registro.tipo.toUpperCase() : 'OBSERVAÇÃO GERAL';
       const usuario = registro.usuario_nome || 'N/A';
-      const perfil = registro.usuario_perfil || 'N/A';
+      const registro_re = registro.usuario_registro || '';
       const observacao = registro.observacao || 'Sem observação registrada';
-      
+
+      const foiEditado = registro.data_atualizacao &&
+        new Date(registro.data_atualizacao).getTime() !== new Date(registro.data_criacao).getTime();
+
+      const isConcluido = registro.status_conclusao === 'concluido';
+
       return `
-              <div style="margin-bottom: 25px; page-break-inside: avoid;">
-                <p style="margin: 0 0 8px 0;">
-                  <strong>${index + 1}. ${tipo}</strong>
+              <div style="margin-bottom: 20px; page-break-inside: avoid; border-left: 3px solid #007bff; padding-left: 12px;">
+                <p style="margin: 0 0 6px 0; font-size: 13px;">
+                  <strong>${indexGlobal + 1}. ${tipo}</strong>
+                  ${isConcluido ? ' <span style="color: #28a745; font-size: 11px;">[✓ CONCLUÍDO]</span>' : ''}
+                  ${registro.precisa_baixar === "sim" ? ' <span style="color: #dc3545; font-size: 11px;">[⚠ BAIXOU SOLÍPEDE]</span>' : ''}
                 </p>
-                <p style="margin: 0 0 5px 0; font-size: 12px; color: #666;">
+                <p style="margin: 0 0 4px 0; font-size: 11px; color: #666;">
                   <em>Data: ${dataBR} às ${horaBR}</em>
-                  ${registro.usuario_nome ? ` | Responsável: ${usuario} (${perfil})` : ''}
+                  ${usuario !== 'N/A' ? ` | Responsável: ${usuario}${registro_re ? ' (RE: ' + registro_re + ')' : ''}` : ''}
                 </p>
-                <p style="text-align: justify; line-height: 1.6; margin: 10px 0;">
+                <p style="text-align: justify; line-height: 1.5; margin: 8px 0; font-size: 12px;">
                   ${observacao}
                 </p>
                 ${registro.recomendacoes ? `
-                  <div style="background-color: #fffbea; border-left: 3px solid #f0ad4e; padding: 10px; margin-top: 10px;">
-                    <strong>Recomendações:</strong> ${registro.recomendacoes}
+                  <div style="background-color: #fffbea; border-left: 3px solid #f0ad4e; padding: 8px; margin-top: 8px; font-size: 11px;">
+                    <strong>📌 Recomendações:</strong> ${registro.recomendacoes}
+                  </div>
+                ` : ''}
+                ${isConcluido && registro.usuario_conclusao_nome ? `
+                  <div style="background-color: #e8f5e9; border-left: 3px solid #28a745; padding: 8px; margin-top: 8px; font-size: 11px;">
+                    <strong>✓ Concluído por:</strong> ${registro.usuario_conclusao_nome}${registro.usuario_conclusao_registro ? ' (RE: ' + registro.usuario_conclusao_registro + ')' : ''}
+                    ${registro.data_conclusao ? '<br/><em>Em: ' + new Date(registro.data_conclusao).toLocaleDateString('pt-BR') + ' às ' + new Date(registro.data_conclusao).toLocaleTimeString('pt-BR') + '</em>' : ''}
+                  </div>
+                ` : ''}
+                ${foiEditado ? `
+                  <div style="background-color: #e3f2fd; border-left: 3px solid #2196f3; padding: 8px; margin-top: 8px; font-size: 10px;">
+                    <strong>✎ Atualizado em:</strong> ${new Date(registro.data_atualizacao).toLocaleDateString('pt-BR')} às ${new Date(registro.data_atualizacao).toLocaleTimeString('pt-BR')}
+                    ${registro.usuario_atualizacao_nome ? '<br/><strong>Por:</strong> ' + registro.usuario_atualizacao_nome + (registro.usuario_atualizacao_registro ? ' (RE: ' + registro.usuario_atualizacao_registro + ')' : '') : ''}
                   </div>
                 ` : ''}
               </div>
@@ -297,23 +465,27 @@ export default function ProntuarioSolipedeEdit() {
     }).join('')}
         </div>
 
-        <hr style="border: 1px solid #000; margin: 30px 0;">
-
-        <!-- Rodapé -->
-        <div style="margin-top: 50px; text-align: center; font-size: 11px;">
-          <p style="margin: 5px 0;">Documento gerado em: ${dataAtual}</p>
-          <p style="margin: 5px 0;">Total de registros: ${historico.length}</p>
-        </div>
+        ${gerarRodape(numeroPagina)}
       </div>
     `;
-
-    return documento;
   };
 
-  // Função para exportar para PDF usando html2pdf
+  // Função para exportar para PDF usando html2pdf (gera documento completo)
   const exportarPDF = () => {
     const element = document.createElement('div');
-    element.innerHTML = gerarDocumentoFormatado();
+    // Gerar todas as páginas para exportação
+    let documentoCompleto = '';
+    const registrosPrimeiraPagina = 3;
+    const registrosPorPaginaDemais = 7;
+    const registrosRestantes = Math.max(0, historico.length - registrosPrimeiraPagina);
+    const paginasAdicionais = Math.ceil(registrosRestantes / registrosPorPaginaDemais);
+    const totalPags = 1 + paginasAdicionais;
+
+    for (let i = 1; i <= totalPags; i++) {
+      documentoCompleto += gerarDocumentoFormatado(i);
+    }
+
+    element.innerHTML = documentoCompleto;
 
     const opt = {
       margin: [15, 15],
@@ -326,9 +498,20 @@ export default function ProntuarioSolipedeEdit() {
     html2pdf().set(opt).from(element).save();
   };
 
-  // Função para exportar para Word usando html-docx-js
+  // Função para exportar para Word usando html-docx-js (gera documento completo)
   const exportarWord = () => {
-    const conteudo = gerarDocumentoFormatado();
+    // Gerar todas as páginas para exportação
+    let documentoCompleto = '';
+    const registrosPrimeiraPagina = 3;
+    const registrosPorPaginaDemais = 7;
+    const registrosRestantes = Math.max(0, historico.length - registrosPrimeiraPagina);
+    const paginasAdicionais = Math.ceil(registrosRestantes / registrosPorPaginaDemais);
+    const totalPags = 1 + paginasAdicionais;
+
+    for (let i = 1; i <= totalPags; i++) {
+      documentoCompleto += gerarDocumentoFormatado(i);
+    }
+
     const htmlContent = `
       <!DOCTYPE html>
       <html>
@@ -342,7 +525,7 @@ export default function ProntuarioSolipedeEdit() {
           </style>
         </head>
         <body>
-          ${conteudo}
+          ${documentoCompleto}
         </body>
       </html>
     `;
@@ -358,8 +541,8 @@ export default function ProntuarioSolipedeEdit() {
         const response = await api.listarProntuario(solipede.numero);
         console.log("📦 Resposta da API:", response);
         console.log("📊 Total de registros recebidos:", response?.length);
-        
-        // Debug: verificar campo foi_responsavel_pela_baixa
+
+        // Debug: verificar campos foi_responsavel_pela_baixa E precisa_baixar
         if (Array.isArray(response)) {
           response.forEach((reg, index) => {
             if (reg.tipo === "Tratamento") {
@@ -367,15 +550,17 @@ export default function ProntuarioSolipedeEdit() {
                 id: reg.id,
                 tipo: reg.tipo,
                 foi_responsavel_pela_baixa: reg.foi_responsavel_pela_baixa,
+                precisa_baixar: reg.precisa_baixar,
+                typeof_precisa: typeof reg.precisa_baixar,
                 observacao: reg.observacao?.substring(0, 50)
               });
             }
           });
         }
-        
+
         // Garantir que response seja sempre um array
         setHistorico(Array.isArray(response) ? response : []);
-        
+
         // Debug: mostrar tipos dos registros
         if (Array.isArray(response) && response.length > 0) {
           const tipos = response.map(r => r.tipo);
@@ -420,10 +605,10 @@ export default function ProntuarioSolipedeEdit() {
     }
   }, []);
 
-  // Atualizar visão geral quando histórico mudar
+  // Atualizar visão geral quando histórico mudar ou página mudar
   useEffect(() => {
     if (historico && Array.isArray(historico) && historico.length > 0 && solipede) {
-      const documentoFormatado = gerarDocumentoFormatado();
+      const documentoFormatado = gerarDocumentoFormatado(paginaAtual);
       setVisaoGeralTexto(documentoFormatado);
     } else if (solipede) {
       setVisaoGeralTexto(
@@ -433,7 +618,8 @@ export default function ProntuarioSolipedeEdit() {
         </div>`
       );
     }
-  }, [historico, solipede]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [historico, solipede, paginaAtual]);
 
   // Funções para gerenciar exames
   const handleCheckboxChange = (exame) => {
@@ -445,7 +631,7 @@ export default function ProntuarioSolipedeEdit() {
 
   const marcarTodosCategoria = (categoria) => {
     const novosExames = { ...examesSelecionados };
-    
+
     switch (categoria) {
       case "hematologia":
         novosExames.hemogramaCompleto = true;
@@ -512,7 +698,7 @@ export default function ProntuarioSolipedeEdit() {
       default:
         break;
     }
-    
+
     setExamesSelecionados(novosExames);
   };
 
@@ -520,7 +706,7 @@ export default function ProntuarioSolipedeEdit() {
     // Se for tipo "Exame", verificar se algum exame foi selecionado
     if (tipoObservacao === "Exame") {
       const algumSelecionado = Object.values(examesSelecionados).some((v) => v === true);
-      
+
       if (!algumSelecionado && !observacao.trim()) {
         setMensagem({
           tipo: "warning",
@@ -532,7 +718,7 @@ export default function ProntuarioSolipedeEdit() {
       // Se houver exames selecionados, gerar o texto formatado
       if (algumSelecionado) {
         const examesLista = [];
-        
+
         // Hematologia
         if (examesSelecionados.hemogramaCompleto) examesLista.push("• Hemograma completo");
         if (examesSelecionados.hemacias) examesLista.push("• Hemácias");
@@ -541,7 +727,7 @@ export default function ProntuarioSolipedeEdit() {
         if (examesSelecionados.indices) examesLista.push("• VCM, HCM, CHCM");
         if (examesSelecionados.leucograma) examesLista.push("• Leucograma");
         if (examesSelecionados.plaquetas) examesLista.push("• Plaquetas");
-        
+
         // Bioquímica - Função Hepática
         if (examesSelecionados.ast) examesLista.push("• AST (TGO)");
         if (examesSelecionados.alt) examesLista.push("• ALT (TGP)");
@@ -550,21 +736,21 @@ export default function ProntuarioSolipedeEdit() {
         if (examesSelecionados.bilirrubinaTotal) examesLista.push("• Bilirrubina total");
         if (examesSelecionados.bilirrubinaDireta) examesLista.push("• Bilirrubina direta");
         if (examesSelecionados.bilirrubinaIndireta) examesLista.push("• Bilirrubina indireta");
-        
+
         // Bioquímica - Função Renal
         if (examesSelecionados.ureia) examesLista.push("• Ureia");
         if (examesSelecionados.creatinina) examesLista.push("• Creatinina");
-        
+
         // Bioquímica - Músculos
         if (examesSelecionados.ck) examesLista.push("• CK (Creatina Quinase)");
         if (examesSelecionados.ldh) examesLista.push("• LDH");
-        
+
         // Bioquímica - Metabolismo
         if (examesSelecionados.proteinasTotais) examesLista.push("• Proteínas totais");
         if (examesSelecionados.albumina) examesLista.push("• Albumina");
         if (examesSelecionados.globulinas) examesLista.push("• Globulinas");
         if (examesSelecionados.relacaoAG) examesLista.push("• Relação A/G");
-        
+
         // Bioquímica - Eletrólitos
         if (examesSelecionados.sodio) examesLista.push("• Sódio (Na⁺)");
         if (examesSelecionados.potassio) examesLista.push("• Potássio (K⁺)");
@@ -572,13 +758,13 @@ export default function ProntuarioSolipedeEdit() {
         if (examesSelecionados.calcio) examesLista.push("• Cálcio (Ca²⁺)");
         if (examesSelecionados.fosforo) examesLista.push("• Fósforo (P)");
         if (examesSelecionados.magnesio) examesLista.push("• Magnésio (Mg²⁺)");
-        
+
         // Bioquímica - Outros
         if (examesSelecionados.glicose) examesLista.push("• Glicose");
         if (examesSelecionados.colesterol) examesLista.push("• Colesterol");
         if (examesSelecionados.triglicerideos) examesLista.push("• Triglicerídeos");
         if (examesSelecionados.lactato) examesLista.push("• Lactato");
-        
+
         // Sorologia
         if (examesSelecionados.aie) examesLista.push("• Anemia Infecciosa Equina (AIE – Coggins)");
         if (examesSelecionados.mormo) examesLista.push("• Mormo");
@@ -589,7 +775,7 @@ export default function ProntuarioSolipedeEdit() {
         if (examesSelecionados.raiva) examesLista.push("• Raiva");
         if (examesSelecionados.encefalomieliteEquina) examesLista.push("• Encefalomielite Equina");
         if (examesSelecionados.arteriteViralEquina) examesLista.push("• Arterite Viral Equina");
-        
+
         // Parasitologia
         if (examesSelecionados.coproparasitologico) examesLista.push("• Exame coproparasitológico");
         if (examesSelecionados.opg) examesLista.push("• OPG (Ovos Por Grama)");
@@ -603,7 +789,7 @@ export default function ProntuarioSolipedeEdit() {
 
         // Substituir a observação pelo texto dos exames
         setObservacao(textoExames);
-        
+
         // Continuar com o salvamento usando o texto gerado
         setSalvando(true);
         try {
@@ -622,7 +808,7 @@ export default function ProntuarioSolipedeEdit() {
               tipo: "success",
               texto: "Solicitação de exames registrada com sucesso!",
             });
-            
+
             // Limpar formulário
             setObservacao("");
             setRecomendacoes("");
@@ -648,7 +834,7 @@ export default function ProntuarioSolipedeEdit() {
     // Validação para Dieta
     if (tipoObservacao === "Dieta") {
       const algumaDietaSelecionada = Object.values(dietaSelecionada).some((v) => v === true);
-      
+
       if (!algumaDietaSelecionada && !observacao.trim()) {
         setMensagem({
           tipo: "warning",
@@ -660,7 +846,7 @@ export default function ProntuarioSolipedeEdit() {
       // Se houver dietas selecionadas, gerar o texto formatado
       if (algumaDietaSelecionada) {
         const dietasLista = [];
-        
+
         if (dietaSelecionada.fenoSoFeno) dietasLista.push("• Feno (só feno)");
         if (dietaSelecionada.umQuintoRacao) dietasLista.push("• 1/5 ração");
         if (dietaSelecionada.fenoMolhado) dietasLista.push("• Feno molhado");
@@ -674,7 +860,7 @@ export default function ProntuarioSolipedeEdit() {
 
         // Usar o texto gerado
         setObservacao(textoDieta);
-        
+
         // Continuar com o salvamento usando o texto gerado
         setSalvando(true);
         try {
@@ -693,7 +879,7 @@ export default function ProntuarioSolipedeEdit() {
               tipo: "success",
               texto: "Dieta registrada com sucesso!",
             });
-            
+
             // Limpar formulário
             setObservacao("");
             setRecomendacoes("");
@@ -738,7 +924,7 @@ export default function ProntuarioSolipedeEdit() {
 
       // Usar o texto gerado
       setObservacao(textoSuplementacao);
-      
+
       // Continuar com o salvamento usando o texto gerado
       setSalvando(true);
       try {
@@ -757,7 +943,7 @@ export default function ProntuarioSolipedeEdit() {
             tipo: "success",
             texto: "Suplementação registrada com sucesso!",
           });
-          
+
           // Limpar formulário
           setObservacao("");
           setRecomendacoes("");
@@ -777,6 +963,29 @@ export default function ProntuarioSolipedeEdit() {
       } finally {
         setSalvando(false);
       }
+      return;
+    }
+
+    // Validação e Processamento para Movimentação
+    if (tipoObservacao === "Movimentação") {
+      if (!novaAlocacao || novaAlocacao === "") {
+        setMensagem({
+          tipo: "warning",
+          texto: "Selecione uma nova alocação antes de salvar!",
+        });
+        return;
+      }
+
+      if (novaAlocacao === solipede?.alocacao) {
+        setMensagem({
+          tipo: "warning",
+          texto: "A nova alocação selecionada é igual à alocação atual!",
+        });
+        return;
+      }
+
+      // Abre o modal para confirmar com senha
+      setShowModalMovimentacao(true);
       return;
     }
 
@@ -805,7 +1014,7 @@ export default function ProntuarioSolipedeEdit() {
     try {
       console.log("📤 Enviando prontuário para servidor...");
       console.log("🔍 Tipo:", tipoObservacao, "PrecisaBaixar:", precisaBaixar);
-      
+
       const response = await api.salvarProntuario({
         numero_solipede: numero,
         tipo: tipoObservacao,
@@ -821,10 +1030,21 @@ export default function ProntuarioSolipedeEdit() {
 
       if (response.success || response.id) {
         console.log("✅ Prontuário salvo com sucesso! Recarregando histórico...");
-        
+
         // Recarregar o histórico para pegar os dados do usuário
         const historicoAtualizado = await api.listarProntuario(numero);
         console.log("📖 Histórico atualizado:", historicoAtualizado);
+
+        // Debug: verificar se precisa_baixar está vindo no histórico atualizado
+        const ultimoTratamento = historicoAtualizado.find(h => h.tipo === "Tratamento");
+        if (ultimoTratamento) {
+          console.log("🔍 DEBUG - Último tratamento retornado:", {
+            id: ultimoTratamento.id,
+            precisa_baixar: ultimoTratamento.precisa_baixar,
+            foi_responsavel_pela_baixa: ultimoTratamento.foi_responsavel_pela_baixa
+          });
+        }
+
         setHistorico(historicoAtualizado);
 
         // Se for baixa, atualizar contador e status do solípede
@@ -836,7 +1056,7 @@ export default function ProntuarioSolipedeEdit() {
           const dadosAtualizados = await api.obterSolipede(numero);
           setSolipede(dadosAtualizados);
         }
-        
+
         // Recarregar dados do solípede se alterou status (baixou)
         if (precisaBaixar === "sim") {
           const dadosAtualizados = await api.obterSolipede(numero);
@@ -851,7 +1071,7 @@ export default function ProntuarioSolipedeEdit() {
         setPrecisaBaixar(""); // Resetar pergunta de baixa
         setMensagem({
           tipo: "success",
-          texto: precisaBaixar === "sim" 
+          texto: precisaBaixar === "sim"
             ? "✅ Tratamento salvo e solípede baixado com sucesso!"
             : "✅ Tratamento salvo com sucesso!",
         });
@@ -915,6 +1135,7 @@ export default function ProntuarioSolipedeEdit() {
     setObservacaoEdicao("");
     setRecomendacoesEdicao("");
     setDataValidadeEdicao("");
+    setNovoStatus(""); // Resetar seleção de status
   };
 
   // Função para salvar edição
@@ -930,7 +1151,7 @@ export default function ProntuarioSolipedeEdit() {
     try {
       console.log("💾 Salvando edição do registro:", registroEditando.id);
       console.log("🏷️  Tipo do registro:", registroEditando.tipo);
-      
+
       // Construir objeto de dados dinamicamente
       const dadosAtualizacao = {
         observacao: observacaoEdicao,
@@ -940,19 +1161,43 @@ export default function ProntuarioSolipedeEdit() {
       // Apenas incluir data_validade se for uma Restrição
       if (registroEditando.tipo === "Restrições") {
         // Converter string vazia em null
-        dadosAtualizacao.data_validade = dataValidadeEdicao && dataValidadeEdicao.trim() !== "" 
-          ? dataValidadeEdicao 
+        dadosAtualizacao.data_validade = dataValidadeEdicao && dataValidadeEdicao.trim() !== ""
+          ? dataValidadeEdicao
           : null;
         console.log("📅 Data validade sendo enviada:", dadosAtualizacao.data_validade);
       }
 
       console.log("📝 Dados enviados:", dadosAtualizacao);
-      
+
       const response = await api.atualizarProntuario(registroEditando.id, dadosAtualizacao);
 
       console.log("✅ Resposta do backend:", response);
 
       if (response.success) {
+        // Se foi selecionado um novo status, alterar
+        if (novoStatus && novoStatus.trim() !== "") {
+          console.log("🔄 Alterando status do solípede para:", novoStatus);
+          try {
+            await api.atualizarSolipede(numero, {
+              status: novoStatus,
+              numero: numero // Garantir que o número está sendo enviado
+            });
+            console.log("✅ Status alterado com sucesso para:", novoStatus);
+
+            // Atualizar estado local do solípede
+            setSolipede(prev => ({
+              ...prev,
+              status: novoStatus
+            }));
+          } catch (statusError) {
+            console.error("❌ Erro ao alterar status:", statusError);
+            setMensagem({
+              tipo: "warning",
+              texto: "⚠️ Registro atualizado, mas erro ao alterar status",
+            });
+          }
+        }
+
         // Recarregar histórico
         console.log("🔄 Recarregando histórico...");
         const historicoAtualizado = await api.listarProntuario(numero);
@@ -962,7 +1207,7 @@ export default function ProntuarioSolipedeEdit() {
 
         setMensagem({
           tipo: "success",
-          texto: "✅ Registro atualizado com sucesso!",
+          texto: novoStatus ? "✅ Registro e status atualizados com sucesso!" : "✅ Registro atualizado com sucesso!",
         });
 
         handleFecharEdicao();
@@ -986,21 +1231,14 @@ export default function ProntuarioSolipedeEdit() {
     validade.setHours(0, 0, 0, 0);
     return validade < hoje;
   };
-  
-  // Função para abrir modal de alteração de status
-  const handleAbrirModalAlterarStatus = () => {
-    setNovoStatus(solipede?.status || "Operante");
-    setShowModalAlterarStatus(true);
-    setErroAlterarStatus("");
-  };
-  
+
   // Função para fechar modal de alteração de status
   const handleFecharModalAlterarStatus = () => {
     setShowModalAlterarStatus(false);
     setNovoStatus("");
     setErroAlterarStatus("");
   };
-  
+
   // Função para confirmar alteração de status
   const handleConfirmarAlterarStatus = async () => {
     if (!novoStatus) {
@@ -1013,24 +1251,24 @@ export default function ProntuarioSolipedeEdit() {
 
     try {
       console.log("🔄 Alterando status do solípede:", numero, "para:", novoStatus);
-      
+
       const response = await api.atualizarStatusSolipede(numero, novoStatus);
-      
+
       if (response.success) {
         // Recarregar dados do solípede
         const dadosAtualizados = await api.obterSolipede(numero);
         setSolipede(dadosAtualizados);
-        
+
         // Exibir mensagem com informações de auditoria
-        const mensagemDetalhada = response.usuario 
+        const mensagemDetalhada = response.usuario
           ? `✅ ${response.message}\nAlterado por: ${response.usuario}\nEm: ${new Date(response.dataAtualizacao).toLocaleString('pt-BR')}`
           : `✅ ${response.message}`;
-        
+
         setMensagem({
           tipo: "success",
           texto: mensagemDetalhada,
         });
-        
+
         handleFecharModalAlterarStatus();
         setTimeout(() => setMensagem(""), 5000);
       } else {
@@ -1080,14 +1318,14 @@ export default function ProntuarioSolipedeEdit() {
       if (response.success) {
         console.log("✅ SUCESSO CONFIRMADO - Recarregando dados...");
         alert("✅ Registro concluído com sucesso!");
-        
+
         // Fechar modal e recarregar dados
         handleFecharModalConclusaoRegistro();
-        
+
         // Recarregar histórico e dados do solípede
         const historicoAtualizado = await api.listarProntuario(numero);
         setHistorico(Array.isArray(historicoAtualizado) ? historicoAtualizado : []);
-        
+
         // Recarregar dados do solípede
         const solipedeAtualizado = await api.obterSolipede(numero);
         if (solipedeAtualizado && !solipedeAtualizado.error) {
@@ -1097,7 +1335,7 @@ export default function ProntuarioSolipedeEdit() {
         console.log("❌ ERRO DETECTADO");
         // Tratamento de erros específicos
         let erroMsg = response.error || "Erro ao concluir registro";
-        
+
         if (response.code === "ALREADY_CONCLUDED") {
           erroMsg = "⚠️ Este registro já foi concluído anteriormente.";
         } else if (response.error === "Senha inválida") {
@@ -1107,7 +1345,7 @@ export default function ProntuarioSolipedeEdit() {
         } else if (response.error === "Usuário não autenticado") {
           erroMsg = "🔐 Sua sessão expirou. Por favor, faça login novamente.";
         }
-        
+
         console.log("📝 Mensagem de erro:", erroMsg);
         setErroConclusaoRegistro(erroMsg);
       }
@@ -1116,6 +1354,76 @@ export default function ProntuarioSolipedeEdit() {
       setErroConclusaoRegistro("Erro ao conectar com o servidor");
     } finally {
       setConcluindoRegistro(false);
+    }
+  };
+
+  // Função para fechar modal de movimentação
+  const handleFecharModalMovimentacao = () => {
+    setSenhaMovimentacao("");
+    setErroMovimentacao("");
+    setShowModalMovimentacao(false);
+  };
+
+  // Função para confirmar movimentação com senha
+  const handleConfirmarMovimentacao = async (e) => {
+    e.preventDefault();
+    setErroMovimentacao("");
+    setRealizandoMovimentacao(true);
+
+    console.log("🔄 Iniciando movimentação...");
+    console.log("   - numero:", numero);
+    console.log("   - novaAlocacao:", novaAlocacao);
+    console.log("   - observacao:", observacao);
+
+    try {
+      const response = await api.movimentacaoBulk({
+        numeros: [numero],
+        novaAlocacao: novaAlocacao,
+        observacao: observacao || null,
+        senha: senhaMovimentacao,
+      });
+
+      console.log("✅ Resposta da API:", response);
+
+      if (response && response.success) {
+        console.log("🔄 Atualizando dados do solípede...");
+        
+        // Aguarda um pouco para garantir que o banco salvou tudo
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // Atualizar dados do solípede
+        const solipedeAtualizado = await api.obterSolipede(numero);
+        console.log("✅ Solípede atualizado:", solipedeAtualizado);
+        setSolipede(solipedeAtualizado);
+
+        console.log("🔄 Atualizando histórico...");
+        // Atualizar histórico
+        const historicoAtualizado = await api.listarProntuario(numero);
+        console.log("✅ Histórico atualizado:", historicoAtualizado);
+        console.log("   - Total de registros:", historicoAtualizado.length);
+        console.log("   - Último registro:", historicoAtualizado[0]);
+        setHistorico(historicoAtualizado);
+
+        setMensagem({
+          tipo: "success",
+          texto: `Movimentação realizada com sucesso! Alocação alterada de "${solipede.alocacao}" para "${novaAlocacao}".`,
+        });
+
+        // Limpar formulário e fechar modal
+        setObservacao("");
+        setNovaAlocacao("");
+        handleFecharModalMovimentacao();
+        
+        console.log("✅ Movimentação concluída com sucesso!");
+      } else {
+        console.error("❌ Resposta sem sucesso:", response);
+        setErroMovimentacao("Erro ao processar movimentação");
+      }
+    } catch (error) {
+      console.error("❌ Erro ao realizar movimentação:", error);
+      setErroMovimentacao(error.message || "Senha incorreta ou erro ao realizar movimentação.");
+    } finally {
+      setRealizandoMovimentacao(false);
     }
   };
 
@@ -1144,49 +1452,7 @@ export default function ProntuarioSolipedeEdit() {
     return "warning";
   };
 
-  const handleLiberarBaixa = async (prontuarioId) => {
-    if (!window.confirm("⚠️ Confirma a liberação desta baixa?")) {
-      return;
-    }
-
-    setLiberandoBaixa(prontuarioId);
-    try {
-      const response = await api.liberarBaixa(prontuarioId);
-
-      if (response.success) {
-        // Recarregar histórico
-        const historicoAtualizado = await api.listarProntuario(numero);
-        setHistorico(historicoAtualizado);
-
-        // Atualizar contador de baixas pendentes
-        setBaixasPendentes(response.baixasPendentes || 0);
-
-        // Recarregar dados do solípede para atualizar status
-        const dadosAtualizados = await api.obterSolipede(numero);
-        setSolipede(dadosAtualizados);
-
-        setMensagem({
-          tipo: "success",
-          texto: "✅ Baixa liberada com sucesso!",
-        });
-
-        setTimeout(() => setMensagem(""), 3000);
-      } else {
-        setMensagem({
-          tipo: "danger",
-          texto: response.error || "❌ Erro ao liberar baixa",
-        });
-      }
-    } catch (error) {
-      console.error("❌ Erro ao liberar baixa:", error);
-      setMensagem({
-        tipo: "danger",
-        texto: "❌ Erro ao conectar com o servidor",
-      });
-    } finally {
-      setLiberandoBaixa(null);
-    }
-  };
+  // useEffect para gerar documento formatado
 
   const handleAbrirModalConclusao = (prontuarioId) => {
     setProntuarioIdConcluir(prontuarioId);
@@ -1234,20 +1500,20 @@ export default function ProntuarioSolipedeEdit() {
         }
 
         alert(mensagemTexto);
-        
+
         // Fechar modal e recarregar dados
         handleFecharModalConclusao();
-        
+
         // Recarregar histórico e dados do solípede
         const historicoAtualizado = await api.listarProntuario(numero);
         setHistorico(Array.isArray(historicoAtualizado) ? historicoAtualizado : []);
-        
+
         // Recarregar dados do solípede para atualizar status
         const solipedeAtualizado = await api.obterSolipede(numero);
         if (solipedeAtualizado && !solipedeAtualizado.error) {
           setSolipede(solipedeAtualizado);
         }
-        
+
         // Recarregar contadores
         const baixas = await api.contarBaixasPendentes(numero);
         setBaixasPendentes(baixas.total || 0);
@@ -1257,7 +1523,7 @@ export default function ProntuarioSolipedeEdit() {
         console.log("❌ ERRO DETECTADO");
         // Tratamento de erros específicos
         let erroMsg = response.error || "Erro ao concluir tratamento";
-        
+
         if (response.code === "ALREADY_CONCLUDED") {
           erroMsg = "⚠️ Este tratamento já foi concluído anteriormente.";
         } else if (response.error === "Senha inválida") {
@@ -1267,7 +1533,7 @@ export default function ProntuarioSolipedeEdit() {
         } else if (response.error === "Usuário não autenticado") {
           erroMsg = "🔐 Sua sessão expirou. Por favor, faça login novamente.";
         }
-        
+
         console.error("❌ Erro na resposta:", erroMsg);
         console.log("📝 Mensagem de erro:", erroMsg);
         setErroConclusao(erroMsg);
@@ -1516,6 +1782,37 @@ export default function ProntuarioSolipedeEdit() {
                             boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
                           }}
                         />
+
+                        {/* Navegação de Páginas */}
+                        {historico && historico.length > 0 && totalPaginas > 1 && (
+                          <div className="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                            <Button
+                              variant="outline-primary"
+                              size="sm"
+                              onClick={() => setPaginaAtual(prev => Math.max(1, prev - 1))}
+                              disabled={paginaAtual === 1}
+                              style={{ minWidth: '120px' }}
+                            >
+                              ← Página Anterior
+                            </Button>
+
+                            <div className="text-center">
+                              <Badge bg="primary" style={{ fontSize: '14px', padding: '8px 16px' }}>
+                                Página {paginaAtual} de {totalPaginas}
+                              </Badge>
+                            </div>
+
+                            <Button
+                              variant="outline-primary"
+                              size="sm"
+                              onClick={() => setPaginaAtual(prev => Math.min(totalPaginas, prev + 1))}
+                              disabled={paginaAtual === totalPaginas}
+                              style={{ minWidth: '120px' }}
+                            >
+                              Próxima Página →
+                            </Button>
+                          </div>
+                        )}
                       </Card.Body>
                     </Card>
                   </>
@@ -1544,6 +1841,7 @@ export default function ProntuarioSolipedeEdit() {
                           <option>Restrições</option>
                           <option>Dieta</option>
                           <option>Suplementação</option>
+                          <option>Movimentação</option>
                           {/* <option>Exame</option>
                           <option>Vacinação</option>
                           <option>Vermifugação</option>
@@ -1557,9 +1855,9 @@ export default function ProntuarioSolipedeEdit() {
                         <>
                           <Alert variant="info" className="mb-3">
                             <strong>ℹ️ Importante:</strong> Ao iniciar um tratamento,
-                             é opcional baixar o cavalo ou não, porém se houver mais de
-                              um tratamento e estiver como baixado, todos deverão ser 
-                              concluídos para voltar ao Status <strong>Ativo</strong>.
+                            é opcional baixar o cavalo ou não, porém se houver mais de
+                            um tratamento e estiver como baixado, todos deverão ser
+                            concluídos para voltar ao Status <strong>Ativo</strong>.
                           </Alert>
                           {tratamentosEmAndamento > 0 && (
                             <Alert variant="warning" className="mb-3">
@@ -1576,10 +1874,10 @@ export default function ProntuarioSolipedeEdit() {
                       {tipoObservacao === "Restrições" && (
                         <>
                           <Alert variant="info" className="mb-3">
-                            <strong>ℹ️ Importante:</strong> As Restrições são utilizadas para alertar a tropa com informações pertinentes ao animal. 
+                            <strong>ℹ️ Importante:</strong> As Restrições são utilizadas para alertar a tropa com informações pertinentes ao animal.
                             <strong>Recomenda-se utilizar para manter a boa saúde e integridade do cavalo e do policial.</strong>
                           </Alert>
-                          
+
                           <div className="mt-3 mb-3 p-3 rounded" style={{ backgroundColor: "#f8f9fa", border: "1px solid #dee2e6" }}>
                             <Form.Group className="mb-0">
                               <Form.Label className="fw-bold">Data de Validade da Restrição (Opcional)</Form.Label>
@@ -1606,28 +1904,28 @@ export default function ProntuarioSolipedeEdit() {
                             label="Feno (só feno)"
                             className="mb-2"
                             checked={dietaSelecionada.fenoSoFeno}
-                            onChange={(e) => setDietaSelecionada({...dietaSelecionada, fenoSoFeno: e.target.checked})}
+                            onChange={(e) => setDietaSelecionada({ ...dietaSelecionada, fenoSoFeno: e.target.checked })}
                           />
                           <Form.Check
                             type="checkbox"
                             label="1/2 ração"
                             className="mb-2"
                             checked={dietaSelecionada.umQuintoRacao}
-                            onChange={(e) => setDietaSelecionada({...dietaSelecionada, umQuintoRacao: e.target.checked})}
+                            onChange={(e) => setDietaSelecionada({ ...dietaSelecionada, umQuintoRacao: e.target.checked })}
                           />
                           <Form.Check
                             type="checkbox"
                             label="Feno molhado"
                             className="mb-2"
                             checked={dietaSelecionada.fenoMolhado}
-                            onChange={(e) => setDietaSelecionada({...dietaSelecionada, fenoMolhado: e.target.checked})}
+                            onChange={(e) => setDietaSelecionada({ ...dietaSelecionada, fenoMolhado: e.target.checked })}
                           />
                           <Form.Check
                             type="checkbox"
                             label="Jejum"
                             className="mb-2"
                             checked={dietaSelecionada.jejum}
-                            onChange={(e) => setDietaSelecionada({...dietaSelecionada, jejum: e.target.checked})}
+                            onChange={(e) => setDietaSelecionada({ ...dietaSelecionada, jejum: e.target.checked })}
                           />
                         </div>
                       )}
@@ -1645,7 +1943,7 @@ export default function ProntuarioSolipedeEdit() {
                                   size="sm"
                                   placeholder="Nome do produto/suplemento"
                                   value={suplementacao.produto}
-                                  onChange={(e) => setSuplementacao({...suplementacao, produto: e.target.value})}
+                                  onChange={(e) => setSuplementacao({ ...suplementacao, produto: e.target.value })}
                                   disabled={salvando}
                                 />
                               </Form.Group>
@@ -1660,7 +1958,7 @@ export default function ProntuarioSolipedeEdit() {
                                   size="sm"
                                   placeholder="Ex: 50g, 2 comprimidos"
                                   value={suplementacao.dose}
-                                  onChange={(e) => setSuplementacao({...suplementacao, dose: e.target.value})}
+                                  onChange={(e) => setSuplementacao({ ...suplementacao, dose: e.target.value })}
                                   disabled={salvando}
                                 />
                               </Form.Group>
@@ -1673,7 +1971,7 @@ export default function ProntuarioSolipedeEdit() {
                                   size="sm"
                                   placeholder="Ex: 2x ao dia, a cada 12h"
                                   value={suplementacao.frequencia}
-                                  onChange={(e) => setSuplementacao({...suplementacao, frequencia: e.target.value})}
+                                  onChange={(e) => setSuplementacao({ ...suplementacao, frequencia: e.target.value })}
                                   disabled={salvando}
                                 />
                               </Form.Group>
@@ -1682,7 +1980,7 @@ export default function ProntuarioSolipedeEdit() {
                         </div>
                       )}
 
-                      
+
                       {/* Campos específicos para Vacinação, Vermifugação e AIE/Mormo */}
                       {(tipoObservacao === "Vacinação" || tipoObservacao === "Vermifugação" || tipoObservacao === "Exames AIE / Mormo") && (
                         <div className="mt-3 mb-3 p-3 rounded" style={{ backgroundColor: "#f8f9fa", border: "1px solid #dee2e6" }}>
@@ -1737,10 +2035,10 @@ export default function ProntuarioSolipedeEdit() {
                             </Col>
                           </Row>
                         </div>
-                      )} 
+                      )}
 
                       {/* Interface completa de exames laboratoriais */}
-                       {tipoObservacao === "Exame" && (
+                      {tipoObservacao === "Exame" && (
                         <div className="mt-3 mb-3">
                           <Alert variant="primary" className="mb-3">
                             <strong>🧪 Solicitação de Exames</strong><br />
@@ -1758,8 +2056,8 @@ export default function ProntuarioSolipedeEdit() {
                               </Accordion.Header>
                               <Accordion.Body>
                                 <div className="mb-2">
-                                  <Button 
-                                    size="sm" 
+                                  <Button
+                                    size="sm"
                                     variant="outline-primary"
                                     onClick={() => marcarTodosCategoria("hematologia")}
                                   >
@@ -1991,12 +2289,27 @@ export default function ProntuarioSolipedeEdit() {
                             </Accordion.Item>
                           </Accordion>
                         </div>
-                      )}  
+                      )}
+
+                       {/* Mensagem informativa para Movimentação */}
+                      {tipoObservacao === "Movimentação" && (
+                        <>
+                          <Alert variant="info" className="mb-3">
+                            <strong>ℹ️ Importante:</strong> Ao iniciar uma movimentação,
+                            a Alocação do solípede será atualizada para refletir sua nova localização.
+                            <strong> Mesmo que temporária</strong>
+                          </Alert>
+                        </>
+                      )}
 
 
                       <Form.Group className="mb-3">
                         <Form.Label className="fw-bold">
-                          {tipoObservacao === "Exame" ? "Observações Adicionais (opcional)" : "Observação"}
+                          {tipoObservacao === "Exame" 
+                            ? "Observações Adicionais (opcional)" 
+                            : tipoObservacao === "Movimentação"
+                            ? "Motivo da Movimentação (opcional)"
+                            : "Observação"}
                         </Form.Label>
                         <Form.Control
                           as="textarea"
@@ -2004,6 +2317,8 @@ export default function ProntuarioSolipedeEdit() {
                           placeholder={
                             tipoObservacao === "Exame"
                               ? "Adicione informações complementares sobre a solicitação de exames (opcional)..."
+                              : tipoObservacao === "Movimentação"
+                              ? "Descreva o motivo da movimentação (opcional)..."
                               : "Descreva detalhadamente a observação clínica..."
                           }
                           value={observacao}
@@ -2014,10 +2329,11 @@ export default function ProntuarioSolipedeEdit() {
                         <small className="text-muted d-block mt-1">
                           {observacao.length} caracteres
                           {tipoObservacao === "Exame" && " (opcional - os exames serão automaticamente listados)"}
+                          {tipoObservacao === "Movimentação" && " (opcional - descreva o motivo da movimentação)"}
                         </small>
                       </Form.Group>
 
-                      {tipoObservacao !== "Dieta" && tipoObservacao !== "Suplementação" && (
+                      {tipoObservacao !== "Dieta" && tipoObservacao !== "Suplementação" && tipoObservacao !== "Movimentação" && (
                         <Form.Group className="mb-3">
                           <Form.Label className="fw-bold">
                             Recomendações
@@ -2044,18 +2360,17 @@ export default function ProntuarioSolipedeEdit() {
                             onChange={(e) => setPrecisaBaixar(e.target.value)}
                             disabled={salvando}
                           >
-                            <option value="">Selecione...</option>
-                            <option value="sim">✅ Sim - Baixar o solípede durante este tratamento</option>
                             <option value="nao">❌ Não - Manter status atual do solípede</option>
+                            <option value="sim">✅ Sim - Baixar o solípede durante este tratamento</option>
                           </Form.Select>
                           <Form.Text className="text-muted d-block mt-2">
-                            ⚠️ <strong>Importante:</strong> Se escolher "Sim", o solípede será baixado. 
+                            ⚠️ <strong>Importante:</strong> Se escolher "Sim", o solípede será baixado.
                             Ele só voltará a "Ativo" quando TODOS os tratamentos que baixaram forem concluídos.
                           </Form.Text>
                           {tratamentosEmAndamento > 0 && solipede?.status === "Baixado" && (
                             <Alert variant="warning" className="mt-2 mb-0">
                               <small>
-                                <strong>📊 Atenção:</strong> Há {tratamentosEmAndamento} tratamento(s) ativo(s). 
+                                <strong>📊 Atenção:</strong> Há {tratamentosEmAndamento} tratamento(s) ativo(s).
                                 Se escolher "Não", este tratamento não influenciará no status do solípede.
                               </small>
                             </Alert>
@@ -2063,24 +2378,68 @@ export default function ProntuarioSolipedeEdit() {
                         </Form.Group>
                       )}
 
+                        {/* Campo de registro de movimentação no prontuario */}
+                        {tipoObservacao === "Movimentação" && (
+                        <div className="mt-3 mb-3 p-3 rounded" style={{ backgroundColor: "#f8f9fa", border: "1px solid #dee2e6" }}>
+                          <Form.Label className="fw-bold mb-3">🔄 Dados da Movimentação:</Form.Label>
+                          
+                          <Form.Group className="mb-3">
+                            <Form.Label className="fw-bold">
+                              📍 Nova Alocação *
+                            </Form.Label>
+                            <Form.Select
+                              value={novaAlocacao}
+                              onChange={(e) => setNovaAlocacao(e.target.value)}
+                              disabled={salvando}
+                            >
+                              <option value="">Selecione a nova alocação</option>
+                              {opcoesMovimentacao.filter(opt => opt !== "").map((opt) => (
+                                <option key={opt} value={opt}>
+                                  {opt}
+                                </option>
+                              ))}
+                            </Form.Select>
+                            <Form.Text className="text-muted d-block mt-2">
+                              <strong>Alocação Atual:</strong> {solipede?.alocacao || "Não definida"}
+                              {novaAlocacao && novaAlocacao !== "" && (
+                                <>
+                                  <br />
+                                  <strong>Nova Alocação:</strong> {novaAlocacao}
+                                </>
+                              )}
+                            </Form.Text>
+                            {novaAlocacao && solipede?.alocacao === novaAlocacao && (
+                              <Alert variant="warning" className="mt-2 mb-0">
+                                <small>
+                                  <strong>⚠️ Atenção:</strong> A nova alocação selecionada é igual à alocação atual.
+                                </small>
+                              </Alert>
+                            )}
+                          </Form.Group>
+                        </div>
+                      )}
+
                       <div className="d-flex gap-2">
                         <Button
                           variant="success"
                           onClick={handleAdicionarObservacao}
                           disabled={
-                            salvando || 
-                            (tipoObservacao === "Exame" 
+                            salvando ||
+                            (tipoObservacao === "Exame"
                               ? !Object.values(examesSelecionados).some(v => v) && !observacao.trim()
-                              : (tipoObservacao === "Tratamento" 
-                                  ? !observacao.trim() && !precisaBaixar
-                                  : (tipoObservacao === "Dieta"
-                                      ? !Object.values(dietaSelecionada).some(v => v) && !observacao.trim()
-                                      : (tipoObservacao === "Suplementação"
-                                          ? !suplementacao.produto.trim() || !suplementacao.dose.trim() || !suplementacao.frequencia.trim()
-                                          : !observacao.trim()
-                                        )
+                              : (tipoObservacao === "Tratamento"
+                                ? !observacao.trim() && !precisaBaixar
+                                : (tipoObservacao === "Dieta"
+                                  ? !Object.values(dietaSelecionada).some(v => v) && !observacao.trim()
+                                  : (tipoObservacao === "Suplementação"
+                                    ? !suplementacao.produto.trim() || !suplementacao.dose.trim() || !suplementacao.frequencia.trim()
+                                    : (tipoObservacao === "Movimentação"
+                                      ? !novaAlocacao || novaAlocacao === ""
+                                      : !observacao.trim()
                                     )
+                                  )
                                 )
+                              )
                             )
                           }
                         >
@@ -2127,6 +2486,8 @@ export default function ProntuarioSolipedeEdit() {
                               dose: "",
                               frequencia: "",
                             });
+                            // Resetar campo de movimentação
+                            setNovaAlocacao("");
                           }}
                           disabled={salvando}
                         >
@@ -2153,165 +2514,416 @@ export default function ProntuarioSolipedeEdit() {
                     </Card.Body>
                   </Card>
                 ) : (
-                  historico.map((registro) => {
-                    const dataBR = new Date(registro.data_criacao).toLocaleDateString('pt-BR');
-                    const horaBR = new Date(registro.data_criacao).toLocaleTimeString('pt-BR');
-                    const isRestricaoExpiradaReg = registro.tipo === "Restrições" && isRestricaoExpirada(registro.data_validade);
-                    const isConcluido = registro.status_conclusao === 'concluido';
-                    const mostrarBotaoConcluir = (registro.tipo === "Restrições" || registro.tipo === "Tratamento" || registro.tipo === "Dieta" || registro.tipo === "Suplementação") && !isConcluido && !isRestricaoExpiradaReg;
+                  <>
+                    {/* Controles de paginação do Histórico */}
+                    <div className="d-flex justify-content-between align-items-center mb-3 p-3 bg-light rounded">
+                      <div className="d-flex align-items-center gap-2">
+                        <span className="fw-bold" style={{ fontSize: '14px' }}>Registros por página:</span>
+                        <Form.Select
+                          size="sm"
+                          value={itensPorPaginaHistorico}
+                          onChange={(e) => {
+                            setItensPorPaginaHistorico(Number(e.target.value));
+                            setPaginaHistorico(1);
+                          }}
+                          style={{ width: '90px' }}
+                        >
+                          <option value={4}>4</option>
+                          <option value={10}>10</option>
+                          <option value={20}>20</option>
+                          <option value={historico.length}>Todos</option>
+                        </Form.Select>
+                      </div>
+                      <Badge bg="primary" style={{ fontSize: '13px', padding: '6px 12px' }}>
+                        Total: {historico.length} registro{historico.length !== 1 ? 's' : ''}
+                      </Badge>
+                    </div>
 
-                    return (
-                      <Card
-                        key={registro.id}
-                        className="shadow-sm border-0 mb-3 border-start border-4 border-primary"
-                      >
-                        <Card.Body>
-                          <Row className="align-items-start mb-2">
-                            <Col md={6}>
-                              <Badge bg="info" className="mb-2">
-                                {registro.tipo}
-                              </Badge>
-                              {registro.tipo === "Tratamento" && registro.foi_responsavel_pela_baixa === 1 && (
-                                <Badge 
-                                  className="mb-2 ms-2" 
-                                  style={{ 
-                                    backgroundColor: "#ffcccc", 
-                                    color: "#721c24", 
-                                    borderRadius: "12px",
-                                    fontSize: "11px",
-                                    padding: "4px 8px"
-                                  }}
-                                >
-                                   Usuário baixou o solipede
-                                </Badge>
-                              )}
-                              {(isRestricaoExpiradaReg || isConcluido) && (
-                                <Badge bg="success" className="mb-2 ms-2">
-                                  <BsCheckCircle className="me-1" />
-                                  Concluída
-                                </Badge>
-                              )}
-                              {registro.tipo === "Restrições" && registro.data_validade && (
-                                <p className="mb-1" style={{ fontSize: "11px", color: "#666" }}>
-                                  📅 Validade: {new Date(registro.data_validade).toLocaleDateString('pt-BR')}
-                                </p>
-                              )}
-                              {registro.tipo === "Tratamento" && registro.precisa_baixar && (
-                                <p className="mb-1 mt-2" style={{ fontSize: "12px", fontWeight: "500", color: registro.precisa_baixar === "sim" ? "#856404" : "#28a745" }}>
-                                  {registro.precisa_baixar === "sim" ? (
-                                    <>🩺 <strong>Usuário baixou o solípede</strong></>
-                                  ) : (
-                                    <>✅ <strong>Usuário NÃO baixou o solípede</strong></>
-                                  )}
-                                </p>
-                              )}
-                              {isConcluido && registro.usuario_conclusao_nome && (
-                                <p className="text-success mb-0" style={{ fontSize: "11px" }}>
-                                  ✅ Concluído por: <strong>{registro.usuario_conclusao_nome}</strong> ({registro.usuario_conclusao_registro})
-                                  <br />
-                                  📅 {new Date(registro.data_conclusao).toLocaleDateString('pt-BR')} às {new Date(registro.data_conclusao).toLocaleTimeString('pt-BR')}
-                                </p>
-                              )}
-                              <p
-                                className="mb-1"
-                                style={{ fontSize: "12px", color: "#999" }}
+                    {(() => {
+                      const inicio = (paginaHistorico - 1) * itensPorPaginaHistorico;
+                      const fim = inicio + itensPorPaginaHistorico;
+                      const registrosPaginados = historico.slice(inicio, fim);
+                      const totalPaginasHistorico = Math.ceil(historico.length / itensPorPaginaHistorico);
+
+                      return (
+                        <>
+                          {registrosPaginados.map((registro) => {
+                            const dataBR = new Date(registro.data_criacao).toLocaleDateString('pt-BR');
+                            const horaBR = new Date(registro.data_criacao).toLocaleTimeString('pt-BR');
+                            const isRestricaoExpiradaReg = registro.tipo === "Restrições" && isRestricaoExpirada(registro.data_validade);
+                            const isConcluido = registro.status_conclusao === 'concluido';
+                            const mostrarBotaoConcluir = (registro.tipo === "Restrições" || registro.tipo === "Tratamento" || registro.tipo === "Dieta" || registro.tipo === "Suplementação") && !isConcluido && !isRestricaoExpiradaReg;
+
+                            return (
+                              <Card
+                                key={registro.id}
+                                className="shadow-sm border-0 mb-3 border-start border-4 border-primary"
+                                style={{
+                                  backgroundColor: registro.tipo === "Tratamento" && registro.precisa_baixar === "sim"
+                                    ? "#fff5f5"
+                                    : "white"
+                                }}
                               >
-                                <BsClockHistory className="me-1" />
-                                <strong>{dataBR}</strong> às {horaBR}
-                              </p>
-                            </Col>
-                            <Col md={6} className="text-end">
-                              <div className="d-flex gap-2 justify-content-end">
-                                {mostrarBotaoConcluir && (
-                                  <Button
-                                    size="sm"
-                                    variant="outline-success"
-                                    className="mb-2"
-                                    onClick={() => {
-                                      if (registro.tipo === "Tratamento") {
-                                        handleAbrirModalConclusao(registro.id);
-                                      } else {
-                                        handleAbrirModalConclusaoRegistro(registro.id);
-                                      }
-                                    }}
-                                  >
-                                    <BsCheckCircle className="me-1" />
-                                    Concluir
-                                  </Button>
-                                )}
-                                {!isConcluido && (
-                                  <Button
-                                    size="sm"
-                                    variant="outline-primary"
-                                    className="mb-2"
-                                    onClick={() => handleAbrirEdicao(registro)}
-                                  >
-                                    <BsPlusCircle className="me-1" />
-                                    Editar
-                                  </Button>
-                                )}
-                              </div>
-                              <div style={{ fontSize: "13px" }}>
-                                <p className="mb-1">
-                                  <strong>{registro.usuario_nome || "Sistema"}</strong>
-                                </p>
-                                <small className="text-muted d-block">
-                                  {registro.usuario_registro && `Registro: ${registro.usuario_registro}`}
-                                </small>
-                                <Badge bg="secondary" style={{ fontSize: "11px" }}>
-                                  {registro.usuario_perfil || "Desconhecido"}
-                                </Badge>
-                                {registro.status_anterior && registro.status_novo && (
-                                  <div className="mt-2 pt-2 border-top">
-                                    <small className="text-info d-block">
-                                      🔄 Status alterado: <strong>{registro.status_anterior}</strong> → <strong>{registro.status_novo}</strong>
-                                    </small>
-                                  </div>
-                                )}
-                                {registro.data_atualizacao && new Date(registro.data_atualizacao).getTime() !== new Date(registro.data_criacao).getTime() && (
-                                  <div className="mt-2 pt-2 border-top">
-                                    <small className="text-muted d-block">
-                                      <BsPencilSquare className="me-1" />
-                                      Atualizado em: {new Date(registro.data_atualizacao).toLocaleString('pt-BR')}
-                                      {registro.usuario_atualizacao_nome && (
-                                        <> por <strong>{registro.usuario_atualizacao_nome}</strong> ({registro.usuario_atualizacao_registro})</>
+                                <Card.Body>
+                                  {/* HEADER: Tipo + Data + Ações - Design Moderno e Discreto */}
+                                  <div className="d-flex justify-content-between align-items-start mb-3">
+                                    <div className="flex-grow-1">
+                                      {/* Linha superior: Tipo e Status */}
+                                      <div className="d-flex align-items-center gap-2 mb-2">
+                                        <Badge
+                                          bg={registro.tipo === "Tratamento" ? "danger" : registro.tipo === "Baixa" ? "dark" : registro.tipo === "Restrições" ? "warning" : "info"}
+                                          className="bg-opacity-10"
+                                          text={registro.tipo === "Tratamento" ? "danger" : registro.tipo === "Baixa" ? "dark" : registro.tipo === "Restrições" ? "warning" : "info"}
+                                          style={{
+                                            fontSize: "11px",
+                                            padding: "4px 10px",
+                                            fontWeight: "600",
+                                            textTransform: "uppercase",
+                                            letterSpacing: "0.5px"
+                                          }}
+                                        >
+                                          {registro.tipo}
+                                        </Badge>
+
+                                        {isConcluido && (
+                                          <Badge
+                                            bg="success"
+                                            className="bg-opacity-10"
+                                            text="success"
+                                            style={{
+                                              fontSize: "10px",
+                                              padding: "4px 8px",
+                                              fontWeight: "500"
+                                            }}
+                                          >
+                                            <BsCheckCircle className="me-1" style={{ fontSize: "10px" }} />
+                                            Concluída
+                                          </Badge>
+                                        )}
+
+                                        {/* Indicador discreto de tratamento com baixa */}
+                                        {registro.tipo === "Tratamento" && registro.precisa_baixar === "sim" && !isConcluido && (
+                                          <Badge
+                                            bg="danger"
+                                            className="bg-opacity-10"
+                                            text="danger"
+                                            style={{
+                                              fontSize: "10px",
+                                              padding: "4px 8px",
+                                              fontWeight: "500"
+                                            }}
+                                          >
+                                            ⚠️ Baixou solípede
+                                          </Badge>
+                                        )}
+
+                                        {/* Indicador discreto de tratamento sem baixa */}
+                                        {registro.tipo === "Tratamento" && registro.precisa_baixar === "nao" && !isConcluido && (
+                                          <Badge
+                                            bg="secondary"
+                                            className="bg-opacity-10"
+                                            text="secondary"
+                                            style={{
+                                              fontSize: "10px",
+                                              padding: "4px 8px",
+                                              fontWeight: "500"
+                                            }}
+                                          >
+                                            ✓ Sem baixa
+                                          </Badge>
+                                        )}
+                                      </div>
+
+                                      {/* Data e hora - mais discreto */}
+                                      <div className="text-muted" style={{ fontSize: "12px", fontWeight: "400" }}>
+                                        <BsClockHistory className="me-1" style={{ fontSize: "11px" }} />
+                                        {dataBR} às {horaBR}
+                                      </div>
+                                    </div>
+
+                                    {/* Botões de ação - compactos */}
+                                    <div className="d-flex gap-2">
+                                      {mostrarBotaoConcluir && (
+                                        <Button
+                                          size="sm"
+                                          variant="outline-success"
+                                          onClick={() => {
+                                            if (registro.tipo === "Tratamento") {
+                                              handleAbrirModalConclusao(registro.id);
+                                            } else {
+                                              handleAbrirModalConclusaoRegistro(registro.id);
+                                            }
+                                          }}
+                                          style={{
+                                            fontSize: "11px",
+                                            padding: "4px 10px",
+                                            fontWeight: "500"
+                                          }}
+                                        >
+                                          <BsCheckCircle className="me-1" />
+                                          Concluir
+                                        </Button>
                                       )}
-                                    </small>
+                                      {!isConcluido && (
+                                        <Button
+                                          size="sm"
+                                          variant="outline-secondary"
+                                          onClick={() => handleAbrirEdicao(registro)}
+                                          style={{
+                                            fontSize: "11px",
+                                            padding: "4px 10px",
+                                            fontWeight: "500"
+                                          }}
+                                        >
+                                          <BsPencilSquare className="me-1" />
+                                          Editar
+                                        </Button>
+                                      )}
+                                    </div>
                                   </div>
-                                )}
-                              </div>
-                            </Col>
-                          </Row>
-                          <div className="bg-light p-2 rounded mb-2">
-                            <p
-                              className="mb-0"
-                              style={{ 
-                                fontSize: "14px", 
-                                lineHeight: "1.6", 
-                                whiteSpace: "pre-line",
-                                textDecoration: (isRestricaoExpiradaReg || isConcluido) ? "none" : "none",
-                                color: (isRestricaoExpiradaReg || isConcluido) ? "#999" : "inherit"
-                              }}
-                            >
-                              {registro.observacao}
-                            </p>
-                          </div>
-                          {registro.recomendacoes && (
-                            <div className="bg-warning bg-opacity-10 p-2 rounded border-start border-warning">
-                              <small className="text-muted">
-                                <strong>📌 Recomendação:</strong>{" "}
-                                <span style={{
-                                  textDecoration: (isRestricaoExpiradaReg || isConcluido) ? "none" : "none"
-                                }}>
-                                  {registro.recomendacoes}
-                                </span>
-                              </small>
+
+                                  {/* OBSERVAÇÃO */}
+                                  <div className="bg-light p-3 rounded mb-3">
+                                    <p
+                                      className="mb-0"
+                                      style={{
+                                        fontSize: "14px",
+                                        lineHeight: "1.8",
+                                        whiteSpace: "pre-line",
+                                        color: (isRestricaoExpiradaReg || isConcluido) ? "#999" : "#333"
+                                      }}
+                                    >
+                                      {registro.observacao}
+                                    </p>
+                                  </div>
+
+                                  {/* RECOMENDAÇÕES */}
+                                  {registro.recomendacoes && (
+                                    <Alert variant="warning" className="mb-3">
+                                      <strong>📌 Recomendações:</strong>
+                                      <div className="mt-2" style={{ fontSize: "14px" }}>
+                                        {registro.recomendacoes}
+                                      </div>
+                                    </Alert>
+                                  )}
+
+                                  {/* DETALHES ESPECÍFICOS POR TIPO */}
+                                  {registro.tipo === "Baixa" && (
+                                    <div className="mb-3 p-2 bg-light rounded">
+                                      <Row>
+                                        {registro.tipo_baixa && (
+                                          <Col md={3}>
+                                            <small className="text-muted d-block">Tipo de Baixa</small>
+                                            <Badge bg="danger" style={{ fontSize: "11px" }}>{registro.tipo_baixa}</Badge>
+                                          </Col>
+                                        )}
+                                        {registro.data_lancamento && (
+                                          <Col md={3}>
+                                            <small className="text-muted d-block">Data Lançamento</small>
+                                            <span style={{ fontSize: "13px" }}>
+                                              {new Date(registro.data_lancamento).toLocaleDateString('pt-BR')}
+                                            </span>
+                                          </Col>
+                                        )}
+                                        {registro.data_validade && (
+                                          <Col md={3}>
+                                            <small className="text-muted d-block">Validade</small>
+                                            <span style={{ fontSize: "13px" }}>
+                                              {new Date(registro.data_validade).toLocaleDateString('pt-BR')}
+                                            </span>
+                                          </Col>
+                                        )}
+                                        {registro.status_baixa && (
+                                          <Col md={3}>
+                                            <small className="text-muted d-block">Status</small>
+                                            <Badge bg={registro.status_baixa === 'liberado' ? 'success' : 'warning'} style={{ fontSize: "11px" }}>
+                                              {registro.status_baixa}
+                                            </Badge>
+                                          </Col>
+                                        )}
+                                      </Row>
+                                      {registro.usuario_liberacao_nome && (
+                                        <Row className="mt-2 pt-2 border-top">
+                                          <Col md={6}>
+                                            <small className="text-muted d-block">Liberado por</small>
+                                            <span style={{ fontSize: "13px", fontWeight: "500" }}>
+                                              {registro.usuario_liberacao_nome}
+                                              {registro.usuario_liberacao_registro && <> (RE: {registro.usuario_liberacao_registro})</>}
+                                            </span>
+                                          </Col>
+                                          {registro.data_liberacao && (
+                                            <Col md={6}>
+                                              <small className="text-muted d-block">Data Liberação</small>
+                                              <span style={{ fontSize: "13px" }}>
+                                                {new Date(registro.data_liberacao).toLocaleDateString('pt-BR')}
+                                              </span>
+                                            </Col>
+                                          )}
+                                        </Row>
+                                      )}
+                                    </div>
+                                  )}
+
+                                  {registro.tipo === "Restrições" && registro.data_validade && (
+                                    <div className="mb-3 p-2 bg-light rounded">
+                                      <small className="text-muted d-block">Válido até</small>
+                                      <span style={{ fontSize: "14px", color: isRestricaoExpiradaReg ? "#dc3545" : "#28a745", fontWeight: "600" }}>
+                                        {new Date(registro.data_validade).toLocaleDateString('pt-BR')}
+                                        {isRestricaoExpiradaReg && <> (⏰ Expirada)</>}
+                                      </span>
+                                    </div>
+                                  )}
+
+                                  {registro.tipo === "Movimentação" && (
+                                    <div className="mb-3 p-3 bg-primary bg-opacity-10 rounded border-start border-primary border-3">
+                                      <Row>
+                                        {registro.origem && (
+                                          <Col md={6} className="mb-2">
+                                            <small className="text-muted d-block mb-1">📍 Origem</small>
+                                            <Badge bg="secondary" style={{ fontSize: "12px", padding: "6px 12px" }}>
+                                              {registro.origem}
+                                            </Badge>
+                                          </Col>
+                                        )}
+                                        {registro.destino && (
+                                          <Col md={6} className="mb-2">
+                                            <small className="text-muted d-block mb-1">📍 Destino</small>
+                                            <Badge bg="primary" style={{ fontSize: "12px", padding: "6px 12px" }}>
+                                              {registro.destino}
+                                            </Badge>
+                                          </Col>
+                                        )}
+                                      </Row>
+                                      {(registro.origem || registro.destino) && (
+                                        <Row className="mt-2">
+                                          <Col md={12}>
+                                            <small className="text-muted d-block mb-1">🔄 Movimentação</small>
+                                            <div className="d-flex align-items-center gap-2">
+                                              <Badge bg="secondary" style={{ fontSize: "11px" }}>
+                                                {registro.origem || "Não definida"}
+                                              </Badge>
+                                              <span style={{ fontSize: "14px" }}>→</span>
+                                              <Badge bg="success" style={{ fontSize: "11px" }}>
+                                                {registro.destino || "Não definida"}
+                                              </Badge>
+                                            </div>
+                                          </Col>
+                                        </Row>
+                                      )}
+                                      {registro.observacao && (
+                                        <div className="mt-2 pt-2 border-top">
+                                          <small className="text-muted d-block mb-1">📝 Detalhes da Movimentação</small>
+                                          <p className="mb-0" style={{ fontSize: "13px", lineHeight: "1.6" }}>
+                                            {registro.observacao}
+                                          </p>
+                                        </div>
+                                      )}
+                                    </div>
+                                  )}
+
+                                  {isConcluido && registro.usuario_conclusao_nome && (
+                                    <div className="mb-3 p-2 bg-success bg-opacity-10 rounded border-start border-success border-3">
+                                      <small className="text-muted d-block">Concluído por</small>
+                                      <span style={{ fontSize: "13px", fontWeight: "500" }}>
+                                        {registro.usuario_conclusao_nome}
+                                        {registro.usuario_conclusao_registro && <> (RE: {registro.usuario_conclusao_registro})</>}
+                                      </span>
+                                      {registro.data_conclusao && (
+                                        <>
+                                          <br />
+                                          <small className="text-muted">
+                                            {new Date(registro.data_conclusao).toLocaleDateString('pt-BR')} às {new Date(registro.data_conclusao).toLocaleTimeString('pt-BR')}
+                                          </small>
+                                        </>
+                                      )}
+                                    </div>
+                                  )}
+
+                                  {registro.status_anterior && registro.status_novo && (
+                                    <div className="mb-3 p-2 bg-info bg-opacity-10 rounded">
+                                      <small className="text-muted d-block mb-1">Alteração de Status</small>
+                                      <div className="d-flex align-items-center gap-2">
+                                        <Badge bg="secondary" style={{ fontSize: "11px" }}>{registro.status_anterior}</Badge>
+                                        <span>→</span>
+                                        <Badge bg="primary" style={{ fontSize: "11px" }}>{registro.status_novo}</Badge>
+                                      </div>
+                                    </div>
+                                  )}
+
+                                  {/* RODAPÉ: Responsável e Atualizações */}
+                                  <div className="mt-3 pt-3 border-top">
+                                    <Row>
+                                      {/* Responsável */}
+                                      <Col md={6}>
+                                        <small className="text-muted d-block mb-1">Responsável</small>
+                                        <p className="mb-0" style={{ fontSize: "14px", fontWeight: "500" }}>
+                                          {registro.usuario_nome || "Sistema"}
+                                          {registro.usuario_registro && (
+                                            <small className="text-muted ms-2">RE: {registro.usuario_registro}</small>
+                                          )}
+                                        </p>
+                                      </Col>
+
+                                      {/* Atualização */}
+                                      {registro.data_atualizacao && new Date(registro.data_atualizacao).getTime() !== new Date(registro.data_criacao).getTime() && (
+                                        <Col md={6}>
+                                          <small className="text-muted d-block mb-1">
+                                            <BsPencilSquare className="me-1" />
+                                            Última Atualização
+                                          </small>
+                                          <p className="mb-0" style={{ fontSize: "13px" }}>
+                                            {new Date(registro.data_atualizacao).toLocaleString('pt-BR')}
+                                            {registro.usuario_atualizacao_nome && (
+                                              <>
+                                                <br />
+                                                <small className="text-muted">
+                                                  por {registro.usuario_atualizacao_nome}
+                                                  {registro.usuario_atualizacao_registro && <> (RE: {registro.usuario_atualizacao_registro})</>}
+                                                </small>
+                                              </>
+                                            )}
+                                          </p>
+                                        </Col>
+                                      )}
+                                    </Row>
+                                  </div>
+                                </Card.Body>
+                              </Card>
+                            );
+                          })}
+
+                          {/* Navegação de páginas do Histórico */}
+                          {totalPaginasHistorico > 1 && (
+                            <div className="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                              <Button
+                                variant="outline-primary"
+                                size="sm"
+                                onClick={() => setPaginaHistorico(prev => Math.max(1, prev - 1))}
+                                disabled={paginaHistorico === 1}
+                                style={{ minWidth: '120px' }}
+                              >
+                                ← Anterior
+                              </Button>
+
+                              <Badge bg="primary" style={{ fontSize: '14px', padding: '8px 16px' }}>
+                                Página {paginaHistorico} de {totalPaginasHistorico}
+                              </Badge>
+
+                              <Button
+                                variant="outline-primary"
+                                size="sm"
+                                onClick={() => setPaginaHistorico(prev => Math.min(totalPaginasHistorico, prev + 1))}
+                                disabled={paginaHistorico === totalPaginasHistorico}
+                                style={{ minWidth: '120px' }}
+                              >
+                                Próxima →
+                              </Button>
                             </div>
                           )}
-                        </Card.Body>
-                      </Card>
-                    );
-                  })
+                        </>
+                      );
+                    })()}
+                  </>
                 )}
               </Tab.Pane>
 
@@ -2356,7 +2968,47 @@ export default function ProntuarioSolipedeEdit() {
                             ⚠️ Restrições
                           </Nav.Link>
                         </Nav.Item>
+                        {/*Menu navegavel registro por tipos Dieta*/}
+                        <Nav.Item>
+                          <Nav.Link eventKey="dieta">
+                            Dieta
+                          </Nav.Link>
+                        </Nav.Item>
+                        {/* Menu navegavel registro por tipos Suplementação */}
+                        <Nav.Item>
+                          <Nav.Link eventKey="suplementacao">
+                            Suplementação
+                          </Nav.Link>
+                        </Nav.Item>
+                        {/* Menu navegavel registro por tipos Movimentações */}
+                        <Nav.Item>
+                          <Nav.Link eventKey="movimentacao">
+                            🔄 Movimentações
+                          </Nav.Link>
+                        </Nav.Item>
+
                       </Nav>
+
+                      {/* Controles de paginação dos Registros por Tipo */}
+                      <div className="d-flex justify-content-between align-items-center my-3 p-3 bg-light rounded">
+                        <div className="d-flex align-items-center gap-2">
+                          <span className="fw-bold" style={{ fontSize: '14px' }}>Registros por página:</span>
+                          <Form.Select
+                            size="sm"
+                            value={itensPorPaginaRegistros}
+                            onChange={(e) => {
+                              setItensPorPaginaRegistros(Number(e.target.value));
+                              setPaginaRegistrosPorTipo(1);
+                            }}
+                            style={{ width: '80px' }}
+                          >
+                            <option value={4}>4</option>
+                            <option value={10}>10</option>
+                            <option value={20}>20</option>
+                            <option value={99999}>Todos</option>
+                          </Form.Select>
+                        </div>
+                      </div>
 
                       <Tab.Content>
                         {/* SUB-TAB: CONSULTA CLÍNICA */}
@@ -2418,8 +3070,8 @@ export default function ProntuarioSolipedeEdit() {
                                       </Col>
                                     </Row>
                                     <hr />
-                                    <p style={{ 
-                                      fontSize: "14px", 
+                                    <p style={{
+                                      fontSize: "14px",
                                       lineHeight: "1.6",
                                       textDecoration: isConcluido ? "none" : "none",
                                       color: isConcluido ? "#999" : "inherit"
@@ -2447,92 +3099,238 @@ export default function ProntuarioSolipedeEdit() {
 
                         {/* SUB-TAB: TRATAMENTO */}
                         <Tab.Pane eventKey="tratamento">
-                          {historico.filter(reg => reg.tipo === "Tratamento").length === 0 ? (
-                            <Alert variant="info" className="text-center">
-                              💊 Nenhum registro de tratamento adicionado ainda
-                            </Alert>
-                          ) : (
-                            historico.filter(reg => reg.tipo === "Tratamento").map((registro) => {
-                              const dataBR = new Date(registro.data_criacao).toLocaleDateString('pt-BR');
-                              const horaBR = new Date(registro.data_criacao).toLocaleTimeString('pt-BR');
-                              const isConcluido = registro.status_conclusao === 'concluido';
-
+                          {(() => {
+                            const registrosFiltrados = historico.filter(reg => reg.tipo === "Tratamento");
+                            if (registrosFiltrados.length === 0) {
                               return (
-                                <Card key={registro.id} className="mb-3 border-start border-4 border-danger">
-                                  <Card.Body>
-                                    <Row className="align-items-start mb-2">
-                                      <Col>
-                                        <Badge bg="danger" className="mb-2">💊 Tratamento</Badge>
-                                        {registro.foi_responsavel_pela_baixa === 1 && (
-                                          <Badge bg="warning" text="dark" className="mb-2 ms-2">
-                                            🩺 Baixou o solípede
-                                          </Badge>
-                                        )}
-                                        {isConcluido && (
-                                          <Badge bg="success" className="mb-2 ms-2">
-                                            <BsCheckCircle className="me-1" />
-                                            Concluído
-                                          </Badge>
-                                        )}
-                                        {registro.precisa_baixar && (
-                                          <p className="mb-1 mt-2" style={{ fontSize: "12px", fontWeight: "500", color: registro.precisa_baixar === "sim" ? "#856404" : "#28a745" }}>
-                                            {registro.precisa_baixar === "sim" ? (
-                                              <>🩺 <strong>Usuário baixou o solípede</strong></>
-                                            ) : (
-                                              <>✅ <strong>Usuário NÃO baixou o solípede</strong></>
-                                            )}
-                                          </p>
-                                        )}
-                                        <p className="text-muted mb-0" style={{ fontSize: "12px" }}>
-                                          📅 {dataBR} às {horaBR}
-                                        </p>
-                                        {isConcluido && registro.usuario_conclusao_nome && (
-                                          <p className="text-success mb-0" style={{ fontSize: "12px" }}>
-                                            ✅ Concluído por: <strong>{registro.usuario_conclusao_nome}</strong> ({registro.usuario_conclusao_registro})
-                                            <br />
-                                            📅 {new Date(registro.data_conclusao).toLocaleDateString('pt-BR')} às {new Date(registro.data_conclusao).toLocaleTimeString('pt-BR')}
-                                          </p>
-                                        )}
-                                      </Col>
-                                      <Col xs="auto">
-                                        <div className="d-flex gap-2">
-                                          {!isConcluido && (
-                                            <Button
-                                              size="sm"
-                                              variant="outline-success"
-                                              onClick={() => handleAbrirModalConclusao(registro.id)}
-                                            >
-                                              <BsCheckCircle className="me-1" />
-                                              Concluir
-                                            </Button>
-                                          )}
-                                          {!isConcluido && (
-                                            <Button
-                                              size="sm"
-                                              variant="outline-primary"
-                                              onClick={() => handleAbrirEdicao(registro)}
-                                            >
-                                              <BsPlusCircle className="me-1" />
-                                              Editar
-                                            </Button>
-                                          )}
-                                        </div>
-                                      </Col>
-                                    </Row>
-                                    <hr />
-                                    <p style={{ fontSize: "14px", lineHeight: "1.6" }}>{registro.observacao}</p>
-                                    {registro.recomendacoes && (
-                                      <div className="bg-warning bg-opacity-10 p-2 rounded border-start border-warning">
-                                        <small className="text-muted">
-                                          <strong>📌 Recomendação:</strong> {registro.recomendacoes}
-                                        </small>
-                                      </div>
-                                    )}
-                                  </Card.Body>
-                                </Card>
+                                <Alert variant="info" className="text-center">
+                                  💊 Nenhum registro de tratamento adicionado ainda
+                                </Alert>
                               );
-                            })
-                          )}
+                            }
+
+                            const inicio = (paginaRegistrosPorTipo - 1) * itensPorPaginaRegistros;
+                            const fim = inicio + itensPorPaginaRegistros;
+                            const registrosPaginados = registrosFiltrados.slice(inicio, fim);
+                            const totalPaginasRegistros = Math.ceil(registrosFiltrados.length / itensPorPaginaRegistros);
+
+                            return (
+                              <>
+                                <div className="mb-3">
+                                  <Badge bg="info" style={{ fontSize: '13px', padding: '6px 12px' }}>
+                                    Total: {registrosFiltrados.length} registro{registrosFiltrados.length !== 1 ? 's' : ''}
+                                  </Badge>
+                                </div>
+                                {registrosPaginados.map((registro) => {
+                                  const dataBR = new Date(registro.data_criacao).toLocaleDateString('pt-BR');
+                                  const horaBR = new Date(registro.data_criacao).toLocaleTimeString('pt-BR');
+                                  const isConcluido = registro.status_conclusao === 'concluido';
+                                  const mostrarBotaoConcluir = !isConcluido;
+
+                                  return (
+                                    <Card
+                                      key={registro.id}
+                                      className="shadow-sm border-0 mb-3 border-start border-4 border-danger"
+                                      style={{
+                                        backgroundColor: registro.precisa_baixar === "sim" ? "#fff5f5" : "white"
+                                      }}
+                                    >
+                                      <Card.Body>
+                                        <div className="d-flex justify-content-between align-items-start mb-3">
+                                          <div className="flex-grow-1">
+                                            <div className="d-flex align-items-center gap-2 mb-2">
+                                              <Badge
+                                                bg="danger"
+                                                className="bg-opacity-10"
+                                                text="danger"
+                                                style={{
+                                                  fontSize: "11px",
+                                                  padding: "4px 10px",
+                                                  fontWeight: "600",
+                                                  textTransform: "uppercase",
+                                                  letterSpacing: "0.5px"
+                                                }}
+                                              >
+                                                Tratamento
+                                              </Badge>
+
+                                              {isConcluido && (
+                                                <Badge
+                                                  bg="success"
+                                                  className="bg-opacity-10"
+                                                  text="success"
+                                                  style={{
+                                                    fontSize: "10px",
+                                                    padding: "4px 8px",
+                                                    fontWeight: "500"
+                                                  }}
+                                                >
+                                                  <BsCheckCircle className="me-1" style={{ fontSize: "10px" }} />
+                                                  Concluída
+                                                </Badge>
+                                              )}
+
+                                              {registro.precisa_baixar === "sim" && !isConcluido && (
+                                                <Badge
+                                                  bg="danger"
+                                                  className="bg-opacity-10"
+                                                  text="danger"
+                                                  style={{
+                                                    fontSize: "10px",
+                                                    padding: "4px 8px",
+                                                    fontWeight: "500"
+                                                  }}
+                                                >
+                                                  ⚠️ Baixou solípede
+                                                </Badge>
+                                              )}
+
+                                              {registro.precisa_baixar === "nao" && !isConcluido && (
+                                                <Badge
+                                                  bg="secondary"
+                                                  className="bg-opacity-10"
+                                                  text="secondary"
+                                                  style={{
+                                                    fontSize: "10px",
+                                                    padding: "4px 8px",
+                                                    fontWeight: "500"
+                                                  }}
+                                                >
+                                                  ✓ Sem baixa
+                                                </Badge>
+                                              )}
+                                            </div>
+
+                                            <div className="text-muted" style={{ fontSize: "12px", fontWeight: "400" }}>
+                                              <BsClockHistory className="me-1" style={{ fontSize: "11px" }} />
+                                              {dataBR} às {horaBR}
+                                            </div>
+                                          </div>
+
+                                          <div className="d-flex gap-2">
+                                            {mostrarBotaoConcluir && (
+                                              <Button
+                                                size="sm"
+                                                variant="outline-success"
+                                                onClick={() => handleAbrirModalConclusao(registro.id)}
+                                                style={{
+                                                  fontSize: "11px",
+                                                  padding: "4px 10px",
+                                                  fontWeight: "500"
+                                                }}
+                                              >
+                                                <BsCheckCircle className="me-1" />
+                                                Concluir
+                                              </Button>
+                                            )}
+                                            {!isConcluido && (
+                                              <Button
+                                                size="sm"
+                                                variant="outline-secondary"
+                                                onClick={() => handleAbrirEdicao(registro)}
+                                                style={{
+                                                  fontSize: "11px",
+                                                  padding: "4px 10px",
+                                                  fontWeight: "500"
+                                                }}
+                                              >
+                                                <BsPencilSquare className="me-1" />
+                                                Editar
+                                              </Button>
+                                            )}
+                                          </div>
+                                        </div>
+
+                                        <div className="bg-light p-3 rounded mb-3">
+                                          <p
+                                            className="mb-0"
+                                            style={{
+                                              fontSize: "14px",
+                                              lineHeight: "1.8",
+                                              whiteSpace: "pre-line",
+                                              color: isConcluido ? "#999" : "#333"
+                                            }}
+                                          >
+                                            {registro.observacao}
+                                          </p>
+                                        </div>
+
+                                        {registro.recomendacoes && (
+                                          <Alert variant="warning" className="mb-3">
+                                            <strong>📌 Recomendações:</strong>
+                                            <div className="mt-2" style={{ fontSize: "14px" }}>
+                                              {registro.recomendacoes}
+                                            </div>
+                                          </Alert>
+                                        )}
+
+                                        {isConcluido && registro.usuario_conclusao_nome && (
+                                          <div className="mb-3 p-2 bg-success bg-opacity-10 rounded border-start border-success border-3">
+                                            <small className="text-muted d-block">Concluído por</small>
+                                            <span style={{ fontSize: "13px", fontWeight: "500" }}>
+                                              {registro.usuario_conclusao_nome}
+                                              {registro.usuario_conclusao_registro && <> (RE: {registro.usuario_conclusao_registro})</>}
+                                            </span>
+                                            {registro.data_conclusao && (
+                                              <>
+                                                <br />
+                                                <small className="text-muted">
+                                                  {new Date(registro.data_conclusao).toLocaleDateString('pt-BR')} às {new Date(registro.data_conclusao).toLocaleTimeString('pt-BR')}
+                                                </small>
+                                              </>
+                                            )}
+                                          </div>
+                                        )}
+
+                                        <div className="mt-3 pt-3 border-top">
+                                          <Row>
+                                            <Col md={6}>
+                                              <small className="text-muted d-block mb-1">Responsável</small>
+                                              <p className="mb-0" style={{ fontSize: "14px", fontWeight: "500" }}>
+                                                {registro.usuario_nome || "Sistema"}
+                                                {registro.usuario_registro && (
+                                                  <small className="text-muted ms-2">RE: {registro.usuario_registro}</small>
+                                                )}
+                                              </p>
+                                            </Col>
+                                          </Row>
+                                        </div>
+                                      </Card.Body>
+                                    </Card>
+                                  );
+                                })}
+
+                                {/* Navegação de páginas */}
+                                {totalPaginasRegistros > 1 && (
+                                  <div className="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                                    <Button
+                                      variant="outline-primary"
+                                      size="sm"
+                                      onClick={() => setPaginaRegistrosPorTipo(prev => Math.max(1, prev - 1))}
+                                      disabled={paginaRegistrosPorTipo === 1}
+                                      style={{ minWidth: '120px' }}
+                                    >
+                                      ← Anterior
+                                    </Button>
+
+                                    <Badge bg="primary" style={{ fontSize: '14px', padding: '8px 16px' }}>
+                                      Página {paginaRegistrosPorTipo} de {totalPaginasRegistros}
+                                    </Badge>
+
+                                    <Button
+                                      variant="outline-primary"
+                                      size="sm"
+                                      onClick={() => setPaginaRegistrosPorTipo(prev => Math.min(totalPaginasRegistros, prev + 1))}
+                                      disabled={paginaRegistrosPorTipo === totalPaginasRegistros}
+                                      style={{ minWidth: '120px' }}
+                                    >
+                                      Próxima →
+                                    </Button>
+                                  </div>
+                                )}
+                              </>
+                            );
+                          })()}
                         </Tab.Pane>
 
                         {/* SUB-TAB: EXAME */}
@@ -2546,74 +3344,143 @@ export default function ProntuarioSolipedeEdit() {
                               const dataBR = new Date(registro.data_criacao).toLocaleDateString('pt-BR');
                               const horaBR = new Date(registro.data_criacao).toLocaleTimeString('pt-BR');
                               const isConcluido = registro.status_conclusao === 'concluido';
+                              const mostrarBotaoConcluir = !isConcluido;
 
                               return (
-                                <Card key={registro.id} className="mb-3 border-start border-4 border-secondary">
+                                <Card
+                                  key={registro.id}
+                                  className="shadow-sm border-0 mb-3 border-start border-4 border-secondary"
+                                >
                                   <Card.Body>
-                                    <Row className="align-items-start mb-2">
-                                      <Col>
-                                        <Badge bg="secondary" className="mb-2">🔬 Exame</Badge>
-                                        {isConcluido && (
-                                          <Badge bg="success" className="mb-2 ms-2">
-                                            <BsCheckCircle className="me-1" />
-                                            Concluído
+                                    <div className="d-flex justify-content-between align-items-start mb-3">
+                                      <div className="flex-grow-1">
+                                        <div className="d-flex align-items-center gap-2 mb-2">
+                                          <Badge
+                                            bg="secondary"
+                                            className="bg-opacity-10"
+                                            text="secondary"
+                                            style={{
+                                              fontSize: "11px",
+                                              padding: "4px 10px",
+                                              fontWeight: "600",
+                                              textTransform: "uppercase",
+                                              letterSpacing: "0.5px"
+                                            }}
+                                          >
+                                            Exame
                                           </Badge>
-                                        )}
-                                        <p className="text-muted mb-0" style={{ fontSize: "12px" }}>
-                                          📅 {dataBR} às {horaBR}
-                                        </p>
-                                        {isConcluido && registro.usuario_conclusao_nome && (
-                                          <p className="text-success mb-0" style={{ fontSize: "11px" }}>
-                                            ✅ Concluído por: <strong>{registro.usuario_conclusao_nome}</strong> ({registro.usuario_conclusao_registro})
-                                            <br />
-                                            📅 {new Date(registro.data_conclusao).toLocaleDateString('pt-BR')} às {new Date(registro.data_conclusao).toLocaleTimeString('pt-BR')}
-                                          </p>
-                                        )}
-                                      </Col>
-                                      <Col xs="auto">
-                                        <div className="d-flex gap-2">
-                                          {!isConcluido && (
-                                            <Button
-                                              size="sm"
-                                              variant="outline-success"
-                                              onClick={() => handleAbrirModalConclusaoRegistro(registro.id)}
+
+                                          {isConcluido && (
+                                            <Badge
+                                              bg="success"
+                                              className="bg-opacity-10"
+                                              text="success"
+                                              style={{
+                                                fontSize: "10px",
+                                                padding: "4px 8px",
+                                                fontWeight: "500"
+                                              }}
                                             >
-                                              <BsCheckCircle className="me-1" />
-                                              Concluir
-                                            </Button>
+                                              <BsCheckCircle className="me-1" style={{ fontSize: "10px" }} />
+                                              Concluído
+                                            </Badge>
                                           )}
+                                        </div>
+
+                                        <div className="text-muted" style={{ fontSize: "12px", fontWeight: "400" }}>
+                                          <BsClockHistory className="me-1" style={{ fontSize: "11px" }} />
+                                          {dataBR} às {horaBR}
+                                        </div>
+                                      </div>
+
+                                      <div className="d-flex gap-2">
+                                        {mostrarBotaoConcluir && (
                                           <Button
                                             size="sm"
-                                            variant="outline-primary"
-                                            onClick={() => handleAbrirEdicao(registro)}
+                                            variant="outline-success"
+                                            onClick={() => handleAbrirModalConclusaoRegistro(registro.id)}
+                                            style={{
+                                              fontSize: "11px",
+                                              padding: "4px 10px",
+                                              fontWeight: "500"
+                                            }}
                                           >
-                                            <BsPlusCircle className="me-1" />
+                                            <BsCheckCircle className="me-1" />
+                                            Concluir
+                                          </Button>
+                                        )}
+                                        {!isConcluido && (
+                                          <Button
+                                            size="sm"
+                                            variant="outline-secondary"
+                                            onClick={() => handleAbrirEdicao(registro)}
+                                            style={{
+                                              fontSize: "11px",
+                                              padding: "4px 10px",
+                                              fontWeight: "500"
+                                            }}
+                                          >
+                                            <BsPencilSquare className="me-1" />
                                             Editar
                                           </Button>
-                                        </div>
-                                      </Col>
-                                    </Row>
-                                    <hr />
-                                    <p style={{ 
-                                      fontSize: "14px", 
-                                      lineHeight: "1.6",
-                                      textDecoration: isConcluido ? "none" : "none",
-                                      color: isConcluido ? "#999" : "inherit"
-                                    }}>
-                                      {registro.observacao}
-                                    </p>
+                                        )}
+                                      </div>
+                                    </div>
+
+                                    <div className="bg-light p-3 rounded mb-3">
+                                      <p
+                                        className="mb-0"
+                                        style={{
+                                          fontSize: "14px",
+                                          lineHeight: "1.8",
+                                          whiteSpace: "pre-line",
+                                          color: isConcluido ? "#999" : "#333"
+                                        }}
+                                      >
+                                        {registro.observacao}
+                                      </p>
+                                    </div>
+
                                     {registro.recomendacoes && (
-                                      <div className="bg-warning bg-opacity-10 p-2 rounded border-start border-warning">
-                                        <small className="text-muted">
-                                          <strong>📌 Recomendação:</strong>{" "}
-                                          <span style={{
-                                            textDecoration: isConcluido ? "none" : "none"
-                                          }}>
-                                            {registro.recomendacoes}
-                                          </span>
-                                        </small>
+                                      <Alert variant="warning" className="mb-3">
+                                        <strong>📌 Recomendações:</strong>
+                                        <div className="mt-2" style={{ fontSize: "14px" }}>
+                                          {registro.recomendacoes}
+                                        </div>
+                                      </Alert>
+                                    )}
+
+                                    {isConcluido && registro.usuario_conclusao_nome && (
+                                      <div className="mb-3 p-2 bg-success bg-opacity-10 rounded border-start border-success border-3">
+                                        <small className="text-muted d-block">Concluído por</small>
+                                        <span style={{ fontSize: "13px", fontWeight: "500" }}>
+                                          {registro.usuario_conclusao_nome}
+                                          {registro.usuario_conclusao_registro && <> (RE: {registro.usuario_conclusao_registro})</>}
+                                        </span>
+                                        {registro.data_conclusao && (
+                                          <>
+                                            <br />
+                                            <small className="text-muted">
+                                              {new Date(registro.data_conclusao).toLocaleDateString('pt-BR')} às {new Date(registro.data_conclusao).toLocaleTimeString('pt-BR')}
+                                            </small>
+                                          </>
+                                        )}
                                       </div>
                                     )}
+
+                                    <div className="mt-3 pt-3 border-top">
+                                      <Row>
+                                        <Col md={6}>
+                                          <small className="text-muted d-block mb-1">Responsável</small>
+                                          <p className="mb-0" style={{ fontSize: "14px", fontWeight: "500" }}>
+                                            {registro.usuario_nome || "Sistema"}
+                                            {registro.usuario_registro && (
+                                              <small className="text-muted ms-2">RE: {registro.usuario_registro}</small>
+                                            )}
+                                          </p>
+                                        </Col>
+                                      </Row>
+                                    </div>
                                   </Card.Body>
                                 </Card>
                               );
@@ -2632,74 +3499,143 @@ export default function ProntuarioSolipedeEdit() {
                               const dataBR = new Date(registro.data_criacao).toLocaleDateString('pt-BR');
                               const horaBR = new Date(registro.data_criacao).toLocaleTimeString('pt-BR');
                               const isConcluido = registro.status_conclusao === 'concluido';
+                              const mostrarBotaoConcluir = !isConcluido;
 
                               return (
-                                <Card key={registro.id} className="mb-3 border-start border-4 border-success">
+                                <Card
+                                  key={registro.id}
+                                  className="shadow-sm border-0 mb-3 border-start border-4 border-success"
+                                >
                                   <Card.Body>
-                                    <Row className="align-items-start mb-2">
-                                      <Col>
-                                        <Badge bg="success" className="mb-2">💉 Vacinação</Badge>
-                                        {isConcluido && (
-                                          <Badge bg="success" className="mb-2 ms-2">
-                                            <BsCheckCircle className="me-1" />
-                                            Concluída
+                                    <div className="d-flex justify-content-between align-items-start mb-3">
+                                      <div className="flex-grow-1">
+                                        <div className="d-flex align-items-center gap-2 mb-2">
+                                          <Badge
+                                            bg="success"
+                                            className="bg-opacity-10"
+                                            text="success"
+                                            style={{
+                                              fontSize: "11px",
+                                              padding: "4px 10px",
+                                              fontWeight: "600",
+                                              textTransform: "uppercase",
+                                              letterSpacing: "0.5px"
+                                            }}
+                                          >
+                                            Vacinação
                                           </Badge>
-                                        )}
-                                        <p className="text-muted mb-0" style={{ fontSize: "12px" }}>
-                                          📅 {dataBR} às {horaBR}
-                                        </p>
-                                        {isConcluido && registro.usuario_conclusao_nome && (
-                                          <p className="text-success mb-0" style={{ fontSize: "11px" }}>
-                                            ✅ Concluído por: <strong>{registro.usuario_conclusao_nome}</strong> ({registro.usuario_conclusao_registro})
-                                            <br />
-                                            📅 {new Date(registro.data_conclusao).toLocaleDateString('pt-BR')} às {new Date(registro.data_conclusao).toLocaleTimeString('pt-BR')}
-                                          </p>
-                                        )}
-                                      </Col>
-                                      <Col xs="auto">
-                                        <div className="d-flex gap-2">
-                                          {!isConcluido && (
-                                            <Button
-                                              size="sm"
-                                              variant="outline-success"
-                                              onClick={() => handleAbrirModalConclusaoRegistro(registro.id)}
+
+                                          {isConcluido && (
+                                            <Badge
+                                              bg="success"
+                                              className="bg-opacity-10"
+                                              text="success"
+                                              style={{
+                                                fontSize: "10px",
+                                                padding: "4px 8px",
+                                                fontWeight: "500"
+                                              }}
                                             >
-                                              <BsCheckCircle className="me-1" />
-                                              Concluir
-                                            </Button>
+                                              <BsCheckCircle className="me-1" style={{ fontSize: "10px" }} />
+                                              Concluída
+                                            </Badge>
                                           )}
+                                        </div>
+
+                                        <div className="text-muted" style={{ fontSize: "12px", fontWeight: "400" }}>
+                                          <BsClockHistory className="me-1" style={{ fontSize: "11px" }} />
+                                          {dataBR} às {horaBR}
+                                        </div>
+                                      </div>
+
+                                      <div className="d-flex gap-2">
+                                        {mostrarBotaoConcluir && (
                                           <Button
                                             size="sm"
-                                            variant="outline-primary"
-                                            onClick={() => handleAbrirEdicao(registro)}
+                                            variant="outline-success"
+                                            onClick={() => handleAbrirModalConclusaoRegistro(registro.id)}
+                                            style={{
+                                              fontSize: "11px",
+                                              padding: "4px 10px",
+                                              fontWeight: "500"
+                                            }}
                                           >
-                                            <BsPlusCircle className="me-1" />
+                                            <BsCheckCircle className="me-1" />
+                                            Concluir
+                                          </Button>
+                                        )}
+                                        {!isConcluido && (
+                                          <Button
+                                            size="sm"
+                                            variant="outline-secondary"
+                                            onClick={() => handleAbrirEdicao(registro)}
+                                            style={{
+                                              fontSize: "11px",
+                                              padding: "4px 10px",
+                                              fontWeight: "500"
+                                            }}
+                                          >
+                                            <BsPencilSquare className="me-1" />
                                             Editar
                                           </Button>
-                                        </div>
-                                      </Col>
-                                    </Row>
-                                    <hr />
-                                    <p style={{ 
-                                      fontSize: "14px", 
-                                      lineHeight: "1.6",
-                                      textDecoration: isConcluido ? "none" : "none",
-                                      color: isConcluido ? "#999" : "inherit"
-                                    }}>
-                                      {registro.observacao}
-                                    </p>
+                                        )}
+                                      </div>
+                                    </div>
+
+                                    <div className="bg-light p-3 rounded mb-3">
+                                      <p
+                                        className="mb-0"
+                                        style={{
+                                          fontSize: "14px",
+                                          lineHeight: "1.8",
+                                          whiteSpace: "pre-line",
+                                          color: isConcluido ? "#999" : "#333"
+                                        }}
+                                      >
+                                        {registro.observacao}
+                                      </p>
+                                    </div>
+
                                     {registro.recomendacoes && (
-                                      <div className="bg-warning bg-opacity-10 p-2 rounded border-start border-warning">
-                                        <small className="text-muted">
-                                          <strong>📌 Recomendação:</strong>{" "}
-                                          <span style={{
-                                            textDecoration: isConcluido ? "none" : "none"
-                                          }}>
-                                            {registro.recomendacoes}
-                                          </span>
-                                        </small>
+                                      <Alert variant="warning" className="mb-3">
+                                        <strong>📌 Recomendações:</strong>
+                                        <div className="mt-2" style={{ fontSize: "14px" }}>
+                                          {registro.recomendacoes}
+                                        </div>
+                                      </Alert>
+                                    )}
+
+                                    {isConcluido && registro.usuario_conclusao_nome && (
+                                      <div className="mb-3 p-2 bg-success bg-opacity-10 rounded border-start border-success border-3">
+                                        <small className="text-muted d-block">Concluído por</small>
+                                        <span style={{ fontSize: "13px", fontWeight: "500" }}>
+                                          {registro.usuario_conclusao_nome}
+                                          {registro.usuario_conclusao_registro && <> (RE: {registro.usuario_conclusao_registro})</>}
+                                        </span>
+                                        {registro.data_conclusao && (
+                                          <>
+                                            <br />
+                                            <small className="text-muted">
+                                              {new Date(registro.data_conclusao).toLocaleDateString('pt-BR')} às {new Date(registro.data_conclusao).toLocaleTimeString('pt-BR')}
+                                            </small>
+                                          </>
+                                        )}
                                       </div>
                                     )}
+
+                                    <div className="mt-3 pt-3 border-top">
+                                      <Row>
+                                        <Col md={6}>
+                                          <small className="text-muted d-block mb-1">Responsável</small>
+                                          <p className="mb-0" style={{ fontSize: "14px", fontWeight: "500" }}>
+                                            {registro.usuario_nome || "Sistema"}
+                                            {registro.usuario_registro && (
+                                              <small className="text-muted ms-2">RE: {registro.usuario_registro}</small>
+                                            )}
+                                          </p>
+                                        </Col>
+                                      </Row>
+                                    </div>
                                   </Card.Body>
                                 </Card>
                               );
@@ -2766,8 +3702,8 @@ export default function ProntuarioSolipedeEdit() {
                                       </Col>
                                     </Row>
                                     <hr />
-                                    <p style={{ 
-                                      fontSize: "14px", 
+                                    <p style={{
+                                      fontSize: "14px",
                                       lineHeight: "1.6",
                                       textDecoration: isConcluido ? "none" : "none",
                                       color: isConcluido ? "#999" : "inherit"
@@ -2852,8 +3788,8 @@ export default function ProntuarioSolipedeEdit() {
                                       </Col>
                                     </Row>
                                     <hr />
-                                    <p style={{ 
-                                      fontSize: "14px", 
+                                    <p style={{
+                                      fontSize: "14px",
                                       lineHeight: "1.6",
                                       textDecoration: isConcluido ? "none" : "none",
                                       color: isConcluido ? "#999" : "inherit"
@@ -2879,55 +3815,111 @@ export default function ProntuarioSolipedeEdit() {
                           )}
                         </Tab.Pane>
 
-                          {/* SUB-TAB: RESTRIÇÕES */}
-                          <Tab.Pane eventKey="restricoes">
-                            {historico.filter(reg => reg.tipo === "Restrições").length === 0 ? (
-                              <Alert variant="info" className="text-center">
-                                ⚠️ Nenhum registro de restrições adicionado ainda
-                              </Alert>
-                            ) : (
-                              historico.filter(reg => reg.tipo === "Restrições").map((registro) => {
-                                const dataBR = new Date(registro.data_criacao).toLocaleDateString('pt-BR');
-                                const horaBR = new Date(registro.data_criacao).toLocaleTimeString('pt-BR');
-                                const isRestricaoExpiradaReg = isRestricaoExpirada(registro.data_validade);
-                                const isConcluido = registro.status_conclusao === 'concluido';
-                                const mostrarBotaoConcluir = !isConcluido && !isRestricaoExpiradaReg;
-  
-                                return (
-                                  <Card key={registro.id} className="mb-3 border-start border-4 border-warning">
-                                    <Card.Body>
-                                      <Row className="align-items-start mb-2">
-                                        <Col>
-                                          <Badge bg="warning" className="mb-2">⚠️ Restrições</Badge>
-                                          {(isRestricaoExpiradaReg || isConcluido) && (
-                                            <Badge bg="success" className="mb-2 ms-2">
-                                              <BsCheckCircle className="me-1" />
-                                              Concluída
-                                            </Badge>
-                                          )}
-                                          {registro.data_validade && (
-                                            <p className="mb-1" style={{ fontSize: "11px", color: "#666" }}>
-                                              📅 Validade: {new Date(registro.data_validade).toLocaleDateString('pt-BR')}
-                                            </p>
-                                          )}
-                                          {isConcluido && registro.usuario_conclusao_nome && (
-                                            <p className="text-success mb-0" style={{ fontSize: "11px" }}>
-                                              ✅ Concluído por: <strong>{registro.usuario_conclusao_nome}</strong> ({registro.usuario_conclusao_registro})
-                                              <br />
-                                              📅 {new Date(registro.data_conclusao).toLocaleDateString('pt-BR')} às {new Date(registro.data_conclusao).toLocaleTimeString('pt-BR')}
-                                            </p>
-                                          )}
-                                          <p className="text-muted mb-0" style={{ fontSize: "12px" }}>
-                                            📅 {dataBR} às {horaBR}
-                                          </p>
-                                        </Col>
-                                        <Col xs="auto">
+                        {/* SUB-TAB: RESTRIÇÕES */}
+                        <Tab.Pane eventKey="restricoes">
+                          {(() => {
+                            const registrosFiltrados = historico.filter(reg => reg.tipo === "Restrições");
+                            if (registrosFiltrados.length === 0) {
+                              return (
+                                <Alert variant="info" className="text-center">
+                                  ⚠️ Nenhum registro de restrições adicionado ainda
+                                </Alert>
+                              );
+                            }
+
+                            const inicio = (paginaRegistrosPorTipo - 1) * itensPorPaginaRegistros;
+                            const fim = inicio + itensPorPaginaRegistros;
+                            const registrosPaginados = registrosFiltrados.slice(inicio, fim);
+                            const totalPaginasRegistros = Math.ceil(registrosFiltrados.length / itensPorPaginaRegistros);
+
+                            return (
+                              <>
+                                <div className="mb-3">
+                                  <Badge bg="info" style={{ fontSize: '13px', padding: '6px 12px' }}>
+                                    Total: {registrosFiltrados.length} registro{registrosFiltrados.length !== 1 ? 's' : ''}
+                                  </Badge>
+                                </div>
+                                {registrosPaginados.map((registro) => {
+                                  const dataBR = new Date(registro.data_criacao).toLocaleDateString('pt-BR');
+                                  const horaBR = new Date(registro.data_criacao).toLocaleTimeString('pt-BR');
+                                  const isRestricaoExpiradaReg = isRestricaoExpirada(registro.data_validade);
+                                  const isConcluido = registro.status_conclusao === 'concluido';
+                                  const mostrarBotaoConcluir = !isConcluido && !isRestricaoExpiradaReg;
+
+                                  return (
+                                    <Card
+                                      key={registro.id}
+                                      className="shadow-sm border-0 mb-3 border-start border-4 border-warning"
+                                    >
+                                      <Card.Body>
+                                        <div className="d-flex justify-content-between align-items-start mb-3">
+                                          <div className="flex-grow-1">
+                                            <div className="d-flex align-items-center gap-2 mb-2">
+                                              <Badge
+                                                bg="warning"
+                                                className="bg-opacity-10"
+                                                text="warning"
+                                                style={{
+                                                  fontSize: "11px",
+                                                  padding: "4px 10px",
+                                                  fontWeight: "600",
+                                                  textTransform: "uppercase",
+                                                  letterSpacing: "0.5px"
+                                                }}
+                                              >
+                                                Restrições
+                                              </Badge>
+
+                                              {(isRestricaoExpiradaReg || isConcluido) && (
+                                                <Badge
+                                                  bg="success"
+                                                  className="bg-opacity-10"
+                                                  text="success"
+                                                  style={{
+                                                    fontSize: "10px",
+                                                    padding: "4px 8px",
+                                                    fontWeight: "500"
+                                                  }}
+                                                >
+                                                  <BsCheckCircle className="me-1" style={{ fontSize: "10px" }} />
+                                                  Concluída
+                                                </Badge>
+                                              )}
+
+                                              {registro.data_validade && (
+                                                <Badge
+                                                  bg={isRestricaoExpiradaReg ? "danger" : "info"}
+                                                  className="bg-opacity-10"
+                                                  text={isRestricaoExpiradaReg ? "danger" : "info"}
+                                                  style={{
+                                                    fontSize: "10px",
+                                                    padding: "4px 8px",
+                                                    fontWeight: "500"
+                                                  }}
+                                                >
+                                                  📅 Validade: {new Date(registro.data_validade).toLocaleDateString('pt-BR')}
+                                                  {isRestricaoExpiradaReg && " (Expirada)"}
+                                                </Badge>
+                                              )}
+                                            </div>
+
+                                            <div className="text-muted" style={{ fontSize: "12px", fontWeight: "400" }}>
+                                              <BsClockHistory className="me-1" style={{ fontSize: "11px" }} />
+                                              {dataBR} às {horaBR}
+                                            </div>
+                                          </div>
+
                                           <div className="d-flex gap-2">
                                             {mostrarBotaoConcluir && (
                                               <Button
                                                 size="sm"
                                                 variant="outline-success"
                                                 onClick={() => handleAbrirModalConclusaoRegistro(registro.id)}
+                                                style={{
+                                                  fontSize: "11px",
+                                                  padding: "4px 10px",
+                                                  fontWeight: "500"
+                                                }}
                                               >
                                                 <BsCheckCircle className="me-1" />
                                                 Concluir
@@ -2936,44 +3928,699 @@ export default function ProntuarioSolipedeEdit() {
                                             {!isConcluido && (
                                               <Button
                                                 size="sm"
-                                                variant="outline-primary"
+                                                variant="outline-secondary"
                                                 onClick={() => handleAbrirEdicao(registro)}
+                                                style={{
+                                                  fontSize: "11px",
+                                                  padding: "4px 10px",
+                                                  fontWeight: "500"
+                                                }}
                                               >
-                                                <BsPlusCircle className="me-1" />
+                                                <BsPencilSquare className="me-1" />
                                                 Editar
                                               </Button>
                                             )}
                                           </div>
-                                        </Col>
-                                      </Row>
-                                      <hr />
-                                      <p style={{ 
-                                        fontSize: "14px", 
-                                        lineHeight: "1.6",
-                                        textDecoration: (isRestricaoExpiradaReg || isConcluido) ? "none" : "none",
-                                        color: (isRestricaoExpiradaReg || isConcluido) ? "#999" : "inherit"
-                                      }}>
-                                        {registro.observacao}
-                                      </p>
-                                      {registro.recomendacoes && (
-                                        <div className="bg-warning bg-opacity-10 p-2 rounded border-start border-warning">
-                                          <small className="text-muted">
-                                            <strong>📌 Recomendação:</strong>{" "}
-                                            <span style={{
-                                              textDecoration: (isRestricaoExpiradaReg || isConcluido) ? "none" : "none"
-                                            }}>
-                                              {registro.recomendacoes}
-                                            </span>
-                                          </small>
                                         </div>
-                                      )}
-                                    </Card.Body>
-                                  </Card>
-                                );
-                              })
-                            )}
-                          </Tab.Pane>
-                        </Tab.Content>
+
+                                        <div className="bg-light p-3 rounded mb-3">
+                                          <p
+                                            className="mb-0"
+                                            style={{
+                                              fontSize: "14px",
+                                              lineHeight: "1.8",
+                                              whiteSpace: "pre-line",
+                                              color: (isRestricaoExpiradaReg || isConcluido) ? "#999" : "#333"
+                                            }}
+                                          >
+                                            {registro.observacao}
+                                          </p>
+                                        </div>
+
+                                        {registro.recomendacoes && (
+                                          <Alert variant="warning" className="mb-3">
+                                            <strong>📌 Recomendações:</strong>
+                                            <div className="mt-2" style={{ fontSize: "14px" }}>
+                                              {registro.recomendacoes}
+                                            </div>
+                                          </Alert>
+                                        )}
+
+                                        {isConcluido && registro.usuario_conclusao_nome && (
+                                          <div className="mb-3 p-2 bg-success bg-opacity-10 rounded border-start border-success border-3">
+                                            <small className="text-muted d-block">Concluído por</small>
+                                            <span style={{ fontSize: "13px", fontWeight: "500" }}>
+                                              {registro.usuario_conclusao_nome}
+                                              {registro.usuario_conclusao_registro && <> (RE: {registro.usuario_conclusao_registro})</>}
+                                            </span>
+                                            {registro.data_conclusao && (
+                                              <>
+                                                <br />
+                                                <small className="text-muted">
+                                                  {new Date(registro.data_conclusao).toLocaleDateString('pt-BR')} às {new Date(registro.data_conclusao).toLocaleTimeString('pt-BR')}
+                                                </small>
+                                              </>
+                                            )}
+                                          </div>
+                                        )}
+
+                                        <div className="mt-3 pt-3 border-top">
+                                          <Row>
+                                            <Col md={6}>
+                                              <small className="text-muted d-block mb-1">Responsável</small>
+                                              <p className="mb-0" style={{ fontSize: "14px", fontWeight: "500" }}>
+                                                {registro.usuario_nome || "Sistema"}
+                                                {registro.usuario_registro && (
+                                                  <small className="text-muted ms-2">RE: {registro.usuario_registro}</small>
+                                                )}
+                                              </p>
+                                            </Col>
+                                          </Row>
+                                        </div>
+                                      </Card.Body>
+                                    </Card>
+                                  );
+                                })}
+
+                                {/* Navegação de páginas */}
+                                {totalPaginasRegistros > 1 && (
+                                  <div className="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                                    <Button
+                                      variant="outline-primary"
+                                      size="sm"
+                                      onClick={() => setPaginaRegistrosPorTipo(prev => Math.max(1, prev - 1))}
+                                      disabled={paginaRegistrosPorTipo === 1}
+                                      style={{ minWidth: '120px' }}
+                                    >
+                                      ← Anterior
+                                    </Button>
+
+                                    <Badge bg="primary" style={{ fontSize: '14px', padding: '8px 16px' }}>
+                                      Página {paginaRegistrosPorTipo} de {totalPaginasRegistros}
+                                    </Badge>
+
+                                    <Button
+                                      variant="outline-primary"
+                                      size="sm"
+                                      onClick={() => setPaginaRegistrosPorTipo(prev => Math.min(totalPaginasRegistros, prev + 1))}
+                                      disabled={paginaRegistrosPorTipo === totalPaginasRegistros}
+                                      style={{ minWidth: '120px' }}
+                                    >
+                                      Próxima →
+                                    </Button>
+                                  </div>
+                                )}
+                              </>
+                            );
+                          })()}
+                        </Tab.Pane>
+
+                        {/* SUB-TAB: Dieta */}
+                        <Tab.Pane eventKey="dieta">
+                          {(() => {
+                            const registrosFiltrados = historico.filter(reg => reg.tipo === "Dieta");
+                            if (registrosFiltrados.length === 0) {
+                              return (
+                                <Alert variant="info" className="text-center">
+                                  🥕 Nenhum registro de dieta adicionado ainda
+                                </Alert>
+                              );
+                            }
+
+                            const inicio = (paginaRegistrosPorTipo - 1) * itensPorPaginaRegistros;
+                            const fim = inicio + itensPorPaginaRegistros;
+                            const registrosPaginados = registrosFiltrados.slice(inicio, fim);
+                            const totalPaginasRegistros = Math.ceil(registrosFiltrados.length / itensPorPaginaRegistros);
+
+                            return (
+                              <>
+                                <div className="mb-3">
+                                  <Badge bg="info" style={{ fontSize: '13px', padding: '6px 12px' }}>
+                                    Total: {registrosFiltrados.length} registro{registrosFiltrados.length !== 1 ? 's' : ''}
+                                  </Badge>
+                                </div>
+                                {registrosPaginados.map((registro) => {
+                                  const dataBR = new Date(registro.data_criacao).toLocaleDateString('pt-BR');
+                                  const horaBR = new Date(registro.data_criacao).toLocaleTimeString('pt-BR');
+                                  const isConcluido = registro.status_conclusao === 'concluido';
+                                  const mostrarBotaoConcluir = !isConcluido;
+
+                                  return (
+                                    <Card
+                                      key={registro.id}
+                                      className="shadow-sm border-0 mb-3 border-start border-4 border-success"
+                                    >
+                                      <Card.Body>
+                                        <div className="d-flex justify-content-between align-items-start mb-3">
+                                          <div className="flex-grow-1">
+                                            <div className="d-flex align-items-center gap-2 mb-2">
+                                              <Badge
+                                                bg="success"
+                                                className="bg-opacity-10"
+                                                text="success"
+                                                style={{
+                                                  fontSize: "11px",
+                                                  padding: "4px 10px",
+                                                  fontWeight: "600",
+                                                  textTransform: "uppercase",
+                                                  letterSpacing: "0.5px"
+                                                }}
+                                              >
+                                                Dieta
+                                              </Badge>
+
+                                              {isConcluido && (
+                                                <Badge
+                                                  bg="success"
+                                                  className="bg-opacity-10"
+                                                  text="success"
+                                                  style={{
+                                                    fontSize: "10px",
+                                                    padding: "4px 8px",
+                                                    fontWeight: "500"
+                                                  }}
+                                                >
+                                                  <BsCheckCircle className="me-1" style={{ fontSize: "10px" }} />
+                                                  Concluída
+                                                </Badge>
+                                              )}
+                                            </div>
+
+                                            <div className="text-muted" style={{ fontSize: "12px", fontWeight: "400" }}>
+                                              <BsClockHistory className="me-1" style={{ fontSize: "11px" }} />
+                                              {dataBR} às {horaBR}
+                                            </div>
+                                          </div>
+
+                                          <div className="d-flex gap-2">
+                                            {mostrarBotaoConcluir && (
+                                              <Button
+                                                size="sm"
+                                                variant="outline-success"
+                                                onClick={() => handleAbrirModalConclusaoRegistro(registro.id)}
+                                                style={{
+                                                  fontSize: "11px",
+                                                  padding: "4px 10px",
+                                                  fontWeight: "500"
+                                                }}
+                                              >
+                                                <BsCheckCircle className="me-1" />
+                                                Concluir
+                                              </Button>
+                                            )}
+                                            {!isConcluido && (
+                                              <Button
+                                                size="sm"
+                                                variant="outline-secondary"
+                                                onClick={() => handleAbrirEdicao(registro)}
+                                                style={{
+                                                  fontSize: "11px",
+                                                  padding: "4px 10px",
+                                                  fontWeight: "500"
+                                                }}
+                                              >
+                                                <BsPencilSquare className="me-1" />
+                                                Editar
+                                              </Button>
+                                            )}
+                                          </div>
+                                        </div>
+
+                                        <div className="bg-light p-3 rounded mb-3">
+                                          <p
+                                            className="mb-0"
+                                            style={{
+                                              fontSize: "14px",
+                                              lineHeight: "1.8",
+                                              whiteSpace: "pre-line",
+                                              color: isConcluido ? "#999" : "#333"
+                                            }}
+                                          >
+                                            {registro.observacao}
+                                          </p>
+                                        </div>
+
+                                        {registro.recomendacoes && (
+                                          <Alert variant="warning" className="mb-3">
+                                            <strong>📌 Recomendações:</strong>
+                                            <div className="mt-2" style={{ fontSize: "14px" }}>
+                                              {registro.recomendacoes}
+                                            </div>
+                                          </Alert>
+                                        )}
+
+                                        {isConcluido && registro.usuario_conclusao_nome && (
+                                          <div className="mb-3 p-2 bg-success bg-opacity-10 rounded border-start border-success border-3">
+                                            <small className="text-muted d-block">Concluído por</small>
+                                            <span style={{ fontSize: "13px", fontWeight: "500" }}>
+                                              {registro.usuario_conclusao_nome}
+                                              {registro.usuario_conclusao_registro && <> (RE: {registro.usuario_conclusao_registro})</>}
+                                            </span>
+                                            {registro.data_conclusao && (
+                                              <>
+                                                <br />
+                                                <small className="text-muted">
+                                                  {new Date(registro.data_conclusao).toLocaleDateString('pt-BR')} às {new Date(registro.data_conclusao).toLocaleTimeString('pt-BR')}
+                                                </small>
+                                              </>
+                                            )}
+                                          </div>
+                                        )}
+
+                                        <div className="mt-3 pt-3 border-top">
+                                          <Row>
+                                            <Col md={6}>
+                                              <small className="text-muted d-block mb-1">Responsável</small>
+                                              <p className="mb-0" style={{ fontSize: "14px", fontWeight: "500" }}>
+                                                {registro.usuario_nome || "Sistema"}
+                                                {registro.usuario_registro && (
+                                                  <small className="text-muted ms-2">RE: {registro.usuario_registro}</small>
+                                                )}
+                                              </p>
+                                            </Col>
+                                          </Row>
+                                        </div>
+                                      </Card.Body>
+                                    </Card>
+                                  );
+                                })}
+
+                                {/* Navegação de páginas */}
+                                {totalPaginasRegistros > 1 && (
+                                  <div className="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                                    <Button
+                                      variant="outline-primary"
+                                      size="sm"
+                                      onClick={() => setPaginaRegistrosPorTipo(prev => Math.max(1, prev - 1))}
+                                      disabled={paginaRegistrosPorTipo === 1}
+                                      style={{ minWidth: '120px' }}
+                                    >
+                                      ← Anterior
+                                    </Button>
+
+                                    <Badge bg="primary" style={{ fontSize: '14px', padding: '8px 16px' }}>
+                                      Página {paginaRegistrosPorTipo} de {totalPaginasRegistros}
+                                    </Badge>
+
+                                    <Button
+                                      variant="outline-primary"
+                                      size="sm"
+                                      onClick={() => setPaginaRegistrosPorTipo(prev => Math.min(totalPaginasRegistros, prev + 1))}
+                                      disabled={paginaRegistrosPorTipo === totalPaginasRegistros}
+                                      style={{ minWidth: '120px' }}
+                                    >
+                                      Próxima →
+                                    </Button>
+                                  </div>
+                                )}
+                              </>
+                            );
+                          })()}
+                        </Tab.Pane>
+
+                        {/* SUB-TAB: suplementacao */}
+                        <Tab.Pane eventKey="suplementacao">
+                          {(() => {
+                            const registrosFiltrados = historico.filter(reg => reg.tipo === "Suplementação");
+                            if (registrosFiltrados.length === 0) {
+                              return (
+                                <Alert variant="info" className="text-center">
+                                  💊 Nenhum registro de suplementação adicionado ainda
+                                </Alert>
+                              );
+                            }
+
+                            const inicio = (paginaRegistrosPorTipo - 1) * itensPorPaginaRegistros;
+                            const fim = inicio + itensPorPaginaRegistros;
+                            const registrosPaginados = registrosFiltrados.slice(inicio, fim);
+                            const totalPaginasRegistros = Math.ceil(registrosFiltrados.length / itensPorPaginaRegistros);
+
+                            return (
+                              <>
+                                <div className="mb-3">
+                                  <Badge bg="info" style={{ fontSize: '13px', padding: '6px 12px' }}>
+                                    Total: {registrosFiltrados.length} registro{registrosFiltrados.length !== 1 ? 's' : ''}
+                                  </Badge>
+                                </div>
+                                {registrosPaginados.map((registro) => {
+                                  const dataBR = new Date(registro.data_criacao).toLocaleDateString('pt-BR');
+                                  const horaBR = new Date(registro.data_criacao).toLocaleTimeString('pt-BR');
+                                  const isConcluido = registro.status_conclusao === 'concluido';
+                                  const mostrarBotaoConcluir = !isConcluido;
+
+                                  return (
+                                    <Card
+                                      key={registro.id}
+                                      className="shadow-sm border-0 mb-3 border-start border-4 border-info"
+                                    >
+                                      <Card.Body>
+                                        <div className="d-flex justify-content-between align-items-start mb-3">
+                                          <div className="flex-grow-1">
+                                            <div className="d-flex align-items-center gap-2 mb-2">
+                                              <Badge
+                                                bg="info"
+                                                className="bg-opacity-10"
+                                                text="info"
+                                                style={{
+                                                  fontSize: "11px",
+                                                  padding: "4px 10px",
+                                                  fontWeight: "600",
+                                                  textTransform: "uppercase",
+                                                  letterSpacing: "0.5px"
+                                                }}
+                                              >
+                                                Suplementação
+                                              </Badge>
+
+                                              {isConcluido && (
+                                                <Badge
+                                                  bg="success"
+                                                  className="bg-opacity-10"
+                                                  text="success"
+                                                  style={{
+                                                    fontSize: "10px",
+                                                    padding: "4px 8px",
+                                                    fontWeight: "500"
+                                                  }}
+                                                >
+                                                  <BsCheckCircle className="me-1" style={{ fontSize: "10px" }} />
+                                                  Concluída
+                                                </Badge>
+                                              )}
+                                            </div>
+
+                                            <div className="text-muted" style={{ fontSize: "12px", fontWeight: "400" }}>
+                                              <BsClockHistory className="me-1" style={{ fontSize: "11px" }} />
+                                              {dataBR} às {horaBR}
+                                            </div>
+                                          </div>
+
+                                          <div className="d-flex gap-2">
+                                            {mostrarBotaoConcluir && (
+                                              <Button
+                                                size="sm"
+                                                variant="outline-success"
+                                                onClick={() => handleAbrirModalConclusaoRegistro(registro.id)}
+                                                style={{
+                                                  fontSize: "11px",
+                                                  padding: "4px 10px",
+                                                  fontWeight: "500"
+                                                }}
+                                              >
+                                                <BsCheckCircle className="me-1" />
+                                                Concluir
+                                              </Button>
+                                            )}
+                                            {!isConcluido && (
+                                              <Button
+                                                size="sm"
+                                                variant="outline-secondary"
+                                                onClick={() => handleAbrirEdicao(registro)}
+                                                style={{
+                                                  fontSize: "11px",
+                                                  padding: "4px 10px",
+                                                  fontWeight: "500"
+                                                }}
+                                              >
+                                                <BsPencilSquare className="me-1" />
+                                                Editar
+                                              </Button>
+                                            )}
+                                          </div>
+                                        </div>
+
+                                        <div className="bg-light p-3 rounded mb-3">
+                                          <p
+                                            className="mb-0"
+                                            style={{
+                                              fontSize: "14px",
+                                              lineHeight: "1.8",
+                                              whiteSpace: "pre-line",
+                                              color: isConcluido ? "#999" : "#333"
+                                            }}
+                                          >
+                                            {registro.observacao}
+                                          </p>
+                                        </div>
+
+                                        {registro.recomendacoes && (
+                                          <Alert variant="warning" className="mb-3">
+                                            <strong>📌 Recomendações:</strong>
+                                            <div className="mt-2" style={{ fontSize: "14px" }}>
+                                              {registro.recomendacoes}
+                                            </div>
+                                          </Alert>
+                                        )}
+
+                                        {isConcluido && registro.usuario_conclusao_nome && (
+                                          <div className="mb-3 p-2 bg-success bg-opacity-10 rounded border-start border-success border-3">
+                                            <small className="text-muted d-block">Concluído por</small>
+                                            <span style={{ fontSize: "13px", fontWeight: "500" }}>
+                                              {registro.usuario_conclusao_nome}
+                                              {registro.usuario_conclusao_registro && <> (RE: {registro.usuario_conclusao_registro})</>}
+                                            </span>
+                                            {registro.data_conclusao && (
+                                              <>
+                                                <br />
+                                                <small className="text-muted">
+                                                  {new Date(registro.data_conclusao).toLocaleDateString('pt-BR')} às {new Date(registro.data_conclusao).toLocaleTimeString('pt-BR')}
+                                                </small>
+                                              </>
+                                            )}
+                                          </div>
+                                        )}
+
+                                        <div className="mt-3 pt-3 border-top">
+                                          <Row>
+                                            <Col md={6}>
+                                              <small className="text-muted d-block mb-1">Responsável</small>
+                                              <p className="mb-0" style={{ fontSize: "14px", fontWeight: "500" }}>
+                                                {registro.usuario_nome || "Sistema"}
+                                                {registro.usuario_registro && (
+                                                  <small className="text-muted ms-2">RE: {registro.usuario_registro}</small>
+                                                )}
+                                              </p>
+                                            </Col>
+                                          </Row>
+                                        </div>
+                                      </Card.Body>
+                                    </Card>
+                                  );
+                                })}
+
+                                {/* Navegação de páginas */}
+                                {totalPaginasRegistros > 1 && (
+                                  <div className="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                                    <Button
+                                      variant="outline-primary"
+                                      size="sm"
+                                      onClick={() => setPaginaRegistrosPorTipo(prev => Math.max(1, prev - 1))}
+                                      disabled={paginaRegistrosPorTipo === 1}
+                                      style={{ minWidth: '120px' }}
+                                    >
+                                      ← Anterior
+                                    </Button>
+
+                                    <Badge bg="primary" style={{ fontSize: '14px', padding: '8px 16px' }}>
+                                      Página {paginaRegistrosPorTipo} de {totalPaginasRegistros}
+                                    </Badge>
+
+                                    <Button
+                                      variant="outline-primary"
+                                      size="sm"
+                                      onClick={() => setPaginaRegistrosPorTipo(prev => Math.min(totalPaginasRegistros, prev + 1))}
+                                      disabled={paginaRegistrosPorTipo === totalPaginasRegistros}
+                                      style={{ minWidth: '120px' }}
+                                    >
+                                      Próxima →
+                                    </Button>
+                                  </div>
+                                )}
+                              </>
+                            );
+                          })()}
+                        </Tab.Pane>
+
+                        {/* SUB-TAB: MOVIMENTAÇÕES */}
+                        <Tab.Pane eventKey="movimentacao">
+                          {(() => {
+                            const registrosFiltrados = historico.filter(reg => reg.tipo === "Movimentação");
+                            if (registrosFiltrados.length === 0) {
+                              return (
+                                <Alert variant="info" className="text-center">
+                                  🔄 Nenhum registro de movimentação adicionado ainda
+                                </Alert>
+                              );
+                            }
+
+                            const inicio = (paginaRegistrosPorTipo - 1) * itensPorPaginaRegistros;
+                            const fim = inicio + itensPorPaginaRegistros;
+                            const registrosPaginados = registrosFiltrados.slice(inicio, fim);
+                            const totalPaginasRegistros = Math.ceil(registrosFiltrados.length / itensPorPaginaRegistros);
+
+                            return (
+                              <>
+                                <div className="mb-3">
+                                  <Badge bg="primary" style={{ fontSize: '13px', padding: '6px 12px' }}>
+                                    Total: {registrosFiltrados.length} registro{registrosFiltrados.length !== 1 ? 's' : ''}
+                                  </Badge>
+                                </div>
+                                {registrosPaginados.map((registro) => {
+                                  const dataBR = new Date(registro.data_criacao).toLocaleDateString('pt-BR');
+                                  const horaBR = new Date(registro.data_criacao).toLocaleTimeString('pt-BR');
+
+                                  return (
+                                    <Card
+                                      key={registro.id}
+                                      className="shadow-sm border-0 mb-3 border-start border-4 border-primary"
+                                    >
+                                      <Card.Body>
+                                        <div className="d-flex justify-content-between align-items-start mb-3">
+                                          <div className="flex-grow-1">
+                                            <div className="d-flex align-items-center gap-2 mb-2">
+                                              <Badge
+                                                bg="primary"
+                                                className="bg-opacity-10"
+                                                text="primary"
+                                                style={{
+                                                  fontSize: "11px",
+                                                  padding: "4px 10px",
+                                                  fontWeight: "600",
+                                                  textTransform: "uppercase",
+                                                  letterSpacing: "0.5px"
+                                                }}
+                                              >
+                                                🔄 Movimentação
+                                              </Badge>
+                                            </div>
+
+                                            <div className="text-muted" style={{ fontSize: "12px", fontWeight: "400" }}>
+                                              <BsClockHistory className="me-1" style={{ fontSize: "11px" }} />
+                                              {dataBR} às {horaBR}
+                                            </div>
+                                          </div>
+                                        </div>
+
+                                        {/* Informações de Origem e Destino */}
+                                        <div className="mb-3 p-3 bg-primary bg-opacity-10 rounded border-start border-primary border-3">
+                                          <Row>
+                                            {registro.origem && (
+                                              <Col md={6} className="mb-2">
+                                                <small className="text-muted d-block mb-1">📍 Origem</small>
+                                                <Badge bg="secondary" style={{ fontSize: "12px", padding: "6px 12px" }}>
+                                                  {registro.origem}
+                                                </Badge>
+                                              </Col>
+                                            )}
+                                            {registro.destino && (
+                                              <Col md={6} className="mb-2">
+                                                <small className="text-muted d-block mb-1">📍 Destino</small>
+                                                <Badge bg="primary" style={{ fontSize: "12px", padding: "6px 12px" }}>
+                                                  {registro.destino}
+                                                </Badge>
+                                              </Col>
+                                            )}
+                                          </Row>
+                                          {(registro.origem || registro.destino) && (
+                                            <Row className="mt-2">
+                                              <Col md={12}>
+                                                <small className="text-muted d-block mb-1">🔄 Movimentação</small>
+                                                <div className="d-flex align-items-center gap-2">
+                                                  <Badge bg="secondary" style={{ fontSize: "11px" }}>
+                                                    {registro.origem || "Não definida"}
+                                                  </Badge>
+                                                  <span style={{ fontSize: "14px" }}>→</span>
+                                                  <Badge bg="success" style={{ fontSize: "11px" }}>
+                                                    {registro.destino || "Não definida"}
+                                                  </Badge>
+                                                </div>
+                                              </Col>
+                                            </Row>
+                                          )}
+                                          {registro.observacao && (
+                                            <div className="mt-2 pt-2 border-top">
+                                              <small className="text-muted d-block mb-1">📝 Detalhes da Movimentação</small>
+                                              <p className="mb-0" style={{ fontSize: "13px", lineHeight: "1.6" }}>
+                                                {registro.observacao}
+                                              </p>
+                                            </div>
+                                          )}
+                                        </div>
+
+                                        <div className="mt-3 pt-3 border-top">
+                                          <Row>
+                                            <Col md={6}>
+                                              <small className="text-muted d-block mb-1">Responsável</small>
+                                              <p className="mb-0" style={{ fontSize: "14px", fontWeight: "500" }}>
+                                                {registro.usuario_nome || "Sistema"}
+                                                {registro.usuario_registro && (
+                                                  <small className="text-muted ms-2">RE: {registro.usuario_registro}</small>
+                                                )}
+                                              </p>
+                                            </Col>
+                                            {registro.data_atualizacao && new Date(registro.data_atualizacao).getTime() !== new Date(registro.data_criacao).getTime() && (
+                                              <Col md={6}>
+                                                <small className="text-muted d-block mb-1">
+                                                  <BsPencilSquare className="me-1" />
+                                                  Última Atualização
+                                                </small>
+                                                <p className="mb-0" style={{ fontSize: "13px" }}>
+                                                  {new Date(registro.data_atualizacao).toLocaleString('pt-BR')}
+                                                  {registro.usuario_atualizacao_nome && (
+                                                    <>
+                                                      <br />
+                                                      <small className="text-muted">
+                                                        por {registro.usuario_atualizacao_nome}
+                                                        {registro.usuario_atualizacao_registro && <> (RE: {registro.usuario_atualizacao_registro})</>}
+                                                      </small>
+                                                    </>
+                                                  )}
+                                                </p>
+                                              </Col>
+                                            )}
+                                          </Row>
+                                        </div>
+                                      </Card.Body>
+                                    </Card>
+                                  );
+                                })}
+
+                                {/* Navegação de páginas */}
+                                {totalPaginasRegistros > 1 && (
+                                  <div className="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                                    <Button
+                                      variant="outline-primary"
+                                      size="sm"
+                                      onClick={() => setPaginaRegistrosPorTipo(prev => Math.max(1, prev - 1))}
+                                      disabled={paginaRegistrosPorTipo === 1}
+                                      style={{ minWidth: '120px' }}
+                                    >
+                                      ← Anterior
+                                    </Button>
+
+                                    <Badge bg="primary" style={{ fontSize: '14px', padding: '8px 16px' }}>
+                                      Página {paginaRegistrosPorTipo} de {totalPaginasRegistros}
+                                    </Badge>
+
+                                    <Button
+                                      variant="outline-primary"
+                                      size="sm"
+                                      onClick={() => setPaginaRegistrosPorTipo(prev => Math.min(totalPaginasRegistros, prev + 1))}
+                                      disabled={paginaRegistrosPorTipo === totalPaginasRegistros}
+                                      style={{ minWidth: '120px' }}
+                                    >
+                                      Próxima →
+                                    </Button>
+                                  </div>
+                                )}
+                              </>
+                            );
+                          })()}
+                        </Tab.Pane>
+
+
+                      </Tab.Content>
+
                     </Tab.Container>
                   </Card.Body>
                 </Card>
@@ -3148,6 +4795,31 @@ export default function ProntuarioSolipedeEdit() {
                   </Form.Text>
                 </Form.Group>
               )}
+
+              <hr className="my-4" />
+
+              <Alert variant="warning" className="mb-3">
+                <strong>⚠️ Alterar Status do Solípede</strong>
+                <p className="mb-0 mt-2" style={{ fontSize: "13px" }}>
+                  Ao salvar esta edição, você também pode alterar o status atual do solípede.
+                </p>
+              </Alert>
+
+              <Form.Group className="mb-3">
+                <Form.Label className="fw-bold">Novo Status (Opcional)</Form.Label>
+                <Form.Select
+                  value={novoStatus}
+                  onChange={(e) => setNovoStatus(e.target.value)}
+                >
+                  <option value="">-- Manter status atual --</option>
+                  <option value="Ativo">Ativo</option>
+                  <option value="Baixado">Baixado</option>
+                  <option value="Baixado - Baixa Eterna">Baixado - Baixa Eterna</option>
+                </Form.Select>
+                <Form.Text className="text-muted">
+                  Se selecionado, o status do solípede será alterado ao salvar.
+                </Form.Text>
+              </Form.Group>
             </>
           )}
         </Modal.Body>
@@ -3212,6 +4884,71 @@ export default function ProntuarioSolipedeEdit() {
           </Button>
         </Modal.Footer>
       </Modal>
+
+      {/* Modal de Confirmação de Movimentação */}
+      <Modal show={showModalMovimentacao} onHide={handleFecharModalMovimentacao} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>🔒 Confirmar Movimentação</Modal.Title>
+        </Modal.Header>
+        <Form onSubmit={handleConfirmarMovimentacao}>
+          <Modal.Body>
+            {usuarioLogado && (
+              <Alert variant="info" className="mb-3">
+                <strong>👤 Usuário:</strong> {usuarioLogado.nome}<br />
+                <strong>📧 Email:</strong> {usuarioLogado.email}<br />
+                {usuarioLogado.registro && <><strong>🆔 Registro:</strong> {usuarioLogado.registro}</>}
+              </Alert>
+            )}
+
+            <Alert variant="warning" className="mb-3">
+              <strong>🔄 Movimentação:</strong><br />
+              <strong>De:</strong> {solipede?.alocacao || "Não definida"}<br />
+              <strong>Para:</strong> {novaAlocacao}
+            </Alert>
+
+            <p className="text-muted mb-3">
+              Para confirmar esta movimentação, digite sua senha:
+            </p>
+
+            {erroMovimentacao && (
+              <Alert variant="danger" className="py-2">
+                {erroMovimentacao}
+              </Alert>
+            )}
+
+            <Form.Group className="mb-3">
+              <Form.Label>🔑 Senha:</Form.Label>
+              <Form.Control
+                type="password"
+                value={senhaMovimentacao}
+                onChange={(e) => setSenhaMovimentacao(e.target.value)}
+                placeholder="Digite sua senha"
+                required
+                autoFocus
+              />
+            </Form.Group>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={handleFecharModalMovimentacao} disabled={realizandoMovimentacao}>
+              Cancelar
+            </Button>
+            <Button variant="success" type="submit" disabled={realizandoMovimentacao}>
+              {realizandoMovimentacao ? (
+                <>
+                  <Spinner size="sm" className="me-2" />
+                  Realizando...
+                </>
+              ) : (
+                <>
+                  <BsCheckCircle className="me-2" />
+                  Confirmar Movimentação
+                </>
+              )}
+            </Button>
+          </Modal.Footer>
+        </Form>
+      </Modal>
+
     </div>
   );
 }

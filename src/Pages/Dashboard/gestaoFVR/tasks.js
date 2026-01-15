@@ -6,7 +6,6 @@ import {
   Container,
   Badge,
   Spinner,
-  Alert,
   Form,
   Button,
 } from "react-bootstrap";
@@ -19,6 +18,10 @@ export default function TaskCreatePage() {
   const [lancamentos, setLancamentos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filtroTipo, setFiltroTipo] = useState("Todos");
+  
+  // Paginação
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   useEffect(() => {
     carregarLancamentos();
@@ -68,6 +71,26 @@ export default function TaskCreatePage() {
     filtroTipo === "Todos"
       ? lancamentos
       : lancamentos.filter((l) => l.tipo === filtroTipo);
+
+  // Cálculos de paginação
+  const totalPages = itemsPerPage === "Todos" 
+    ? 1 
+    : Math.ceil(lancamentosFiltrados.length / itemsPerPage);
+  
+  const indexOfLastItem = itemsPerPage === "Todos" 
+    ? lancamentosFiltrados.length 
+    : currentPage * itemsPerPage;
+  
+  const indexOfFirstItem = itemsPerPage === "Todos" 
+    ? 0 
+    : indexOfLastItem - itemsPerPage;
+  
+  const currentItems = lancamentosFiltrados.slice(indexOfFirstItem, indexOfLastItem);
+
+  // Reset da página ao mudar filtro
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filtroTipo, itemsPerPage]);
 
   const tiposDisponiveis = ["Todos", "Consulta Clínica", "Tratamento", "Exame", "Vacinação", "Vermifugação", "Exames AIE / Mormo", "Restrições"];
 
@@ -155,15 +178,35 @@ export default function TaskCreatePage() {
         <Col xl={9} lg={8}>
           <Card className="shadow-sm">
             <Card.Header className="bg-white">
-              <h6 className="mb-0">
-                {filtroTipo !== "Todos" ? `Lançamentos: ${filtroTipo}` : "Todos os Lançamentos"}
-                <Badge bg="secondary" className="ms-2">
-                  {lancamentosFiltrados.length}
-                </Badge>
-              </h6>
+              <Row className="align-items-center">
+                <Col md={6}>
+                  <h6 className="mb-0">
+                    {filtroTipo !== "Todos" ? `Lançamentos: ${filtroTipo}` : "Todos os Lançamentos"}
+                    <Badge bg="secondary" className="ms-2">
+                      {lancamentosFiltrados.length}
+                    </Badge>
+                  </h6>
+                </Col>
+                <Col md={6} className="text-end">
+                  <div className="d-flex align-items-center justify-content-end gap-2">
+                    <small className="text-muted">Exibir:</small>
+                    <Form.Select
+                      size="sm"
+                      style={{ width: "100px" }}
+                      value={itemsPerPage}
+                      onChange={(e) => setItemsPerPage(e.target.value === "Todos" ? "Todos" : Number(e.target.value))}
+                    >
+                      <option value={10}>10</option>
+                      <option value={20}>20</option>
+                      <option value={30}>30</option>
+                      <option value="Todos">Todos</option>
+                    </Form.Select>
+                  </div>
+                </Col>
+              </Row>
             </Card.Header>
             <Card.Body style={{ maxHeight: "70vh", overflowY: "auto" }}>
-              {lancamentosFiltrados.length === 0 ? (
+              {currentItems.length === 0 ? (
                 <Card className="shadow-sm border-0">
                   <Card.Body className="text-center py-5">
                     <p className="text-muted mb-0">
@@ -176,7 +219,7 @@ export default function TaskCreatePage() {
                   </Card.Body>
                 </Card>
               ) : (
-                lancamentosFiltrados.map((registro) => {
+                currentItems.map((registro) => {
                   // Proteção contra dados inválidos
                   if (!registro || !registro.id) {
                     console.warn("⚠️ Registro inválido encontrado:", registro);
@@ -270,6 +313,42 @@ export default function TaskCreatePage() {
                 })
               )}
             </Card.Body>
+            
+            {/* Paginação */}
+            {itemsPerPage !== "Todos" && totalPages > 1 && (
+              <Card.Footer className="bg-white border-top">
+                <Row className="align-items-center">
+                  <Col md={6}>
+                    <small className="text-muted">
+                      Mostrando {indexOfFirstItem + 1} a {Math.min(indexOfLastItem, lancamentosFiltrados.length)} de {lancamentosFiltrados.length} registros
+                    </small>
+                  </Col>
+                  <Col md={6}>
+                    <div className="d-flex justify-content-end align-items-center gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline-primary"
+                        disabled={currentPage === 1}
+                        onClick={() => setCurrentPage(currentPage - 1)}
+                      >
+                        ← Anterior
+                      </Button>
+                      <Badge bg="primary" className="px-3">
+                        Página {currentPage} de {totalPages}
+                      </Badge>
+                      <Button
+                        size="sm"
+                        variant="outline-primary"
+                        disabled={currentPage === totalPages}
+                        onClick={() => setCurrentPage(currentPage + 1)}
+                      >
+                        Próxima →
+                      </Button>
+                    </div>
+                  </Col>
+                </Row>
+              </Card.Footer>
+            )}
           </Card>
         </Col>
       </Row>

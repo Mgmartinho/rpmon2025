@@ -177,10 +177,10 @@ export const api = {
     return response.json();
   },
 
-  movimentacaoBulk: async ({ numeros, novaMovimentacao, observacao, senha }) => {
+  movimentacaoBulk: async ({ numeros, novaAlocacao, observacao, senha }) => {
     console.log("🌐 API.movimentacaoBulk CHAMADO");
     console.log("   - numeros:", numeros);
-    console.log("   - novaMovimentacao:", novaMovimentacao);
+    console.log("   - novaAlocacao:", novaAlocacao);
     console.log("   - observacao:", observacao);
     console.log("   - senha:", senha ? "****" : "vazia");
     
@@ -190,7 +190,7 @@ export const api = {
     const url = `${API_BASE_URL}/gestaoFVR/solipedes/movimentacao/bulk`;
     console.log("   - URL:", url);
     
-    const body = { numeros, novaMovimentacao, observacao, senha };
+    const body = { numeros, novaAlocacao, observacao, senha };
     console.log("   - Body completo:", body);
     
     const response = await fetchWithAuth(url, {

@@ -11,213 +11,307 @@ import Poster10 from "../../Imagens/carroussel/cavalaria08.jpeg";
 import Poster11 from "../../Imagens/carroussel/cavalaria09.jpeg";
 import Poster12 from "../../Imagens/carroussel/cavalaria10.jpeg";
 import Poster13 from "../../Imagens/carroussel/sociais.jpeg";
-import MapaSVG2 from "../../Imagens/home/SP_RG_Imediatas_2024.svg";
+import MapaSP from "../../Imagens/home/mapaSP.png"
 
-import SVG from "react-inlinesvg";
 import { Container, Row, Col } from "react-bootstrap";
-import { destacamentos } from "./infoMaps";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./styles.css";
-import { useState } from "react";
 
 export default function Home() {
-  const [destacamentoSelecionado, setDestacamentoSelecionado] = useState(null);
-  const [destacamentoHover, setDestacamentoHover] = useState(null);
 
   return (
     <>
-      <section className="bg-dark d-flex justify-content-center align-items-center w-100 h-100">
-        <div className="w-100 px-0">
-          <div className="row">
-            <div className="col-12 px-0">
+      <section 
+        className="bg-dark w-100" 
+        style={{ 
+          minHeight: "500px",
+          height: "100vh"
+        }}
+      >
+        <div className="w-100 h-100 px-0">
+          <div className="row g-0 h-100">
+            <div className="col-12 px-0 h-100">
               <div
                 id="carouselExampleIndicators"
-                className="carousel slide"
+                className="carousel slide carousel-fade h-100"
                 data-bs-ride="carousel"
+                data-bs-interval="5000"
+                data-bs-pause="hover"
               >
-                <div className="carousel-inner">
-                  <div className="carousel-item active">
-                    <div className="shadow-carousel-wrapper rounded-3 overflow-hidden">
-                      <img
-                        src={Poster1}
-                        className="d-block w-100"
-                        alt="Carrossel 1"
-                        style={{
-                          height: "920px",
-                          objectFit: "contain",
-                          objectPosition: "center",
-                        }}
-                      />
+                {/* Indicadores (dots) */}
+                <div className="carousel-indicators">
+                  <button
+                    type="button"
+                    data-bs-target="#carouselExampleIndicators"
+                    data-bs-slide-to="0"
+                    className="active"
+                    aria-current="true"
+                    aria-label="Slide 1"
+                  ></button>
+                  <button
+                    type="button"
+                    data-bs-target="#carouselExampleIndicators"
+                    data-bs-slide-to="1"
+                    aria-label="Slide 2"
+                  ></button>
+                  <button
+                    type="button"
+                    data-bs-target="#carouselExampleIndicators"
+                    data-bs-slide-to="2"
+                    aria-label="Slide 3"
+                  ></button>
+                  <button
+                    type="button"
+                    data-bs-target="#carouselExampleIndicators"
+                    data-bs-slide-to="3"
+                    aria-label="Slide 4"
+                  ></button>
+                  <button
+                    type="button"
+                    data-bs-target="#carouselExampleIndicators"
+                    data-bs-slide-to="4"
+                    aria-label="Slide 5"
+                  ></button>
+                  <button
+                    type="button"
+                    data-bs-target="#carouselExampleIndicators"
+                    data-bs-slide-to="5"
+                    aria-label="Slide 6"
+                  ></button>
+                  <button
+                    type="button"
+                    data-bs-target="#carouselExampleIndicators"
+                    data-bs-slide-to="6"
+                    aria-label="Slide 7"
+                  ></button>
+                  <button
+                    type="button"
+                    data-bs-target="#carouselExampleIndicators"
+                    data-bs-slide-to="7"
+                    aria-label="Slide 8"
+                  ></button>
+                  <button
+                    type="button"
+                    data-bs-target="#carouselExampleIndicators"
+                    data-bs-slide-to="8"
+                    aria-label="Slide 9"
+                  ></button>
+                  <button
+                    type="button"
+                    data-bs-target="#carouselExampleIndicators"
+                    data-bs-slide-to="9"
+                    aria-label="Slide 10"
+                  ></button>
+                  <button
+                    type="button"
+                    data-bs-target="#carouselExampleIndicators"
+                    data-bs-slide-to="10"
+                    aria-label="Slide 11"
+                  ></button>
+                  <button
+                    type="button"
+                    data-bs-target="#carouselExampleIndicators"
+                    data-bs-slide-to="11"
+                    aria-label="Slide 12"
+                  ></button>
+                  <button
+                    type="button"
+                    data-bs-target="#carouselExampleIndicators"
+                    data-bs-slide-to="12"
+                    aria-label="Slide 13"
+                  ></button>
+                </div>
+
+                <div className="carousel-inner h-100">
+                  <div className="carousel-item active h-100">
+                    <img
+                      src={Poster1}
+                      className="d-block w-100 h-100"
+                      alt="Cavalaria - Imagem 1"
+                      style={{
+                        objectFit: "cover",
+                        objectPosition: "center",
+                      }}
+                    />
+                    <div className="carousel-caption d-none d-md-block bg-dark bg-opacity-50 rounded p-3">
+                      <h5>Regimento de Polícia Montada 9 de Julho</h5>
+                      <p>Tradição e Excelência na Segurança Pública</p>
                     </div>
                   </div>
-                  <div className="carousel-item">
+                  <div className="carousel-item h-100">
                     <img
                       src={Poster2}
-                      className="d-block w-100"
-                      alt="Carrossel 2"
+                      className="d-block w-100 h-100"
+                      alt="Cavalaria - Imagem 2"
                       style={{
-                        height: "920px",
-                        objectFit: "contain",
+                        objectFit: "cover",
                         objectPosition: "center",
                       }}
                     />
                   </div>
-                  <div className="carousel-item">
+                  <div className="carousel-item h-100">
                     <img
                       src={Poster3}
-                      className="d-block w-100"
-                      alt="Carrossel 3"
+                      className="d-block w-100 h-100"
+                      alt="Cavalaria - Imagem 3"
                       style={{
-                        height: "920px",
-                        objectFit: "contain",
+                        objectFit: "cover",
                         objectPosition: "center",
                       }}
                     />
                   </div>
-                  <div className="carousel-item">
+                  <div className="carousel-item h-100">
                     <img
                       src={Poster4}
-                      className="d-block w-100"
-                      alt="Carrossel 4"
+                      className="d-block w-100 h-100"
+                      alt="Cavalaria - Imagem 4"
                       style={{
-                        height: "920px",
-                        objectFit: "contain",
+                        objectFit: "cover",
                         objectPosition: "center",
                       }}
                     />
                   </div>
-                  <div className="carousel-item">
+                  <div className="carousel-item h-100">
                     <img
                       src={Poster5}
-                      className="d-block w-100"
-                      alt="Carrossel 5"
+                      className="d-block w-100 h-100"
+                      alt="Cavalaria - Imagem 5"
                       style={{
-                        height: "920px",
-                        objectFit: "contain",
+                        objectFit: "cover",
                         objectPosition: "center",
                       }}
                     />
                   </div>
-                  <div className="carousel-item">
+                  <div className="carousel-item h-100">
                     <img
                       src={Poster6}
-                      className="d-block w-100"
-                      alt="Carrossel 6"
+                      className="d-block w-100 h-100"
+                      alt="Cavalaria - Imagem 6"
                       style={{
-                        height: "920px",
-                        objectFit: "contain",
+                        objectFit: "cover",
                         objectPosition: "center",
                       }}
                     />
                   </div>
-                  <div className="carousel-item">
+                  <div className="carousel-item h-100">
                     <img
                       src={Poster7}
-                      className="d-block w-100"
-                      alt="Carrossel 7"
+                      className="d-block w-100 h-100"
+                      alt="Cavalaria - Imagem 7"
                       style={{
-                        height: "920px",
-                        objectFit: "contain",
+                        objectFit: "cover",
                         objectPosition: "center",
                       }}
                     />
                   </div>
-                  <div className="carousel-item">
+                  <div className="carousel-item h-100">
                     <img
                       src={Poster8}
-                      className="d-block w-100"
-                      alt="Carrossel 8"
+                      className="d-block w-100 h-100"
+                      alt="Cavalaria - Imagem 8"
                       style={{
-                        height: "920px",
-                        objectFit: "contain",
+                        objectFit: "cover",
                         objectPosition: "center",
                       }}
                     />
                   </div>
-                  <div className="carousel-item">
+                  <div className="carousel-item h-100">
                     <img
                       src={Poster9}
-                      className="d-block w-100"
-                      alt="Carrossel 9"
+                      className="d-block w-100 h-100"
+                      alt="Cavalaria - Imagem 9"
                       style={{
-                        height: "920px",
-                        objectFit: "contain",
+                        objectFit: "cover",
                         objectPosition: "center",
                       }}
                     />
                   </div>
-                  <div className="carousel-item">
+                  <div className="carousel-item h-100">
                     <img
                       src={Poster10}
-                      className="d-block w-100"
-                      alt="Carrossel 10"
+                      className="d-block w-100 h-100"
+                      alt="Cavalaria - Imagem 10"
                       style={{
-                        height: "920px",
-                        objectFit: "contain",
+                        objectFit: "cover",
                         objectPosition: "center",
                       }}
                     />
                   </div>
-                  <div className="carousel-item">
+                  <div className="carousel-item h-100">
                     <img
                       src={Poster11}
-                      className="d-block w-100"
-                      alt="Carrossel 11"
+                      className="d-block w-100 h-100"
+                      alt="Cavalaria - Imagem 11"
                       style={{
-                        height: "920px",
-                        objectFit: "contain",
+                        objectFit: "cover",
                         objectPosition: "center",
                       }}
                     />
                   </div>
-                  <div className="carousel-item">
+                  <div className="carousel-item h-100">
                     <img
                       src={Poster12}
-                      className="d-block w-100"
-                      alt="Carrossel 12"
+                      className="d-block w-100 h-100"
+                      alt="Cavalaria - Imagem 12"
                       style={{
-                        height: "920px",
-                        objectFit: "contain",
+                        objectFit: "cover",
                         objectPosition: "center",
                       }}
                     />
                   </div>
-                  <div className="carousel-item">
+                  <div className="carousel-item h-100">
                     <img
                       src={Poster13}
-                      className="d-block w-100"
-                      alt="Carrossel 13"
+                      className="d-block w-100 h-100"
+                      alt="Projetos Sociais"
                       style={{
-                        height: "920px",
-                        objectFit: "contain",
+                        objectFit: "cover",
                         objectPosition: "center",
                       }}
                     />
                   </div>
                 </div>
+
+                {/* Controles de navegação estilizados */}
                 <button
                   className="carousel-control-prev"
                   type="button"
                   data-bs-target="#carouselExampleIndicators"
                   data-bs-slide="prev"
+                  style={{ width: "10%" }}
                 >
                   <span
                     className="carousel-control-prev-icon"
                     aria-hidden="true"
+                    style={{
+                      width: "3rem",
+                      height: "3rem",
+                      backgroundColor: "rgba(0, 0, 0, 0.5)",
+                      borderRadius: "50%",
+                      padding: "0.5rem"
+                    }}
                   ></span>
-                  <span className="visually-hidden">Previous</span>
+                  <span className="visually-hidden">Anterior</span>
                 </button>
                 <button
                   className="carousel-control-next"
                   type="button"
                   data-bs-target="#carouselExampleIndicators"
                   data-bs-slide="next"
+                  style={{ width: "10%" }}
                 >
                   <span
                     className="carousel-control-next-icon"
                     aria-hidden="true"
+                    style={{
+                      width: "3rem",
+                      height: "3rem",
+                      backgroundColor: "rgba(0, 0, 0, 0.5)",
+                      borderRadius: "50%",
+                      padding: "0.5rem"
+                    }}
                   ></span>
-                  <span className="visually-hidden">Next</span>
+                  <span className="visually-hidden">Próximo</span>
                 </button>
               </div>
             </div>
@@ -289,30 +383,42 @@ export default function Home() {
                 <p>Criação do corpo de Cavalaria.</p>
               </div>
             </div>
+
             <div className="timeline-item">
-              <div className="timeline-year">1892</div>
+              <div className="timeline-year">1906</div>
               <div className="timeline-content">
-                <p>Denominação Regimento de Policia Montada "9 de Julho"</p>
+                <p>1º Missão Francesa</p>
               </div>
             </div>
+
+ <div className="timeline-item">
+              <div className="timeline-year">1914</div>
+              <div className="timeline-content">
+                <p>2º Missão Francesa</p>
+              </div>
+            </div>
+
             <div className="timeline-item">
               <div className="timeline-year">1932</div>
               <div className="timeline-content">
                 <p>Revolução Constitucionalista</p>
               </div>
             </div>
+
             <div className="timeline-item">
               <div className="timeline-year">1934</div>
               <div className="timeline-content">
                 <p>Constituição de 1934</p>
               </div>
             </div>
+
             <div className="timeline-item">
               <div className="timeline-year">2024</div>
               <div className="timeline-content">
                 <p>Patrimonio historico e cultaral</p>
               </div>
             </div>
+
             <div className="timeline-item">
               <div className="timeline-year">2025</div>
               <div className="timeline-content">
@@ -376,96 +482,42 @@ export default function Home() {
               <div className="mb-3">
                 <h5 className="mb-1 fw-bold">Região</h5>
                 <p className="mb-0 fs-5 text-dark">
-                  {(destacamentoSelecionado || destacamentoHover)
-                    ? (destacamentoSelecionado || destacamentoHover).regiao
-                    : "São Paulo"}
+                  São Paulo
                 </p>
               </div>
               <div className="mb-3">
                 <h5 className="mb-1 fw-bold">Destacamento</h5>
                 <p className="mb-0 fs-5 text-dark">
-                  {(destacamentoSelecionado || destacamentoHover)
-                    ? (destacamentoSelecionado || destacamentoHover).destacamento
-                    : "14"}
+                  14
                 </p>
               </div>
               <div className="mb-3">
                 <h5 className="mb-1 fw-bold">Centro de Equoterapia</h5>
                 <p className="mb-0 fs-5 text-dark">
-                  {(destacamentoSelecionado || destacamentoHover)
-                    ? (destacamentoSelecionado || destacamentoHover).Equoterapia
-                    : "10"}
+                  10
                 </p>
               </div>
               <div className="mb-3">
                 <h5 className="mb-1 fw-bold">Atendimentos médio semanal</h5>
                 <p className="mb-0 fs-5 text-dark">
-                  {(destacamentoSelecionado || destacamentoHover)
-                    ? (destacamentoSelecionado || destacamentoHover).atendimento + " pessoas"
-                    : "220 pessoas"}
+                  220 Pessoas
                 </p>
               </div>
               <div className="mb-3">
                 <h5 className="mb-1 fw-bold">Total de solípedes</h5>
                 <p className="mb-0 fs-5 text-dark">
-                  {(destacamentoSelecionado || destacamentoHover)
-                    ? (destacamentoSelecionado || destacamentoHover).cavalos
-                    : "502"}
+                  502 
                 </p>
               </div>
             </Col>
             <Col xs={12} md={8} lg={8} sm={6} className="mapa-wrapper">
-              <SVG
-                src={MapaSVG2}
-                className="mapa-svg"
-                preProcessor={(code) =>
-                  code.replace(/<rect[^>]*contain="(#fff|#ffffff)"[^>]*\/>/gi, "")
-                }
-                onSVGReady={(svg) => {
-                  svg.querySelectorAll("path").forEach((pathEl, index) => {
-                    pathEl.classList.add("municipio"); // adiciona classe pra estilizar
-
-                    pathEl.setAttribute("stroke", "#333333");
-                    pathEl.setAttribute("stroke-width", "0.5");
-
-                    // Pega id ou data-id
-                    const id = pathEl.getAttribute("id") || pathEl.getAttribute("data-id");
-                    console.log(`Path ${index}: id = ${id}`);
-
-                    const dest = destacamentos.find((d) => d.codigo === id);
-                    console.log(`Dest for id ${id}:`, dest);
-
-                    if (dest) {
-                      if (dest.Equoterapia === "Sim") {
-                        pathEl.setAttribute("contain", "#4CAF50"); // verde
-                      } else {
-                        pathEl.setAttribute("contain", "#FFC107"); // amarelo
-                      }
-                      pathEl.setAttribute("title", dest.destacamento);
-                      pathEl.style.cursor = "pointer";
-
-                      pathEl.onmouseover = () => {
-                        console.log(`Hover on ${dest.destacamento}`);
-                        setDestacamentoHover(dest);
-                      };
-                      pathEl.onmouseout = () => setDestacamentoHover(null);
-                      pathEl.onclick = () => {
-                        console.log(`Click on ${dest.destacamento}`);
-                        setDestacamentoSelecionado(dest);
-                      };
-                    } else {
-                      pathEl.setAttribute("contain", "#ccc"); // cinza padrão
-                      pathEl.style.cursor = "default";
-                      pathEl.onclick = null;
-                    }
-                  });
-                }}
-              />
+              <img src={MapaSP} alt="Mapa de São Paulo" className="img-fluid" />
             </Col>
           </Row>
         </Container>
       </section>
 
+      
       <section className="bg-light py-5">
         <Container>
           <h2 className="text-center mb-4">Conheça Nossos Projetos</h2>
