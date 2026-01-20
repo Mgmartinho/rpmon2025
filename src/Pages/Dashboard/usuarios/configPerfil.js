@@ -36,6 +36,8 @@ const PERFIS_SISTEMA = [
   { valor: "Veterinario", label: "Veterinário", descricao: "Atendimento e consultas veterinárias", cor: "info" },
   { valor: "Ferrador", label: "Ferrador", descricao: "Gestão de ferrageamento", cor: "dark" },
   { valor: "Pagador de cavalo", label: "Pagador de Cavalo", descricao: "Gestão de pagamentos e carga horária", cor: "warning" },
+  { valor: "Lancador de Carga Horaria", label: "Lançador de Carga Horária", descricao: "Lançamento e controle de carga horária", cor: "success" },
+  { valor: "Observacao Comportamental", label: "Observação Comportamental", descricao: "Registro e acompanhamento comportamental dos solípedes", cor: "info" },
   { valor: "Consulta", label: "Consulta", descricao: "Apenas visualização de dados públicos", cor: "secondary" },
 ];
 
@@ -322,6 +324,11 @@ const ConfiguracaoPerfil = () => {
 
   const salvarPerfilUsuario = async () => {
     try {
+      console.log("🔄 Salvando perfil...");
+      console.log("   - Usuario ID:", usuarioSelecionado.id);
+      console.log("   - Perfil selecionado:", perfilSelecionado);
+      console.log("   - Tipo:", typeof perfilSelecionado);
+      
       setLoading(true);
       const response = await fetch(`${API_BASE_URL}/auth/usuarios/${usuarioSelecionado.id}/perfil`, {
         method: "PUT",
@@ -332,9 +339,14 @@ const ConfiguracaoPerfil = () => {
         body: JSON.stringify({ perfil: perfilSelecionado }),
       });
 
+      console.log("   - Response status:", response.status);
+      console.log("   - Response ok:", response.ok);
+
       const data = await response.json();
+      console.log("   - Response data:", data);
 
       if (response.ok) {
+        console.log("✅ Perfil atualizado com sucesso!");
         setFeedback({
           tipo: "success",
           mensagem: "Perfil atualizado com sucesso!",
@@ -342,15 +354,17 @@ const ConfiguracaoPerfil = () => {
         setShowModalPerfil(false);
         carregarUsuarios();
       } else {
+        console.error("❌ Erro ao atualizar perfil:", data);
         setFeedback({
           tipo: "danger",
           mensagem: data.error || "Erro ao atualizar perfil.",
         });
       }
     } catch (error) {
+      console.error("❌ Erro de exceção:", error);
       setFeedback({
         tipo: "danger",
-        mensagem: "Erro ao atualizar perfil.",
+        mensagem: `Erro ao atualizar perfil: ${error.message}`,
       });
     } finally {
       setLoading(false);

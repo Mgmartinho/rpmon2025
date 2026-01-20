@@ -56,13 +56,16 @@ export default function TaskCreatePage() {
 
   const getTipoColor = (tipo) => {
     const cores = {
-      "Consulta Clínica": "primary",
+      // "Consulta Clínica": "primary",
       "Tratamento": "danger",
-      "Exame": "secondary",
-      "Vacinação": "success",
-      "Vermifugação": "info",
-      "Exames AIE / Mormo": "warning",
       "Restrições": "warning",
+      "Dieta": "success",
+      "Suplementação": "info",
+      "Movimentações": "primary",
+      //"Exame": "secondary",
+      // "Vacinação": "success",
+      // "Vermifugação": "info",
+      // "Exames AIE / Mormo": "warning",
     };
     return cores[tipo] || "secondary";
   };
@@ -92,7 +95,7 @@ export default function TaskCreatePage() {
     setCurrentPage(1);
   }, [filtroTipo, itemsPerPage]);
 
-  const tiposDisponiveis = ["Todos", "Consulta Clínica", "Tratamento", "Exame", "Vacinação", "Vermifugação", "Exames AIE / Mormo", "Restrições"];
+  const tiposDisponiveis = ["Todos", "Tratamento", "Restrições", "Dieta", "Suplementação", "Movimentação"];
 
   const contagemPorTipo = lancamentos.reduce((acc, l) => {
     acc[l.tipo] = (acc[l.tipo] || 0) + 1;

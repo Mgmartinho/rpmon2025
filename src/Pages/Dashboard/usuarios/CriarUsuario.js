@@ -81,6 +81,7 @@ const CriarUsuario = () => {
                   name="nome"
                   value={formData.nome}
                   onChange={handleChange}
+                  placeholder="Digite seu nome completo"
                   required
                 />
               </Form.Group>
@@ -103,6 +104,7 @@ const CriarUsuario = () => {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
+                  placeholder="Digite seu e-mail"
                   required
                 />
               </Form.Group>
@@ -115,6 +117,7 @@ const CriarUsuario = () => {
                       type="password"
                       name="senha"
                       value={formData.senha}
+                      placeholder="****"
                       onChange={handleChange}
                       required
                     />
@@ -129,6 +132,7 @@ const CriarUsuario = () => {
                       name="confirmarSenha"
                       value={formData.confirmarSenha}
                       onChange={handleChange}
+                      placeholder="****"
                       required
                     />
                   </Form.Group>

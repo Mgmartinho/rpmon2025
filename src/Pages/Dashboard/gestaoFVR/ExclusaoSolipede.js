@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, Link } from "react-router-dom";
 import {
   Table,
   Button,
@@ -18,7 +18,9 @@ import {
   BsXCircle, 
   BsFilter,
   BsSearch,
-  BsArchive 
+  BsArchive,
+  BsClipboardCheck,
+  BsEye 
 } from "react-icons/bs";
 import { GiHorseHead } from "react-icons/gi";
 import { api } from "../../../services/api";
@@ -381,7 +383,7 @@ const ExclusaoSolipede = () => {
                       </>
                     )}
                     <td>
-                      {visualizacao === "ativos" && (
+                      {visualizacao === "ativos" ? (
                         <Button
                           size="sm"
                           variant="outline-danger"
@@ -389,6 +391,20 @@ const ExclusaoSolipede = () => {
                         >
                           <BsTrash /> Excluir
                         </Button>
+                      ) : (
+                        <Link 
+                          to={`/dashboard/gestaofvr/solipede/prontuario/edit/${item.numero}?readonly=true`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <Button
+                            size="sm"
+                            variant="outline-info"
+                            title="Visualizar Prontuário Arquivado (somente leitura)"
+                          >
+                            <BsEye /> Ver Prontuário
+                          </Button>
+                        </Link>
                       )}
                     </td>
                   </tr>

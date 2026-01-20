@@ -193,7 +193,8 @@ export const api = {
     const body = { numeros, novaAlocacao, observacao, senha };
     console.log("   - Body completo:", body);
     
-    const response = await fetchWithAuth(url, {
+    // Não usar fetchWithAuth aqui para evitar logout automático em caso de senha incorreta
+    const response = await fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -485,6 +486,20 @@ export const api = {
     return response.json();
   },
 
+  // Excluir registro de prontuário (com senha)
+  excluirRegistroProntuario: async (id, senha) => {
+    const token = localStorage.getItem("token");
+    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/prontuario/${id}/excluir`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ senha }),
+    });
+    return response.json();
+  },
+
   // Exclusão (soft delete)
   excluirSolipede: async (numero, motivoExclusao, senha) => {
     const token = localStorage.getItem("token");
@@ -502,6 +517,24 @@ export const api = {
   listarExcluidos: async () => {
     const token = localStorage.getItem("token");
     const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/solipedes/excluidos/listar`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.json();
+  },
+
+  // Buscar solípede excluído
+  obterSolipedeExcluido: async (numero) => {
+    const token = localStorage.getItem("token");
+    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/solipedes/excluidos/${numero}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.json();
+  },
+
+  // Buscar prontuário arquivado
+  listarProntuarioExcluido: async (numero) => {
+    const token = localStorage.getItem("token");
+    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/solipedes/excluidos/${numero}/prontuario`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return response.json();

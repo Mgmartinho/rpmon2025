@@ -1,12 +1,14 @@
 // Sistema de permissões baseado em perfis
 
 export const PERFIS = {
-  CONSULTA: "Consulta",
-  PAGADOR: "Pagador de cavalo",
-  FERRADOR: "Ferrador",
-  VETERINARIO: "Veterinario",
-  VETERINARIO_ADMIN: "Veterinario Admin",
   DESENVOLVEDOR: "Desenvolvedor",
+  VETERINARIO_ADMIN: "Veterinario Admin",
+  VETERINARIO: "Veterinario",
+  FERRADOR: "Ferrador",
+  PAGADOR: "Pagador de cavalo",
+  CARGA_HORARIA: 'Lancador de Carga Horaria',
+  OBSERVACAO_COMPORTAMENTAL: 'Observacao Comportamental',
+  CONSULTA: "Consulta",
 };
 
 // Hierarquia de permissões (menor número = mais permissões)
@@ -16,7 +18,9 @@ export const NIVEL_PERMISSAO = {
   [PERFIS.VETERINARIO]: 2,
   [PERFIS.FERRADOR]: 3,
   [PERFIS.PAGADOR]: 4,
-  [PERFIS.CONSULTA]: 5,
+  [PERFIS.CARGA_HORARIA]: 5,
+  [PERFIS.OBSERVACAO_COMPORTAMENTAL]: 6,
+  [PERFIS.CONSULTA]: 7,
 };
 
 // Definição de permissões por perfil
@@ -70,6 +74,7 @@ export const PERMISSOES = {
     PERFIS.VETERINARIO,
     PERFIS.VETERINARIO_ADMIN,
     PERFIS.DESENVOLVEDOR,
+    PERFIS.CARGA_HORARIA,
   ],
 
   // Ferradoria

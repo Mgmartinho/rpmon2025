@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Card,
   Row,
@@ -23,15 +23,21 @@ import {
   BsFilePdf,
   BsFileWord,
   BsPencilSquare,
+  BsArchive,
+  BsPrinter,
 } from "react-icons/bs";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { api } from "../../../services/api";
 import html2pdf from 'html2pdf.js';
 import htmlDocx from 'html-docx-js/dist/html-docx';
 import { saveAs } from 'file-saver';
+import ReceituarioTemplate from "../../../../src/receituario/ReceituarioTemplate.js";
 
 export default function ProntuarioSolipedeEdit() {
   const { numero } = useParams();
+  const [searchParams] = useSearchParams();
+  const readonlyMode = searchParams.get('readonly') === 'true';
+  
   const [solipede, setSolipede] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -114,26 +120,26 @@ export default function ProntuarioSolipedeEdit() {
   const [erroMovimentacao, setErroMovimentacao] = useState("");
   const opcoesMovimentacao = [
     "",
-    "Colina",
     "RPMon",
     "Barro Branco",
-    "Hospital Veterinario",
-    "Escola de Equitação do Exército",
-    "Representação",
-    "Destacamento Montado de Campinas",
-    "Destacamento Montado de Santos",
-    "Destacamento Montado de Taubaté",
-    "Destacamento Montado de Mauá",
-    "Destacamento Montado de São Bernardo do Campo",
-    "Destacamento Montado de Presidente Prudente",
-    "Destacamento Montado de São José do Rio Preto",
-    "Destacamento Montado de Barretos",
-    "Destacamento Montado de Ribeirão Preto",
-    "Destacamento Montado de Bauru",
-    "Destacamento Montado de Marília",
-    "Destacamento Montado de Avaré",
-    "Destacamento Montado de Itapetininga",
-    "Destacamento Montado de Sorocaba",
+    "Hospital Veterinário",
+    "Avare",
+    "Barretos",
+    "Bauru",
+    "Campinas",
+    "Colina",
+    "Escola Equitação Exército",
+    "Itapetininga",
+    "Marilia",
+    "Maua",
+    "Presidente Prudente",
+    "Ribeirão Preto",
+    "Santos",
+    "São Bernardo do Campo",
+    "São José do Rio Preto",
+    "Sorocaba",
+    "Taubate",
+    "Representacao",
   ];
 
   // Estado para paginação da Visão Geral
@@ -147,6 +153,16 @@ export default function ProntuarioSolipedeEdit() {
   // Estados para paginação dos Registros por Tipo
   const [paginaRegistrosPorTipo, setPaginaRegistrosPorTipo] = useState(1);
   const [itensPorPaginaRegistros, setItensPorPaginaRegistros] = useState(4);
+
+  // Estados para exclusão de registros
+  const [showModalExclusao, setShowModalExclusao] = useState(false);
+  const [registroParaExcluir, setRegistroParaExcluir] = useState(null);
+  const [senhaExclusao, setSenhaExclusao] = useState("");
+  const [excluindo, setExcluindo] = useState(false);
+  const [erroExclusao, setErroExclusao] = useState("");
+
+  // Ref para receituário
+  const receituarioRef = useRef(null);
 
   // Estados para exames laboratoriais (quando tipoObservacao === "Exame")
   const [examesSelecionados, setExamesSelecionados] = useState({
@@ -209,7 +225,11 @@ export default function ProntuarioSolipedeEdit() {
   useEffect(() => {
     const fetchSolipede = async () => {
       try {
-        const data = await api.obterSolipede(numero);
+        // Se readonly, buscar da tabela de excluídos
+        const data = readonlyMode 
+          ? await api.obterSolipedeExcluido(numero)
+          : await api.obterSolipede(numero);
+          
         if (data && data.error) {
           setError(data.error);
           setSolipede(null);
@@ -236,7 +256,7 @@ export default function ProntuarioSolipedeEdit() {
     if (numero) {
       fetchSolipede();
     }
-  }, [numero]);
+  }, [numero, readonlyMode]);
 
   // Função para gerar documento formatado com paginação (retorna apenas uma página por vez)
   const gerarDocumentoFormatado = (numeroPagina = 1) => {
@@ -534,11 +554,63 @@ export default function ProntuarioSolipedeEdit() {
     saveAs(converted, `Prontuario_${solipede.nome}_${solipede.numero}.docx`);
   };
 
+  // Função para gerar receituário PDF para um tratamento específico
+  const gerarReceituarioPDFHandler = async (tratamento) => {
+    try {
+      if (!receituarioRef.current || !tratamento) {
+        setMensagem({
+          tipo: "danger",
+          texto: "Erro ao gerar receituário. Tente novamente.",
+        });
+        return;
+      }
+
+      // Atualizar o ref com os dados do tratamento antes de gerar
+      receituarioRef.current.style.display = "block";
+
+      // Aguardar um pouco para garantir que o DOM foi atualizado
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      // Usar html2pdf para gerar o PDF
+      const element = receituarioRef.current;
+      const opt = {
+        margin: [10, 10],
+        filename: `Receituario_${solipede.nome}_${solipede.numero}_${new Date().toISOString().split('T')[0]}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+
+      html2pdf().set(opt).from(element).save().then(() => {
+        receituarioRef.current.style.display = "none";
+        setMensagem({
+          tipo: "success",
+          texto: "✅ Receituário gerado com sucesso!",
+        });
+        setTimeout(() => setMensagem(""), 3000);
+      });
+    } catch (error) {
+      console.error("Erro ao gerar receituário:", error);
+      if (receituarioRef.current) {
+        receituarioRef.current.style.display = "none";
+      }
+      setMensagem({
+        tipo: "danger",
+        texto: "❌ Erro ao gerar receituário. Tente novamente.",
+      });
+    }
+  };
+
   useEffect(() => {
     async function carregarProntuario() {
       try {
         console.log("🔍 Carregando prontuário para número:", solipede.numero);
-        const response = await api.listarProntuario(solipede.numero);
+        
+        // Se readonly, buscar prontuário arquivado
+        const response = readonlyMode
+          ? await api.listarProntuarioExcluido(solipede.numero)
+          : await api.listarProntuario(solipede.numero);
+          
         console.log("📦 Resposta da API:", response);
         console.log("📊 Total de registros recebidos:", response?.length);
 
@@ -587,7 +659,7 @@ export default function ProntuarioSolipedeEdit() {
     if (solipede?.numero) {
       carregarProntuario();
     }
-  }, [solipede]);
+  }, [solipede, readonlyMode]);
 
   // Carregar dados do usuário logado
   useEffect(() => {
@@ -1299,6 +1371,85 @@ export default function ProntuarioSolipedeEdit() {
     setErroConclusaoRegistro("");
   };
 
+  // Função para abrir modal de exclusão
+  const handleAbrirModalExclusao = (registro) => {
+    setRegistroParaExcluir(registro);
+    setSenhaExclusao("");
+    setShowModalExclusao(true);
+    setErroExclusao("");
+  };
+
+  // Função para fechar modal de exclusão
+  const handleFecharModalExclusao = () => {
+    setShowModalExclusao(false);
+    setRegistroParaExcluir(null);
+    setSenhaExclusao("");
+    setErroExclusao("");
+  };
+
+  // Função para excluir registro
+  const handleExcluirRegistro = async (e) => {
+    e.preventDefault();
+    setExcluindo(true);
+    setErroExclusao("");
+
+    console.log("🗑️ Iniciando exclusão de registro:", registroParaExcluir?.id);
+
+    try {
+      const response = await api.excluirRegistroProntuario(registroParaExcluir.id, senhaExclusao);
+
+      console.log("📦 Resposta da exclusão:", response);
+
+      if (response.success) {
+        console.log("✅ REGISTRO EXCLUÍDO COM SUCESSO");
+        alert("✅ Registro excluído com sucesso!");
+
+        // Fechar modal
+        handleFecharModalExclusao();
+
+        // Recarregar histórico
+        const historicoAtualizado = await api.listarProntuario(numero);
+        setHistorico(Array.isArray(historicoAtualizado) ? historicoAtualizado : []);
+
+        // Recarregar dados do solípede (caso o status tenha mudado)
+        const solipedeAtualizado = await api.obterSolipede(numero);
+        if (solipedeAtualizado && !solipedeAtualizado.error) {
+          setSolipede(solipedeAtualizado);
+        }
+
+        // Recarregar contadores
+        const baixas = await api.contarBaixasPendentes(numero);
+        setBaixasPendentes(baixas.total || 0);
+        const tratamentos = await api.contarTratamentosEmAndamento(numero);
+        setTratamentosEmAndamento(tratamentos.total || 0);
+
+        setMensagem({
+          tipo: "success",
+          texto: "Registro excluído com sucesso!",
+        });
+      } else {
+        console.log("❌ ERRO AO EXCLUIR");
+        let erroMsg = response.error || "Erro ao excluir registro";
+
+        if (response.error === "Senha inválida") {
+          erroMsg = "🔒 Senha incorreta. Por favor, tente novamente.";
+        } else if (response.error === "Registro não encontrado") {
+          erroMsg = "❌ Registro não encontrado no sistema.";
+        } else if (response.error === "Usuário não autenticado") {
+          erroMsg = "🔐 Sua sessão expirou. Por favor, faça login novamente.";
+        }
+
+        console.log("📝 Mensagem de erro:", erroMsg);
+        setErroExclusao(erroMsg);
+      }
+    } catch (error) {
+      console.error("💥 EXCEÇÃO CAPTURADA:", error);
+      setErroExclusao("Erro ao conectar com o servidor");
+    } finally {
+      setExcluindo(false);
+    }
+  };
+
   // Função para concluir registro manualmente
   const handleConcluirRegistro = async (e) => {
     e.preventDefault();
@@ -1547,11 +1698,39 @@ export default function ProntuarioSolipedeEdit() {
   };
 
   return (
-    <div className="container-fluid mt-4 mb-5">
+    <div className={`container-fluid mt-4 mb-5 ${readonlyMode ? 'readonly-mode' : ''}`}>
+      {/* Estilo para desabilitar todos os botões em modo readonly */}
+      {readonlyMode && (
+        <style>{`
+          .readonly-mode button:not(.btn-danger):not(.btn-primary):not(.btn-outline-primary):not([data-allow]),
+          .readonly-mode .btn-outline-secondary,
+          .readonly-mode .btn-success,
+          .readonly-mode .btn-warning {
+            opacity: 0.5;
+            pointer-events: none;
+            cursor: not-allowed;
+          }
+        `}</style>
+      )}
+      
+      {/* Banner de modo somente leitura */}
+      {readonlyMode && (
+        <Alert variant="warning" className="d-flex align-items-center shadow-sm mb-4">
+          <BsArchive className="me-3" size={24} />
+          <div>
+            <strong>📋 Prontuário Arquivado - Modo Somente Leitura</strong>
+            <p className="mb-0 mt-1">
+              Este solípede foi excluído do sistema. Você está visualizando um histórico completo, 
+              mas não é possível fazer novos lançamentos ou edições.
+            </p>
+          </div>
+        </Alert>
+      )}
+      
       {/* Cabeçalho */}
       <Row className="mb-4">
         <Col>
-          <h3 className="fw-bold mb-1">📘 Prontuário Veterinário</h3>
+          <h3 className="fw-bold mb-1">📘 Prontuário Veterinário {readonlyMode && "(Arquivado)"}</h3>
           <small className="text-muted">
             Histórico clínico e evolução do solípede
           </small>
@@ -1710,12 +1889,14 @@ export default function ProntuarioSolipedeEdit() {
                   📘 Visão Geral
                 </Nav.Link>
               </Nav.Item>
-              <Nav.Item>
-                <Nav.Link eventKey="novo" className="fw-bold">
-                  <BsPlusCircle className="me-2" />
-                  Novo Registro
-                </Nav.Link>
-              </Nav.Item>
+              {!readonlyMode && (
+                <Nav.Item>
+                  <Nav.Link eventKey="novo" className="fw-bold">
+                    <BsPlusCircle className="me-2" />
+                    Novo Registro
+                  </Nav.Link>
+                </Nav.Item>
+              )}
               <Nav.Item>
                 <Nav.Link eventKey="historico" className="fw-bold">
                   <BsClockHistory className="me-2" />
@@ -1756,6 +1937,7 @@ export default function ProntuarioSolipedeEdit() {
                         size="sm"
                         onClick={exportarPDF}
                         disabled={!historico || historico.length === 0}
+                        data-allow="true"
                       >
                         <BsFilePdf className="me-2" />
                         Exportar PDF
@@ -1765,6 +1947,7 @@ export default function ProntuarioSolipedeEdit() {
                         size="sm"
                         onClick={exportarWord}
                         disabled={!historico || historico.length === 0}
+                        data-allow="true"
                       >
                         <BsFileWord className="me-2" />
                         Exportar Word
@@ -1820,6 +2003,7 @@ export default function ProntuarioSolipedeEdit() {
               </Tab.Pane>
 
               {/* TAB: NOVO REGISTRO */}
+              {!readonlyMode && (
               <Tab.Pane eventKey="novo">
                 <Card className="shadow-sm border-0">
                   <Card.Header className="bg-light border-0 fw-bold">
@@ -2309,6 +2493,8 @@ export default function ProntuarioSolipedeEdit() {
                             ? "Observações Adicionais (opcional)" 
                             : tipoObservacao === "Movimentação"
                             ? "Motivo da Movimentação (opcional)"
+                            : tipoObservacao === "Tratamento"
+                            ? "🩺 Observação Clínica"
                             : "Observação"}
                         </Form.Label>
                         <Form.Control
@@ -2319,6 +2505,8 @@ export default function ProntuarioSolipedeEdit() {
                               ? "Adicione informações complementares sobre a solicitação de exames (opcional)..."
                               : tipoObservacao === "Movimentação"
                               ? "Descreva o motivo da movimentação (opcional)..."
+                              : tipoObservacao === "Tratamento"
+                              ? "Descreva detalhadamente a observação clínica do tratamento..."
                               : "Descreva detalhadamente a observação clínica..."
                           }
                           value={observacao}
@@ -2336,12 +2524,16 @@ export default function ProntuarioSolipedeEdit() {
                       {tipoObservacao !== "Dieta" && tipoObservacao !== "Suplementação" && tipoObservacao !== "Movimentação" && (
                         <Form.Group className="mb-3">
                           <Form.Label className="fw-bold">
-                            Recomendações
+                            {tipoObservacao === "Tratamento" ? "💊 Prescrição" : "Recomendações"}
                           </Form.Label>
                           <Form.Control
                             as="textarea"
                             rows={2}
-                            placeholder="Próximas ações, reavaliações..."
+                            placeholder={
+                              tipoObservacao === "Tratamento" 
+                                ? "Prescrição médica, medicamentos, dosagem..." 
+                                : "Próximas ações, reavaliações..."
+                            }
                             value={recomendacoes}
                             onChange={(e) => setRecomendacoes(e.target.value)}
                             style={{ resize: "none" }}
@@ -2498,6 +2690,7 @@ export default function ProntuarioSolipedeEdit() {
                   </Card.Body>
                 </Card>
               </Tab.Pane>
+              )}
 
               {/* TAB: HISTÓRICO */}
               <Tab.Pane eventKey="historico">
@@ -2642,33 +2835,34 @@ export default function ProntuarioSolipedeEdit() {
                                     </div>
 
                                     {/* Botões de ação - compactos */}
-                                    <div className="d-flex gap-2">
-                                      {mostrarBotaoConcluir && (
-                                        <Button
-                                          size="sm"
-                                          variant="outline-success"
-                                          onClick={() => {
-                                            if (registro.tipo === "Tratamento") {
-                                              handleAbrirModalConclusao(registro.id);
-                                            } else {
-                                              handleAbrirModalConclusaoRegistro(registro.id);
-                                            }
-                                          }}
-                                          style={{
-                                            fontSize: "11px",
-                                            padding: "4px 10px",
-                                            fontWeight: "500"
-                                          }}
-                                        >
-                                          <BsCheckCircle className="me-1" />
-                                          Concluir
-                                        </Button>
-                                      )}
-                                      {!isConcluido && (
+                                    {!isConcluido && (
+                                      <div className="d-flex gap-2">
+                                        {mostrarBotaoConcluir && (
+                                          <Button
+                                            size="sm"
+                                            variant="outline-success"
+                                            onClick={() => {
+                                              if (registro.tipo === "Tratamento") {
+                                                handleAbrirModalConclusao(registro.id);
+                                              } else {
+                                                handleAbrirModalConclusaoRegistro(registro.id);
+                                              }
+                                            }}
+                                            style={{
+                                              fontSize: "11px",
+                                              padding: "4px 10px",
+                                              fontWeight: "500"
+                                            }}
+                                          >
+                                            <BsCheckCircle className="me-1" />
+                                            Concluir
+                                          </Button>
+                                        )}
                                         <Button
                                           size="sm"
                                           variant="outline-secondary"
                                           onClick={() => handleAbrirEdicao(registro)}
+                                          disabled={readonlyMode}
                                           style={{
                                             fontSize: "11px",
                                             padding: "4px 10px",
@@ -2678,8 +2872,37 @@ export default function ProntuarioSolipedeEdit() {
                                           <BsPencilSquare className="me-1" />
                                           Editar
                                         </Button>
-                                      )}
-                                    </div>
+                                        <Button
+                                          size="sm"
+                                          variant="outline-danger"
+                                          onClick={() => handleAbrirModalExclusao(registro)}
+                                          disabled={readonlyMode}
+                                          style={{
+                                            fontSize: "11px",
+                                            padding: "4px 10px",
+                                            fontWeight: "500"
+                                          }}
+                                        >
+                                          <BsArchive className="me-1" />
+                                          Excluir
+                                        </Button>
+                                        {registro.tipo === "Tratamento" && (
+                                          <Button
+                                            size="sm"
+                                            variant="outline-info"
+                                            onClick={() => gerarReceituarioPDFHandler(registro)}
+                                            style={{
+                                              fontSize: "11px",
+                                              padding: "4px 10px",
+                                              fontWeight: "500"
+                                            }}
+                                          >
+                                            <BsPrinter className="me-1" />
+                                            Receituário
+                                          </Button>
+                                        )}
+                                      </div>
+                                    )}
                                   </div>
 
                                   {/* OBSERVAÇÃO */}
@@ -3207,23 +3430,23 @@ export default function ProntuarioSolipedeEdit() {
                                             </div>
                                           </div>
 
-                                          <div className="d-flex gap-2">
-                                            {mostrarBotaoConcluir && (
-                                              <Button
-                                                size="sm"
-                                                variant="outline-success"
-                                                onClick={() => handleAbrirModalConclusao(registro.id)}
-                                                style={{
-                                                  fontSize: "11px",
-                                                  padding: "4px 10px",
-                                                  fontWeight: "500"
-                                                }}
-                                              >
-                                                <BsCheckCircle className="me-1" />
-                                                Concluir
-                                              </Button>
-                                            )}
-                                            {!isConcluido && (
+                                          {!isConcluido && (
+                                            <div className="d-flex gap-2">
+                                              {mostrarBotaoConcluir && (
+                                                <Button
+                                                  size="sm"
+                                                  variant="outline-success"
+                                                  onClick={() => handleAbrirModalConclusao(registro.id)}
+                                                  style={{
+                                                    fontSize: "11px",
+                                                    padding: "4px 10px",
+                                                    fontWeight: "500"
+                                                  }}
+                                                >
+                                                  <BsCheckCircle className="me-1" />
+                                                  Concluir
+                                                </Button>
+                                              )}
                                               <Button
                                                 size="sm"
                                                 variant="outline-secondary"
@@ -3237,8 +3460,34 @@ export default function ProntuarioSolipedeEdit() {
                                                 <BsPencilSquare className="me-1" />
                                                 Editar
                                               </Button>
-                                            )}
-                                          </div>
+                                              <Button
+                                                size="sm"
+                                                variant="outline-danger"
+                                                onClick={() => handleAbrirModalExclusao(registro)}
+                                                style={{
+                                                  fontSize: "11px",
+                                                  padding: "4px 10px",
+                                                  fontWeight: "500"
+                                                }}
+                                              >
+                                                <BsArchive className="me-1" />
+                                                Excluir
+                                              </Button>
+                                              <Button
+                                                size="sm"
+                                                variant="outline-info"
+                                                onClick={() => gerarReceituarioPDFHandler(registro)}
+                                                style={{
+                                                  fontSize: "11px",
+                                                  padding: "4px 10px",
+                                                  fontWeight: "500"
+                                                }}
+                                              >
+                                                <BsPrinter className="me-1" />
+                                                Receituário
+                                              </Button>
+                                            </div>
+                                          )}
                                         </div>
 
                                         <div className="bg-light p-3 rounded mb-3">
@@ -3548,23 +3797,23 @@ export default function ProntuarioSolipedeEdit() {
                                         </div>
                                       </div>
 
-                                      <div className="d-flex gap-2">
-                                        {mostrarBotaoConcluir && (
-                                          <Button
-                                            size="sm"
-                                            variant="outline-success"
-                                            onClick={() => handleAbrirModalConclusaoRegistro(registro.id)}
-                                            style={{
-                                              fontSize: "11px",
-                                              padding: "4px 10px",
-                                              fontWeight: "500"
-                                            }}
-                                          >
-                                            <BsCheckCircle className="me-1" />
-                                            Concluir
-                                          </Button>
-                                        )}
-                                        {!isConcluido && (
+                                      {!isConcluido && (
+                                        <div className="d-flex gap-2">
+                                          {mostrarBotaoConcluir && (
+                                            <Button
+                                              size="sm"
+                                              variant="outline-success"
+                                              onClick={() => handleAbrirModalConclusaoRegistro(registro.id)}
+                                              style={{
+                                                fontSize: "11px",
+                                                padding: "4px 10px",
+                                                fontWeight: "500"
+                                              }}
+                                            >
+                                              <BsCheckCircle className="me-1" />
+                                              Concluir
+                                            </Button>
+                                          )}
                                           <Button
                                             size="sm"
                                             variant="outline-secondary"
@@ -3578,8 +3827,21 @@ export default function ProntuarioSolipedeEdit() {
                                             <BsPencilSquare className="me-1" />
                                             Editar
                                           </Button>
-                                        )}
-                                      </div>
+                                          <Button
+                                            size="sm"
+                                            variant="outline-danger"
+                                            onClick={() => handleAbrirModalExclusao(registro)}
+                                            style={{
+                                              fontSize: "11px",
+                                              padding: "4px 10px",
+                                              fontWeight: "500"
+                                            }}
+                                          >
+                                            <BsArchive className="me-1" />
+                                            Excluir
+                                          </Button>
+                                        </div>
+                                      )}
                                     </div>
 
                                     <div className="bg-light p-3 rounded mb-3">
@@ -4948,6 +5210,83 @@ export default function ProntuarioSolipedeEdit() {
           </Modal.Footer>
         </Form>
       </Modal>
+
+      {/* Modal de Exclusão de Registro */}
+      <Modal show={showModalExclusao} onHide={handleFecharModalExclusao} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>🗑️ Confirmar Exclusão de Registro</Modal.Title>
+        </Modal.Header>
+        <Form onSubmit={handleExcluirRegistro}>
+          <Modal.Body>
+            {usuarioLogado && (
+              <Alert variant="info" className="mb-3">
+                <strong>👤 Usuário:</strong> {usuarioLogado.nome}<br />
+                <strong>📧 Email:</strong> {usuarioLogado.email}<br />
+                {usuarioLogado.registro && <><strong>🆔 Registro:</strong> {usuarioLogado.registro}</>}
+              </Alert>
+            )}
+
+            {registroParaExcluir && (
+              <Alert variant="danger" className="mb-3">
+                <strong>⚠️ Atenção:</strong> Você está prestes a excluir um registro do tipo <strong>{registroParaExcluir.tipo}</strong>.<br />
+                <small className="text-muted d-block mt-2">
+                  <strong>Data:</strong> {new Date(registroParaExcluir.data_criacao).toLocaleDateString('pt-BR')} às {new Date(registroParaExcluir.data_criacao).toLocaleTimeString('pt-BR')}
+                </small>
+              </Alert>
+            )}
+
+            <p className="text-muted mb-3">
+              Esta ação não pode ser desfeita. Para confirmar a exclusão, digite sua senha:
+            </p>
+
+            {erroExclusao && (
+              <Alert variant="danger" className="py-2">
+                {erroExclusao}
+              </Alert>
+            )}
+
+            <Form.Group className="mb-3">
+              <Form.Label>🔑 Senha:</Form.Label>
+              <Form.Control
+                type="password"
+                value={senhaExclusao}
+                onChange={(e) => setSenhaExclusao(e.target.value)}
+                placeholder="Digite sua senha"
+                required
+                autoFocus
+              />
+            </Form.Group>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={handleFecharModalExclusao} disabled={excluindo}>
+              Cancelar
+            </Button>
+            <Button variant="danger" type="submit" disabled={excluindo}>
+              {excluindo ? (
+                <>
+                  <Spinner size="sm" className="me-2" />
+                  Excluindo...
+                </>
+              ) : (
+                <>
+                  <BsArchive className="me-2" />
+                  Confirmar Exclusão
+                </>
+              )}
+            </Button>
+          </Modal.Footer>
+        </Form>
+      </Modal>
+
+      {/* Template do Receituário (hidden) */}
+      <div style={{ display: "none" }}>
+        <ReceituarioTemplate 
+          ref={receituarioRef}
+          solipede={solipede}
+          tratamento={historico.find(h => h.tipo === "Tratamento")}
+          usuarioLogado={usuarioLogado}
+        />
+      </div>
 
     </div>
   );

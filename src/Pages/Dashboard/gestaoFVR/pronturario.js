@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, useSearchParams, Link } from "react-router-dom";
 import {
   Card,
   Row,
@@ -16,6 +16,7 @@ import {
   BsClockHistory,
   BsFilePdf,
   BsClipboardPlus,
+  BsArchive,
 } from "react-icons/bs";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
@@ -23,7 +24,9 @@ import { api } from "../../../services/api";
 
 export default function ProntuarioSolipede() {
   const { numero } = useParams();
-  const [abaAtiva, setAbaAtiva] = useState("novo");
+  const [searchParams] = useSearchParams();
+  const readonlyMode = searchParams.get('readonly') === 'true';
+  const [abaAtiva, setAbaAtiva] = useState(readonlyMode ? "historico" : "novo");
 
   const [solipede, setSolipede] = useState(null);
   const [historico, setHistorico] = useState([]);
@@ -225,13 +228,26 @@ export default function ProntuarioSolipede() {
             COLUNA DIREITA – PRONTUÁRIO
         ========================= */}
         <Col md={8}>
+          {/* Banner de modo somente leitura */}
+          {readonlyMode && (
+            <Alert variant="info" className="d-flex align-items-center">
+              <BsArchive className="me-2" size={20} />
+              <div>
+                <strong>Prontuário Arquivado</strong> - Este solípede foi excluído. 
+                Você está visualizando um histórico somente leitura.
+              </div>
+            </Alert>
+          )}
+
           {/* ===== MENU ===== */}
           <Nav variant="tabs" activeKey={abaAtiva} className="mb-3">
-            <Nav.Item>
-              <Nav.Link eventKey="novo" onClick={() => setAbaAtiva("novo")}>
-                Novo Registro
-              </Nav.Link>
-            </Nav.Item>
+            {!readonlyMode && (
+              <Nav.Item>
+                <Nav.Link eventKey="novo" onClick={() => setAbaAtiva("novo")}>
+                  Novo Registro
+                </Nav.Link>
+              </Nav.Item>
+            )}
 
             <Nav.Item>
               <Nav.Link
@@ -253,7 +269,7 @@ export default function ProntuarioSolipede() {
           </Nav>
 
           {/* ===== ABA: NOVO REGISTRO ===== */}
-          {abaAtiva === "novo" && (
+          {abaAtiva === "novo" && !readonlyMode && (
             <Card className="shadow-sm mb-4">
               <Card.Body>
                 <h6 className="fw-semibold mb-3">Novo Registro Clínico</h6>

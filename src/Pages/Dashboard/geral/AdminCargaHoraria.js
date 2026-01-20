@@ -577,6 +577,7 @@ const AdminCargaHoraria = () => {
                 <th>Histórico</th>
               </tr>
             </thead>
+
             <tbody>
               {solipedesPaginados.map((s) => (
                 <tr key={s.numero}>

@@ -40,10 +40,15 @@ import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { api } from "../../../services/api";
+import { getUsuarioLogado } from "../../../utils/auth";
 
 const GestaoFvr = () => {
   const [dados, setDados] = useState([]);
   const [loading, setLoading] = useState(true);
+  
+  // Autenticação e permissões
+  const usuarioLogado = getUsuarioLogado();
+  const podeEditarSolipede = usuarioLogado && (usuarioLogado.perfil === "Veterinario Admin" || usuarioLogado.perfil === "Desenvolvedor");
 
   /* ===========================
      CONTROLE INDICADORES
@@ -153,26 +158,26 @@ const GestaoFvr = () => {
 
   const opcoesMovimentacao = [
     "",
-    "Colina",
     "RPMon",
     "Barro Branco",
-    "Hospital Veterinario",
-    "Escola de Equitação do Exército",
-    "Representação",
-    "Destacamento Montado de Campinas",
-    "Destacamento Montado de Santos",
-    "Destacamento Montado de Taubaté",
-    "Destacamento Montado de Mauá",
-    "Destacamento Montado de São Bernardo do Campo",
-    "Destacamento Montado de Presidente Prudente",
-    "Destacamento Montado de São José do Rio Preto",
-    "Destacamento Montado de Barretos",
-    "Destacamento Montado de Ribeirão Preto",
-    "Destacamento Montado de Bauru",
-    "Destacamento Montado de Marília",
-    "Destacamento Montado de Avaré",
-    "Destacamento Montado de Itapetininga",
-    "Destacamento Montado de Sorocaba",
+    "Hospital Veterinário",
+    "Avare",
+    "Barretos",
+    "Bauru",
+    "Campinas",
+    "Colina",
+    "Escola Equitação Exército",
+    "Itapetininga",
+    "Marilia",
+    "Maua",
+    "Presidente Prudente",
+    "Ribeirão Preto",
+    "Santos",
+    "São Bernardo do Campo",
+    "São José do Rio Preto",
+    "Sorocaba",
+    "Taubate",
+    "Representacao",
   ];
 
   /* ===========================
@@ -910,7 +915,7 @@ const calcularIdade = (dataNascimento) => {
                     <tr key={item.numero}>
                       <td className="fw-semibold">
                         <Link
-                          to={`/dashboard/gestaofvr/solipede/edit/${item.numero}`}
+                          to={`/dashboard/gestaofvr/solipede/prontuario/edit/${item.numero}`}
                         >
                           {item.numero}
                         </Link>
@@ -957,14 +962,16 @@ const calcularIdade = (dataNascimento) => {
                           </Button>
                         </Link>
 
-                        <Link
-                          to={`/dashboard/gestaofvr/solipede/edit/${item.numero}`}
-                          className="me-1"
-                        >
-                          <Button size="sm" variant="light" className="border">
-                            <BsPencilSquare />
-                          </Button>
-                        </Link>
+                        {podeEditarSolipede && (
+                          <Link
+                            to={`/dashboard/gestaofvr/solipede/edit/${item.numero}`}
+                            className="me-1"
+                          >
+                            <Button size="sm" variant="light" className="border">
+                              <BsPencilSquare />
+                            </Button>
+                          </Link>
+                        )}
                       </td>
                     </tr>
                   ))}

@@ -37,8 +37,8 @@ const DashboardList = () => {
   const usuarioLogado = getUsuarioLogado();
   
   // Permissão especial para Observações Comportamentais nesta página
-  // Inclui Pagador de cavalo além dos veterinários
-  const perfisPermitidos = ["Pagador de cavalo", "Veterinario", "Veterinario Admin", "Desenvolvedor"];
+  // Apenas perfil "Observacao Comportamental" pode adicionar observações comportamentais
+  const perfisPermitidos = ["Observacao Comportamental", "Veterinario Admin", "Desenvolvedor"];
   const podeEditar = isAuthenticated() && usuarioLogado && perfisPermitidos.includes(usuarioLogado.perfil);
 
   // filtros
