@@ -61,6 +61,13 @@ const AdminCargaHoraria = () => {
 
   const [selecionados, setSelecionados] = useState([]);
   const [horasAdicionar, setHorasAdicionar] = useState(0);
+  const [dataLancamento, setDataLancamento] = useState(() => {
+    const hoje = new Date();
+    const ano = hoje.getFullYear();
+    const mes = String(hoje.getMonth() + 1).padStart(2, "0");
+    const dia = String(hoje.getDate()).padStart(2, "0");
+    return `${ano}-${mes}-${dia}`;
+  });
   const [senhaConfirmacao, setSenhaConfirmacao] = useState("");
   const [carregando, setCarregando] = useState(false);
 
@@ -238,6 +245,7 @@ const AdminCargaHoraria = () => {
           api.adicionarHoras({
             numero,
             horas: Number(horasAdicionar),
+            dataLancamento,
             senha: senhaConfirmacao,
             usuarioId: usuarioLogado.id,
           })
@@ -267,6 +275,7 @@ const AdminCargaHoraria = () => {
       setShowConfirmSenha(false);
       setSelecionados([]);
       setHorasAdicionar(0);
+      // mantém a data selecionada; usuário pode reutilizar
       setSenhaConfirmacao("");
     } catch (err) {
       console.error("Erro completo:", err);
@@ -643,7 +652,7 @@ const AdminCargaHoraria = () => {
                   />
                 </div>
 
-                <div className="col-md-6">
+                <div className="col-md-3">
                   <Form.Label>Horas a adicionar</Form.Label>
                   <FormControl
                     type="number"
@@ -651,6 +660,16 @@ const AdminCargaHoraria = () => {
                     value={horasAdicionar}
                     onChange={(e) => setHorasAdicionar(e.target.value)}
                   />
+                </div>
+
+                <div className="col-md-3">
+                  <Form.Label>Data do lançamento</Form.Label>
+                  <FormControl
+                    type="date"
+                    value={dataLancamento}
+                    onChange={(e) => setDataLancamento(e.target.value)}
+                  />
+                  <small className="text-muted">Permite backdate do registro</small>
                 </div>
               </div>
             </Form.Group>
@@ -757,7 +776,11 @@ const AdminCargaHoraria = () => {
                 {historico.map((h) => (
                   <tr key={h.id}>
                     <td>
-                      {new Date(h.dataLancamento).toLocaleString()}
+                      {new Date(h.dataLancamento).toLocaleString("pt-BR", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                      })}
                       <div className="text-muted" style={{ fontSize: "0.75rem" }}>
                         <strong>Usuário:</strong>{" "}
                         {h.usuarioNome || "Usuário não identificado"}

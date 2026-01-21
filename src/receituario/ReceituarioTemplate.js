@@ -1,4 +1,6 @@
 import React from 'react';
+import LogoRpmon from '../Imagens/LOGORPMON.png';
+import LogoPmesp from '../Imagens/Logo-PM.png';
 
 /**
  * Componente que renderiza o template do receituário
@@ -7,58 +9,97 @@ import React from 'react';
 export const ReceituarioTemplate = React.forwardRef(({ solipede, tratamento, usuarioLogado }, ref) => {
   const dataAtual = new Date();
   const dataFormatada = dataAtual.toLocaleDateString('pt-BR');
-  const horaFormatada = dataAtual.toLocaleTimeString('pt-BR', { 
-    hour: '2-digit', 
-    minute: '2-digit' 
-  });
+
 
   return (
     <div
       ref={ref}
       style={{
         width: '210mm',
-        height: '297mm',
-        padding: '20px',
+        minHeight: '297mm',
+        padding: '20mm 15mm 25mm 15mm', // espaço inferior pro rodapé
         fontFamily: 'Arial, sans-serif',
         fontSize: '12px',
         color: '#333',
         backgroundColor: '#fff',
         display: 'none',
-        pageBreakAfter: 'always'
+        position: 'relative' // NECESSÁRIO para o rodapé absoluto
       }}
     >
+
       {/* CABEÇALHO */}
-      <div style={{ textAlign: 'center', marginBottom: '20px', borderBottom: '2px solid #000', paddingBottom: '10px' }}>
-        <div style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '5px' }}>
-          SECRETARIA DA SEGURANÇA PÚBLICA
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: '20px',
+          borderBottom: '2px solid #000',
+          paddingBottom: '10px'
+        }}
+      >
+        {/* Logo PMESP */}
+        <img
+          src={LogoPmesp}
+          alt="Logo PMESP"
+          style={{ height: '70px', paddingLeft: '85px' }}
+        />
+
+        {/* Texto Central */}
+        <div style={{ textAlign: 'center', flex: 1 }}>
+          <div style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '5px' }}>
+            SECRETARIA DA SEGURANÇA PÚBLICA
+          </div>
+          <div style={{ fontSize: '11px', marginBottom: '3px' }}>
+            POLÍCIA MILITAR DO ESTADO DE SÃO PAULO
+          </div>
+          <div style={{ fontSize: '11px', marginBottom: '3px' }}>
+            COMANDO DE POLICIAMENTO DE CHOQUE
+          </div>
+          <div style={{ fontSize: '10px', color: '#666' }}>
+            REGIMENTO DE POLÍCIA MONTADA "9 DE JULHO"
+          </div>
         </div>
-        <div style={{ fontSize: '11px', marginBottom: '3px' }}>
-          POLÍCIA MILITAR DO ESTADO DE SÃO PAULO
-        </div>
-        <div style={{ fontSize: '11px', marginBottom: '3px' }}>
-          COMANDO DE POLICIAMENTO DE CHOQUE
-        </div>
-        <div style={{ fontSize: '10px', color: '#666' }}>
-          REGIMENTO DE POLÍCIA MONTADA "9 DE JULHO"
-        </div>
+
+        {/* Logo RPMON */}
+        <img
+          src={LogoRpmon}
+          alt="Logo RPMON"
+          style={{ height: '70px', paddingRight: '85px' }}
+        />
       </div>
 
       {/* INFORMAÇÕES DO SOLÍPEDE */}
       <div style={{ marginBottom: '20px' }}>
-        <div style={{ fontSize: '13px', fontWeight: 'bold', marginBottom: '8px', textDecoration: 'underline' }}>
+        <div
+          style={{
+            fontSize: '13px',
+            fontWeight: 'bold',
+            marginBottom: '10px',
+            textDecoration: 'underline'
+          }}
+        >
           RECEITUÁRIO
         </div>
-        
-        <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '10px' }}>
+
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <tbody>
             <tr>
-              <td style={{ width: '50%', paddingBottom: '8px' }}>
+              <td style={{ width: '33%', paddingBottom: '8px' }}>
+                <strong>Numeração:</strong> {solipede?.numero || 'N/A'}
+              </td>
+              <td style={{ width: '33%', paddingBottom: '8px' }}>
                 <strong>Solípede:</strong> {solipede?.nome || 'N/A'}
               </td>
-              <td style={{ width: '50%', paddingBottom: '8px' }}>
-                <strong>Nº:</strong> {solipede?.numero || 'N/A'}
+              <td style={{ paddingBottom: '8px' }}>
+                <strong>Nascimento:</strong>{' '}
+                {solipede?.DataNascimento
+                  ? new Date(solipede.DataNascimento).toLocaleDateString('pt-BR')
+                  : 'N/A'}
               </td>
+
             </tr>
+
             <tr>
               <td style={{ paddingBottom: '8px' }}>
                 <strong>Sexo:</strong> {solipede?.sexo || 'N/A'}
@@ -66,30 +107,31 @@ export const ReceituarioTemplate = React.forwardRef(({ solipede, tratamento, usu
               <td style={{ paddingBottom: '8px' }}>
                 <strong>Pelagem:</strong> {solipede?.pelagem || 'N/A'}
               </td>
-            </tr>
-            <tr>
-              <td style={{ paddingBottom: '8px' }}>
-                <strong>Nascimento:</strong> {solipede?.DataNascimento 
-                  ? new Date(solipede.DataNascimento).toLocaleDateString('pt-BR') 
-                  : 'N/A'}
-              </td>
               <td style={{ paddingBottom: '8px' }}>
                 <strong>Esquadrão:</strong> {solipede?.esquadrao || 'N/A'}
+              </td>
+            </tr>
+
+            <tr>
+
+              <td style={{ width: '34%', paddingBottom: '8px' }}>
+                <strong>Status:</strong> {solipede?.status || 'N/A'}
               </td>
             </tr>
           </tbody>
         </table>
       </div>
 
+
       {/* OBSERVAÇÃO CLÍNICA */}
       <div style={{ marginBottom: '20px' }}>
         <div style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '8px', textDecoration: 'underline' }}>
-          OBSERVAÇÃO CLÍNICA
+          DETALHES CLÍNICOS
         </div>
-        <div style={{ 
-          border: '1px solid #999', 
-          padding: '10px', 
-          minHeight: '60px', 
+        <div style={{
+          border: '1px solid #999',
+          padding: '10px',
+          minHeight: '60px',
           backgroundColor: '#f9f9f9',
           whiteSpace: 'pre-wrap',
           wordWrap: 'break-word'
@@ -103,10 +145,10 @@ export const ReceituarioTemplate = React.forwardRef(({ solipede, tratamento, usu
         <div style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '8px', textDecoration: 'underline' }}>
           PRESCRIÇÃO / MEDICAMENTOS
         </div>
-        <div style={{ 
-          border: '1px solid #999', 
-          padding: '10px', 
-          minHeight: '60px', 
+        <div style={{
+          border: '1px solid #999',
+          padding: '10px',
+          minHeight: '60px',
           backgroundColor: '#f9f9f9',
           whiteSpace: 'pre-wrap',
           wordWrap: 'break-word'
@@ -115,66 +157,42 @@ export const ReceituarioTemplate = React.forwardRef(({ solipede, tratamento, usu
         </div>
       </div>
 
-      {/* INFORMAÇÕES ADICIONAIS */}
-      <div style={{ marginBottom: '20px' }}>
-        <table style={{ width: '100%', fontSize: '11px' }}>
-          <tbody>
-            <tr>
-              <td style={{ paddingBottom: '6px' }}>
-                <strong>Data do Lançamento:</strong> {tratamento?.data_criacao 
-                  ? new Date(tratamento.data_criacao).toLocaleDateString('pt-BR')
-                  : 'N/A'}
-              </td>
-              <td style={{ paddingBottom: '6px' }}>
-                <strong>Hora:</strong> {tratamento?.data_criacao 
-                  ? new Date(tratamento.data_criacao).toLocaleTimeString('pt-BR', { 
-                      hour: '2-digit', 
-                      minute: '2-digit' 
-                    })
-                  : 'N/A'}
-              </td>
-            </tr>
-            
-          </tbody>
-        </table>
-      </div>
 
-      {/* ASSINATURA */}
-      <div style={{ marginTop: '40px' }}>
-        <div style={{ marginBottom: '30px' }}>
-          <div style={{ height: '50px' }} />
-          <div style={{ borderTop: '1px solid #000', textAlign: 'center', marginTop: '5px', fontSize: '11px' }}>
-            Assinatura do Veterinário Responsável
-          </div>
+
+      {/* Espaço em branco */}
+
+      {/* RODAPÉ FIXO */}
+      <div
+        style={{
+          position: 'absolute',
+          bottom: '15mm',
+          left: '15mm',
+          right: '15mm',
+          fontSize: '11px',
+          color: '#333'
+        }}
+      >
+        <hr style={{ marginBottom: '10px' }} />
+
+        <div style={{ textAlign: 'center', marginBottom: '12px' }}>
+          Assinatura do Veterinário Responsável
         </div>
 
-        <table style={{ width: '100%', fontSize: '10px', color: '#666', marginTop: '20px' }}>
-          <tbody>
-            <tr>
-              <td>
-                <strong>Responsável:</strong> {usuarioLogado?.nome || 'N/A'}
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <strong>Data de Impressão:</strong> {dataFormatada} às {horaFormatada}
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            marginBottom: '2px'
+          }}
+        >
+          <span><strong>Data do Lançamento:</strong> {dataFormatada}</span>
+        </div>
 
-      {/* RODAPÉ */}
-      <div style={{ 
-        marginTop: '40px', 
-        paddingTop: '10px', 
-        borderTop: '1px solid #ccc', 
-        fontSize: '9px', 
-        textAlign: 'center', 
-        color: '#999' 
-      }}>
-        Documento gerado automaticamente pelo Sistema de Prontuário Veterinário
+        <div style={{ marginBottom: '2px' }}>
+          <strong>Responsável:</strong> {usuarioLogado?.nome || '—'}
+        </div>
       </div>
+      
     </div>
   );
 });

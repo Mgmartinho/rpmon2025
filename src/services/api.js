@@ -607,5 +607,19 @@ export const api = {
     });
     return response.json();
   },
+
+  // Excluir ferrageamento com senha
+  excluirFerrageamento: async (id, senha) => {
+    const token = localStorage.getItem("token");
+    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/ferrageamentos/${id}/excluir`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ senha }),
+    });
+    return response.json();
+  },
 };
 

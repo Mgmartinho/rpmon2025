@@ -25,7 +25,14 @@ import {
   BsPlus,
   BsChevronUp,
   BsChevronDown,
+  BsPencilSquare,
 } from "react-icons/bs";
+
+import { FaRegRegistered } from "react-icons/fa";
+
+
+import { FaRegTrashCan } from "react-icons/fa6";
+
 
 import { GiHorseshoe } from "react-icons/gi";
 import * as XLSX from "xlsx";
@@ -57,6 +64,11 @@ const Ferradoria = () => {
   // Modal de histórico
   const [showHistoricoModal, setShowHistoricoModal] = useState(false);
   const [historicoSolipede, setHistoricoSolipede] = useState([]);
+
+  // Confirmação de exclusão
+  const [showConfirmExcluir, setShowConfirmExcluir] = useState(false);
+  const [senhaExcluir, setSenhaExcluir] = useState("");
+  const [ferrageamentoSelecionado, setFerrageamentoSelecionado] = useState(null);
 
   // Modal de indocibilidade
   const [showModalIndocibilidade, setShowModalIndocibilidade] = useState(false);
@@ -1232,6 +1244,7 @@ const Ferradoria = () => {
                   <th>Responsável</th>
                   <th>Prazo (dias)</th>
                   <th>Observações</th>
+                  <th>Ações</th>
                 </tr>
               </thead>
               <tbody>
@@ -1244,6 +1257,30 @@ const Ferradoria = () => {
                       <td>{item.responsavel || "—"}</td>
                       <td>{item.prazo_validade} dias</td>
                       <td>{item.observacoes || "—"}</td>
+                      <td className="d-between">
+                       
+                        {/* <Button
+                          variant="link"
+                          title="Editar"
+                          onClick={() => {
+                            // TODO: Abrir modal de edição preenchido
+                          }}
+                        >
+                           <BsPencilSquare />
+                        </Button> */}
+                        
+                        <Button
+                          variant="link"
+                          title="Excluir"
+                          onClick={() => {
+                            setFerrageamentoSelecionado(item);
+                            setSenhaExcluir("");
+                            setShowConfirmExcluir(true);
+                          }}
+                        >
+                          <FaRegTrashCan />
+                        </Button>
+                      </td>
                     </tr>
                   ))}
               </tbody>
@@ -1256,6 +1293,70 @@ const Ferradoria = () => {
           </Button>
         </Modal.Footer>
       </Modal>
+
+      {/* Modal confirmar exclusão de ferrageamento */}
+      {showConfirmExcluir && ferrageamentoSelecionado && (
+        <Modal show onHide={() => setShowConfirmExcluir(false)} centered size="sm">
+          <Modal.Header closeButton>
+            <Modal.Title>Excluir Ferrageamento</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <p className="text-muted mb-2">
+              Confirme sua senha para excluir o ferrageamento de
+              <br />
+              <strong>
+                {solipedeSelecionado?.nome || "Solípede"} – {new Date(ferrageamentoSelecionado.data_ferrageamento).toLocaleDateString('pt-BR')}
+              </strong>
+            </p>
+            <Form.Group>
+              <Form.Label>Senha</Form.Label>
+              <Form.Control
+                type="password"
+                placeholder="Digite sua senha"
+                value={senhaExcluir}
+                onChange={(e) => setSenhaExcluir(e.target.value)}
+                autoFocus
+              />
+            </Form.Group>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={() => setShowConfirmExcluir(false)}>
+              Cancelar
+            </Button>
+            <Button
+              variant="danger"
+              onClick={async () => {
+                try {
+                  if (!senhaExcluir) return;
+                  const resp = await api.excluirFerrageamento(ferrageamentoSelecionado.id, senhaExcluir);
+                  if (resp.error) {
+                    setFeedbackMessage(resp.error || "Erro ao excluir");
+                    setFeedbackSuccess(false);
+                  } else {
+                    setFeedbackMessage("Ferrageamento excluído com sucesso!");
+                    setFeedbackSuccess(true);
+                    // Recarregar histórico e dados da lista
+                    const historico = await api.historicoFerrageamento(solipedeSelecionado.numero);
+                    setHistoricoSolipede(historico || []);
+                    await carregarDados();
+                  }
+                } catch (err) {
+                  setFeedbackMessage(err.message || "Erro ao excluir ferrageamento");
+                  setFeedbackSuccess(false);
+                } finally {
+                  setShowFeedback(true);
+                  setShowConfirmExcluir(false);
+                  setFerrageamentoSelecionado(null);
+                  setSenhaExcluir("");
+                }
+              }}
+              disabled={!senhaExcluir}
+            >
+              Excluir
+            </Button>
+          </Modal.Footer>
+        </Modal>
+      )}
 
       {/* Modal de Indocibilidade */}
       <Modal show={showModalIndocibilidade} onHide={() => setShowModalIndocibilidade(false)} centered size="xl">

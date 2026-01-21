@@ -1,16 +1,16 @@
 import Poster1 from "../../Imagens/carroussel/cav024.jpg";
-import Poster2 from "../../Imagens/carroussel/cav052.jpg";
+import Poster2 from "../../Imagens/carroussel/calararia3esqd.png";
 import Poster3 from "../../Imagens/carroussel/cavalaria01.jpeg";
-import Poster4 from "../../Imagens/carroussel/cavalaria02.jpeg";
-import Poster5 from "../../Imagens/carroussel/cavalaria03.jpeg";
-import Poster6 from "../../Imagens/carroussel/cavalaria04.jpeg";
-import Poster7 from "../../Imagens/carroussel/cavalaria05.jpeg";
+import Poster4 from "../../Imagens/carroussel/carroussel2.jpg";
+import Poster5 from "../../Imagens/carroussel/cavalariaComboio.JPG";
+import Poster6 from "../../Imagens/carroussel/operacao.JPG";
+import Poster7 from "../../Imagens/carroussel/guarda.JPG";
 import Poster8 from "../../Imagens/carroussel/cavalaria06.jpeg";
-import Poster9 from "../../Imagens/carroussel/cavalaria07.jpeg";
+import Poster9 from "../../Imagens/carroussel/desfile.JPG";
 import Poster10 from "../../Imagens/carroussel/cavalaria08.jpeg";
 import Poster11 from "../../Imagens/carroussel/cavalaria09.jpeg";
 import Poster12 from "../../Imagens/carroussel/cavalaria10.jpeg";
-import Poster13 from "../../Imagens/carroussel/sociais.jpeg";
+import Poster13 from "../../Imagens/carroussel/equoterapia.jfif";
 import MapaSP from "../../Imagens/home/mapaSP.png"
 
 import { Container, Row, Col } from "react-bootstrap";
@@ -21,9 +21,9 @@ export default function Home() {
 
   return (
     <>
-      <section 
-        className="bg-dark w-100" 
-        style={{ 
+      <section
+        className="bg-dark w-100"
+        style={{
           minHeight: "500px",
           height: "100vh"
         }}
@@ -266,10 +266,11 @@ export default function Home() {
                       alt="Projetos Sociais"
                       style={{
                         objectFit: "cover",
-                        objectPosition: "center",
+                        objectPosition: "center top", // ou "50% 20%" por exemplo
                       }}
                     />
                   </div>
+
                 </div>
 
                 {/* Controles de navegação estilizados */}
@@ -391,7 +392,7 @@ export default function Home() {
               </div>
             </div>
 
- <div className="timeline-item">
+            <div className="timeline-item">
               <div className="timeline-year">1914</div>
               <div className="timeline-content">
                 <p>2º Missão Francesa</p>
@@ -506,7 +507,7 @@ export default function Home() {
               <div className="mb-3">
                 <h5 className="mb-1 fw-bold">Total de solípedes</h5>
                 <p className="mb-0 fs-5 text-dark">
-                  502 
+                  502
                 </p>
               </div>
             </Col>
@@ -517,7 +518,7 @@ export default function Home() {
         </Container>
       </section>
 
-      
+
       <section className="bg-light py-5">
         <Container>
           <h2 className="text-center mb-4">Conheça Nossos Projetos</h2>

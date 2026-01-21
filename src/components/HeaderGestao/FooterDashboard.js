@@ -1,4 +1,5 @@
 import { Container } from "react-bootstrap";
+import { FaRegRegistered } from "react-icons/fa";
 
 const FooterDashboard = () => {
   return (
@@ -20,7 +21,7 @@ const FooterDashboard = () => {
         <span>© {new Date().getFullYear()} RPMON</span>
 
         {/* DIREITA */}
-        <span>Sistema de Gestão Veterinária</span>
+        <span><FaRegRegistered /> M@TINHO EQUINO TECH</span>
       </Container>
     </footer>
   );
