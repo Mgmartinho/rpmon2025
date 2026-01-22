@@ -28,7 +28,6 @@ import {
   BsPencilSquare,
 } from "react-icons/bs";
 
-import { FaRegRegistered } from "react-icons/fa";
 
 
 import { FaRegTrashCan } from "react-icons/fa6";

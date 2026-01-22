@@ -1527,6 +1527,20 @@ export default function ProntuarioSolipedeEdit() {
     console.log("   - observacao:", observacao);
 
     try {
+      // 1️⃣ PRIMEIRO: Salvar o registro de Movimentação no prontuário
+      console.log("📝 Salvando registro de movimentação no prontuário...");
+      const responseProntuario = await api.salvarProntuario({
+        numero_solipede: numero,
+        tipo: "Movimentação",
+        observacao: observacao || `Alocação alterada de "${solipede.alocacao}" para "${novaAlocacao}"`,
+        recomendacoes: null,
+        origem: solipede.alocacao,
+        destino: novaAlocacao,
+      });
+
+      console.log("✅ Registro no prontuário criado:", responseProntuario);
+
+      // 2️⃣ SEGUNDO: Executar a movimentação (atualizar alocação + histórico de movimentação)
       const response = await api.movimentacaoBulk({
         numeros: [numero],
         novaAlocacao: novaAlocacao,
@@ -1534,7 +1548,7 @@ export default function ProntuarioSolipedeEdit() {
         senha: senhaMovimentacao,
       });
 
-      console.log("✅ Resposta da API:", response);
+      console.log("✅ Resposta da API movimentação:", response);
 
       if (response && response.success) {
         console.log("🔄 Atualizando dados do solípede...");
@@ -2998,43 +3012,42 @@ export default function ProntuarioSolipedeEdit() {
                                   )}
 
                                   {registro.tipo === "Movimentação" && (
-                                    <div className="mb-3 p-3 bg-primary bg-opacity-10 rounded border-start border-primary border-3">
-                                      <Row>
-                                        {registro.origem && (
-                                          <Col md={6} className="mb-2">
-                                            <small className="text-muted d-block mb-1">📍 Origem</small>
-                                            <Badge bg="secondary" style={{ fontSize: "12px", padding: "6px 12px" }}>
-                                              {registro.origem}
-                                            </Badge>
-                                          </Col>
-                                        )}
-                                        {registro.destino && (
-                                          <Col md={6} className="mb-2">
-                                            <small className="text-muted d-block mb-1">📍 Destino</small>
-                                            <Badge bg="primary" style={{ fontSize: "12px", padding: "6px 12px" }}>
-                                              {registro.destino}
-                                            </Badge>
-                                          </Col>
-                                        )}
+                                    <div className="mb-3 p-3 bg-primary bg-opacity-10 rounded">
+                                      <Row className="align-items-center">
+                                        <Col md={5}>
+                                          <small className="text-muted d-block mb-1">📍 Origem</small>
+                                          <Badge bg="secondary" style={{ fontSize: "12px", padding: "6px 12px" }}>
+                                            {registro.origem || "Não definida"}
+                                          </Badge>
+                                        </Col>
+                                        <Col md={2} className="text-center">
+                                          <span style={{ fontSize: "16px", fontWeight: "bold" }}>→</span>
+                                        </Col>
+                                        <Col md={5}>
+                                          <small className="text-muted d-block mb-1">📍 Destino</small>
+                                          <Badge bg="success" style={{ fontSize: "12px", padding: "6px 12px" }}>
+                                            {registro.destino || "Não definida"}
+                                          </Badge>
+                                        </Col>
                                       </Row>
-                                      {(registro.origem || registro.destino) && (
-                                        <Row className="mt-2">
-                                          <Col md={12}>
-                                            <small className="text-muted d-block mb-1">🔄 Movimentação</small>
-                                            <div className="d-flex align-items-center gap-2">
-                                              <Badge bg="secondary" style={{ fontSize: "11px" }}>
-                                                {registro.origem || "Não definida"}
-                                              </Badge>
-                                              <span style={{ fontSize: "14px" }}>→</span>
-                                              <Badge bg="success" style={{ fontSize: "11px" }}>
-                                                {registro.destino || "Não definida"}
-                                              </Badge>
-                                            </div>
-                                          </Col>
-                                        </Row>
-                                      )}
+                                      
+                                      <Row className="mt-3">
+                                        <Col md={12}>
+                                          <small className="text-muted d-block mb-1">🔄 Movimentação</small>
+                                          <div className="d-flex align-items-center gap-2">
+                                            <Badge bg="secondary" style={{ fontSize: "11px", padding: "4px 8px" }}>
+                                              {registro.origem || "Não definida"}
+                                            </Badge>
+                                            <span>→</span>
+                                            <Badge bg="success" style={{ fontSize: "11px", padding: "4px 8px" }}>
+                                              {registro.destino || "Não definida"}
+                                            </Badge>
+                                          </div>
+                                        </Col>
+                                      </Row>
+
                                       {registro.observacao && (
-                                        <div className="mt-2 pt-2 border-top">
+                                        <div className="mt-3 pt-3 border-top">
                                           <small className="text-muted d-block mb-1">📝 Detalhes da Movimentação</small>
                                           <p className="mb-0" style={{ fontSize: "13px", lineHeight: "1.6" }}>
                                             {registro.observacao}
@@ -4754,6 +4767,22 @@ export default function ProntuarioSolipedeEdit() {
                                               >
                                                 🔄 Movimentação
                                               </Badge>
+
+                                              {registro.status_conclusao === 'concluido' && (
+                                                <Badge
+                                                  bg="success"
+                                                  className="bg-opacity-10"
+                                                  text="success"
+                                                  style={{
+                                                    fontSize: "10px",
+                                                    padding: "4px 8px",
+                                                    fontWeight: "500"
+                                                  }}
+                                                >
+                                                  <BsCheckCircle className="me-1" style={{ fontSize: "10px" }} />
+                                                  Concluída
+                                                </Badge>
+                                              )}
                                             </div>
 
                                             <div className="text-muted" style={{ fontSize: "12px", fontWeight: "400" }}>
@@ -4761,46 +4790,77 @@ export default function ProntuarioSolipedeEdit() {
                                               {dataBR} às {horaBR}
                                             </div>
                                           </div>
+
+                                          {/* Botões de ação no topo à direita */}
+                                          {!readonlyMode && registro.status_conclusao !== 'concluido' && (
+                                            <div className="d-flex gap-2">
+                                              <Button
+                                                size="sm"
+                                                variant="outline-success"
+                                                onClick={() => handleAbrirModalConclusaoRegistro(registro.id)}
+                                                style={{
+                                                  fontSize: "11px",
+                                                  padding: "4px 10px",
+                                                  fontWeight: "500"
+                                                }}
+                                              >
+                                                <BsCheckCircle className="me-1" />
+                                                Concluir
+                                              </Button>
+                                              <Button
+                                                size="sm"
+                                                variant="outline-danger"
+                                                onClick={() => handleAbrirModalExclusao(registro)}
+                                                style={{
+                                                  fontSize: "11px",
+                                                  padding: "4px 10px",
+                                                  fontWeight: "500"
+                                                }}
+                                              >
+                                                <BsArchive className="me-1" />
+                                                Excluir
+                                              </Button>
+                                            </div>
+                                          )}
                                         </div>
 
                                         {/* Informações de Origem e Destino */}
-                                        <div className="mb-3 p-3 bg-primary bg-opacity-10 rounded border-start border-primary border-3">
-                                          <Row>
-                                            {registro.origem && (
-                                              <Col md={6} className="mb-2">
-                                                <small className="text-muted d-block mb-1">📍 Origem</small>
-                                                <Badge bg="secondary" style={{ fontSize: "12px", padding: "6px 12px" }}>
-                                                  {registro.origem}
-                                                </Badge>
-                                              </Col>
-                                            )}
-                                            {registro.destino && (
-                                              <Col md={6} className="mb-2">
-                                                <small className="text-muted d-block mb-1">📍 Destino</small>
-                                                <Badge bg="primary" style={{ fontSize: "12px", padding: "6px 12px" }}>
-                                                  {registro.destino}
-                                                </Badge>
-                                              </Col>
-                                            )}
+                                        <div className="mb-3 p-3 bg-primary bg-opacity-10 rounded">
+                                          <Row className="align-items-center">
+                                            <Col md={5}>
+                                              <small className="text-muted d-block mb-1">📍 Origem</small>
+                                              <Badge bg="secondary" style={{ fontSize: "12px", padding: "6px 12px" }}>
+                                                {registro.origem || "Não definida"}
+                                              </Badge>
+                                            </Col>
+                                            <Col md={2} className="text-center">
+                                              <span style={{ fontSize: "16px", fontWeight: "bold" }}>→</span>
+                                            </Col>
+                                            <Col md={5}>
+                                              <small className="text-muted d-block mb-1">📍 Destino</small>
+                                              <Badge bg="success" style={{ fontSize: "12px", padding: "6px 12px" }}>
+                                                {registro.destino || "Não definida"}
+                                              </Badge>
+                                            </Col>
                                           </Row>
-                                          {(registro.origem || registro.destino) && (
-                                            <Row className="mt-2">
-                                              <Col md={12}>
-                                                <small className="text-muted d-block mb-1">🔄 Movimentação</small>
-                                                <div className="d-flex align-items-center gap-2">
-                                                  <Badge bg="secondary" style={{ fontSize: "11px" }}>
-                                                    {registro.origem || "Não definida"}
-                                                  </Badge>
-                                                  <span style={{ fontSize: "14px" }}>→</span>
-                                                  <Badge bg="success" style={{ fontSize: "11px" }}>
-                                                    {registro.destino || "Não definida"}
-                                                  </Badge>
-                                                </div>
-                                              </Col>
-                                            </Row>
-                                          )}
+                                          
+                                          <Row className="mt-3">
+                                            <Col md={12}>
+                                              <small className="text-muted d-block mb-1">🔄 Movimentação</small>
+                                              <div className="d-flex align-items-center gap-2">
+                                                <Badge bg="secondary" style={{ fontSize: "11px", padding: "4px 8px" }}>
+                                                  {registro.origem || "Não definida"}
+                                                </Badge>
+                                                <span>→</span>
+                                                <Badge bg="success" style={{ fontSize: "11px", padding: "4px 8px" }}>
+                                                  {registro.destino || "Não definida"}
+                                                </Badge>
+                                              </div>
+                                            </Col>
+                                          </Row>
+
                                           {registro.observacao && (
-                                            <div className="mt-2 pt-2 border-top">
+                                            <div className="mt-3 pt-3 border-top">
                                               <small className="text-muted d-block mb-1">📝 Detalhes da Movimentação</small>
                                               <p className="mb-0" style={{ fontSize: "13px", lineHeight: "1.6" }}>
                                                 {registro.observacao}
