@@ -2,7 +2,10 @@
 FROM node:18-alpine AS builder
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci --silent
+RUN sed -i 's/https:\/\/dl-cdn.alpinelinux.org/http:\/\/dl-cdn.alpinelinux.org/' /etc/apk/repositories
+RUN apk add --no-cache python3 make g++ autoconf automake libtool nasm pkgconfig libpng-dev
+RUN npm config set strict-ssl false \
+	&& npm install --omit=dev
 COPY . .
 RUN npm run build
 

@@ -393,9 +393,9 @@ export default function Home() {
             </div>
 
             <div className="timeline-item">
-              <div className="timeline-year">1914</div>
+              <div className="timeline-year">1924</div>
               <div className="timeline-content">
-                <p>2º Missão Francesa</p>
+                <p>Revolução 1924</p>
               </div>
             </div>
 
@@ -416,14 +416,14 @@ export default function Home() {
             <div className="timeline-item">
               <div className="timeline-year">2024</div>
               <div className="timeline-content">
-                <p>Patrimonio historico e cultaral</p>
+                <p>Banda de Clarins declarada Patrimônio Historico e cultural</p>
               </div>
             </div>
 
             <div className="timeline-item">
-              <div className="timeline-year">2025</div>
+              <div className="timeline-year">2025...</div>
               <div className="timeline-content">
-                <p>Banda de Clarins declarada Patrimônio Historico e cultural</p>
+                <p>Dias atuais: A cavalaria continua sendo um símbolo de tradição e serviço à comunidade.</p>
               </div>
             </div>
           </div>

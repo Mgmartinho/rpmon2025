@@ -71,6 +71,30 @@ export default function ProntuarioSolipedeEdit() {
   const [recomendacoesEdicao, setRecomendacoesEdicao] = useState("");
   const [dataValidadeEdicao, setDataValidadeEdicao] = useState("");
 
+  // Estados para edição de Restrições
+  const [showModalEdicaoRestricao, setShowModalEdicaoRestricao] = useState(false);
+  const [observacaoEdicaoRestricao, setObservacaoEdicaoRestricao] = useState("");
+  const [dataValidadeEdicaoRestricao, setDataValidadeEdicaoRestricao] = useState("");
+
+  // Estados para edição de Dieta
+  const [showModalEdicaoDieta, setShowModalEdicaoDieta] = useState(false);
+  const [observacaoEdicaoDieta, setObservacaoEdicaoDieta] = useState("");
+  const [dietaEdicao, setDietaEdicao] = useState({
+    fenoSoFeno: false,
+    umQuintoRacao: false,
+    fenoMolhado: false,
+    jejum: false,
+  });
+
+  // Estados para edição de Suplementação
+  const [showModalEdicaoSuplementacao, setShowModalEdicaoSuplementacao] = useState(false);
+  const [observacaoEdicaoSuplementacao, setObservacaoEdicaoSuplementacao] = useState("");
+  const [suplementacaoEdicao, setSuplementacaoEdicao] = useState({
+    produto: "",
+    dose: "",
+    frequencia: "",
+  });
+
   // Estados para conclusão manual de registros
   const [showModalConclusaoRegistro, setShowModalConclusaoRegistro] = useState(false);
   const [registroIdConcluir, setRegistroIdConcluir] = useState(null);
@@ -1191,13 +1215,54 @@ export default function ProntuarioSolipedeEdit() {
     );
   }
 
-  // Função para abrir modal de edição
+  // Função para abrir modal de edição (geral - Tratamento)
   const handleAbrirEdicao = (registro) => {
     setRegistroEditando(registro);
-    setObservacaoEdicao(registro.observacao || "");
-    setRecomendacoesEdicao(registro.recomendacoes || "");
-    setDataValidadeEdicao(registro.data_validade ? registro.data_validade.split('T')[0] : "");
-    setShowModalEdicao(true);
+    
+    if (registro.tipo === "Restrições") {
+      setObservacaoEdicaoRestricao(registro.observacao || "");
+      setDataValidadeEdicaoRestricao(registro.data_validade ? registro.data_validade.split('T')[0] : "");
+      setShowModalEdicaoRestricao(true);
+    } else if (registro.tipo === "Dieta") {
+      // Parse da observação para extrair checkboxes
+      const obs = registro.observacao || "";
+      setDietaEdicao({
+        fenoSoFeno: obs.includes("Feno (só feno)"),
+        umQuintoRacao: obs.includes("1/2 ração"),
+        fenoMolhado: obs.includes("Feno molhado"),
+        jejum: obs.includes("Jejum"),
+      });
+      
+      // Extrair apenas as observações adicionais (texto após "Observações adicionais:")
+      const obsAdicionaisMatch = obs.match(/Observações adicionais:\s*([\s\S]*?)(?=\n\nData da prescrição:|$)/i);
+      setObservacaoEdicaoDieta(obsAdicionaisMatch ? obsAdicionaisMatch[1].trim() : "");
+      
+      setShowModalEdicaoDieta(true);
+    } else if (registro.tipo === "Suplementação") {
+      // Parse da observação para extrair dados estruturados
+      const obs = registro.observacao || "";
+      const produtoMatch = obs.match(/Produto:\s*(.+?)(?=\n|Dose:|$)/i);
+      const doseMatch = obs.match(/Dose:\s*(.+?)(?=\n|Frequência:|$)/i);
+      const freqMatch = obs.match(/Frequência:\s*(.+?)(?=\n|$)/i);
+      
+      setSuplementacaoEdicao({
+        produto: produtoMatch ? produtoMatch[1].trim() : "",
+        dose: doseMatch ? doseMatch[1].trim() : "",
+        frequencia: freqMatch ? freqMatch[1].trim() : "",
+      });
+      
+      // Extrair apenas as observações adicionais (texto após "Observações adicionais:")
+      const obsAdicionaisMatch = obs.match(/Observações adicionais:\s*([\s\S]*?)(?=\n\nData da prescrição:|$)/i);
+      setObservacaoEdicaoSuplementacao(obsAdicionaisMatch ? obsAdicionaisMatch[1].trim() : "");
+      
+      setShowModalEdicaoSuplementacao(true);
+    } else {
+      // Tratamento e outros
+      setObservacaoEdicao(registro.observacao || "");
+      setRecomendacoesEdicao(registro.recomendacoes || "");
+      setDataValidadeEdicao(registro.data_validade ? registro.data_validade.split('T')[0] : "");
+      setShowModalEdicao(true);
+    }
   };
 
   // Função para fechar modal de edição
@@ -1208,6 +1273,39 @@ export default function ProntuarioSolipedeEdit() {
     setRecomendacoesEdicao("");
     setDataValidadeEdicao("");
     setNovoStatus(""); // Resetar seleção de status
+  };
+
+  // Função para fechar modal de edição de Restrição
+  const handleFecharEdicaoRestricao = () => {
+    setShowModalEdicaoRestricao(false);
+    setRegistroEditando(null);
+    setObservacaoEdicaoRestricao("");
+    setDataValidadeEdicaoRestricao("");
+  };
+
+  // Função para fechar modal de edição de Dieta
+  const handleFecharEdicaoDieta = () => {
+    setShowModalEdicaoDieta(false);
+    setRegistroEditando(null);
+    setObservacaoEdicaoDieta("");
+    setDietaEdicao({
+      fenoSoFeno: false,
+      umQuintoRacao: false,
+      fenoMolhado: false,
+      jejum: false,
+    });
+  };
+
+  // Função para fechar modal de edição de Suplementação
+  const handleFecharEdicaoSuplementacao = () => {
+    setShowModalEdicaoSuplementacao(false);
+    setRegistroEditando(null);
+    setObservacaoEdicaoSuplementacao("");
+    setSuplementacaoEdicao({
+      produto: "",
+      dose: "",
+      frequencia: "",
+    });
   };
 
   // Função para salvar edição
@@ -1290,6 +1388,137 @@ export default function ProntuarioSolipedeEdit() {
       setMensagem({
         tipo: "danger",
         texto: "❌ Erro ao atualizar registro",
+      });
+    }
+  };
+
+  // Função para salvar edição de Restrição
+  const handleSalvarEdicaoRestricao = async () => {
+    if (!observacaoEdicaoRestricao.trim()) {
+      setMensagem({
+        tipo: "warning",
+        texto: "A observação não pode estar vazia!",
+      });
+      return;
+    }
+
+    try {
+      const dadosAtualizacao = {
+        observacao: observacaoEdicaoRestricao,
+        data_validade: dataValidadeEdicaoRestricao && dataValidadeEdicaoRestricao.trim() !== ""
+          ? dataValidadeEdicaoRestricao
+          : null,
+      };
+
+      const response = await api.atualizarProntuario(registroEditando.id, dadosAtualizacao);
+
+      if (response.success) {
+        const historicoAtualizado = await api.listarProntuario(numero);
+        setHistorico(historicoAtualizado);
+        setMensagem({
+          tipo: "success",
+          texto: "✅ Restrição atualizada com sucesso!",
+        });
+        handleFecharEdicaoRestricao();
+        setTimeout(() => setMensagem(""), 3000);
+      }
+    } catch (error) {
+      console.error("❌ Erro ao atualizar restrição:", error);
+      setMensagem({
+        tipo: "danger",
+        texto: "❌ Erro ao atualizar restrição",
+      });
+    }
+  };
+
+  // Função para salvar edição de Dieta
+  const handleSalvarEdicaoDieta = async () => {
+    const dietasSelecionadas = [];
+    if (dietaEdicao.fenoSoFeno) dietasSelecionadas.push("🌾 Feno (só feno)");
+    if (dietaEdicao.umQuintoRacao) dietasSelecionadas.push("🌾 1/2 ração");
+    if (dietaEdicao.fenoMolhado) dietasSelecionadas.push("💧 Feno molhado");
+    if (dietaEdicao.jejum) dietasSelecionadas.push("🚫 Jejum");
+
+    if (dietasSelecionadas.length === 0 && !observacaoEdicaoDieta.trim()) {
+      setMensagem({
+        tipo: "warning",
+        texto: "Selecione pelo menos uma opção de dieta ou adicione uma observação!",
+      });
+      return;
+    }
+
+    try {
+      let observacaoFinal = "";
+      if (dietasSelecionadas.length > 0) {
+        observacaoFinal = "Dieta prescrita:\n" + dietasSelecionadas.join("\n");
+      }
+      if (observacaoEdicaoDieta.trim()) {
+        observacaoFinal += (observacaoFinal ? "\n\nObservações adicionais:\n" : "") + observacaoEdicaoDieta;
+      }
+
+      const dadosAtualizacao = {
+        observacao: observacaoFinal,
+      };
+
+      const response = await api.atualizarProntuario(registroEditando.id, dadosAtualizacao);
+
+      if (response.success) {
+        const historicoAtualizado = await api.listarProntuario(numero);
+        setHistorico(historicoAtualizado);
+        setMensagem({
+          tipo: "success",
+          texto: "✅ Dieta atualizada com sucesso!",
+        });
+        handleFecharEdicaoDieta();
+        setTimeout(() => setMensagem(""), 3000);
+      }
+    } catch (error) {
+      console.error("❌ Erro ao atualizar dieta:", error);
+      setMensagem({
+        tipo: "danger",
+        texto: "❌ Erro ao atualizar dieta",
+      });
+    }
+  };
+
+  // Função para salvar edição de Suplementação
+  const handleSalvarEdicaoSuplementacao = async () => {
+    if (!suplementacaoEdicao.produto.trim() || !suplementacaoEdicao.dose.trim() || !suplementacaoEdicao.frequencia.trim()) {
+      setMensagem({
+        tipo: "warning",
+        texto: "Preencha todos os campos obrigatórios (Produto, Dose e Frequência)!",
+      });
+      return;
+    }
+
+    try {
+      let observacaoFinal = `💊 Suplementação Prescrita:\n\nProduto: ${suplementacaoEdicao.produto}\nDose: ${suplementacaoEdicao.dose}\nFrequência: ${suplementacaoEdicao.frequencia}`;
+      
+      if (observacaoEdicaoSuplementacao.trim()) {
+        observacaoFinal += `\n\nObservações adicionais:\n${observacaoEdicaoSuplementacao}`;
+      }
+
+      const dadosAtualizacao = {
+        observacao: observacaoFinal,
+      };
+
+      const response = await api.atualizarProntuario(registroEditando.id, dadosAtualizacao);
+
+      if (response.success) {
+        const historicoAtualizado = await api.listarProntuario(numero);
+        setHistorico(historicoAtualizado);
+        setMensagem({
+          tipo: "success",
+          texto: "✅ Suplementação atualizada com sucesso!",
+        });
+        handleFecharEdicaoSuplementacao();
+        setTimeout(() => setMensagem(""), 3000);
+      }
+    } catch (error) {
+      console.error("❌ Erro ao atualizar suplementação:", error);
+      setMensagem({
+        tipo: "danger",
+        texto: "❌ Erro ao atualizar suplementação",
       });
     }
   };
@@ -5133,10 +5362,9 @@ export default function ProntuarioSolipedeEdit() {
                   value={novoStatus}
                   onChange={(e) => setNovoStatus(e.target.value)}
                 >
-                  <option value="">-- Manter status atual --</option>
-                  <option value="Ativo">Ativo</option>
+
+                  <option value=""></option>
                   <option value="Baixado">Baixado</option>
-                  <option value="Baixado - Baixa Eterna">Baixado - Baixa Eterna</option>
                 </Form.Select>
                 <Form.Text className="text-muted">
                   Se selecionado, o status do solípede será alterado ao salvar.
@@ -5150,6 +5378,210 @@ export default function ProntuarioSolipedeEdit() {
             Cancelar
           </Button>
           <Button variant="primary" onClick={handleSalvarEdicao}>
+            💾 Salvar Alterações
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Modal de Edição de Restrições */}
+      <Modal show={showModalEdicaoRestricao} onHide={handleFecharEdicaoRestricao} centered size="lg">
+        <Modal.Header closeButton>
+          <Modal.Title>⚠️ Editar Restrição</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {registroEditando && (
+            <>
+              <Alert variant="info" className="mb-3">
+                <strong>Tipo:</strong> {registroEditando.tipo}
+                <br />
+                <strong>Criado em:</strong> {new Date(registroEditando.data_criacao).toLocaleString('pt-BR')}
+              </Alert>
+
+              <Alert variant="primary" className="mb-3">
+                <strong>ℹ️ Importante:</strong> As Restrições são utilizadas para alertar a tropa com informações pertinentes ao animal.
+                <strong> Recomenda-se utilizar para manter a boa saúde e integridade do cavalo e do policial.</strong>
+              </Alert>
+
+              <Form.Group className="mb-3">
+                <Form.Label className="fw-bold">Observação</Form.Label>
+                <Form.Control
+                  as="textarea"
+                  rows={5}
+                  value={observacaoEdicaoRestricao}
+                  onChange={(e) => setObservacaoEdicaoRestricao(e.target.value)}
+                  style={{ resize: "none" }}
+                  placeholder="Descreva a restrição..."
+                />
+              </Form.Group>
+
+              <Form.Group className="mb-3">
+                <Form.Label className="fw-bold">Data de Validade da Restrição (Opcional)</Form.Label>
+                <Form.Control
+                  type="date"
+                  value={dataValidadeEdicaoRestricao}
+                  onChange={(e) => setDataValidadeEdicaoRestricao(e.target.value)}
+                />
+                <Form.Text className="text-muted">
+                  Se informada, o registro será marcado como concluído automaticamente após esta data.
+                </Form.Text>
+              </Form.Group>
+            </>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleFecharEdicaoRestricao}>
+            Cancelar
+          </Button>
+          <Button variant="primary" onClick={handleSalvarEdicaoRestricao}>
+            💾 Salvar Alterações
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Modal de Edição de Dieta */}
+      <Modal show={showModalEdicaoDieta} onHide={handleFecharEdicaoDieta} centered size="lg">
+        <Modal.Header closeButton>
+          <Modal.Title>🥕 Editar Dieta</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {registroEditando && (
+            <>
+              <Alert variant="info" className="mb-3">
+                <strong>Tipo:</strong> {registroEditando.tipo}
+                <br />
+                <strong>Criado em:</strong> {new Date(registroEditando.data_criacao).toLocaleString('pt-BR')}
+              </Alert>
+
+              <div className="mb-3 p-3 rounded" style={{ backgroundColor: "#f8f9fa", border: "1px solid #dee2e6" }}>
+                <Form.Label className="fw-bold mb-3">🥕 Selecione a(s) opção(ões) de dieta:</Form.Label>
+                <Form.Check
+                  type="checkbox"
+                  label="Feno (só feno)"
+                  className="mb-2"
+                  checked={dietaEdicao.fenoSoFeno}
+                  onChange={(e) => setDietaEdicao({ ...dietaEdicao, fenoSoFeno: e.target.checked })}
+                />
+                <Form.Check
+                  type="checkbox"
+                  label="1/2 ração"
+                  className="mb-2"
+                  checked={dietaEdicao.umQuintoRacao}
+                  onChange={(e) => setDietaEdicao({ ...dietaEdicao, umQuintoRacao: e.target.checked })}
+                />
+                <Form.Check
+                  type="checkbox"
+                  label="Feno molhado"
+                  className="mb-2"
+                  checked={dietaEdicao.fenoMolhado}
+                  onChange={(e) => setDietaEdicao({ ...dietaEdicao, fenoMolhado: e.target.checked })}
+                />
+                <Form.Check
+                  type="checkbox"
+                  label="Jejum"
+                  className="mb-2"
+                  checked={dietaEdicao.jejum}
+                  onChange={(e) => setDietaEdicao({ ...dietaEdicao, jejum: e.target.checked })}
+                />
+              </div>
+
+              <Form.Group className="mb-3">
+                <Form.Label className="fw-bold">Observações Adicionais (Opcional)</Form.Label>
+                <Form.Control
+                  as="textarea"
+                  rows={3}
+                  value={observacaoEdicaoDieta}
+                  onChange={(e) => setObservacaoEdicaoDieta(e.target.value)}
+                  style={{ resize: "none" }}
+                  placeholder="Adicione informações complementares sobre a dieta..."
+                />
+              </Form.Group>
+            </>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleFecharEdicaoDieta}>
+            Cancelar
+          </Button>
+          <Button variant="primary" onClick={handleSalvarEdicaoDieta}>
+            💾 Salvar Alterações
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Modal de Edição de Suplementação */}
+      <Modal show={showModalEdicaoSuplementacao} onHide={handleFecharEdicaoSuplementacao} centered size="lg">
+        <Modal.Header closeButton>
+          <Modal.Title>💊 Editar Suplementação</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {registroEditando && (
+            <>
+              <Alert variant="info" className="mb-3">
+                <strong>Tipo:</strong> {registroEditando.tipo}
+                <br />
+                <strong>Criado em:</strong> {new Date(registroEditando.data_criacao).toLocaleString('pt-BR')}
+              </Alert>
+
+              <div className="mb-3 p-3 rounded" style={{ backgroundColor: "#f8f9fa", border: "1px solid #dee2e6" }}>
+                <Form.Label className="fw-bold mb-3">💊 Dados da Suplementação:</Form.Label>
+                <Row>
+                  <Col md={12}>
+                    <Form.Group className="mb-3">
+                      <Form.Label className="fw-bold">Produto *</Form.Label>
+                      <Form.Control
+                        type="text"
+                        placeholder="Nome do produto/suplemento"
+                        value={suplementacaoEdicao.produto}
+                        onChange={(e) => setSuplementacaoEdicao({ ...suplementacaoEdicao, produto: e.target.value })}
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
+                <Row>
+                  <Col md={6}>
+                    <Form.Group className="mb-3">
+                      <Form.Label className="fw-bold">Dose *</Form.Label>
+                      <Form.Control
+                        type="text"
+                        placeholder="Ex: 50g, 2 comprimidos"
+                        value={suplementacaoEdicao.dose}
+                        onChange={(e) => setSuplementacaoEdicao({ ...suplementacaoEdicao, dose: e.target.value })}
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col md={6}>
+                    <Form.Group className="mb-3">
+                      <Form.Label className="fw-bold">Frequência *</Form.Label>
+                      <Form.Control
+                        type="text"
+                        placeholder="Ex: 2x ao dia, a cada 12h"
+                        value={suplementacaoEdicao.frequencia}
+                        onChange={(e) => setSuplementacaoEdicao({ ...suplementacaoEdicao, frequencia: e.target.value })}
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
+              </div>
+
+              <Form.Group className="mb-3">
+                <Form.Label className="fw-bold">Observações Adicionais (Opcional)</Form.Label>
+                <Form.Control
+                  as="textarea"
+                  rows={3}
+                  value={observacaoEdicaoSuplementacao}
+                  onChange={(e) => setObservacaoEdicaoSuplementacao(e.target.value)}
+                  style={{ resize: "none" }}
+                  placeholder="Adicione informações complementares sobre a suplementação..."
+                />
+              </Form.Group>
+            </>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleFecharEdicaoSuplementacao}>
+            Cancelar
+          </Button>
+          <Button variant="primary" onClick={handleSalvarEdicaoSuplementacao}>
             💾 Salvar Alterações
           </Button>
         </Modal.Footer>
