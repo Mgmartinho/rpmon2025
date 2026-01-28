@@ -154,7 +154,7 @@ const Footer = () => {
               className="mb-2"
               onClick={toggleOffcanvas}
             >
-              Abrir Músicas
+              Canções e Hinos
             </Button>
 
             <Offcanvas

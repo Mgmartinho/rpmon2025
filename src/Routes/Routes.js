@@ -46,8 +46,13 @@ const MainRoutes = () => {
         <Route index element={<Estatisticas />} />
         <Route path="list" element={<DashboardList />} />
         
-        {/* Carga Horária - Página pública (botões internos com controle de permissão) */}
-        <Route path="AdminCargaHoraria" element={<AdminCargaHoraria />} />
+
+        {/* Carga Horária - Página Privada (botões internos com controle de permissão) */}
+        <Route path="AdminCargaHoraria" element={
+            <AdminCargaHoraria /> }
+          // <ProtectedRoute requiredPermission="GESTAO_SOLIPEDES">
+          // </ProtectedRoute>
+         />
 
         {/* Estatísticas GestãoFVR - Veterinários e acima */}
         <Route path="estatisticasfvr" element={

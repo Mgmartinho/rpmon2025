@@ -21,7 +21,7 @@ const FooterDashboard = () => {
         <span>© {new Date().getFullYear()} RPMON</span>
 
         {/* DIREITA */}
-        <span><FaRegRegistered /> M@TINHO EQUINO TECH</span>
+        <span><FaRegRegistered /> M@RTINHO EQUINO TECH</span>
       </Container>
     </footer>
   );

@@ -71,7 +71,9 @@ const MainRoutes = () => {
           <Route path="list" element={<DashboardList />} />
           
           {/* Carga Horária - Página pública (botões internos com controle de permissão) */}
-          <Route path="AdminCargaHoraria" element={<AdminCargaHoraria />} />
+          <Route path="AdminCargaHoraria" 
+          element=
+          {<AdminCargaHoraria />} />
 
           {/* GESTÃO FVR - Requer autenticação */}
           <Route 

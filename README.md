@@ -1,70 +1,180 @@
-# Getting Started with Create React App
+# 🐎 RPMON 2025 — Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+![React](https://img.shields.io/badge/React-18-blue)
+![Bootstrap](https://img.shields.io/badge/Bootstrap-5-purple)
+![Docker](https://img.shields.io/badge/Docker-Ready-blue)
+![Status](https://img.shields.io/badge/Status-Em%20Desenvolvimento-yellow)
 
-## Available Scripts
+Frontend do sistema **RPMON 2025**, voltado à gestão operacional do Regimento de Polícia Montada, com **portal público** e **dashboard administrativo**.
 
-In the project directory, you can run:
+---
 
-### `npm start`
+## 📖 Índice
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+* [Sobre o Projeto](#-sobre-o-projeto)
+* [Tecnologias](#-tecnologias)
+* [Arquitetura](#-arquitetura)
+* [Funcionalidades](#-funcionalidades)
+* [Integração com API](#-integração-com-api)
+* [Instalação e Execução](#-instalação-e-execução)
+* [Docker](#-docker)
+* [Boas Práticas](#-boas-práticas)
+* [Roadmap](#-roadmap)
+* [Autor](#-autor)
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+---
 
-### `npm test`
+## 📌 Sobre o Projeto
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+O RPMON 2025 é um sistema desenvolvido para apoiar a gestão de solípedes, carga horária, históricos operacionais e rotinas administrativas do Regimento de Polícia Montada.
 
-### `npm run build`
+Este repositório contém o **frontend**, responsável por:
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+* Exibir o **portal institucional**
+* Disponibilizar um **dashboard administrativo** seguro
+* Integrar-se a uma API REST para operações de dados
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+---
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## 🛠 Tecnologias
 
-### `npm run eject`
+* **Linguagem:** JavaScript (ES6+)
+* **Framework:** React.js
+* **UI:** React-Bootstrap
+* **Roteamento:** React Router DOM
+* **HTTP Client:** Axios
+* **Estilo:** Bootstrap + CSS
+* **Ambiente:** Docker
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+---
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## 🧱 Arquitetura
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+```bash
+src/
+├── assets/            # Imagens, ícones, fontes
+├── components/        # Componentes reutilizáveis
+├── pages/
+│   ├── portal/         # Páginas públicas
+│   └── dashboard/      # Área administrativa
+├── services/          # Configuração do Axios e APIs
+├── routes/            # Rotas da aplicação
+├── hooks/             # Hooks personalizados
+├── contexts/          # Context API (quando aplicável)
+├── styles/            # Estilos globais
+├── App.jsx
+└── main.jsx
+```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+---
 
-## Learn More
+## 🚀 Funcionalidades
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### 🌐 Portal
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+* Páginas institucionais
+* Conteúdo público
+* Navegação responsiva
 
-### Code Splitting
+### 🔐 Dashboard
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+* Autenticação e controle de acesso
+* Listagem e gerenciamento de solípedes
+* Aplicação de carga horária em lote
+* Consulta e edição de histórico
+* Feedback visual (alerts, modais, toasts)
 
-### Analyzing the Bundle Size
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## 🌐 Integração com API
 
-### Making a Progressive Web App
+O frontend consome uma API REST. Principais endpoints:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+| Método | Endpoint                       | Descrição                        |
+| ------ | ------------------------------ | -------------------------------- |
+| GET    | `/solipedes`                   | Lista todos os solípedes         |
+| POST   | `/solipedes/adicionarHoras`    | Aplica horas em lote             |
+| GET    | `/solipedes/:numero/historico` | Retorna histórico de um solípede |
+| PUT    | `/solipedes/:numero`           | Atualiza dados de um solípede    |
+| DELETE | `/solipedes/:numero`           | Remove um solípede               |
 
-### Advanced Configuration
+### 📡 Padrões de Comunicação
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+* Requisições via **Axios**
+* Interceptors para:
 
-### Deployment
+  * Inserir token automaticamente
+  * Tratar erros globais
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+---
 
-### `npm run build` fails to minify
+## 💻 Instalação e Execução
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+### Pré-requisitos
+
+* Node.js 18+
+* NPM ou Yarn
+
+### Passos
+
+```bash
+# Clone o repositório
+git clone https://github.com/seu-usuario/rpmon2025-frontend.git
+
+# Acesse a pasta
+cd rpmon2025-frontend
+
+# Instale as dependências
+npm install
+
+# Inicie o servidor de desenvolvimento
+npm run dev
+```
+
+A aplicação estará disponível em: `http://localhost:5173` (ou conforme configuração).
+
+---
+
+## 🐳 Docker
+
+### Build da imagem
+
+```bash
+docker build -t rpmonfront .
+```
+
+### Execução do container
+
+```bash
+docker run -d -p 3001:3001 --name rpmonfront rpmonfront
+```
+
+Acesse em: `http://localhost:3001`
+
+---
+
+## 🧪 Boas Práticas Adotadas
+
+* Componentização
+* Separação de responsabilidades (UI, lógica, serviços)
+* Uso de hooks
+* Feedback ao usuário
+* Tratamento centralizado de erros
+
+---
+
+## 📈 Roadmap
+
+* [ ] Controle de permissões por perfil
+* [ ] Relatórios e dashboards gráficos
+* [ ] Paginação avançada
+* [ ] Modo escuro
+* [ ] Testes automatizados (Jest / React Testing Library)
+
+---
+
+## 👤 Autor
+
+**Marcelo Guilherme de Araujo Martinho**
+Desenvolvedor Frontend — Projeto RPMON 2025
+
