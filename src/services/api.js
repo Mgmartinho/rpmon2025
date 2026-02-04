@@ -298,9 +298,15 @@ export const api = {
     return response.json();
   },
 
-  // Prontuário Público
+  // Prontuário Público - Um solípede específico
   listarProntuarioPublico: async (numero) => {
     const response = await fetch(`${API_BASE_URL}/solipedes/prontuario/${numero}`);
+    return response.json();
+  },
+
+  // Listar TODOS os prontuários (para indicador de restrições)
+  listarTodosProntuarios: async () => {
+    const response = await fetch(`${API_BASE_URL}/gestaoFVR/prontuario/todos`);
     return response.json();
   },
   

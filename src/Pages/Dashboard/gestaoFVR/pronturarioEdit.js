@@ -37,7 +37,7 @@ export default function ProntuarioSolipedeEdit() {
   const { numero } = useParams();
   const [searchParams] = useSearchParams();
   const readonlyMode = searchParams.get('readonly') === 'true';
-  
+
   const [solipede, setSolipede] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -250,10 +250,10 @@ export default function ProntuarioSolipedeEdit() {
     const fetchSolipede = async () => {
       try {
         // Se readonly, buscar da tabela de excluídos
-        const data = readonlyMode 
+        const data = readonlyMode
           ? await api.obterSolipedeExcluido(numero)
           : await api.obterSolipede(numero);
-          
+
         if (data && data.error) {
           setError(data.error);
           setSolipede(null);
@@ -598,11 +598,23 @@ export default function ProntuarioSolipedeEdit() {
       // Usar html2pdf para gerar o PDF
       const element = receituarioRef.current;
       const opt = {
-        margin: [10, 10],
+        margin: 0,
         filename: `Receituario_${solipede.nome}_${solipede.numero}_${new Date().toISOString().split('T')[0]}.pdf`,
         image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true, letterRendering: true },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        html2canvas: { 
+          scale: 2, 
+          useCORS: true, 
+          letterRendering: true,
+          windowWidth: 794, // Largura A4 em pixels (210mm)
+          windowHeight: 1123 // Altura A4 em pixels (297mm)
+        },
+        jsPDF: { 
+          unit: 'mm', 
+          format: 'a4', 
+          orientation: 'portrait',
+          compress: true
+        },
+        pagebreak: { mode: 'avoid-all' }
       };
 
       html2pdf().set(opt).from(element).save().then(() => {
@@ -629,12 +641,12 @@ export default function ProntuarioSolipedeEdit() {
     async function carregarProntuario() {
       try {
         console.log("🔍 Carregando prontuário para número:", solipede.numero);
-        
+
         // Se readonly, buscar prontuário arquivado
         const response = readonlyMode
           ? await api.listarProntuarioExcluido(solipede.numero)
           : await api.listarProntuario(solipede.numero);
-          
+
         console.log("📦 Resposta da API:", response);
         console.log("📊 Total de registros recebidos:", response?.length);
 
@@ -1218,7 +1230,7 @@ export default function ProntuarioSolipedeEdit() {
   // Função para abrir modal de edição (geral - Tratamento)
   const handleAbrirEdicao = (registro) => {
     setRegistroEditando(registro);
-    
+
     if (registro.tipo === "Restrições") {
       setObservacaoEdicaoRestricao(registro.observacao || "");
       setDataValidadeEdicaoRestricao(registro.data_validade ? registro.data_validade.split('T')[0] : "");
@@ -1232,11 +1244,11 @@ export default function ProntuarioSolipedeEdit() {
         fenoMolhado: obs.includes("Feno molhado"),
         jejum: obs.includes("Jejum"),
       });
-      
+
       // Extrair apenas as observações adicionais (texto após "Observações adicionais:")
       const obsAdicionaisMatch = obs.match(/Observações adicionais:\s*([\s\S]*?)(?=\n\nData da prescrição:|$)/i);
       setObservacaoEdicaoDieta(obsAdicionaisMatch ? obsAdicionaisMatch[1].trim() : "");
-      
+
       setShowModalEdicaoDieta(true);
     } else if (registro.tipo === "Suplementação") {
       // Parse da observação para extrair dados estruturados
@@ -1244,17 +1256,17 @@ export default function ProntuarioSolipedeEdit() {
       const produtoMatch = obs.match(/Produto:\s*(.+?)(?=\n|Dose:|$)/i);
       const doseMatch = obs.match(/Dose:\s*(.+?)(?=\n|Frequência:|$)/i);
       const freqMatch = obs.match(/Frequência:\s*(.+?)(?=\n|$)/i);
-      
+
       setSuplementacaoEdicao({
         produto: produtoMatch ? produtoMatch[1].trim() : "",
         dose: doseMatch ? doseMatch[1].trim() : "",
         frequencia: freqMatch ? freqMatch[1].trim() : "",
       });
-      
+
       // Extrair apenas as observações adicionais (texto após "Observações adicionais:")
       const obsAdicionaisMatch = obs.match(/Observações adicionais:\s*([\s\S]*?)(?=\n\nData da prescrição:|$)/i);
       setObservacaoEdicaoSuplementacao(obsAdicionaisMatch ? obsAdicionaisMatch[1].trim() : "");
-      
+
       setShowModalEdicaoSuplementacao(true);
     } else {
       // Tratamento e outros
@@ -1493,7 +1505,7 @@ export default function ProntuarioSolipedeEdit() {
 
     try {
       let observacaoFinal = `💊 Suplementação Prescrita:\n\nProduto: ${suplementacaoEdicao.produto}\nDose: ${suplementacaoEdicao.dose}\nFrequência: ${suplementacaoEdicao.frequencia}`;
-      
+
       if (observacaoEdicaoSuplementacao.trim()) {
         observacaoFinal += `\n\nObservações adicionais:\n${observacaoEdicaoSuplementacao}`;
       }
@@ -1781,10 +1793,10 @@ export default function ProntuarioSolipedeEdit() {
 
       if (response && response.success) {
         console.log("🔄 Atualizando dados do solípede...");
-        
+
         // Aguarda um pouco para garantir que o banco salvou tudo
         await new Promise(resolve => setTimeout(resolve, 500));
-        
+
         // Atualizar dados do solípede
         const solipedeAtualizado = await api.obterSolipede(numero);
         console.log("✅ Solípede atualizado:", solipedeAtualizado);
@@ -1807,7 +1819,7 @@ export default function ProntuarioSolipedeEdit() {
         setObservacao("");
         setNovaAlocacao("");
         handleFecharModalMovimentacao();
-        
+
         console.log("✅ Movimentação concluída com sucesso!");
       } else {
         console.error("❌ Resposta sem sucesso:", response);
@@ -1955,7 +1967,7 @@ export default function ProntuarioSolipedeEdit() {
           }
         `}</style>
       )}
-      
+
       {/* Banner de modo somente leitura */}
       {readonlyMode && (
         <Alert variant="warning" className="d-flex align-items-center shadow-sm mb-4">
@@ -1963,13 +1975,13 @@ export default function ProntuarioSolipedeEdit() {
           <div>
             <strong>📋 Prontuário Arquivado - Modo Somente Leitura</strong>
             <p className="mb-0 mt-1">
-              Este solípede foi excluído do sistema. Você está visualizando um histórico completo, 
+              Este solípede foi excluído do sistema. Você está visualizando um histórico completo,
               mas não é possível fazer novos lançamentos ou edições.
             </p>
           </div>
         </Alert>
       )}
-      
+
       {/* Cabeçalho */}
       <Row className="mb-4">
         <Col>
@@ -2098,29 +2110,19 @@ export default function ProntuarioSolipedeEdit() {
                 <strong>{solipede.esquadrao || "N/A"}</strong>
               </ListGroup.Item>
               <ListGroup.Item>
+                <small className="text-muted d-block">Origem</small>
+                <strong>{solipede.origem || "N/A"}</strong>
+              </ListGroup.Item>
+              {/* <ListGroup.Item>
                 <small className="text-muted d-block">Carga Horária</small>
                 <strong>
                   {solipede.cargaHoraria ? `${solipede.cargaHoraria}h` : "N/A"}
                 </strong>
-              </ListGroup.Item>
+              </ListGroup.Item> */}
             </ListGroup>
           </Card>
 
-          {/* Restrições */}
-          <Card className="shadow-sm border-0 border-start border-4 border-warning">
-            <Card.Header className="bg-light border-0 fw-bold">
-              <BsExclamationTriangle className="me-2 text-warning" />
-              Restrições
-            </Card.Header>
-            <Card.Body>
-              <p
-                className="mb-0"
-                style={{ fontSize: "13px", lineHeight: "1.6" }}
-              >
-                {solipede.restricoes || "Nenhuma restrição registrada"}
-              </p>
-            </Card.Body>
-          </Card>
+
         </Col>
 
         {/* COLUNA DIREITA */}
@@ -2247,692 +2249,696 @@ export default function ProntuarioSolipedeEdit() {
 
               {/* TAB: NOVO REGISTRO */}
               {!readonlyMode && (
-              <Tab.Pane eventKey="novo">
-                <Card className="shadow-sm border-0">
-                  <Card.Header className="bg-light border-0 fw-bold">
-                    Adicionar Observação Clínica
-                  </Card.Header>
-                  <Card.Body>
-                    <Form>
-                      <Form.Group className="mb-3">
-                        <Form.Label className="fw-bold">
-                          Tipo de Observação
-                        </Form.Label>
-                        <Form.Select
-                          size="sm"
-                          value={tipoObservacao}
-                          onChange={(e) => setTipoObservacao(e.target.value)}
-                        >
-                          {/* <option>Consulta Clínica</option> */}
-                          <option>Tratamento</option>
-                          <option>Restrições</option>
-                          <option>Dieta</option>
-                          <option>Suplementação</option>
-                          <option>Movimentação</option>
-                          {/* <option>Exame</option>
+                <Tab.Pane eventKey="novo">
+                  <Card className="shadow-sm border-0">
+                    <Card.Header className="bg-light border-0 fw-bold">
+                      Adicionar Observação Clínica
+                    </Card.Header>
+                    <Card.Body>
+                      <Form>
+                        <Form.Group className="mb-3">
+                          <Form.Label className="fw-bold">
+                            Tipo de Observação
+                          </Form.Label>
+                          <Form.Select
+                            size="sm"
+                            value={tipoObservacao}
+                            onChange={(e) => setTipoObservacao(e.target.value)}
+                          >
+                            {/* <option>Consulta Clínica</option> */}
+                            <option>Tratamento</option>
+                            <option>Restrições</option>
+                            <option>Dieta</option>
+                            <option>Suplementação</option>
+                            <option>Movimentação</option>
+                            {/* <option>Exame</option>
                           <option>Vacinação</option>
                           <option>Vermifugação</option>
                           <option>Exames AIE / Mormo</option>
                           <option>Observações Comportamentais</option> */}
-                        </Form.Select>
-                      </Form.Group>
+                          </Form.Select>
+                        </Form.Group>
 
-                      {/* Mensagem informativa para Tratamento */}
-                      {tipoObservacao === "Tratamento" && (
-                        <>
-                          <Alert variant="info" className="mb-3">
-                            <strong>ℹ️ Importante:</strong> Ao iniciar um tratamento,
-                            é opcional baixar o cavalo ou não, porém se houver mais de
-                            um tratamento e estiver como baixado, todos deverão ser
-                            concluídos para voltar ao Status <strong>Ativo</strong>.
-                          </Alert>
-                          {tratamentosEmAndamento > 0 && (
-                            <Alert variant="warning" className="mb-3">
-                              <strong>⚠️ Atenção:</strong> Este solípede possui <strong>{tratamentosEmAndamento}</strong> tratamento(s) em andamento.
-                              {solipede?.status === "Baixado" && (
-                                <> Todos os tratamentos devem ser concluídos para que o status retorne a <strong>Ativo</strong>.</>
-                              )}
+                        {/* Mensagem informativa para Tratamento */}
+                        {tipoObservacao === "Tratamento" && (
+                          <>
+                            <Alert variant="info" className="mb-3">
+                              <strong>ℹ️ Importante:</strong> Ao iniciar um tratamento,
+                              é opcional baixar o cavalo ou não, porém se houver mais de
+                              um tratamento e estiver como baixado, todos deverão ser
+                              concluídos para voltar ao Status <strong>Ativo</strong>.
                             </Alert>
-                          )}
-                        </>
-                      )}
+                            {tratamentosEmAndamento > 0 && (
+                              <Alert variant="warning" className="mb-3">
+                                <strong>⚠️ Atenção:</strong> Este solípede possui <strong>{tratamentosEmAndamento}</strong> tratamento(s) em andamento.
+                                {solipede?.status === "Baixado" && (
+                                  <> Todos os tratamentos devem ser concluídos para que o status retorne a <strong>Ativo</strong>.</>
+                                )}
+                              </Alert>
+                            )}
+                          </>
+                        )}
 
-                      {/* Mensagem informativa para Restrições */}
-                      {tipoObservacao === "Restrições" && (
-                        <>
-                          <Alert variant="info" className="mb-3">
-                            <strong>ℹ️ Importante:</strong> As Restrições são utilizadas para alertar a tropa com informações pertinentes ao animal.
-                            <strong>Recomenda-se utilizar para manter a boa saúde e integridade do cavalo e do policial.</strong>
-                          </Alert>
+                        {/* Mensagem informativa para Restrições */}
+                        {tipoObservacao === "Restrições" && (
+                          <>
+                            <Alert variant="info" className="mb-3">
+                              <strong>ℹ️ Importante:</strong> As Restrições são utilizadas para alertar a tropa com informações pertinentes ao animal.
+                              <strong>Recomenda-se utilizar para manter a boa saúde e integridade do cavalo e do policial.</strong>
+                            </Alert>
 
+                            <div className="mt-3 mb-3 p-3 rounded" style={{ backgroundColor: "#f8f9fa", border: "1px solid #dee2e6" }}>
+                              <Form.Group className="mb-0">
+                                <Form.Label className="fw-bold">Data de Validade da Restrição (Opcional)</Form.Label>
+                                <Form.Control
+                                  type="date"
+                                  size="sm"
+                                  value={dataValidade}
+                                  onChange={(e) => setDataValidade(e.target.value)}
+                                />
+                                <Form.Text className="text-muted">
+                                  Se informada, o registro será marcado como concluído automaticamente após esta data.
+                                </Form.Text>
+                              </Form.Group>
+                            </div>
+                          </>
+                        )}
+
+                        {/* Opções de Dieta */}
+                        {tipoObservacao === "Dieta" && (
                           <div className="mt-3 mb-3 p-3 rounded" style={{ backgroundColor: "#f8f9fa", border: "1px solid #dee2e6" }}>
-                            <Form.Group className="mb-0">
-                              <Form.Label className="fw-bold">Data de Validade da Restrição (Opcional)</Form.Label>
-                              <Form.Control
-                                type="date"
-                                size="sm"
-                                value={dataValidade}
-                                onChange={(e) => setDataValidade(e.target.value)}
-                              />
-                              <Form.Text className="text-muted">
-                                Se informada, o registro será marcado como concluído automaticamente após esta data.
-                              </Form.Text>
-                            </Form.Group>
+                            <Form.Label className="fw-bold mb-3">🥕 Selecione a(s) opção(ões) de dieta:</Form.Label>
+                            <Form.Check
+                              type="checkbox"
+                              label="Feno (só feno)"
+                              className="mb-2"
+                              checked={dietaSelecionada.fenoSoFeno}
+                              onChange={(e) => setDietaSelecionada({ ...dietaSelecionada, fenoSoFeno: e.target.checked })}
+                            />
+                            <Form.Check
+                              type="checkbox"
+                              label="1/2 ração"
+                              className="mb-2"
+                              checked={dietaSelecionada.umQuintoRacao}
+                              onChange={(e) => setDietaSelecionada({ ...dietaSelecionada, umQuintoRacao: e.target.checked })}
+                            />
+                            <Form.Check
+                              type="checkbox"
+                              label="Feno molhado"
+                              className="mb-2"
+                              checked={dietaSelecionada.fenoMolhado}
+                              onChange={(e) => setDietaSelecionada({ ...dietaSelecionada, fenoMolhado: e.target.checked })}
+                            />
+                            <Form.Check
+                              type="checkbox"
+                              label="Jejum"
+                              className="mb-2"
+                              checked={dietaSelecionada.jejum}
+                              onChange={(e) => setDietaSelecionada({ ...dietaSelecionada, jejum: e.target.checked })}
+                            />
                           </div>
-                        </>
-                      )}
+                        )}
 
-                      {/* Opções de Dieta */}
-                      {tipoObservacao === "Dieta" && (
-                        <div className="mt-3 mb-3 p-3 rounded" style={{ backgroundColor: "#f8f9fa", border: "1px solid #dee2e6" }}>
-                          <Form.Label className="fw-bold mb-3">🥕 Selecione a(s) opção(ões) de dieta:</Form.Label>
-                          <Form.Check
-                            type="checkbox"
-                            label="Feno (só feno)"
-                            className="mb-2"
-                            checked={dietaSelecionada.fenoSoFeno}
-                            onChange={(e) => setDietaSelecionada({ ...dietaSelecionada, fenoSoFeno: e.target.checked })}
-                          />
-                          <Form.Check
-                            type="checkbox"
-                            label="1/2 ração"
-                            className="mb-2"
-                            checked={dietaSelecionada.umQuintoRacao}
-                            onChange={(e) => setDietaSelecionada({ ...dietaSelecionada, umQuintoRacao: e.target.checked })}
-                          />
-                          <Form.Check
-                            type="checkbox"
-                            label="Feno molhado"
-                            className="mb-2"
-                            checked={dietaSelecionada.fenoMolhado}
-                            onChange={(e) => setDietaSelecionada({ ...dietaSelecionada, fenoMolhado: e.target.checked })}
-                          />
-                          <Form.Check
-                            type="checkbox"
-                            label="Jejum"
-                            className="mb-2"
-                            checked={dietaSelecionada.jejum}
-                            onChange={(e) => setDietaSelecionada({ ...dietaSelecionada, jejum: e.target.checked })}
-                          />
-                        </div>
-                      )}
-
-                      {/* Campos de Suplementação */}
-                      {tipoObservacao === "Suplementação" && (
-                        <div className="mt-3 mb-3 p-3 rounded" style={{ backgroundColor: "#f8f9fa", border: "1px solid #dee2e6" }}>
-                          <Form.Label className="fw-bold mb-3">💊 Dados da Suplementação:</Form.Label>
-                          <Row>
-                            <Col md={12}>
-                              <Form.Group className="mb-3">
-                                <Form.Label className="fw-bold">Produto *</Form.Label>
-                                <Form.Control
-                                  type="text"
-                                  size="sm"
-                                  placeholder="Nome do produto/suplemento"
-                                  value={suplementacao.produto}
-                                  onChange={(e) => setSuplementacao({ ...suplementacao, produto: e.target.value })}
-                                  disabled={salvando}
-                                />
-                              </Form.Group>
-                            </Col>
-                          </Row>
-                          <Row>
-                            <Col md={6}>
-                              <Form.Group className="mb-3">
-                                <Form.Label className="fw-bold">Dose *</Form.Label>
-                                <Form.Control
-                                  type="text"
-                                  size="sm"
-                                  placeholder="Ex: 50g, 2 comprimidos"
-                                  value={suplementacao.dose}
-                                  onChange={(e) => setSuplementacao({ ...suplementacao, dose: e.target.value })}
-                                  disabled={salvando}
-                                />
-                              </Form.Group>
-                            </Col>
-                            <Col md={6}>
-                              <Form.Group className="mb-3">
-                                <Form.Label className="fw-bold">Frequência *</Form.Label>
-                                <Form.Control
-                                  type="text"
-                                  size="sm"
-                                  placeholder="Ex: 2x ao dia, a cada 12h"
-                                  value={suplementacao.frequencia}
-                                  onChange={(e) => setSuplementacao({ ...suplementacao, frequencia: e.target.value })}
-                                  disabled={salvando}
-                                />
-                              </Form.Group>
-                            </Col>
-                          </Row>
-                        </div>
-                      )}
-
-
-                      {/* Campos específicos para Vacinação, Vermifugação e AIE/Mormo */}
-                      {(tipoObservacao === "Vacinação" || tipoObservacao === "Vermifugação" || tipoObservacao === "Exames AIE / Mormo") && (
-                        <div className="mt-3 mb-3 p-3 rounded" style={{ backgroundColor: "#f8f9fa", border: "1px solid #dee2e6" }}>
-                          <Row>
-                            <Col md={6}>
-                              <Form.Group className="mb-3">
-                                <Form.Label className="fw-bold">Data</Form.Label>
-                                <Form.Control
-                                  type="date"
-                                  size="sm"
-                                  value={dataAplicacao}
-                                  onChange={(e) => setDataAplicacao(e.target.value)}
-                                />
-                              </Form.Group>
-                            </Col>
-                            <Col md={6}>
-                              <Form.Group className="mb-3">
-                                <Form.Label className="fw-bold">Partida/Lote</Form.Label>
-                                <Form.Control
-                                  type="text"
-                                  size="sm"
-                                  placeholder="Número da partida ou lote"
-                                  value={partidaLote}
-                                  onChange={(e) => setPartidaLote(e.target.value)}
-                                />
-                              </Form.Group>
-                            </Col>
-                          </Row>
-                          <Row>
-                            <Col md={6}>
-                              <Form.Group className="mb-3">
-                                <Form.Label className="fw-bold">Validade</Form.Label>
-                                <Form.Control
-                                  type="date"
-                                  size="sm"
-                                  value={validadeProduto}
-                                  onChange={(e) => setValidadeProduto(e.target.value)}
-                                />
-                              </Form.Group>
-                            </Col>
-                            <Col md={6}>
-                              <Form.Group className="mb-3">
-                                <Form.Label className="fw-bold">Produto</Form.Label>
-                                <Form.Control
-                                  type="text"
-                                  size="sm"
-                                  placeholder="Nome do produto"
-                                  value={nomeProduto}
-                                  onChange={(e) => setNomeProduto(e.target.value)}
-                                />
-                              </Form.Group>
-                            </Col>
-                          </Row>
-                        </div>
-                      )}
-
-                      {/* Interface completa de exames laboratoriais */}
-                      {tipoObservacao === "Exame" && (
-                        <div className="mt-3 mb-3">
-                          <Alert variant="primary" className="mb-3">
-                            <strong>🧪 Solicitação de Exames</strong><br />
-                            Selecione os exames laboratoriais que deseja solicitar para este solípede.
-                          </Alert>
-
-                          <Accordion defaultActiveKey="0" className="mb-3">
-                            {/* 1. HEMATOLOGIA */}
-                            <Accordion.Item eventKey="0">
-                              <Accordion.Header>
-                                🧪 1. Hematologia (Sangue)
-                                <small className="text-muted ms-2">
-                                  - Avalia estado geral, inflamações, infecções e anemia
-                                </small>
-                              </Accordion.Header>
-                              <Accordion.Body>
-                                <div className="mb-2">
-                                  <Button
+                        {/* Campos de Suplementação */}
+                        {tipoObservacao === "Suplementação" && (
+                          <div className="mt-3 mb-3 p-3 rounded" style={{ backgroundColor: "#f8f9fa", border: "1px solid #dee2e6" }}>
+                            <Form.Label className="fw-bold mb-3">💊 Dados da Suplementação:</Form.Label>
+                            <Row>
+                              <Col md={12}>
+                                <Form.Group className="mb-3">
+                                  <Form.Label className="fw-bold">Produto *</Form.Label>
+                                  <Form.Control
+                                    type="text"
                                     size="sm"
-                                    variant="outline-primary"
-                                    onClick={() => marcarTodosCategoria("hematologia")}
-                                  >
+                                    placeholder="Nome do produto/suplemento"
+                                    value={suplementacao.produto}
+                                    onChange={(e) => setSuplementacao({ ...suplementacao, produto: e.target.value })}
+                                    disabled={salvando}
+                                  />
+                                </Form.Group>
+                              </Col>
+                            </Row>
+                            <Row>
+                              <Col md={6}>
+                                <Form.Group className="mb-3">
+                                  <Form.Label className="fw-bold">Dose *</Form.Label>
+                                  <Form.Control
+                                    type="text"
+                                    size="sm"
+                                    placeholder="Ex: 50g, 2 comprimidos"
+                                    value={suplementacao.dose}
+                                    onChange={(e) => setSuplementacao({ ...suplementacao, dose: e.target.value })}
+                                    disabled={salvando}
+                                  />
+                                </Form.Group>
+                              </Col>
+                              <Col md={6}>
+                                <Form.Group className="mb-3">
+                                  <Form.Label className="fw-bold">Frequência *</Form.Label>
+                                  <Form.Control
+                                    type="text"
+                                    size="sm"
+                                    placeholder="Ex: 2x ao dia, a cada 12h"
+                                    value={suplementacao.frequencia}
+                                    onChange={(e) => setSuplementacao({ ...suplementacao, frequencia: e.target.value })}
+                                    disabled={salvando}
+                                  />
+                                </Form.Group>
+                              </Col>
+                            </Row>
+                          </div>
+                        )}
+
+
+                        {/* Campos específicos para Vacinação, Vermifugação e AIE/Mormo */}
+                        {(tipoObservacao === "Vacinação" || tipoObservacao === "Vermifugação" || tipoObservacao === "Exames AIE / Mormo") && (
+                          <div className="mt-3 mb-3 p-3 rounded" style={{ backgroundColor: "#f8f9fa", border: "1px solid #dee2e6" }}>
+                            <Row>
+                              <Col md={6}>
+                                <Form.Group className="mb-3">
+                                  <Form.Label className="fw-bold">Data</Form.Label>
+                                  <Form.Control
+                                    type="date"
+                                    size="sm"
+                                    value={dataAplicacao}
+                                    onChange={(e) => setDataAplicacao(e.target.value)}
+                                  />
+                                </Form.Group>
+                              </Col>
+                              <Col md={6}>
+                                <Form.Group className="mb-3">
+                                  <Form.Label className="fw-bold">Partida/Lote</Form.Label>
+                                  <Form.Control
+                                    type="text"
+                                    size="sm"
+                                    placeholder="Número da partida ou lote"
+                                    value={partidaLote}
+                                    onChange={(e) => setPartidaLote(e.target.value)}
+                                  />
+                                </Form.Group>
+                              </Col>
+                            </Row>
+                            <Row>
+                              <Col md={6}>
+                                <Form.Group className="mb-3">
+                                  <Form.Label className="fw-bold">Validade</Form.Label>
+                                  <Form.Control
+                                    type="date"
+                                    size="sm"
+                                    value={validadeProduto}
+                                    onChange={(e) => setValidadeProduto(e.target.value)}
+                                  />
+                                </Form.Group>
+                              </Col>
+                              <Col md={6}>
+                                <Form.Group className="mb-3">
+                                  <Form.Label className="fw-bold">Produto</Form.Label>
+                                  <Form.Control
+                                    type="text"
+                                    size="sm"
+                                    placeholder="Nome do produto"
+                                    value={nomeProduto}
+                                    onChange={(e) => setNomeProduto(e.target.value)}
+                                  />
+                                </Form.Group>
+                              </Col>
+                            </Row>
+                          </div>
+                        )}
+
+                        {/* Interface completa de exames laboratoriais */}
+                        {tipoObservacao === "Exame" && (
+                          <div className="mt-3 mb-3">
+                            <Alert variant="primary" className="mb-3">
+                              <strong>🧪 Solicitação de Exames</strong><br />
+                              Selecione os exames laboratoriais que deseja solicitar para este solípede.
+                            </Alert>
+
+                            <Accordion defaultActiveKey="0" className="mb-3">
+                              {/* 1. HEMATOLOGIA */}
+                              <Accordion.Item eventKey="0">
+                                <Accordion.Header>
+                                  🧪 1. Hematologia (Sangue)
+                                  <small className="text-muted ms-2">
+                                    - Avalia estado geral, inflamações, infecções e anemia
+                                  </small>
+                                </Accordion.Header>
+                                <Accordion.Body>
+                                  <div className="mb-2">
+                                    <Button
+                                      size="sm"
+                                      variant="outline-primary"
+                                      onClick={() => marcarTodosCategoria("hematologia")}
+                                    >
+                                      Marcar todos
+                                    </Button>
+                                  </div>
+                                  <Row>
+                                    <Col md={6}>
+                                      <Form.Check
+                                        type="checkbox"
+                                        label="Hemograma completo"
+                                        checked={examesSelecionados.hemogramaCompleto}
+                                        onChange={() => handleCheckboxChange("hemogramaCompleto")}
+                                      />
+                                      <Form.Check
+                                        type="checkbox"
+                                        label="Hemácias"
+                                        checked={examesSelecionados.hemacias}
+                                        onChange={() => handleCheckboxChange("hemacias")}
+                                      />
+                                      <Form.Check
+                                        type="checkbox"
+                                        label="Hemoglobina"
+                                        checked={examesSelecionados.hemoglobina}
+                                        onChange={() => handleCheckboxChange("hemoglobina")}
+                                      />
+                                      <Form.Check
+                                        type="checkbox"
+                                        label="Hematócrito"
+                                        checked={examesSelecionados.hematocrito}
+                                        onChange={() => handleCheckboxChange("hematocrito")}
+                                      />
+                                    </Col>
+                                    <Col md={6}>
+                                      <Form.Check
+                                        type="checkbox"
+                                        label="VCM, HCM, CHCM"
+                                        checked={examesSelecionados.indices}
+                                        onChange={() => handleCheckboxChange("indices")}
+                                      />
+                                      <Form.Check
+                                        type="checkbox"
+                                        label="Leucograma"
+                                        checked={examesSelecionados.leucograma}
+                                        onChange={() => handleCheckboxChange("leucograma")}
+                                      />
+                                      <Form.Check
+                                        type="checkbox"
+                                        label="Plaquetas"
+                                        checked={examesSelecionados.plaquetas}
+                                        onChange={() => handleCheckboxChange("plaquetas")}
+                                      />
+                                    </Col>
+                                  </Row>
+                                </Accordion.Body>
+                              </Accordion.Item>
+
+                              /{/* 2. BIOQUÍMICA */}
+                              <Accordion.Item eventKey="1">
+                                <Accordion.Header>
+                                  🧬 2. Bioquímica Sanguínea
+                                </Accordion.Header>
+                                <Accordion.Body>
+                                  {/* Função Hepática */}
+                                  <h6 className="text-primary mt-2">Função Hepática</h6>
+                                  <Button size="sm" variant="outline-primary" className="mb-2"
+                                    onClick={() => marcarTodosCategoria("funcaoHepatica")}>
                                     Marcar todos
                                   </Button>
-                                </div>
-                                <Row>
-                                  <Col md={6}>
-                                    <Form.Check
-                                      type="checkbox"
-                                      label="Hemograma completo"
-                                      checked={examesSelecionados.hemogramaCompleto}
-                                      onChange={() => handleCheckboxChange("hemogramaCompleto")}
-                                    />
-                                    <Form.Check
-                                      type="checkbox"
-                                      label="Hemácias"
-                                      checked={examesSelecionados.hemacias}
-                                      onChange={() => handleCheckboxChange("hemacias")}
-                                    />
-                                    <Form.Check
-                                      type="checkbox"
-                                      label="Hemoglobina"
-                                      checked={examesSelecionados.hemoglobina}
-                                      onChange={() => handleCheckboxChange("hemoglobina")}
-                                    />
-                                    <Form.Check
-                                      type="checkbox"
-                                      label="Hematócrito"
-                                      checked={examesSelecionados.hematocrito}
-                                      onChange={() => handleCheckboxChange("hematocrito")}
-                                    />
-                                  </Col>
-                                  <Col md={6}>
-                                    <Form.Check
-                                      type="checkbox"
-                                      label="VCM, HCM, CHCM"
-                                      checked={examesSelecionados.indices}
-                                      onChange={() => handleCheckboxChange("indices")}
-                                    />
-                                    <Form.Check
-                                      type="checkbox"
-                                      label="Leucograma"
-                                      checked={examesSelecionados.leucograma}
-                                      onChange={() => handleCheckboxChange("leucograma")}
-                                    />
-                                    <Form.Check
-                                      type="checkbox"
-                                      label="Plaquetas"
-                                      checked={examesSelecionados.plaquetas}
-                                      onChange={() => handleCheckboxChange("plaquetas")}
-                                    />
-                                  </Col>
-                                </Row>
-                              </Accordion.Body>
-                            </Accordion.Item>
+                                  <Row className="mb-3">
+                                    <Col md={6}>
+                                      <Form.Check type="checkbox" label="AST (TGO)"
+                                        checked={examesSelecionados.ast}
+                                        onChange={() => handleCheckboxChange("ast")} />
+                                      <Form.Check type="checkbox" label="ALT (TGP)"
+                                        checked={examesSelecionados.alt}
+                                        onChange={() => handleCheckboxChange("alt")} />
+                                      <Form.Check type="checkbox" label="GGT"
+                                        checked={examesSelecionados.ggt}
+                                        onChange={() => handleCheckboxChange("ggt")} />
+                                    </Col>
+                                    <Col md={6}>
+                                      <Form.Check type="checkbox" label="FA (Fosfatase Alcalina)"
+                                        checked={examesSelecionados.fosfataseAlcalina}
+                                        onChange={() => handleCheckboxChange("fosfataseAlcalina")} />
+                                      <Form.Check type="checkbox" label="Bilirrubina total"
+                                        checked={examesSelecionados.bilirrubinaTotal}
+                                        onChange={() => handleCheckboxChange("bilirrubinaTotal")} />
+                                      <Form.Check type="checkbox" label="Bilirrubina direta"
+                                        checked={examesSelecionados.bilirrubinaDireta}
+                                        onChange={() => handleCheckboxChange("bilirrubinaDireta")} />
+                                    </Col>
+                                  </Row>
 
-                            /{/* 2. BIOQUÍMICA */}
-                            <Accordion.Item eventKey="1">
-                              <Accordion.Header>
-                                🧬 2. Bioquímica Sanguínea
-                              </Accordion.Header>
-                              <Accordion.Body>
-                                {/* Função Hepática */}
-                                <h6 className="text-primary mt-2">Função Hepática</h6>
-                                <Button size="sm" variant="outline-primary" className="mb-2"
-                                  onClick={() => marcarTodosCategoria("funcaoHepatica")}>
-                                  Marcar todos
-                                </Button>
-                                <Row className="mb-3">
-                                  <Col md={6}>
-                                    <Form.Check type="checkbox" label="AST (TGO)"
-                                      checked={examesSelecionados.ast}
-                                      onChange={() => handleCheckboxChange("ast")} />
-                                    <Form.Check type="checkbox" label="ALT (TGP)"
-                                      checked={examesSelecionados.alt}
-                                      onChange={() => handleCheckboxChange("alt")} />
-                                    <Form.Check type="checkbox" label="GGT"
-                                      checked={examesSelecionados.ggt}
-                                      onChange={() => handleCheckboxChange("ggt")} />
-                                  </Col>
-                                  <Col md={6}>
-                                    <Form.Check type="checkbox" label="FA (Fosfatase Alcalina)"
-                                      checked={examesSelecionados.fosfataseAlcalina}
-                                      onChange={() => handleCheckboxChange("fosfataseAlcalina")} />
-                                    <Form.Check type="checkbox" label="Bilirrubina total"
-                                      checked={examesSelecionados.bilirrubinaTotal}
-                                      onChange={() => handleCheckboxChange("bilirrubinaTotal")} />
-                                    <Form.Check type="checkbox" label="Bilirrubina direta"
-                                      checked={examesSelecionados.bilirrubinaDireta}
-                                      onChange={() => handleCheckboxChange("bilirrubinaDireta")} />
-                                  </Col>
-                                </Row>
+                                  {/* Função Renal */}
+                                  <h6 className="text-primary mt-2">Função Renal</h6>
+                                  <Button size="sm" variant="outline-primary" className="mb-2"
+                                    onClick={() => marcarTodosCategoria("funcaoRenal")}>
+                                    Marcar todos
+                                  </Button>
+                                  <Row className="mb-3">
+                                    <Col md={6}>
+                                      <Form.Check type="checkbox" label="Ureia"
+                                        checked={examesSelecionados.ureia}
+                                        onChange={() => handleCheckboxChange("ureia")} />
+                                    </Col>
+                                    <Col md={6}>
+                                      <Form.Check type="checkbox" label="Creatinina"
+                                        checked={examesSelecionados.creatinina}
+                                        onChange={() => handleCheckboxChange("creatinina")} />
+                                    </Col>
+                                  </Row>
 
-                                {/* Função Renal */}
-                                <h6 className="text-primary mt-2">Função Renal</h6>
-                                <Button size="sm" variant="outline-primary" className="mb-2"
-                                  onClick={() => marcarTodosCategoria("funcaoRenal")}>
-                                  Marcar todos
-                                </Button>
-                                <Row className="mb-3">
-                                  <Col md={6}>
-                                    <Form.Check type="checkbox" label="Ureia"
-                                      checked={examesSelecionados.ureia}
-                                      onChange={() => handleCheckboxChange("ureia")} />
-                                  </Col>
-                                  <Col md={6}>
-                                    <Form.Check type="checkbox" label="Creatinina"
-                                      checked={examesSelecionados.creatinina}
-                                      onChange={() => handleCheckboxChange("creatinina")} />
-                                  </Col>
-                                </Row>
+                                  {/* Músculos */}
+                                  <h6 className="text-primary mt-2">Músculos</h6>
+                                  <Button size="sm" variant="outline-primary" className="mb-2"
+                                    onClick={() => marcarTodosCategoria("musculos")}>
+                                    Marcar todos
+                                  </Button>
+                                  <Row className="mb-3">
+                                    <Col md={6}>
+                                      <Form.Check type="checkbox" label="CK (Creatina Quinase)"
+                                        checked={examesSelecionados.ck}
+                                        onChange={() => handleCheckboxChange("ck")} />
+                                    </Col>
+                                    <Col md={6}>
+                                      <Form.Check type="checkbox" label="LDH"
+                                        checked={examesSelecionados.ldh}
+                                        onChange={() => handleCheckboxChange("ldh")} />
+                                    </Col>
+                                  </Row>
 
-                                {/* Músculos */}
-                                <h6 className="text-primary mt-2">Músculos</h6>
-                                <Button size="sm" variant="outline-primary" className="mb-2"
-                                  onClick={() => marcarTodosCategoria("musculos")}>
-                                  Marcar todos
-                                </Button>
-                                <Row className="mb-3">
-                                  <Col md={6}>
-                                    <Form.Check type="checkbox" label="CK (Creatina Quinase)"
-                                      checked={examesSelecionados.ck}
-                                      onChange={() => handleCheckboxChange("ck")} />
-                                  </Col>
-                                  <Col md={6}>
-                                    <Form.Check type="checkbox" label="LDH"
-                                      checked={examesSelecionados.ldh}
-                                      onChange={() => handleCheckboxChange("ldh")} />
-                                  </Col>
-                                </Row>
+                                  {/* Eletrólitos */}
+                                  <h6 className="text-primary mt-2">Eletrólitos</h6>
+                                  <Button size="sm" variant="outline-primary" className="mb-2"
+                                    onClick={() => marcarTodosCategoria("eletrolitos")}>
+                                    Marcar todos
+                                  </Button>
+                                  <Row>
+                                    <Col md={6}>
+                                      <Form.Check type="checkbox" label="Sódio (Na⁺)"
+                                        checked={examesSelecionados.sodio}
+                                        onChange={() => handleCheckboxChange("sodio")} />
+                                      <Form.Check type="checkbox" label="Potássio (K⁺)"
+                                        checked={examesSelecionados.potassio}
+                                        onChange={() => handleCheckboxChange("potassio")} />
+                                      <Form.Check type="checkbox" label="Cloro (Cl⁻)"
+                                        checked={examesSelecionados.cloro}
+                                        onChange={() => handleCheckboxChange("cloro")} />
+                                    </Col>
+                                    <Col md={6}>
+                                      <Form.Check type="checkbox" label="Cálcio (Ca²⁺)"
+                                        checked={examesSelecionados.calcio}
+                                        onChange={() => handleCheckboxChange("calcio")} />
+                                      <Form.Check type="checkbox" label="Fósforo (P)"
+                                        checked={examesSelecionados.fosforo}
+                                        onChange={() => handleCheckboxChange("fosforo")} />
+                                      <Form.Check type="checkbox" label="Glicose"
+                                        checked={examesSelecionados.glicose}
+                                        onChange={() => handleCheckboxChange("glicose")} />
+                                    </Col>
+                                  </Row>
+                                </Accordion.Body>
+                              </Accordion.Item>
 
-                                {/* Eletrólitos */}
-                                <h6 className="text-primary mt-2">Eletrólitos</h6>
-                                <Button size="sm" variant="outline-primary" className="mb-2"
-                                  onClick={() => marcarTodosCategoria("eletrolitos")}>
-                                  Marcar todos
-                                </Button>
-                                <Row>
-                                  <Col md={6}>
-                                    <Form.Check type="checkbox" label="Sódio (Na⁺)"
-                                      checked={examesSelecionados.sodio}
-                                      onChange={() => handleCheckboxChange("sodio")} />
-                                    <Form.Check type="checkbox" label="Potássio (K⁺)"
-                                      checked={examesSelecionados.potassio}
-                                      onChange={() => handleCheckboxChange("potassio")} />
-                                    <Form.Check type="checkbox" label="Cloro (Cl⁻)"
-                                      checked={examesSelecionados.cloro}
-                                      onChange={() => handleCheckboxChange("cloro")} />
-                                  </Col>
-                                  <Col md={6}>
-                                    <Form.Check type="checkbox" label="Cálcio (Ca²⁺)"
-                                      checked={examesSelecionados.calcio}
-                                      onChange={() => handleCheckboxChange("calcio")} />
-                                    <Form.Check type="checkbox" label="Fósforo (P)"
-                                      checked={examesSelecionados.fosforo}
-                                      onChange={() => handleCheckboxChange("fosforo")} />
-                                    <Form.Check type="checkbox" label="Glicose"
-                                      checked={examesSelecionados.glicose}
-                                      onChange={() => handleCheckboxChange("glicose")} />
-                                  </Col>
-                                </Row>
-                              </Accordion.Body>
-                            </Accordion.Item>
+                              {/* 3. SOROLOGIA */}
+                              <Accordion.Item eventKey="2">
+                                <Accordion.Header>
+                                  🦠 3. Sorologia (Doenças Infecciosas)
+                                </Accordion.Header>
+                                <Accordion.Body>
+                                  <Button size="sm" variant="outline-primary" className="mb-2"
+                                    onClick={() => marcarTodosCategoria("sorologia")}>
+                                    Marcar todos
+                                  </Button>
+                                  <Row>
+                                    <Col md={6}>
+                                      <Form.Check type="checkbox" label="AIE (Coggins)"
+                                        checked={examesSelecionados.aie}
+                                        onChange={() => handleCheckboxChange("aie")} />
+                                      <Form.Check type="checkbox" label="Mormo"
+                                        checked={examesSelecionados.mormo}
+                                        onChange={() => handleCheckboxChange("mormo")} />
+                                      <Form.Check type="checkbox" label="Leptospirose"
+                                        checked={examesSelecionados.leptospirose}
+                                        onChange={() => handleCheckboxChange("leptospirose")} />
+                                      <Form.Check type="checkbox" label="Influenza Equina"
+                                        checked={examesSelecionados.influenzaEquina}
+                                        onChange={() => handleCheckboxChange("influenzaEquina")} />
+                                    </Col>
+                                    <Col md={6}>
+                                      <Form.Check type="checkbox" label="Herpesvírus Equino"
+                                        checked={examesSelecionados.herpesvirusEquino}
+                                        onChange={() => handleCheckboxChange("herpesvirusEquino")} />
+                                      <Form.Check type="checkbox" label="Raiva"
+                                        checked={examesSelecionados.raiva}
+                                        onChange={() => handleCheckboxChange("raiva")} />
+                                      <Form.Check type="checkbox" label="Encefalomielite"
+                                        checked={examesSelecionados.encefalomieliteEquina}
+                                        onChange={() => handleCheckboxChange("encefalomieliteEquina")} />
+                                      <Form.Check type="checkbox" label="Arterite Viral"
+                                        checked={examesSelecionados.arteriteViralEquina}
+                                        onChange={() => handleCheckboxChange("arteriteViralEquina")} />
+                                    </Col>
+                                  </Row>
+                                </Accordion.Body>
+                              </Accordion.Item>
 
-                            {/* 3. SOROLOGIA */}
-                            <Accordion.Item eventKey="2">
-                              <Accordion.Header>
-                                🦠 3. Sorologia (Doenças Infecciosas)
-                              </Accordion.Header>
-                              <Accordion.Body>
-                                <Button size="sm" variant="outline-primary" className="mb-2"
-                                  onClick={() => marcarTodosCategoria("sorologia")}>
-                                  Marcar todos
-                                </Button>
-                                <Row>
-                                  <Col md={6}>
-                                    <Form.Check type="checkbox" label="AIE (Coggins)"
-                                      checked={examesSelecionados.aie}
-                                      onChange={() => handleCheckboxChange("aie")} />
-                                    <Form.Check type="checkbox" label="Mormo"
-                                      checked={examesSelecionados.mormo}
-                                      onChange={() => handleCheckboxChange("mormo")} />
-                                    <Form.Check type="checkbox" label="Leptospirose"
-                                      checked={examesSelecionados.leptospirose}
-                                      onChange={() => handleCheckboxChange("leptospirose")} />
-                                    <Form.Check type="checkbox" label="Influenza Equina"
-                                      checked={examesSelecionados.influenzaEquina}
-                                      onChange={() => handleCheckboxChange("influenzaEquina")} />
-                                  </Col>
-                                  <Col md={6}>
-                                    <Form.Check type="checkbox" label="Herpesvírus Equino"
-                                      checked={examesSelecionados.herpesvirusEquino}
-                                      onChange={() => handleCheckboxChange("herpesvirusEquino")} />
-                                    <Form.Check type="checkbox" label="Raiva"
-                                      checked={examesSelecionados.raiva}
-                                      onChange={() => handleCheckboxChange("raiva")} />
-                                    <Form.Check type="checkbox" label="Encefalomielite"
-                                      checked={examesSelecionados.encefalomieliteEquina}
-                                      onChange={() => handleCheckboxChange("encefalomieliteEquina")} />
-                                    <Form.Check type="checkbox" label="Arterite Viral"
-                                      checked={examesSelecionados.arteriteViralEquina}
-                                      onChange={() => handleCheckboxChange("arteriteViralEquina")} />
-                                  </Col>
-                                </Row>
-                              </Accordion.Body>
-                            </Accordion.Item>
+                              {/* 4. PARASITOLOGIA */}
+                              <Accordion.Item eventKey="3">
+                                <Accordion.Header>
+                                  🧫 4. Parasitologia
+                                </Accordion.Header>
+                                <Accordion.Body>
+                                  <Button size="sm" variant="outline-primary" className="mb-2"
+                                    onClick={() => marcarTodosCategoria("parasitologia")}>
+                                    Marcar todos
+                                  </Button>
+                                  <Form.Check type="checkbox" label="Exame coproparasitológico"
+                                    checked={examesSelecionados.coproparasitologico}
+                                    onChange={() => handleCheckboxChange("coproparasitologico")} />
+                                  <Form.Check type="checkbox" label="OPG (Ovos Por Grama)"
+                                    checked={examesSelecionados.opg}
+                                    onChange={() => handleCheckboxChange("opg")} />
+                                  <Form.Check type="checkbox" label="Coprocultura"
+                                    checked={examesSelecionados.coprocultura}
+                                    onChange={() => handleCheckboxChange("coprocultura")} />
+                                </Accordion.Body>
+                              </Accordion.Item>
+                            </Accordion>
+                          </div>
+                        )}
 
-                            {/* 4. PARASITOLOGIA */}
-                            <Accordion.Item eventKey="3">
-                              <Accordion.Header>
-                                🧫 4. Parasitologia
-                              </Accordion.Header>
-                              <Accordion.Body>
-                                <Button size="sm" variant="outline-primary" className="mb-2"
-                                  onClick={() => marcarTodosCategoria("parasitologia")}>
-                                  Marcar todos
-                                </Button>
-                                <Form.Check type="checkbox" label="Exame coproparasitológico"
-                                  checked={examesSelecionados.coproparasitologico}
-                                  onChange={() => handleCheckboxChange("coproparasitologico")} />
-                                <Form.Check type="checkbox" label="OPG (Ovos Por Grama)"
-                                  checked={examesSelecionados.opg}
-                                  onChange={() => handleCheckboxChange("opg")} />
-                                <Form.Check type="checkbox" label="Coprocultura"
-                                  checked={examesSelecionados.coprocultura}
-                                  onChange={() => handleCheckboxChange("coprocultura")} />
-                              </Accordion.Body>
-                            </Accordion.Item>
-                          </Accordion>
-                        </div>
-                      )}
-
-                       {/* Mensagem informativa para Movimentação */}
-                      {tipoObservacao === "Movimentação" && (
-                        <>
-                          <Alert variant="info" className="mb-3">
-                            <strong>ℹ️ Importante:</strong> Ao iniciar uma movimentação,
-                            a Alocação do solípede será atualizada para refletir sua nova localização.
-                            <strong> Mesmo que temporária</strong>
-                          </Alert>
-                        </>
-                      )}
+                        {/* Mensagem informativa para Movimentação */}
+                        {tipoObservacao === "Movimentação" && (
+                          <>
+                            <Alert variant="info" className="mb-3">
+                              <strong>ℹ️ Importante:</strong> Ao iniciar uma movimentação,
+                              a Alocação do solípede será atualizada para refletir sua nova localização.
+                              <strong> Mesmo que temporária</strong>
+                            </Alert>
+                          </>
+                        )}
 
 
-                      <Form.Group className="mb-3">
-                        <Form.Label className="fw-bold">
-                          {tipoObservacao === "Exame" 
-                            ? "Observações Adicionais (opcional)" 
-                            : tipoObservacao === "Movimentação"
-                            ? "Motivo da Movimentação (opcional)"
-                            : tipoObservacao === "Tratamento"
-                            ? "🩺 Observação Clínica"
-                            : "Observação"}
-                        </Form.Label>
-                        <Form.Control
-                          as="textarea"
-                          rows={5}
-                          placeholder={
-                            tipoObservacao === "Exame"
-                              ? "Adicione informações complementares sobre a solicitação de exames (opcional)..."
-                              : tipoObservacao === "Movimentação"
-                              ? "Descreva o motivo da movimentação (opcional)..."
-                              : tipoObservacao === "Tratamento"
-                              ? "Descreva detalhadamente a observação clínica do tratamento..."
-                              : "Descreva detalhadamente a observação clínica..."
-                          }
-                          value={observacao}
-                          onChange={(e) => setObservacao(e.target.value)}
-                          style={{ resize: "none" }}
-                          disabled={salvando}
-                        />
-                        <small className="text-muted d-block mt-1">
-                          {observacao.length} caracteres
-                          {tipoObservacao === "Exame" && " (opcional - os exames serão automaticamente listados)"}
-                          {tipoObservacao === "Movimentação" && " (opcional - descreva o motivo da movimentação)"}
-                        </small>
-                      </Form.Group>
-
-                      {tipoObservacao !== "Dieta" && tipoObservacao !== "Suplementação" && tipoObservacao !== "Movimentação" && (
                         <Form.Group className="mb-3">
                           <Form.Label className="fw-bold">
-                            {tipoObservacao === "Tratamento" ? "💊 Prescrição" : "Recomendações"}
+                            {tipoObservacao === "Exame"
+                              ? "Observações Adicionais (opcional)"
+                              : tipoObservacao === "Movimentação"
+                                ? "Motivo da Movimentação (opcional)"
+                                : tipoObservacao === "Tratamento"
+                                  ? "🩺 Observação Clínica"
+                                  : "Observação"}
                           </Form.Label>
+
+                          {/* Campos de digitação dos registros em NOVO REGISTRO */}
                           <Form.Control
                             as="textarea"
-                            rows={2}
+                            rows={5}
+                            aria-label="With textarea"
                             placeholder={
-                              tipoObservacao === "Tratamento" 
-                                ? "Prescrição médica, medicamentos, dosagem..." 
-                                : "Próximas ações, reavaliações..."
+                              tipoObservacao === "Exame"
+                                ? "Adicione informações complementares sobre a solicitação de exames (opcional)..."
+                                : tipoObservacao === "Movimentação"
+                                  ? "Descreva o motivo da movimentação (opcional)..."
+                                  : tipoObservacao === "Tratamento"
+                                    ? "Descreva detalhadamente a observação clínica do tratamento..."
+                                    : "Descreva detalhadamente a observação clínica..."
                             }
-                            value={recomendacoes}
-                            onChange={(e) => setRecomendacoes(e.target.value)}
-                            style={{ resize: "none" }}
+                            value={observacao}
+                            onChange={(e) => setObservacao(e.target.value)}
+                            style={{ resize: "vertical" }} // ou remova completamente
                             disabled={salvando}
                           />
-                        </Form.Group>
-                      )}
 
-                      {tipoObservacao === "Tratamento" && (
-                        <Form.Group className="mb-3">
-                          <Form.Label className="fw-bold">
-                            🩺 Precisa baixar o solípede para este tratamento?
-                          </Form.Label>
-                          <Form.Select
-                            value={precisaBaixar}
-                            onChange={(e) => setPrecisaBaixar(e.target.value)}
-                            disabled={salvando}
-                          >
-                            <option value="nao">❌ Não - Manter status atual do solípede</option>
-                            <option value="sim">✅ Sim - Baixar o solípede durante este tratamento</option>
-                          </Form.Select>
-                          <Form.Text className="text-muted d-block mt-2">
-                            ⚠️ <strong>Importante:</strong> Se escolher "Sim", o solípede será baixado.
-                            Ele só voltará a "Ativo" quando TODOS os tratamentos que baixaram forem concluídos.
-                          </Form.Text>
-                          {tratamentosEmAndamento > 0 && solipede?.status === "Baixado" && (
-                            <Alert variant="warning" className="mt-2 mb-0">
-                              <small>
-                                <strong>📊 Atenção:</strong> Há {tratamentosEmAndamento} tratamento(s) ativo(s).
-                                Se escolher "Não", este tratamento não influenciará no status do solípede.
-                              </small>
-                            </Alert>
-                          )}
+                          <small className="text-muted d-block mt-1">
+                            {observacao.length} caracteres
+                            {tipoObservacao === "Exame" && " (opcional - os exames serão automaticamente listados)"}
+                            {tipoObservacao === "Movimentação" && " (opcional - descreva o motivo da movimentação)"}
+                          </small>
                         </Form.Group>
-                      )}
 
-                        {/* Campo de registro de movimentação no prontuario */}
-                        {tipoObservacao === "Movimentação" && (
-                        <div className="mt-3 mb-3 p-3 rounded" style={{ backgroundColor: "#f8f9fa", border: "1px solid #dee2e6" }}>
-                          <Form.Label className="fw-bold mb-3">🔄 Dados da Movimentação:</Form.Label>
-                          
+                        {tipoObservacao !== "Dieta" && tipoObservacao !== "Suplementação" && tipoObservacao !== "Movimentação" && (
                           <Form.Group className="mb-3">
                             <Form.Label className="fw-bold">
-                              📍 Nova Alocação *
+                              {tipoObservacao === "Tratamento" ? "💊 Prescrição" : "Recomendações"}
+                            </Form.Label>
+                            <Form.Control
+                              as="textarea"
+                              rows={2}
+                              placeholder={
+                                tipoObservacao === "Tratamento"
+                                  ? "Prescrição médica, medicamentos, dosagem..."
+                                  : "Próximas ações, reavaliações..."
+                              }
+                              value={recomendacoes}
+                              onChange={(e) => setRecomendacoes(e.target.value)}
+                              style={{ resize: "vertical" }}
+                              disabled={salvando}
+                            />
+                          </Form.Group>
+                        )}
+
+                        {tipoObservacao === "Tratamento" && (
+                          <Form.Group className="mb-3">
+                            <Form.Label className="fw-bold">
+                              🩺 Precisa baixar o solípede para este tratamento?
                             </Form.Label>
                             <Form.Select
-                              value={novaAlocacao}
-                              onChange={(e) => setNovaAlocacao(e.target.value)}
+                              value={precisaBaixar}
+                              onChange={(e) => setPrecisaBaixar(e.target.value)}
                               disabled={salvando}
                             >
-                              <option value="">Selecione a nova alocação</option>
-                              {opcoesMovimentacao.filter(opt => opt !== "").map((opt) => (
-                                <option key={opt} value={opt}>
-                                  {opt}
-                                </option>
-                              ))}
+                              <option value="nao">❌ Não - Manter status atual do solípede</option>
+                              <option value="sim">✅ Sim - Baixar o solípede durante este tratamento</option>
                             </Form.Select>
                             <Form.Text className="text-muted d-block mt-2">
-                              <strong>Alocação Atual:</strong> {solipede?.alocacao || "Não definida"}
-                              {novaAlocacao && novaAlocacao !== "" && (
-                                <>
-                                  <br />
-                                  <strong>Nova Alocação:</strong> {novaAlocacao}
-                                </>
-                              )}
+                              ⚠️ <strong>Importante:</strong> Se escolher "Sim", o solípede será baixado.
+                              Ele só voltará a "Ativo" quando TODOS os tratamentos que baixaram forem concluídos.
                             </Form.Text>
-                            {novaAlocacao && solipede?.alocacao === novaAlocacao && (
+                            {tratamentosEmAndamento > 0 && solipede?.status === "Baixado" && (
                               <Alert variant="warning" className="mt-2 mb-0">
                                 <small>
-                                  <strong>⚠️ Atenção:</strong> A nova alocação selecionada é igual à alocação atual.
+                                  <strong>📊 Atenção:</strong> Há {tratamentosEmAndamento} tratamento(s) ativo(s).
+                                  Se escolher "Não", este tratamento não influenciará no status do solípede.
                                 </small>
                               </Alert>
                             )}
                           </Form.Group>
-                        </div>
-                      )}
+                        )}
 
-                      <div className="d-flex gap-2">
-                        <Button
-                          variant="success"
-                          onClick={handleAdicionarObservacao}
-                          disabled={
-                            salvando ||
-                            (tipoObservacao === "Exame"
-                              ? !Object.values(examesSelecionados).some(v => v) && !observacao.trim()
-                              : (tipoObservacao === "Tratamento"
-                                ? !observacao.trim() && !precisaBaixar
-                                : (tipoObservacao === "Dieta"
-                                  ? !Object.values(dietaSelecionada).some(v => v) && !observacao.trim()
-                                  : (tipoObservacao === "Suplementação"
-                                    ? !suplementacao.produto.trim() || !suplementacao.dose.trim() || !suplementacao.frequencia.trim()
-                                    : (tipoObservacao === "Movimentação"
-                                      ? !novaAlocacao || novaAlocacao === ""
-                                      : !observacao.trim()
+                        {/* Campo de registro de movimentação no prontuario */}
+                        {tipoObservacao === "Movimentação" && (
+                          <div className="mt-3 mb-3 p-3 rounded" style={{ backgroundColor: "#f8f9fa", border: "1px solid #dee2e6" }}>
+                            <Form.Label className="fw-bold mb-3">🔄 Dados da Movimentação:</Form.Label>
+
+                            <Form.Group className="mb-3">
+                              <Form.Label className="fw-bold">
+                                📍 Nova Alocação *
+                              </Form.Label>
+                              <Form.Select
+                                value={novaAlocacao}
+                                onChange={(e) => setNovaAlocacao(e.target.value)}
+                                disabled={salvando}
+                              >
+                                <option value="">Selecione a nova alocação</option>
+                                {opcoesMovimentacao.filter(opt => opt !== "").map((opt) => (
+                                  <option key={opt} value={opt}>
+                                    {opt}
+                                  </option>
+                                ))}
+                              </Form.Select>
+                              <Form.Text className="text-muted d-block mt-2">
+                                <strong>Alocação Atual:</strong> {solipede?.alocacao || "Não definida"}
+                                {novaAlocacao && novaAlocacao !== "" && (
+                                  <>
+                                    <br />
+                                    <strong>Nova Alocação:</strong> {novaAlocacao}
+                                  </>
+                                )}
+                              </Form.Text>
+                              {novaAlocacao && solipede?.alocacao === novaAlocacao && (
+                                <Alert variant="warning" className="mt-2 mb-0">
+                                  <small>
+                                    <strong>⚠️ Atenção:</strong> A nova alocação selecionada é igual à alocação atual.
+                                  </small>
+                                </Alert>
+                              )}
+                            </Form.Group>
+                          </div>
+                        )}
+
+                        <div className="d-flex gap-2">
+                          <Button
+                            variant="success"
+                            onClick={handleAdicionarObservacao}
+                            disabled={
+                              salvando ||
+                              (tipoObservacao === "Exame"
+                                ? !Object.values(examesSelecionados).some(v => v) && !observacao.trim()
+                                : (tipoObservacao === "Tratamento"
+                                  ? !observacao.trim() && !precisaBaixar
+                                  : (tipoObservacao === "Dieta"
+                                    ? !Object.values(dietaSelecionada).some(v => v) && !observacao.trim()
+                                    : (tipoObservacao === "Suplementação"
+                                      ? !suplementacao.produto.trim() || !suplementacao.dose.trim() || !suplementacao.frequencia.trim()
+                                      : (tipoObservacao === "Movimentação"
+                                        ? !novaAlocacao || novaAlocacao === ""
+                                        : !observacao.trim()
+                                      )
                                     )
                                   )
                                 )
                               )
-                            )
-                          }
-                        >
-                          {salvando ? (
-                            <>
-                              <Spinner
-                                size="sm"
-                                className="me-2"
-                                animation="border"
-                              />
-                              Salvando...
-                            </>
-                          ) : (
-                            <>💾 Salvar Registro</>
-                          )}
-                        </Button>
-                        <Button
-                          variant="secondary"
-                          onClick={() => {
-                            setObservacao("");
-                            setRecomendacoes("");
-                            setDataAplicacao("");
-                            setPartidaLote("");
-                            setValidadeProduto("");
-                            setNomeProduto("");
-                            setDataValidade("");
-                            setDataLancamento("");
-                            setPrecisaBaixar(""); // Resetar pergunta de baixa
-                            // Resetar checkboxes de exames
-                            setExamesSelecionados(Object.keys(examesSelecionados).reduce((acc, key) => {
-                              acc[key] = false;
-                              return acc;
-                            }, {}));
-                            // Resetar checkboxes de dieta
-                            setDietaSelecionada({
-                              fenoSoFeno: false,
-                              umQuintoRacao: false,
-                              fenoMolhado: false,
-                              jejum: false,
-                            });
-                            // Resetar campos de suplementação
-                            setSuplementacao({
-                              produto: "",
-                              dose: "",
-                              frequencia: "",
-                            });
-                            // Resetar campo de movimentação
-                            setNovaAlocacao("");
-                          }}
-                          disabled={salvando}
-                        >
-                          Limpar
-                        </Button>
-                      </div>
-                    </Form>
-                  </Card.Body>
-                </Card>
-              </Tab.Pane>
+                            }
+                          >
+                            {salvando ? (
+                              <>
+                                <Spinner
+                                  size="sm"
+                                  className="me-2"
+                                  animation="border"
+                                />
+                                Salvando...
+                              </>
+                            ) : (
+                              <>💾 Salvar Registro</>
+                            )}
+                          </Button>
+                          <Button
+                            variant="secondary"
+                            onClick={() => {
+                              setObservacao("");
+                              setRecomendacoes("");
+                              setDataAplicacao("");
+                              setPartidaLote("");
+                              setValidadeProduto("");
+                              setNomeProduto("");
+                              setDataValidade("");
+                              setDataLancamento("");
+                              setPrecisaBaixar(""); // Resetar pergunta de baixa
+                              // Resetar checkboxes de exames
+                              setExamesSelecionados(Object.keys(examesSelecionados).reduce((acc, key) => {
+                                acc[key] = false;
+                                return acc;
+                              }, {}));
+                              // Resetar checkboxes de dieta
+                              setDietaSelecionada({
+                                fenoSoFeno: false,
+                                umQuintoRacao: false,
+                                fenoMolhado: false,
+                                jejum: false,
+                              });
+                              // Resetar campos de suplementação
+                              setSuplementacao({
+                                produto: "",
+                                dose: "",
+                                frequencia: "",
+                              });
+                              // Resetar campo de movimentação
+                              setNovaAlocacao("");
+                            }}
+                            disabled={salvando}
+                          >
+                            Limpar
+                          </Button>
+                        </div>
+                      </Form>
+                    </Card.Body>
+                  </Card>
+                </Tab.Pane>
               )}
 
               {/* TAB: HISTÓRICO */}
@@ -3259,7 +3265,7 @@ export default function ProntuarioSolipedeEdit() {
                                           </Badge>
                                         </Col>
                                       </Row>
-                                      
+
                                       <Row className="mt-3">
                                         <Col md={12}>
                                           <small className="text-muted d-block mb-1">🔄 Movimentação</small>
@@ -5072,7 +5078,7 @@ export default function ProntuarioSolipedeEdit() {
                                               </Badge>
                                             </Col>
                                           </Row>
-                                          
+
                                           <Row className="mt-3">
                                             <Col md={12}>
                                               <small className="text-muted d-block mb-1">🔄 Movimentação</small>
@@ -5772,7 +5778,7 @@ export default function ProntuarioSolipedeEdit() {
 
       {/* Template do Receituário (hidden) */}
       <div style={{ display: "none" }}>
-        <ReceituarioTemplate 
+        <ReceituarioTemplate
           ref={receituarioRef}
           solipede={solipede}
           tratamento={historico.find(h => h.tipo === "Tratamento")}

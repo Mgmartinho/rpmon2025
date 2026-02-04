@@ -17,8 +17,7 @@ import {
 import {
   BsPlus,
   BsPencilSquare,
-  BsTrash,
-  BsClockHistory,
+
   BsClipboardCheck,
 } from "react-icons/bs";
 
@@ -34,6 +33,9 @@ import {
 
 import "./styles.css";
 
+import { LuTriangleAlert } from "react-icons/lu";
+
+
 import { GiHorseHead } from "react-icons/gi";
 
 import * as XLSX from "xlsx";
@@ -44,8 +46,9 @@ import { getUsuarioLogado } from "../../../utils/auth";
 
 const GestaoFvr = () => {
   const [dados, setDados] = useState([]);
+  const [dadosProntuario, setDadosProntuario] = useState([]);
   const [loading, setLoading] = useState(true);
-  
+
   // Autenticação e permissões
   const usuarioLogado = getUsuarioLogado();
   const podeEditarSolipede = usuarioLogado && (usuarioLogado.perfil === "Veterinario Admin" || usuarioLogado.perfil === "Desenvolvedor");
@@ -195,15 +198,28 @@ const GestaoFvr = () => {
     [dados]
   );
 
-  const movimentacao = useMemo(
-    () =>
-      dados.filter(
-        (item) =>
-          item.movimentacao !== null &&
-          item.movimentacao !== "" &&
-          item.movimentacao !== undefined
-      ).length,
-    [dados]
+  const restricoes = useMemo(() => {
+    const solipedesComRestricoes = dadosProntuario
+      .filter((item) => item.tipo === "Restrições")
+      .map((item) => item.numero_solipede);
+
+    // Retorna a quantidade de solípedes únicos com restrições
+    return new Set(solipedesComRestricoes).size;
+  }, [dadosProntuario]);
+
+  // Helper: Set com números dos solípedes que têm restrições
+  const numerosComRestricoes = useMemo(() => {
+    return new Set(
+      dadosProntuario
+        .filter((item) => item.tipo === "Restrições")
+        .map((item) => item.numero_solipede)
+    );
+  }, [dadosProntuario]);
+
+  // Função para verificar se um solípede tem restrição
+  const temRestricao = useCallback(
+    (numeroSolipede) => numerosComRestricoes.has(numeroSolipede),
+    [numerosComRestricoes]
   );
 
   /* ===========================
@@ -232,6 +248,32 @@ const GestaoFvr = () => {
     carregarDados();
   }, []);
 
+
+  /* ===========================
+   BUSCA DADOS PRONTUARIO
+=========================== */
+  const restricoesProntuario = async () => {
+    try {
+      const data = await api.listarTodosProntuarios();
+      if (data && data.error) {
+        console.warn("Erro na autenticação:", data.error);
+        setDadosProntuario([]);
+      } else if (Array.isArray(data)) {
+        setDadosProntuario(data);
+        console.log(`✅ ${data.length} prontuários carregados`);
+      } else {
+        setDadosProntuario([]);
+      }
+    } catch (error) {
+      console.error("Erro ao carregar dados:", error);
+      setDadosProntuario([]);
+    }
+  };
+
+  useEffect(() => {
+    restricoesProntuario();
+  }, []);
+
   // Verificar se tem movimentação - MEMOIZADO
   const temMovimentacao = useMemo(
     () => dados.some((item) => item.movimentacao !== null && item.movimentacao !== ""),
@@ -242,6 +284,32 @@ const GestaoFvr = () => {
      FILTRAGEM – SOLÍPEDES - MEMOIZADA
   =========================== */
   const solipedesFiltrados = useMemo(() => {
+    // Se o indicador for RESTRICOES, busca os solípedes que têm restrições no prontuário
+    if (indicador === "RESTRICOES") {
+      const numerosComRestricoes = new Set(
+        dadosProntuario
+          .filter((item) => item.tipo === "Restrições")
+          .map((item) => item.numero_solipede)
+      );
+
+      return dados.filter((item) => {
+        // Verifica se o solípede tem restrição
+        if (!numerosComRestricoes.has(item.numero)) return false;
+
+        /* FILTROS MANUAIS */
+        if (!item.numero.toString().includes(filtroNumero)) return false;
+        if (
+          !(item.alocacao || "")
+            .toLowerCase()
+            .includes(filtroAlocacao.toLowerCase())
+        )
+          return false;
+
+        return true;
+      });
+    }
+
+    // Para outros indicadores (ATIVOS, BAIXADOS, MOVIMENTACAO, etc)
     return dados.filter((item) => {
       /* FILTRO POR INDICADOR */
       if (indicador === "ATIVOS" && item.status !== "Ativo") return false;
@@ -265,7 +333,7 @@ const GestaoFvr = () => {
 
       return true;
     });
-  }, [dados, indicador, filtroNumero, filtroAlocacao]);
+  }, [dados, dadosProntuario, indicador, filtroNumero, filtroAlocacao]);
 
   /* ===========================
      ORDENAÇÃO – SOLÍPEDES - MEMOIZADA
@@ -315,19 +383,19 @@ const GestaoFvr = () => {
   }, [solipeddesOrdenados, itemsPerPage, pageSolipede]);
 
   //calcular idade
-const calcularIdade = (dataNascimento) => {
-  const hoje = new Date();
-  const nascimento = new Date(dataNascimento);
+  const calcularIdade = (dataNascimento) => {
+    const hoje = new Date();
+    const nascimento = new Date(dataNascimento);
 
-  let idade = hoje.getFullYear() - nascimento.getFullYear();
-  const m = hoje.getMonth() - nascimento.getMonth();
+    let idade = hoje.getFullYear() - nascimento.getFullYear();
+    const m = hoje.getMonth() - nascimento.getMonth();
 
-  if (m < 0 || (m === 0 && hoje.getDate() < nascimento.getDate())) {
-    idade--;
-  }
+    if (m < 0 || (m === 0 && hoje.getDate() < nascimento.getDate())) {
+      idade--;
+    }
 
-  return idade;
-};
+    return idade;
+  };
 
 
 
@@ -347,7 +415,6 @@ const calcularIdade = (dataNascimento) => {
       Origem: item.origem,
       Esquadrao: item.esquadrao,
       Status: item.status,
-      Movimentacao: item.movimentacao || "",
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(dadosExportacao);
@@ -390,7 +457,6 @@ const calcularIdade = (dataNascimento) => {
       item.origem,
       item.esquadrao,
       item.status,
-      item.movimentacao || "",
     ]);
 
     autoTable(doc, {
@@ -425,7 +491,7 @@ const calcularIdade = (dataNascimento) => {
 
   const marcarTodosCategoria = (categoria) => {
     const novosExames = { ...examesSelecionados };
-    
+
     switch (categoria) {
       case "hematologia":
         novosExames.hemogramaCompleto = true;
@@ -492,7 +558,7 @@ const calcularIdade = (dataNascimento) => {
       default:
         break;
     }
-    
+
     setExamesSelecionados(novosExames);
   };
 
@@ -543,7 +609,7 @@ const calcularIdade = (dataNascimento) => {
     try {
       // Preparar lista de exames formatada
       const examesLista = [];
-      
+
       // Hematologia
       if (examesSelecionados.hemogramaCompleto) examesLista.push("• Hemograma completo");
       if (examesSelecionados.hemacias) examesLista.push("• Hemácias");
@@ -552,7 +618,7 @@ const calcularIdade = (dataNascimento) => {
       if (examesSelecionados.indices) examesLista.push("• VCM, HCM, CHCM");
       if (examesSelecionados.leucograma) examesLista.push("• Leucograma");
       if (examesSelecionados.plaquetas) examesLista.push("• Plaquetas");
-      
+
       // Bioquímica - Função Hepática
       if (examesSelecionados.ast) examesLista.push("• AST (TGO)");
       if (examesSelecionados.alt) examesLista.push("• ALT (TGP)");
@@ -561,21 +627,21 @@ const calcularIdade = (dataNascimento) => {
       if (examesSelecionados.bilirrubinaTotal) examesLista.push("• Bilirrubina total");
       if (examesSelecionados.bilirrubinaDireta) examesLista.push("• Bilirrubina direta");
       if (examesSelecionados.bilirrubinaIndireta) examesLista.push("• Bilirrubina indireta");
-      
+
       // Bioquímica - Função Renal
       if (examesSelecionados.ureia) examesLista.push("• Ureia");
       if (examesSelecionados.creatinina) examesLista.push("• Creatinina");
-      
+
       // Bioquímica - Músculos
       if (examesSelecionados.ck) examesLista.push("• CK (Creatina Quinase)");
       if (examesSelecionados.ldh) examesLista.push("• LDH");
-      
+
       // Bioquímica - Metabolismo
       if (examesSelecionados.proteinasTotais) examesLista.push("• Proteínas totais");
       if (examesSelecionados.albumina) examesLista.push("• Albumina");
       if (examesSelecionados.globulinas) examesLista.push("• Globulinas");
       if (examesSelecionados.relacaoAG) examesLista.push("• Relação A/G");
-      
+
       // Bioquímica - Eletrólitos
       if (examesSelecionados.sodio) examesLista.push("• Sódio (Na⁺)");
       if (examesSelecionados.potassio) examesLista.push("• Potássio (K⁺)");
@@ -583,13 +649,13 @@ const calcularIdade = (dataNascimento) => {
       if (examesSelecionados.calcio) examesLista.push("• Cálcio (Ca²⁺)");
       if (examesSelecionados.fosforo) examesLista.push("• Fósforo (P)");
       if (examesSelecionados.magnesio) examesLista.push("• Magnésio (Mg²⁺)");
-      
+
       // Bioquímica - Outros
       if (examesSelecionados.glicose) examesLista.push("• Glicose");
       if (examesSelecionados.colesterol) examesLista.push("• Colesterol");
       if (examesSelecionados.triglicerideos) examesLista.push("• Triglicerídeos");
       if (examesSelecionados.lactato) examesLista.push("• Lactato");
-      
+
       // Sorologia
       if (examesSelecionados.aie) examesLista.push("• Anemia Infecciosa Equina (AIE – Coggins)");
       if (examesSelecionados.mormo) examesLista.push("• Mormo");
@@ -600,7 +666,7 @@ const calcularIdade = (dataNascimento) => {
       if (examesSelecionados.raiva) examesLista.push("• Raiva");
       if (examesSelecionados.encefalomieliteEquina) examesLista.push("• Encefalomielite Equina");
       if (examesSelecionados.arteriteViralEquina) examesLista.push("• Arterite Viral Equina");
-      
+
       // Parasitologia
       if (examesSelecionados.coproparasitologico) examesLista.push("• Exame coproparasitológico");
       if (examesSelecionados.opg) examesLista.push("• OPG (Ovos Por Grama)");
@@ -717,7 +783,7 @@ const calcularIdade = (dataNascimento) => {
                   </Card.Body>
                 </Card>
               </Col>
- {/*
+              {/*
               <Col md={1}>
                 <Card
                   className="h-100 text-center shadow-sm border-start"
@@ -820,16 +886,16 @@ const calcularIdade = (dataNascimento) => {
                 <Card
                   className="indicator-card"
                   onClick={() => {
-                    setIndicador("MOVIMENTACAO");
+                    setIndicador("RESTRICOES");
                     setPageSolipede(1);
                   }}
                 >
                   <Card.Body>
                     <div className="indicator-icon">
-                      <BsArrowRepeat />
+                      <LuTriangleAlert />
                     </div>
-                    <small>Movimentação</small>
-                    <h4>{movimentacao}</h4>
+                    <small>Restrições</small>
+                    <h4>{restricoes}</h4>
                   </Card.Body>
                 </Card>
               </Col>
@@ -932,27 +998,32 @@ const calcularIdade = (dataNascimento) => {
                       <td>
                         <Badge
                           pill
-                          bg={item.status === "Baixado" ? "danger" : "success"}
-                          className="bg-opacity-50 text-dark d-inline-flex align-items-center gap-1"
+                          className={`bg-opacity-50 text-dark d-inline-flex align-items-center gap-1 ${item.status === "Baixado"
+                              ? "bg-danger"
+                              : item.status === "Ativo" && temRestricao(item.numero)
+                                ? "bg-warning"
+                                : "bg-success"
+                            }`}
+                          title={
+                            item.status === "Ativo" && temRestricao(item.numero)
+                              ? "Possui restrições"
+                              : ""
+                          }
+                          style={{
+                            cursor:
+                              item.status === "Ativo" && temRestricao(item.numero)
+                                ? "help"
+                                : "default",
+                          }}
                         >
                           {item.status === "Baixado" ? "● " : "✔ "}
                           {item.status}
                         </Badge>
                       </td>
 
-                      {temMovimentacao && (
-                        <td>
-                          {item.movimentacao && (
-                            <Badge bg="warning" text="dark">
-                              {item.movimentacao}
-                            </Badge>
-                          )}
-                        </td>
-                      )}
+
 
                       <td className="text-nowrap">
-                        
-
                         <Link
                           to={`/dashboard/gestaofvr/solipede/prontuario/edit/${item.numero}`}
                           className="me-1"
@@ -973,6 +1044,7 @@ const calcularIdade = (dataNascimento) => {
                           </Link>
                         )}
                       </td>
+
                     </tr>
                   ))}
                 </tbody>
@@ -1020,7 +1092,7 @@ const calcularIdade = (dataNascimento) => {
           <Modal.Body>
             <Alert variant="info" className="mb-3">
               <small>
-                ℹ️ Esta operação irá <strong>alterar a alocação</strong> dos solípedes selecionados e 
+                ℹ️ Esta operação irá <strong>alterar a alocação</strong> dos solípedes selecionados e
                 registrar o histórico no prontuário.
               </small>
             </Alert>
@@ -1187,16 +1259,16 @@ const calcularIdade = (dataNascimento) => {
                   console.log("   - novaAlocacao:", novaMovimentacao);
                   console.log("   - observacao:", observacaoMovimentacao);
                   console.log("   - senha:", senhaConfirmacao ? "****" : "vazia");
-                  
+
                   if (!novaMovimentacao || novaMovimentacao === "") {
                     setMovErro("Selecione uma nova alocação");
                     return;
                   }
-                  
+
                   setMovErro("");
                   setMovSucesso("");
                   setMovLoading(true);
-                  
+
                   console.log("📡 Chamando api.movimentacaoBulk...");
                   const resp = await api.movimentacaoBulk({
                     numeros: selecionados,
@@ -1204,9 +1276,9 @@ const calcularIdade = (dataNascimento) => {
                     observacao: observacaoMovimentacao || null,
                     senha: senhaConfirmacao,
                   });
-                  
+
                   console.log("📥 Resposta da API:", resp);
-                  
+
                   if (resp && resp.success) {
                     console.log("✅ Sucesso! Atualizando dados localmente...");
                     // Atualiza a alocação dos solípedes selecionados
@@ -1220,14 +1292,14 @@ const calcularIdade = (dataNascimento) => {
                     setMovSucesso(
                       `Alocação alterada com sucesso para ${resp.count} solípede(s)!`
                     );
-                    
+
                     // Limpar campos e fechar modal
                     setSelecionados([]);
                     setSenhaConfirmacao("");
                     setNovaMovimentacao("");
                     setObservacaoMovimentacao("");
                     setFiltroModal("");
-                    
+
                     // Recarregar dados para garantir sincronização
                     setTimeout(async () => {
                       await carregarDados();

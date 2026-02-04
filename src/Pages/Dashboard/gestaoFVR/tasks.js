@@ -18,7 +18,7 @@ export default function TaskCreatePage() {
   const [lancamentos, setLancamentos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filtroTipo, setFiltroTipo] = useState("Todos");
-  
+
   // Paginação
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -30,15 +30,15 @@ export default function TaskCreatePage() {
   const carregarLancamentos = async () => {
     try {
       setLoading(true);
-      
+
       console.log("🔄 Iniciando carregamento de lançamentos...");
       const data = await api.listarTodosProntuarios();
-      
+
       console.log("📦 Dados retornados:", data);
       console.log("📊 Tipo dos dados:", typeof data);
       console.log("📊 É array?", Array.isArray(data));
       console.log("📊 Quantidade:", Array.isArray(data) ? data.length : "não é array");
-      
+
       if (Array.isArray(data)) {
         console.log("✅ Setando lançamentos:", data.length, "registros");
         setLancamentos(data);
@@ -76,18 +76,18 @@ export default function TaskCreatePage() {
       : lancamentos.filter((l) => l.tipo === filtroTipo);
 
   // Cálculos de paginação
-  const totalPages = itemsPerPage === "Todos" 
-    ? 1 
+  const totalPages = itemsPerPage === "Todos"
+    ? 1
     : Math.ceil(lancamentosFiltrados.length / itemsPerPage);
-  
-  const indexOfLastItem = itemsPerPage === "Todos" 
-    ? lancamentosFiltrados.length 
+
+  const indexOfLastItem = itemsPerPage === "Todos"
+    ? lancamentosFiltrados.length
     : currentPage * itemsPerPage;
-  
-  const indexOfFirstItem = itemsPerPage === "Todos" 
-    ? 0 
+
+  const indexOfFirstItem = itemsPerPage === "Todos"
+    ? 0
     : indexOfLastItem - itemsPerPage;
-  
+
   const currentItems = lancamentosFiltrados.slice(indexOfFirstItem, indexOfLastItem);
 
   // Reset da página ao mudar filtro
@@ -105,6 +105,15 @@ export default function TaskCreatePage() {
   const abrirProntuario = (numeroSolipede) => {
     navigate(`/dashboard/gestaofvr/solipede/prontuario/edit/${numeroSolipede}`);
   };
+
+  const mostrarSomenteEmAndamento = true;
+
+  const registrosFiltrados = mostrarSomenteEmAndamento
+    ? currentItems.filter(
+      (registro) => registro.status_conclusao === "em_andamento"
+    )
+    : currentItems;
+
 
   if (loading) {
     return (
@@ -208,41 +217,40 @@ export default function TaskCreatePage() {
                 </Col>
               </Row>
             </Card.Header>
+
             <Card.Body style={{ maxHeight: "70vh", overflowY: "auto" }}>
-              {currentItems.length === 0 ? (
+              {registrosFiltrados.length === 0 ? (
                 <Card className="shadow-sm border-0">
                   <Card.Body className="text-center py-5">
                     <p className="text-muted mb-0">
-                      <BsClockHistory
-                        style={{ fontSize: "30px", marginBottom: "10px" }}
-                      />
+                      <BsClockHistory style={{ fontSize: "30px", marginBottom: "10px" }} />
                       <br />
                       Nenhum lançamento encontrado para o filtro selecionado
                     </p>
                   </Card.Body>
                 </Card>
               ) : (
-                currentItems.map((registro) => {
+                registrosFiltrados.map((registro) => {
                   // Proteção contra dados inválidos
                   if (!registro || !registro.id) {
                     console.warn("⚠️ Registro inválido encontrado:", registro);
                     return null;
                   }
 
-                  const dataBR = registro.data_criacao 
-                    ? new Date(registro.data_criacao).toLocaleDateString('pt-BR')
+                  const dataBR = registro.data_criacao
+                    ? new Date(registro.data_criacao).toLocaleDateString("pt-BR")
                     : "Data não disponível";
                   const horaBR = registro.data_criacao
-                    ? new Date(registro.data_criacao).toLocaleTimeString('pt-BR')
+                    ? new Date(registro.data_criacao).toLocaleTimeString("pt-BR")
                     : "Hora não disponível";
 
                   return (
                     <Card
                       key={registro.id}
                       className="shadow-sm border-0 mb-3 border-start border-4"
-                      style={{ 
-                        borderLeftColor: `var(--bs-${getTipoColor(registro.tipo || 'Observação Geral')})`,
-                        cursor: "pointer"
+                      style={{
+                        borderLeftColor: `var(--bs-${getTipoColor(registro.tipo || "Observação Geral")})`,
+                        cursor: "pointer",
                       }}
                       onClick={() => abrirProntuario(registro.numero_solipede)}
                     >
@@ -260,7 +268,8 @@ export default function TaskCreatePage() {
                               <strong>{dataBR}</strong> às {horaBR}
                             </p>
                             <p className="mb-0" style={{ fontSize: "13px" }}>
-                              <strong>🐴 {registro.solipede_nome || "N/A"}</strong> - Nº {registro.numero_solipede}
+                              <strong>🐴 {registro.solipede_nome || "N/A"}</strong> - Nº{" "}
+                              {registro.numero_solipede}
                               {registro.solipede_esquadrao && (
                                 <Badge bg="light" text="dark" className="ms-2">
                                   {registro.solipede_esquadrao}
@@ -274,7 +283,8 @@ export default function TaskCreatePage() {
                                 <strong>{registro.usuario_nome || "Sistema"}</strong>
                               </p>
                               <small className="text-muted d-block">
-                                {registro.usuario_registro && `Registro: ${registro.usuario_registro}`}
+                                {registro.usuario_registro &&
+                                  `Registro: ${registro.usuario_registro}`}
                               </small>
                               <Badge bg="secondary" style={{ fontSize: "11px" }}>
                                 {registro.usuario_perfil || "Desconhecido"}
@@ -285,7 +295,11 @@ export default function TaskCreatePage() {
                         <div className="bg-light p-2 rounded mb-2">
                           <p
                             className="mb-0"
-                            style={{ fontSize: "14px", lineHeight: "1.6", whiteSpace: "pre-line" }}
+                            style={{
+                              fontSize: "14px",
+                              lineHeight: "1.6",
+                              whiteSpace: "pre-line",
+                            }}
                           >
                             {registro.observacao}
                           </p>
@@ -316,7 +330,8 @@ export default function TaskCreatePage() {
                 })
               )}
             </Card.Body>
-            
+
+
             {/* Paginação */}
             {itemsPerPage !== "Todos" && totalPages > 1 && (
               <Card.Footer className="bg-white border-top">

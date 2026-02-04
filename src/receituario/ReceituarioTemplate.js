@@ -11,16 +11,14 @@ export const ReceituarioTemplate = React.forwardRef(({ solipede, tratamento, usu
       ref={ref}
       style={{
         width: '210mm',
-        height: '297mm',
+        height: '296mm',
         margin: 0,
-        padding: '15mm 20mm 0 20mm',
+        padding: '15mm 20mm 20mm 20mm',
         fontFamily: 'Arial, sans-serif',
         fontSize: '12px',
         backgroundColor: '#fff',
         color: '#000',
         boxSizing: 'border-box',
-        display: 'flex',
-        flexDirection: 'column',
         position: 'relative',
         overflow: 'hidden'
       }}
@@ -75,8 +73,11 @@ export const ReceituarioTemplate = React.forwardRef(({ solipede, tratamento, usu
         RECEITUÁRIO VETERINÁRIO
       </div>
 
-      {/* CONTEÚDO */}
-      <div>
+      {/* CONTEÚDO - ÁREA COM ALTURA FIXA */}
+      <div style={{
+        height: 'calc(297mm - 15mm - 20mm - 100px - 16px - 10px - 80px)', // Altura total - paddings - cabeçalho - título - rodapé
+        overflow: 'hidden'
+      }}>
         {/* Dados do Solípede */}
         <div style={{ marginBottom: '15px' }}>
           <div style={{ display: 'flex', marginBottom: '8px' }}>
@@ -110,50 +111,52 @@ export const ReceituarioTemplate = React.forwardRef(({ solipede, tratamento, usu
             <strong>Status:</strong> {solipede?.status || '—'}
           </div>
         </div>
-        <hr />
-        {/* Avaliação Clínica */}
+        <hr style={{ margin: '10px 0' }} />
+        
+        {/* Avaliação Clínica - COM ALTURA MÁXIMA */}
         <div style={{ marginBottom: '12px' }}>
           <div style={{ fontWeight: 'bold', marginBottom: '5px' }}>Avaliação Clínica:</div>
           <div style={{
             padding: '2px 0',
             whiteSpace: 'pre-wrap',
-            lineHeight: '1.6'
+            lineHeight: '1.6',
+            maxHeight: '150px',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis'
           }}>
             {tratamento?.observacao || 'Nenhuma observação registrada.'}
           </div>
         </div>
 
-        {/* Prescrição */}
+        {/* Prescrição - COM ALTURA MÁXIMA */}
         <div style={{ marginBottom: '12px' }}>
           <div style={{ fontWeight: 'bold', marginBottom: '5px' }}>Prescrição / Conduta Terapêutica:</div>
           <div style={{
             padding: '2px 0',
             whiteSpace: 'pre-wrap',
-            lineHeight: '1.6'
+            lineHeight: '1.6',
+            maxHeight: '150px',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis'
           }}>
             {tratamento?.recomendacoes || 'Nenhuma prescrição registrada.'}
           </div>
         </div>
-      </div>
 
-      {/* Espaço para Observações Adicionais - Empurrado para o final */}
-      <div style={{ marginTop: 'auto', marginBottom: '20px' }}>
-        <div style={{ fontWeight: 'bold', marginBottom: '8px' }}>Observações Adicionais:</div>
-        <div style={{
-          minHeight: '450px',
-        }}>
+        {/* Observações Adicionais */}
+        <div style={{ marginTop: '15px' }}>
+          <div style={{ fontWeight: 'bold', marginBottom: '5px' }}>Observações Adicionais:</div>
+          
         </div>
       </div>
 
-      {/* RODAPÉ — FIXO NO FINAL DA PÁGINA */}
+      {/* RODAPÉ — POSIÇÃO ABSOLUTA NO FINAL DA PÁGINA */}
       <div style={{
-        marginTop: '90px',
-        paddingTop: '20px',
-        paddingBottom: '5mm',
-        marginLeft: '-20mm',
-        marginRight: '-20mm',
-        paddingLeft: '20mm',
-        paddingRight: '20mm',
+        position: 'absolute',
+        bottom: '20mm',
+        left: '20mm',
+        right: '20mm',
+        paddingTop: '15px'
       }}>
         <div style={{
           textAlign: 'center',
@@ -162,7 +165,8 @@ export const ReceituarioTemplate = React.forwardRef(({ solipede, tratamento, usu
           <div style={{
             borderTop: '1px solid #000',
             width: '300px',
-            margin: '0 auto',
+            margin: '0 auto 5px auto',
+            paddingTop: '5px',
             fontSize: '11px'
           }}>
             Assinatura do Responsável
