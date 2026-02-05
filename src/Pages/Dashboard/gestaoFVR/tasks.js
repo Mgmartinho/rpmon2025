@@ -199,7 +199,27 @@ export default function TaskCreatePage() {
                     </Badge>
                   </h6>
                 </Col>
-                <Col md={6} className="text-end">
+                <Col md={4} className="text-end">
+                  <div className="d-flex align-items-center justify-content-end gap-2">
+                    <small className="text-muted">Lançamentos por Usuário</small>
+                    <Form.Select
+                      size="sm"
+                      style={{ width: "100px" }}
+                      value={itemsPerPage}
+                      //onChange={(e) => setItemsPerPage(e.target.value === "Todos" ? "Todos" : Number(e.target.value))}
+                    >
+                      <option value="Todos">Todos</option>
+                      <option value={"DANIEL HOFMAN GOLCMAN"}>Maj PM Daniel</option>
+                      <option value={"ALEXANDRE BORGHESAN"}>Cap PM Alexandre</option>
+                      <option value={"MARIANA BARONI SELIM"}>Cap PM Mariana</option>
+                      <option value={"SILKE VERENA SCHWARZBACH"}>1º Ten PM Silke</option>
+                      <option value={"TATIANA DE CARVALHO CASTRO"}>1º Ten PM Tatiana</option>
+                      <option value={"GABRYELA BRINHOL SOUZA"}>1º Ten PM Brinhol</option>
+                      <option value={"ELITI VALERO FIORIN"}>1º Ten PM Fiorin</option>
+                    </Form.Select>
+                  </div>
+                </Col>
+                <Col md={2} className="text-end">
                   <div className="d-flex align-items-center justify-content-end gap-2">
                     <small className="text-muted">Exibir:</small>
                     <Form.Select

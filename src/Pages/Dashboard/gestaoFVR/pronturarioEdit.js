@@ -26,6 +26,9 @@ import {
   BsArchive,
   BsPrinter,
 } from "react-icons/bs";
+
+import { LuTriangleAlert } from "react-icons/lu";
+
 import { useParams, useSearchParams } from "react-router-dom";
 import { api } from "../../../services/api";
 import html2pdf from 'html2pdf.js';
@@ -89,6 +92,7 @@ export default function ProntuarioSolipedeEdit() {
   // Estados para edição de Suplementação
   const [showModalEdicaoSuplementacao, setShowModalEdicaoSuplementacao] = useState(false);
   const [observacaoEdicaoSuplementacao, setObservacaoEdicaoSuplementacao] = useState("");
+  const [dataValidadeEdicaoSuplementacao, setDataValidadeEdicaoSuplementacao] = useState("");
   const [suplementacaoEdicao, setSuplementacaoEdicao] = useState({
     produto: "",
     dose: "",
@@ -601,16 +605,16 @@ export default function ProntuarioSolipedeEdit() {
         margin: 0,
         filename: `Receituario_${solipede.nome}_${solipede.numero}_${new Date().toISOString().split('T')[0]}.pdf`,
         image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { 
-          scale: 2, 
-          useCORS: true, 
+        html2canvas: {
+          scale: 2,
+          useCORS: true,
           letterRendering: true,
           windowWidth: 794, // Largura A4 em pixels (210mm)
           windowHeight: 1123 // Altura A4 em pixels (297mm)
         },
-        jsPDF: { 
-          unit: 'mm', 
-          format: 'a4', 
+        jsPDF: {
+          unit: 'mm',
+          format: 'a4',
           orientation: 'portrait',
           compress: true
         },
@@ -955,10 +959,11 @@ export default function ProntuarioSolipedeEdit() {
       if (algumaDietaSelecionada) {
         const dietasLista = [];
 
-        if (dietaSelecionada.fenoSoFeno) dietasLista.push("• Feno (só feno)");
-        if (dietaSelecionada.umQuintoRacao) dietasLista.push("• 1/5 ração");
-        if (dietaSelecionada.fenoMolhado) dietasLista.push("• Feno molhado");
         if (dietaSelecionada.jejum) dietasLista.push("• Jejum");
+        if (dietaSelecionada.meiaRacao) dietasLista.push("• 1/2 ração");
+        if (dietaSelecionada.fenoSoFeno) dietasLista.push("• Feno (só feno)");
+        if (dietaSelecionada.fenoSoFenoMolhado) dietasLista.push("•Somente Feno molhado");
+        if (dietaSelecionada.fenoMolhadoMaisRacao) dietasLista.push("• Feno molhado + ração");
 
         // Montar texto formatado
         const textoDieta = `DIETA PRESCRITA\n\n` +
@@ -993,10 +998,11 @@ export default function ProntuarioSolipedeEdit() {
             setRecomendacoes("");
             // Resetar checkboxes de dieta
             setDietaSelecionada({
-              fenoSoFeno: false,
-              umQuintoRacao: false,
-              fenoMolhado: false,
               jejum: false,
+              meiaRacao: false,
+              fenoSoFeno: false,
+              fenoSoFenoMolhado: false,
+              fenoMolhadoMaisRacao: false,
             });
           }
         } catch (error) {
@@ -1041,6 +1047,7 @@ export default function ProntuarioSolipedeEdit() {
           tipo: tipoObservacao,
           observacao: textoSuplementacao,
           recomendacoes: null, // Suplementação não usa recomendações
+          data_validade: dataValidade && dataValidade.trim() !== "" ? dataValidade : null,
         });
 
         if (response.success || response.id) {
@@ -1055,6 +1062,7 @@ export default function ProntuarioSolipedeEdit() {
           // Limpar formulário
           setObservacao("");
           setRecomendacoes("");
+          setDataValidade("");
           // Resetar campos de suplementação
           setSuplementacao({
             produto: "",
@@ -1130,7 +1138,7 @@ export default function ProntuarioSolipedeEdit() {
         recomendacoes: recomendacoes || null,
         tipo_baixa: tipoObservacao === "Baixa" && tipoBaixa ? tipoBaixa : null,
         data_lancamento: tipoObservacao === "Baixa" && dataLancamento ? dataLancamento : null,
-        data_validade: (tipoObservacao === "Baixa" && dataValidade) || (tipoObservacao === "Restrições" && dataValidade) ? dataValidade : null,
+        data_validade: (tipoObservacao === "Baixa" && dataValidade) || (tipoObservacao === "Restrições" && dataValidade) || (tipoObservacao === "Suplementação" && dataValidade) ? dataValidade : null,
         precisa_baixar: tipoObservacao === "Tratamento" && precisaBaixar ? precisaBaixar : undefined, // Envia 'sim', 'nao' ou undefined
       });
 
@@ -1266,6 +1274,7 @@ export default function ProntuarioSolipedeEdit() {
       // Extrair apenas as observações adicionais (texto após "Observações adicionais:")
       const obsAdicionaisMatch = obs.match(/Observações adicionais:\s*([\s\S]*?)(?=\n\nData da prescrição:|$)/i);
       setObservacaoEdicaoSuplementacao(obsAdicionaisMatch ? obsAdicionaisMatch[1].trim() : "");
+      setDataValidadeEdicaoSuplementacao(registro.data_validade ? registro.data_validade.split('T')[0] : "");
 
       setShowModalEdicaoSuplementacao(true);
     } else {
@@ -1313,6 +1322,7 @@ export default function ProntuarioSolipedeEdit() {
     setShowModalEdicaoSuplementacao(false);
     setRegistroEditando(null);
     setObservacaoEdicaoSuplementacao("");
+    setDataValidadeEdicaoSuplementacao("");
     setSuplementacaoEdicao({
       produto: "",
       dose: "",
@@ -1512,6 +1522,9 @@ export default function ProntuarioSolipedeEdit() {
 
       const dadosAtualizacao = {
         observacao: observacaoFinal,
+        data_validade: dataValidadeEdicaoSuplementacao && dataValidadeEdicaoSuplementacao.trim() !== ""
+          ? dataValidadeEdicaoSuplementacao
+          : null,
       };
 
       const response = await api.atualizarProntuario(registroEditando.id, dadosAtualizacao);
@@ -2064,6 +2077,34 @@ export default function ProntuarioSolipedeEdit() {
             </Card.Body>
           </Card>
 
+          {/* RESTRIÇÕES LANÇADAS APARECE NO PERFIL DO SOLÍPEDE */}
+          {historico.filter(reg => reg.tipo === "Restrições").length > 0 ? (
+            <Card className="shadow-sm border-0 mb-3">
+              <Card.Header className="bg-warning text-dark border-0 fw-semibold d-flex align-items-center gap-2 opacity-90">
+                <LuTriangleAlert size={18} />
+                <span>Restrições</span>
+              </Card.Header>
+
+              <ListGroup variant="flush">
+                {historico
+                  .filter(reg => reg.tipo === "Restrições")
+                  .map((reg, index) => (
+                    <ListGroup.Item key={index} className="py-3">
+                      <small className="text-muted d-block mb-1">
+                        {reg.descricao || "Restrição registrada"}
+                      </small>
+                      <span className="fw-semibold">
+                        {reg.observacao || "Ativa"}
+                      </span>
+                    </ListGroup.Item>
+                  ))}
+              </ListGroup>
+            </Card>
+          ) : null}
+
+
+
+
           {/* Dados Pessoais */}
           <Card className="shadow-sm border-0 mb-3">
             <Card.Header className="bg-light border-0 fw-bold">
@@ -2113,12 +2154,7 @@ export default function ProntuarioSolipedeEdit() {
                 <small className="text-muted d-block">Origem</small>
                 <strong>{solipede.origem || "N/A"}</strong>
               </ListGroup.Item>
-              {/* <ListGroup.Item>
-                <small className="text-muted d-block">Carga Horária</small>
-                <strong>
-                  {solipede.cargaHoraria ? `${solipede.cargaHoraria}h` : "N/A"}
-                </strong>
-              </ListGroup.Item> */}
+
             </ListGroup>
           </Card>
 
@@ -2330,6 +2366,20 @@ export default function ProntuarioSolipedeEdit() {
                             <Form.Label className="fw-bold mb-3">🥕 Selecione a(s) opção(ões) de dieta:</Form.Label>
                             <Form.Check
                               type="checkbox"
+                              label="Jejum"
+                              className="mb-2"
+                              checked={dietaSelecionada.jejum}
+                              onChange={(e) => setDietaSelecionada({ ...dietaSelecionada, jejum: e.target.checked })}
+                            />
+                              <Form.Check
+                                type="checkbox"
+                                label="1/2 ração"
+                                className="mb-2"
+                                checked={dietaSelecionada.meiaRacao}
+                                onChange={(e) => setDietaSelecionada({ ...dietaSelecionada, meiaRacao: e.target.checked })}
+                              />
+                            <Form.Check
+                              type="checkbox"
                               label="Feno (só feno)"
                               className="mb-2"
                               checked={dietaSelecionada.fenoSoFeno}
@@ -2337,24 +2387,17 @@ export default function ProntuarioSolipedeEdit() {
                             />
                             <Form.Check
                               type="checkbox"
-                              label="1/2 ração"
-                              className="mb-2"
-                              checked={dietaSelecionada.umQuintoRacao}
-                              onChange={(e) => setDietaSelecionada({ ...dietaSelecionada, umQuintoRacao: e.target.checked })}
-                            />
-                            <Form.Check
-                              type="checkbox"
                               label="Feno molhado"
                               className="mb-2"
-                              checked={dietaSelecionada.fenoMolhado}
-                              onChange={(e) => setDietaSelecionada({ ...dietaSelecionada, fenoMolhado: e.target.checked })}
+                              checked={dietaSelecionada.fenoSoFenoMolhado}
+                              onChange={(e) => setDietaSelecionada({ ...dietaSelecionada, fenoSoFenoMolhado: e.target.checked })}
                             />
                             <Form.Check
                               type="checkbox"
-                              label="Jejum"
+                              label="Feno molhado + Meia ração paga de ração"
                               className="mb-2"
-                              checked={dietaSelecionada.jejum}
-                              onChange={(e) => setDietaSelecionada({ ...dietaSelecionada, jejum: e.target.checked })}
+                              checked={dietaSelecionada.fenoMolhadoMaisRacao}
+                              onChange={(e) => setDietaSelecionada({ ...dietaSelecionada, fenoMolhadoMaisRacao: e.target.checked })}
                             />
                           </div>
                         )}
@@ -2364,7 +2407,7 @@ export default function ProntuarioSolipedeEdit() {
                           <div className="mt-3 mb-3 p-3 rounded" style={{ backgroundColor: "#f8f9fa", border: "1px solid #dee2e6" }}>
                             <Form.Label className="fw-bold mb-3">💊 Dados da Suplementação:</Form.Label>
                             <Row>
-                              <Col md={12}>
+                              <Col md={6}>
                                 <Form.Group className="mb-3">
                                   <Form.Label className="fw-bold">Produto *</Form.Label>
                                   <Form.Control
@@ -2375,6 +2418,21 @@ export default function ProntuarioSolipedeEdit() {
                                     onChange={(e) => setSuplementacao({ ...suplementacao, produto: e.target.value })}
                                     disabled={salvando}
                                   />
+                                </Form.Group>
+                              </Col>
+                              <Col md={6}>
+                                <Form.Group className="mb-3">
+                                  <Form.Label className="fw-bold">Data de Finalização</Form.Label>
+                                  
+                                  <Form.Control
+                                  type="date"
+                                  size="sm"
+                                  value={dataValidade}
+                                  onChange={(e) => setDataValidade(e.target.value)}
+                                />
+                                <small className="text-muted d-block mb-1">
+                                    Data de Validade da Suplementação (Opcional)
+                                  </small>
                                 </Form.Group>
                               </Col>
                             </Row>
@@ -2740,6 +2798,8 @@ export default function ProntuarioSolipedeEdit() {
                                 ? "Motivo da Movimentação (opcional)"
                                 : tipoObservacao === "Tratamento"
                                   ? "🩺 Observação Clínica"
+                                  : tipoObservacao === "Restrições"
+                                    ? "Tipo de Restrição"
                                   : "Observação"}
                           </Form.Label>
 
@@ -2926,6 +2986,7 @@ export default function ProntuarioSolipedeEdit() {
                                 produto: "",
                                 dose: "",
                                 frequencia: "",
+                                data_validade: "",
                               });
                               // Resetar campo de movimentação
                               setNovaAlocacao("");
@@ -2935,6 +2996,7 @@ export default function ProntuarioSolipedeEdit() {
                             Limpar
                           </Button>
                         </div>
+
                       </Form>
                     </Card.Body>
                   </Card>
@@ -3078,8 +3140,24 @@ export default function ProntuarioSolipedeEdit() {
 
                                       {/* Data e hora - mais discreto */}
                                       <div className="text-muted" style={{ fontSize: "12px", fontWeight: "400" }}>
-                                        <BsClockHistory className="me-1" style={{ fontSize: "11px" }} />
-                                        {dataBR} às {horaBR}
+                                        <Row className="align-items-center">
+                                          <Col md="auto" className="d-flex align-items-center">
+                                            <BsClockHistory className="me-1" style={{ fontSize: "11px" }} />
+                                            {dataBR} às {horaBR}
+                                          </Col>
+
+                                          {registro.tipo === "Suplementação" && (
+                                            <Col md={6}>
+                                              <div className="d-flex align-items-center gap-2">
+                                                <span className="text-muted">Data de Validade Suplementação:</span>
+                                                <Badge bg="primary" style={{ fontSize: "11px" }}>
+                                                  {new Date(registro.data_validade).toLocaleDateString("pt-BR")}
+                                                </Badge>
+                                              </div>
+                                            </Col>
+                                          )}
+
+                                        </Row>
                                       </div>
                                     </div>
 
@@ -3166,6 +3244,11 @@ export default function ProntuarioSolipedeEdit() {
                                       }}
                                     >
                                       {registro.observacao}
+                                      {registro.tipo === "Suplementação" && ( 
+                                        <p>
+                                            Data de Validade da Suplementação: {new Date(registro.data_validade).toLocaleDateString('pt-BR')}
+                                        </p>
+                                  )}
                                     </p>
                                   </div>
 
@@ -4786,44 +4869,61 @@ export default function ProntuarioSolipedeEdit() {
                                       <Card.Body>
                                         <div className="d-flex justify-content-between align-items-start mb-3">
                                           <div className="flex-grow-1">
-                                            <div className="d-flex align-items-center gap-2 mb-2">
-                                              <Badge
-                                                bg="info"
-                                                className="bg-opacity-10"
-                                                text="info"
-                                                style={{
-                                                  fontSize: "11px",
-                                                  padding: "4px 10px",
-                                                  fontWeight: "600",
-                                                  textTransform: "uppercase",
-                                                  letterSpacing: "0.5px"
-                                                }}
-                                              >
-                                                Suplementação
-                                              </Badge>
+  <div className="d-flex align-items-center gap-2 mb-2">
+    <Badge
+      bg="info"
+      className="bg-opacity-10"
+      text="info"
+      style={{
+        fontSize: "11px",
+        padding: "4px 10px",
+        fontWeight: "600",
+        textTransform: "uppercase",
+        letterSpacing: "0.5px"
+      }}
+    >
+      Suplementação
+    </Badge>
 
-                                              {isConcluido && (
-                                                <Badge
-                                                  bg="success"
-                                                  className="bg-opacity-10"
-                                                  text="success"
-                                                  style={{
-                                                    fontSize: "10px",
-                                                    padding: "4px 8px",
-                                                    fontWeight: "500"
-                                                  }}
-                                                >
-                                                  <BsCheckCircle className="me-1" style={{ fontSize: "10px" }} />
-                                                  Concluída
-                                                </Badge>
-                                              )}
-                                            </div>
+    {isConcluido && (
+      <Badge
+        bg="success"
+        className="bg-opacity-10"
+        text="success"
+        style={{
+          fontSize: "10px",
+          padding: "4px 8px",
+          fontWeight: "500"
+        }}
+      >
+        <BsCheckCircle className="me-1" style={{ fontSize: "10px" }} />
+        Concluída
+      </Badge>
+    )}
+  </div>
 
-                                            <div className="text-muted" style={{ fontSize: "12px", fontWeight: "400" }}>
-                                              <BsClockHistory className="me-1" style={{ fontSize: "11px" }} />
-                                              {dataBR} às {horaBR}
-                                            </div>
-                                          </div>
+  {/* Data e hora + validade */}
+  <div className="text-muted" style={{ fontSize: "12px", fontWeight: "400" }}>
+    <Row className="align-items-center">
+      <Col md="auto" className="d-flex align-items-center">
+        <BsClockHistory className="me-1" style={{ fontSize: "11px" }} />
+        {dataBR} às {horaBR}
+      </Col>
+
+      {registro.tipo === "Suplementação" && (
+        <Col md={6}>
+          <div className="d-flex align-items-center gap-2">
+            <span className="text-muted">Data de Validade Suplementação:</span>
+            <Badge bg="primary" style={{ fontSize: "11px" }}>
+              {new Date(registro.data_validade).toLocaleDateString("pt-BR")}
+            </Badge>
+          </div>
+        </Col>
+      )}
+    </Row>
+  </div>
+</div>
+
 
                                           <div className="d-flex gap-2">
                                             {mostrarBotaoConcluir && (
@@ -5544,7 +5644,7 @@ export default function ProntuarioSolipedeEdit() {
                   </Col>
                 </Row>
                 <Row>
-                  <Col md={6}>
+                  <Col md={4}>
                     <Form.Group className="mb-3">
                       <Form.Label className="fw-bold">Dose *</Form.Label>
                       <Form.Control
@@ -5555,7 +5655,7 @@ export default function ProntuarioSolipedeEdit() {
                       />
                     </Form.Group>
                   </Col>
-                  <Col md={6}>
+                  <Col md={4}>
                     <Form.Group className="mb-3">
                       <Form.Label className="fw-bold">Frequência *</Form.Label>
                       <Form.Control
@@ -5564,6 +5664,19 @@ export default function ProntuarioSolipedeEdit() {
                         value={suplementacaoEdicao.frequencia}
                         onChange={(e) => setSuplementacaoEdicao({ ...suplementacaoEdicao, frequencia: e.target.value })}
                       />
+                    </Form.Group>
+                  </Col>
+                  <Col md={4}>
+                    <Form.Group className="mb-3">
+                      <Form.Label className="fw-bold">Data de Finalização</Form.Label>
+                      <Form.Control
+                        type="date"
+                        value={dataValidadeEdicaoSuplementacao}
+                        onChange={(e) => setDataValidadeEdicaoSuplementacao(e.target.value)}
+                      />
+                      <small className="text-muted d-block">
+                        Data de Validade (Opcional)
+                      </small>
                     </Form.Group>
                   </Col>
                 </Row>
