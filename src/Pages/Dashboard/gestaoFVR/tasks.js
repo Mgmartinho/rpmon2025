@@ -18,6 +18,9 @@ export default function TaskCreatePage() {
   const [lancamentos, setLancamentos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filtroTipo, setFiltroTipo] = useState("Todos");
+  const [filtroUsuario, setFiltroUsuario] = useState("Todos");
+  const [dataInicio, setDataInicio] = useState("");
+  const [dataFim, setDataFim] = useState("");
 
   // Paginação
   const [currentPage, setCurrentPage] = useState(1);
@@ -40,8 +43,10 @@ export default function TaskCreatePage() {
       console.log("📊 Quantidade:", Array.isArray(data) ? data.length : "não é array");
 
       if (Array.isArray(data)) {
-        console.log("✅ Setando lançamentos:", data.length, "registros");
-        setLancamentos(data);
+        // Filtrar Observações Comportamentais
+        const lancamentosFiltrados = data.filter(reg => reg.tipo !== "Observações Comportamentais");
+        console.log("✅ Setando lançamentos:", lancamentosFiltrados.length, "registros (filtrado de", data.length, ")");
+        setLancamentos(lancamentosFiltrados);
       } else {
         console.log("⚠️ Dados não são array, setando vazio");
         setLancamentos([]);
@@ -70,10 +75,40 @@ export default function TaskCreatePage() {
     return cores[tipo] || "secondary";
   };
 
-  const lancamentosFiltrados =
-    filtroTipo === "Todos"
-      ? lancamentos
-      : lancamentos.filter((l) => l.tipo === filtroTipo);
+  // Extrair usuários únicos dos lançamentos
+  const usuariosDisponiveis = ["Todos", ...new Set(
+    lancamentos
+      .map(l => l.usuario_nome)
+      .filter(nome => nome && nome.trim() !== "")
+      .sort()
+  )];
+
+  
+
+  // Filtros combinados
+  const lancamentosFiltrados = lancamentos.filter((l) => {
+    // Filtro por tipo
+    if (filtroTipo !== "Todos" && l.tipo !== filtroTipo) return false;
+    
+    // Filtro por usuário
+    if (filtroUsuario !== "Todos" && l.usuario_nome !== filtroUsuario) return false;
+    
+    // Filtro por data de início
+    if (dataInicio) {
+      const dataLancamento = new Date(l.data_criacao);
+      const dataInicioFiltro = new Date(dataInicio + "T00:00:00");
+      if (dataLancamento < dataInicioFiltro) return false;
+    }
+    
+    // Filtro por data de fim
+    if (dataFim) {
+      const dataLancamento = new Date(l.data_criacao);
+      const dataFimFiltro = new Date(dataFim + "T23:59:59");
+      if (dataLancamento > dataFimFiltro) return false;
+    }
+    
+    return true;
+  });
 
   // Cálculos de paginação
   const totalPages = itemsPerPage === "Todos"
@@ -93,7 +128,7 @@ export default function TaskCreatePage() {
   // Reset da página ao mudar filtro
   useEffect(() => {
     setCurrentPage(1);
-  }, [filtroTipo, itemsPerPage]);
+  }, [filtroTipo, filtroUsuario, dataInicio, dataFim, itemsPerPage]);
 
   const tiposDisponiveis = ["Todos", "Tratamento", "Restrições", "Dieta", "Suplementação", "Movimentação"];
 
@@ -187,10 +222,11 @@ export default function TaskCreatePage() {
         </Col>
 
         {/* COLUNA DIREITA - Lista de Lançamentos */}
+        {/* FechamentoCampo de filtros de TASKS */}
         <Col xl={9} lg={8}>
           <Card className="shadow-sm">
             <Card.Header className="bg-white">
-              <Row className="align-items-center">
+              <Row className="align-items-center mb-3">
                 <Col md={6}>
                   <h6 className="mb-0">
                     {filtroTipo !== "Todos" ? `Lançamentos: ${filtroTipo}` : "Todos os Lançamentos"}
@@ -199,27 +235,7 @@ export default function TaskCreatePage() {
                     </Badge>
                   </h6>
                 </Col>
-                <Col md={4} className="text-end">
-                  <div className="d-flex align-items-center justify-content-end gap-2">
-                    <small className="text-muted">Lançamentos por Usuário</small>
-                    <Form.Select
-                      size="sm"
-                      style={{ width: "100px" }}
-                      value={itemsPerPage}
-                      //onChange={(e) => setItemsPerPage(e.target.value === "Todos" ? "Todos" : Number(e.target.value))}
-                    >
-                      <option value="Todos">Todos</option>
-                      <option value={"DANIEL HOFMAN GOLCMAN"}>Maj PM Daniel</option>
-                      <option value={"ALEXANDRE BORGHESAN"}>Cap PM Alexandre</option>
-                      <option value={"MARIANA BARONI SELIM"}>Cap PM Mariana</option>
-                      <option value={"SILKE VERENA SCHWARZBACH"}>1º Ten PM Silke</option>
-                      <option value={"TATIANA DE CARVALHO CASTRO"}>1º Ten PM Tatiana</option>
-                      <option value={"GABRYELA BRINHOL SOUZA"}>1º Ten PM Brinhol</option>
-                      <option value={"ELITI VALERO FIORIN"}>1º Ten PM Fiorin</option>
-                    </Form.Select>
-                  </div>
-                </Col>
-                <Col md={2} className="text-end">
+                <Col md={6} className="text-end">
                   <div className="d-flex align-items-center justify-content-end gap-2">
                     <small className="text-muted">Exibir:</small>
                     <Form.Select
@@ -236,8 +252,66 @@ export default function TaskCreatePage() {
                   </div>
                 </Col>
               </Row>
+              
+              {/* Linha de Filtros Avançados */}
+              <Row className="g-2 align-items-end">
+                <Col md={4}>
+                  <Form.Group>
+                    <Form.Label className="small text-muted mb-1">👤 Filtrar por Usuário</Form.Label>
+                    <Form.Select
+                      size="sm"
+                      value={filtroUsuario}
+                      onChange={(e) => setFiltroUsuario(e.target.value)}
+                    >
+                      {usuariosDisponiveis.map((usuario) => (
+                        <option key={usuario} value={usuario}>
+                          {usuario}
+                        </option>
+                      ))}
+                    </Form.Select>
+                  </Form.Group>
+                </Col>
+                <Col md={3}>
+                  <Form.Group>
+                    <Form.Label className="small text-muted mb-1">📅 Data Início</Form.Label>
+                    <Form.Control
+                      type="date"
+                      size="sm"
+                      value={dataInicio}
+                      onChange={(e) => setDataInicio(e.target.value)}
+                    />
+                  </Form.Group>
+                </Col>
+                <Col md={3}>
+                  <Form.Group>
+                    <Form.Label className="small text-muted mb-1">📅 Data Fim</Form.Label>
+                    <Form.Control
+                      type="date"
+                      size="sm"
+                      value={dataFim}
+                      onChange={(e) => setDataFim(e.target.value)}
+                    />
+                  </Form.Group>
+                </Col>
+                <Col md={2}>
+                  <Button
+                    size="sm"
+                    variant="outline-secondary"
+                    className="w-100"
+                    onClick={() => {
+                      setFiltroUsuario("Todos");
+                      setDataInicio("");
+                      setDataFim("");
+                    }}
+                  >
+                    🔄 Limpar
+                  </Button>
+                </Col>
+              </Row>
             </Card.Header>
+            {/* FechamentoCampo de filtros de TASKS */}
 
+            {/* Campo de Lançamentos de TASKS */}
             <Card.Body style={{ maxHeight: "70vh", overflowY: "auto" }}>
               {registrosFiltrados.length === 0 ? (
                 <Card className="shadow-sm border-0">
@@ -321,6 +395,11 @@ export default function TaskCreatePage() {
                               whiteSpace: "pre-line",
                             }}
                           >
+                            {registro.origem && registro.destino && (
+                              <span className="d-block mb-1">
+                                <strong>🔄 Movimentação:</strong> {registro.origem} → {registro.destino}
+                              </span>
+                            )}
                             {registro.observacao}
                           </p>
                         </div>

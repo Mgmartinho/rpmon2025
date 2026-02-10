@@ -141,7 +141,9 @@ const DashboardList = () => {
       )
       .map(item => ({
         ...item,
-        idade: calcularIdade(item.DataNascimento)
+        idade: calcularIdade(item.DataNascimento),
+        temRestricao: solipedesComRestricao.has(item.numero),
+        temObservacoes: solipedesComObservacoes.has(item.numero)
       }));
 
     return filtrados.sort((a, b) => {
@@ -154,6 +156,12 @@ const DashboardList = () => {
         valorB = valorB === "N/A" ? -1 : Number(valorB);
       }
 
+      // Se for ordenação por campos booleanos (restrições/observações), converter para número
+      if (campoOrdenacao === "temRestricao" || campoOrdenacao === "temObservacoes") {
+        valorA = valorA ? 1 : 0;
+        valorB = valorB ? 1 : 0;
+      }
+
       if (typeof valorA === "number") {
         return direcaoOrdenacao === "asc"
           ? valorA - valorB
@@ -164,7 +172,7 @@ const DashboardList = () => {
         ? String(valorA).localeCompare(String(valorB), "pt-BR")
         : String(valorB).localeCompare(String(valorA), "pt-BR");
     });
-  }, [dados, filtroTexto, campoOrdenacao, direcaoOrdenacao]);
+  }, [dados, filtroTexto, campoOrdenacao, direcaoOrdenacao, solipedesComRestricao, solipedesComObservacoes]);
 
   // 🔹 PAGINAÇÃO
   const totalPaginas =
@@ -696,10 +704,10 @@ const DashboardList = () => {
               <CabecalhoOrdenavel label="Status" campo="status" />
             </th>
             <th>
-              <CabecalhoOrdenavel label="Restrições" campo="numero" />
+              <CabecalhoOrdenavel label="Restrições" campo="temRestricao" />
             </th>
             <th>
-              <CabecalhoOrdenavel label="Observações" campo="numero" />
+              <CabecalhoOrdenavel label="Observações" campo="temObservacoes" />
             </th>
             <th>
               <CabecalhoOrdenavel label="Validade Ferrageamento" campo="numero" />
@@ -1031,16 +1039,28 @@ const DashboardList = () => {
               <tbody>
                 {observacoes.map((obs) => (
                   <tr key={obs.id}>
-                    <td>
+                    <td className="text-center align-items-center">
                       {new Date(obs.data_criacao).toLocaleDateString("pt-BR")}
                       <br />
-                      <small className="text-muted">
+                      <small className="text-muted ">
                         {new Date(obs.data_criacao).toLocaleTimeString("pt-BR", { hour: '2-digit', minute: '2-digit' })}
                       </small>
                     </td>
-                    <td>
-                      <Badge bg="info">{obs.tipo}</Badge>
+                    <td style={{ width: "110px", textAlign: "center" }}>
+                      <Badge
+                        bg="info"
+                        style={{
+                          whiteSpace: "normal",
+                          wordBreak: "break-word",
+                          fontSize: "12px",
+                          padding: "4px 6px",
+                          lineHeight: "1.2"
+                        }}
+                      >
+                        {obs.tipo}
+                      </Badge>
                     </td>
+
                     <td>
                       <div style={{ fontSize: "14px" }}>
                         {obs.observacao}
@@ -1053,8 +1073,6 @@ const DashboardList = () => {
                     </td>
                     <td style={{ fontSize: "13px" }}>
                       <div>
-                        <strong className="text-success">Lançado:</strong>
-                        <br />
                         {obs.usuario_nome || "N/A"}
                         {obs.usuario_re && ` (RE: ${obs.usuario_re})`}
                       </div>

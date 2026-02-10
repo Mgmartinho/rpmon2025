@@ -113,6 +113,23 @@ export const ReceituarioTemplate = React.forwardRef(({ solipede, tratamento, usu
         </div>
         <hr style={{ margin: '10px 0' }} />
         
+        {/* Diagnóstico - COM ALTURA MÁXIMA */}
+        {tratamento?.diagnosticos && (
+          <div style={{ marginBottom: '12px' }}>
+            <div style={{ fontWeight: 'bold', marginBottom: '5px' }}>Diagnóstico:</div>
+            <div style={{
+              padding: '2px 0',
+              whiteSpace: 'pre-wrap',
+              lineHeight: '1.6',
+              maxHeight: '120px',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis'
+            }}>
+              {tratamento.diagnosticos}
+            </div>
+          </div>
+        )}
+
         {/* Avaliação Clínica - COM ALTURA MÁXIMA */}
         <div style={{ marginBottom: '12px' }}>
           <div style={{ fontWeight: 'bold', marginBottom: '5px' }}>Avaliação Clínica:</div>

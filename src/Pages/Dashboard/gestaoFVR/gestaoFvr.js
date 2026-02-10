@@ -51,7 +51,7 @@ const GestaoFvr = () => {
 
   // Autenticação e permissões
   const usuarioLogado = getUsuarioLogado();
-  const podeEditarSolipede = usuarioLogado && (usuarioLogado.perfil === "Veterinario Admin" || usuarioLogado.perfil === "Desenvolvedor");
+  const podeEditarSolipede = usuarioLogado && (usuarioLogado.perfil === "Veterinario Admin" || usuarioLogado.perfil === "Desenvolvedor" || usuarioLogado.perfil === "Veterinario");
 
   /* ===========================
      CONTROLE INDICADORES
@@ -84,6 +84,7 @@ const GestaoFvr = () => {
   const [showMovModal, setShowMovModal] = useState(false);
   const [selecionados, setSelecionados] = useState([]);
   const [novaMovimentacao, setNovaMovimentacao] = useState("");
+  const [dataMovimentacao, setDataMovimentacao] = useState("");
   const [observacaoMovimentacao, setObservacaoMovimentacao] = useState("");
   const [senhaConfirmacao, setSenhaConfirmacao] = useState("");
   const [movLoading, setMovLoading] = useState(false);
@@ -198,22 +199,18 @@ const GestaoFvr = () => {
     [dados]
   );
 
-  const restricoes = useMemo(() => {
+  // Consolidar filtragem de restrições em um único useMemo (otimização de performance)
+  const { restricoes, numerosComRestricoes } = useMemo(() => {
     const solipedesComRestricoes = dadosProntuario
       .filter((item) => item.tipo === "Restrições")
       .map((item) => item.numero_solipede);
-
-    // Retorna a quantidade de solípedes únicos com restrições
-    return new Set(solipedesComRestricoes).size;
-  }, [dadosProntuario]);
-
-  // Helper: Set com números dos solípedes que têm restrições
-  const numerosComRestricoes = useMemo(() => {
-    return new Set(
-      dadosProntuario
-        .filter((item) => item.tipo === "Restrições")
-        .map((item) => item.numero_solipede)
-    );
+    
+    const numeros = new Set(solipedesComRestricoes);
+    
+    return {
+      restricoes: numeros.size,
+      numerosComRestricoes: numeros
+    };
   }, [dadosProntuario]);
 
   // Função para verificar se um solípede tem restrição
@@ -260,7 +257,6 @@ const GestaoFvr = () => {
         setDadosProntuario([]);
       } else if (Array.isArray(data)) {
         setDadosProntuario(data);
-        console.log(`✅ ${data.length} prontuários carregados`);
       } else {
         setDadosProntuario([]);
       }
@@ -273,6 +269,17 @@ const GestaoFvr = () => {
   useEffect(() => {
     restricoesProntuario();
   }, []);
+
+  // Definir data atual quando o modal de movimentação abrir pela primeira vez
+  useEffect(() => {
+    if (showMovModal) {
+      // Só define a data se estiver vazia (modal foi limpo após fechar)
+      if (dataMovimentacao === "") {
+        const hoje = new Date().toISOString().split('T')[0];
+        setDataMovimentacao(hoje);
+      }
+    }
+  }, [showMovModal]);
 
   // Verificar se tem movimentação - MEMOIZADO
   const temMovimentacao = useMemo(
@@ -335,6 +342,28 @@ const GestaoFvr = () => {
     });
   }, [dados, dadosProntuario, indicador, filtroNumero, filtroAlocacao]);
 
+  // Memoizar lista filtrada do modal de movimentação com early return (otimização de performance)
+  const modalFiltrados = useMemo(() => {
+    // Early return: se não há filtro, retornar lista completa sem iterar
+    if (!filtroModal || filtroModal.trim() === "") {
+      return solipedesFiltrados;
+    }
+    
+    const termo = filtroModal.toLowerCase();
+    return solipedesFiltrados.filter((s) => {
+      return (
+        s.nome?.toLowerCase().includes(termo) ||
+        s.numero?.toString().includes(termo) ||
+        (s.alocacao || "").toLowerCase().includes(termo)
+      );
+    });
+  }, [solipedesFiltrados, filtroModal]);
+
+  // Verificar se todos os solípedes filtrados no modal estão selecionados
+  const todosSelecionadosModal = useMemo(() => {
+    return modalFiltrados.length > 0 && modalFiltrados.every((s) => selecionados.includes(s.numero));
+  }, [modalFiltrados, selecionados]);
+
   /* ===========================
      ORDENAÇÃO – SOLÍPEDES - MEMOIZADA
   =========================== */
@@ -382,8 +411,17 @@ const GestaoFvr = () => {
     };
   }, [solipeddesOrdenados, itemsPerPage, pageSolipede]);
 
-  //calcular idade
-  const calcularIdade = (dataNascimento) => {
+  // Cache de cálculo de idade para evitar recálculos (otimização de performance)
+  const cacheIdade = useMemo(() => new Map(), []);
+  
+  const calcularIdade = useCallback((dataNascimento) => {
+    if (!dataNascimento) return 0;
+    
+    // Verificar cache
+    if (cacheIdade.has(dataNascimento)) {
+      return cacheIdade.get(dataNascimento);
+    }
+    
     const hoje = new Date();
     const nascimento = new Date(dataNascimento);
 
@@ -393,14 +431,16 @@ const GestaoFvr = () => {
     if (m < 0 || (m === 0 && hoje.getDate() < nascimento.getDate())) {
       idade--;
     }
-
+    
+    // Armazenar no cache
+    cacheIdade.set(dataNascimento, idade);
     return idade;
-  };
+  }, [cacheIdade]);
 
 
 
   /* ===========================
-     FUNÇÕES DE EXPORTAÇÃO - MEMOIZADAS
+     FUNÇÕES DE EXPORTAÇÃO - MEMOIZADAS & OTIMIZADAS
   =========================== */
   const exportExcel = useCallback(() => {
     const dadosExportacao = solipedesFiltrados.map((item) => ({
@@ -1127,6 +1167,23 @@ const GestaoFvr = () => {
               </Col>
             </Row>
 
+            {/* <Row className="mb-3">
+              <Col md={6}>
+                <Form.Group>
+                  <Form.Label>Data da Movimentação *</Form.Label>
+                  <Form.Control
+                    type="date"
+                    value={dataMovimentacao}
+                    onChange={(e) => setDataMovimentacao(e.target.value)}
+                    max={new Date().toISOString().split('T')[0]}
+                  />
+                  <Form.Text className="text-muted">
+                    Data padrão: hoje. Pode ser alterada se necessário.
+                  </Form.Text>
+                </Form.Group>
+              </Col>
+            </Row> */}
+
             <Row className="mb-3">
               <Col md={12}>
                 <Form.Group>
@@ -1142,99 +1199,82 @@ const GestaoFvr = () => {
               </Col>
             </Row>
 
-            {(() => {
-              const termo = filtroModal.toLowerCase();
-              const modalFiltrados = solipedesFiltrados.filter((s) => {
-                return (
-                  s.nome?.toLowerCase().includes(termo) ||
-                  s.numero?.toString().includes(termo) ||
-                  (s.alocacao || "").toLowerCase().includes(termo)
-                );
-              });
-
-              const todosSelecionados =
-                modalFiltrados.length > 0 &&
-                modalFiltrados.every((s) => selecionados.includes(s.numero));
-
-              return (
-                <div className="border rounded p-2 mb-3" style={{ maxHeight: 360, overflowY: "auto" }}>
-                  <div className="d-flex justify-content-between align-items-center mb-2">
-                    <strong>Selecionar Solípedes</strong>
-                    <div className="d-flex gap-2">
-                      <Form.Control
-                        size="sm"
-                        placeholder="Filtrar por nº, nome ou alocação atual"
-                        value={filtroModal}
-                        onChange={(e) => setFiltroModal(e.target.value)}
-                        style={{ width: 260 }}
-                      />
-                      <Button
-                        size="sm"
-                        variant="outline-secondary"
-                        onClick={() => {
-                          if (todosSelecionados) {
-                            const restantes = selecionados.filter((n) => !modalFiltrados.some((s) => s.numero === n));
-                            setSelecionados(restantes);
-                          } else {
-                            const novos = modalFiltrados.map((s) => s.numero);
-                            const merge = Array.from(new Set([...selecionados, ...novos]));
-                            setSelecionados(merge);
-                          }
-                        }}
-                      >
-                        {todosSelecionados ? "Limpar seleção" : "Selecionar todos"}
-                      </Button>
-                    </div>
-                  </div>
-
-                  <Table size="sm" hover className="align-middle mb-0">
-                    <thead className="table-light">
-                      <tr>
-                        <th style={{ width: 40 }}></th>
-                        <th>Nº</th>
-                        <th>Nome</th>
-                        <th>Alocação Atual</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {modalFiltrados.map((s) => {
-                        const checked = selecionados.includes(s.numero);
-                        return (
-                          <tr key={s.numero}>
-                            <td>
-                              <Form.Check
-                                type="checkbox"
-                                checked={checked}
-                                onChange={(e) => {
-                                  setSelecionados((prev) => {
-                                    if (e.target.checked) return [...prev, s.numero];
-                                    return prev.filter((n) => n !== s.numero);
-                                  });
-                                }}
-                              />
-                            </td>
-                            <td className="fw-semibold">{s.numero}</td>
-                            <td className="fw-semibold">{s.nome}</td>
-                            <td>
-                              <Badge bg="secondary" className="bg-opacity-50">
-                                {s.alocacao || "Não definida"}
-                              </Badge>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                      {modalFiltrados.length === 0 && (
-                        <tr>
-                          <td colSpan={4} className="text-center text-muted py-3">
-                            Nenhum solípede encontrado com esse filtro.
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </Table>
+            <div className="border rounded p-2 mb-3" style={{ maxHeight: 360, overflowY: "auto" }}>
+              <div className="d-flex justify-content-between align-items-center mb-2">
+                <strong>Selecionar Solípedes</strong>
+                <div className="d-flex gap-2">
+                  <Form.Control
+                    size="sm"
+                    placeholder="Filtrar por nº, nome ou alocação atual"
+                    value={filtroModal}
+                    onChange={(e) => setFiltroModal(e.target.value)}
+                    style={{ width: 260 }}
+                  />
+                  <Button
+                    size="sm"
+                    variant="outline-secondary"
+                    onClick={() => {
+                      if (todosSelecionadosModal) {
+                        const restantes = selecionados.filter((n) => !modalFiltrados.some((s) => s.numero === n));
+                        setSelecionados(restantes);
+                      } else {
+                        const novos = modalFiltrados.map((s) => s.numero);
+                        const merge = Array.from(new Set([...selecionados, ...novos]));
+                        setSelecionados(merge);
+                      }
+                    }}
+                  >
+                    {todosSelecionadosModal ? "Limpar seleção" : "Selecionar todos"}
+                  </Button>
                 </div>
-              );
-            })()}
+              </div>
+
+              <Table size="sm" hover className="align-middle mb-0">
+                <thead className="table-light">
+                  <tr>
+                    <th style={{ width: 40 }}></th>
+                    <th>Nº</th>
+                    <th>Nome</th>
+                    <th>Alocação Atual</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {modalFiltrados.map((s) => {
+                    const checked = selecionados.includes(s.numero);
+                    return (
+                      <tr key={s.numero}>
+                        <td>
+                          <Form.Check
+                            type="checkbox"
+                            checked={checked}
+                            onChange={(e) => {
+                              setSelecionados((prev) => {
+                                if (e.target.checked) return [...prev, s.numero];
+                                return prev.filter((n) => n !== s.numero);
+                              });
+                            }}
+                          />
+                        </td>
+                        <td className="fw-semibold">{s.numero}</td>
+                        <td className="fw-semibold">{s.nome}</td>
+                        <td>
+                          <Badge bg="secondary" className="bg-opacity-50">
+                            {s.alocacao || "Não definida"}
+                          </Badge>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                  {modalFiltrados.length === 0 && (
+                    <tr>
+                      <td colSpan={4} className="text-center text-muted py-3">
+                        Nenhum solípede encontrado com esse filtro.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </Table>
+            </div>
 
             {movErro && <Alert variant="danger">{movErro}</Alert>}
             {movSucesso && <Alert variant="success">{movSucesso}</Alert>}
@@ -1249,38 +1289,24 @@ const GestaoFvr = () => {
                 movLoading ||
                 !senhaConfirmacao ||
                 !novaMovimentacao ||
+                !dataMovimentacao ||
                 selecionados.length === 0
               }
               onClick={async () => {
                 try {
-                  console.log("🎯 BOTÃO CLICADO - Iniciando movimentação em lote (ALTERA ALOCAÇÃO)");
-                  console.log("📦 Dados a serem enviados:");
-                  console.log("   - selecionados:", selecionados);
-                  console.log("   - novaAlocacao:", novaMovimentacao);
-                  console.log("   - observacao:", observacaoMovimentacao);
-                  console.log("   - senha:", senhaConfirmacao ? "****" : "vazia");
-
-                  if (!novaMovimentacao || novaMovimentacao === "") {
-                    setMovErro("Selecione uma nova alocação");
-                    return;
-                  }
-
                   setMovErro("");
                   setMovSucesso("");
                   setMovLoading(true);
 
-                  console.log("📡 Chamando api.movimentacaoBulk...");
                   const resp = await api.movimentacaoBulk({
                     numeros: selecionados,
                     novaAlocacao: novaMovimentacao,
+                    dataMovimentacao: dataMovimentacao,
                     observacao: observacaoMovimentacao || null,
                     senha: senhaConfirmacao,
                   });
 
-                  console.log("📥 Resposta da API:", resp);
-
                   if (resp && resp.success) {
-                    console.log("✅ Sucesso! Atualizando dados localmente...");
                     // Atualiza a alocação dos solípedes selecionados
                     setDados((prev) =>
                       prev.map((d) =>
@@ -1297,6 +1323,7 @@ const GestaoFvr = () => {
                     setSelecionados([]);
                     setSenhaConfirmacao("");
                     setNovaMovimentacao("");
+                    setDataMovimentacao("");
                     setObservacaoMovimentacao("");
                     setFiltroModal("");
 
@@ -1307,7 +1334,6 @@ const GestaoFvr = () => {
                       setMovSucesso("");
                     }, 1500);
                   } else {
-                    console.log("❌ Erro na resposta:", resp?.error);
                     setMovErro(resp?.error || "Falha ao aplicar movimentação");
                   }
                 } catch (e) {
@@ -1315,7 +1341,6 @@ const GestaoFvr = () => {
                   setMovErro(e.message || "Erro inesperado");
                 } finally {
                   setMovLoading(false);
-                  console.log("🎯 FIM - movimentação em lote");
                 }
               }}
             >

@@ -177,21 +177,10 @@ export const api = {
     return response.json();
   },
 
-  movimentacaoBulk: async ({ numeros, novaAlocacao, observacao, senha }) => {
-    console.log("🌐 API.movimentacaoBulk CHAMADO");
-    console.log("   - numeros:", numeros);
-    console.log("   - novaAlocacao:", novaAlocacao);
-    console.log("   - observacao:", observacao);
-    console.log("   - senha:", senha ? "****" : "vazia");
-    
+  movimentacaoBulk: async ({ numeros, novaAlocacao, dataMovimentacao, observacao, senha }) => {
     const token = localStorage.getItem("token");
-    console.log("   - token:", token ? "existe" : "NÃO EXISTE");
-    
     const url = `${API_BASE_URL}/gestaoFVR/solipedes/movimentacao/bulk`;
-    console.log("   - URL:", url);
-    
-    const body = { numeros, novaAlocacao, observacao, senha };
-    console.log("   - Body completo:", body);
+    const body = { numeros, novaAlocacao, dataMovimentacao, observacao, senha };
     
     // Não usar fetchWithAuth aqui para evitar logout automático em caso de senha incorreta
     const response = await fetch(url, {
@@ -202,21 +191,15 @@ export const api = {
       },
       body: JSON.stringify(body),
     });
-
-    console.log("   - Response status:", response.status);
-    console.log("   - Response ok:", response.ok);
     
     const contentType = response.headers.get("content-type") || "";
     const raw = await response.text();
-    console.log("   - Response raw:", raw);
     
     if (contentType.includes("application/json")) {
       try {
         const parsed = JSON.parse(raw);
-        console.log("   - Response parsed:", parsed);
         return parsed;
       } catch (e) {
-        console.error("   - Erro ao parsear JSON:", e);
         return { error: "Resposta JSON inválida", detail: raw };
       }
     }

@@ -45,6 +45,7 @@ export default function ProntuarioSolipedeEdit() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [observacao, setObservacao] = useState("");
+  const [diagnostico, setDiagnostico] = useState("");
   const [recomendacoes, setRecomendacoes] = useState("");
   const [tipoObservacao, setTipoObservacao] = useState("Tratamento");
   const [historico, setHistorico] = useState([]);
@@ -71,6 +72,7 @@ export default function ProntuarioSolipedeEdit() {
   const [registroEditando, setRegistroEditando] = useState(null);
   const [showModalEdicao, setShowModalEdicao] = useState(false);
   const [observacaoEdicao, setObservacaoEdicao] = useState("");
+  const [diagnosticoEdicao, setDiagnosticoEdicao] = useState("");
   const [recomendacoesEdicao, setRecomendacoesEdicao] = useState("");
   const [dataValidadeEdicao, setDataValidadeEdicao] = useState("");
 
@@ -670,8 +672,11 @@ export default function ProntuarioSolipedeEdit() {
           });
         }
 
-        // Garantir que response seja sempre um array
-        setHistorico(Array.isArray(response) ? response : []);
+        // Garantir que response seja sempre um array e filtrar Observações Comportamentais
+        const historicoFiltrado = Array.isArray(response) 
+          ? response.filter(reg => reg.tipo !== "Observações Comportamentais")
+          : [];
+        setHistorico(historicoFiltrado);
 
         // Debug: mostrar tipos dos registros
         if (Array.isArray(response) && response.length > 0) {
@@ -1130,17 +1135,23 @@ export default function ProntuarioSolipedeEdit() {
     try {
       console.log("📤 Enviando prontuário para servidor...");
       console.log("🔍 Tipo:", tipoObservacao, "PrecisaBaixar:", precisaBaixar);
+      console.log("🔬 Diagnóstico:", diagnostico);
 
-      const response = await api.salvarProntuario({
+      const dadosEnvio = {
         numero_solipede: numero,
         tipo: tipoObservacao,
         observacao,
+        diagnosticos: tipoObservacao === "Tratamento" && diagnostico ? diagnostico : null,
         recomendacoes: recomendacoes || null,
         tipo_baixa: tipoObservacao === "Baixa" && tipoBaixa ? tipoBaixa : null,
         data_lancamento: tipoObservacao === "Baixa" && dataLancamento ? dataLancamento : null,
         data_validade: (tipoObservacao === "Baixa" && dataValidade) || (tipoObservacao === "Restrições" && dataValidade) || (tipoObservacao === "Suplementação" && dataValidade) ? dataValidade : null,
         precisa_baixar: tipoObservacao === "Tratamento" && precisaBaixar ? precisaBaixar : undefined, // Envia 'sim', 'nao' ou undefined
-      });
+      };
+
+      console.log("📦 Dados completos sendo enviados:", dadosEnvio);
+
+      const response = await api.salvarProntuario(dadosEnvio);
 
       console.log("📥 Resposta do servidor:", response);
 
@@ -1149,10 +1160,12 @@ export default function ProntuarioSolipedeEdit() {
 
         // Recarregar o histórico para pegar os dados do usuário
         const historicoAtualizado = await api.listarProntuario(numero);
-        console.log("📖 Histórico atualizado:", historicoAtualizado);
+        // Filtrar Observações Comportamentais
+        const historicoFiltrado = historicoAtualizado.filter(reg => reg.tipo !== "Observações Comportamentais");
+        console.log("📖 Histórico atualizado:", historicoFiltrado);
 
         // Debug: verificar se precisa_baixar está vindo no histórico atualizado
-        const ultimoTratamento = historicoAtualizado.find(h => h.tipo === "Tratamento");
+        const ultimoTratamento = historicoFiltrado.find(h => h.tipo === "Tratamento");
         if (ultimoTratamento) {
           console.log("🔍 DEBUG - Último tratamento retornado:", {
             id: ultimoTratamento.id,
@@ -1161,7 +1174,7 @@ export default function ProntuarioSolipedeEdit() {
           });
         }
 
-        setHistorico(historicoAtualizado);
+        setHistorico(historicoFiltrado);
 
         // Se for baixa, atualizar contador e status do solípede
         if (tipoObservacao === "Baixa") {
@@ -1180,6 +1193,7 @@ export default function ProntuarioSolipedeEdit() {
         }
 
         setObservacao("");
+        setDiagnostico("");
         setRecomendacoes("");
         setDataLancamento("");
         setDataValidade("");
@@ -1280,6 +1294,7 @@ export default function ProntuarioSolipedeEdit() {
     } else {
       // Tratamento e outros
       setObservacaoEdicao(registro.observacao || "");
+      setDiagnosticoEdicao(registro.diagnosticos || "");
       setRecomendacoesEdicao(registro.recomendacoes || "");
       setDataValidadeEdicao(registro.data_validade ? registro.data_validade.split('T')[0] : "");
       setShowModalEdicao(true);
@@ -1291,6 +1306,7 @@ export default function ProntuarioSolipedeEdit() {
     setShowModalEdicao(false);
     setRegistroEditando(null);
     setObservacaoEdicao("");
+    setDiagnosticoEdicao("");
     setRecomendacoesEdicao("");
     setDataValidadeEdicao("");
     setNovoStatus(""); // Resetar seleção de status
@@ -1349,6 +1365,11 @@ export default function ProntuarioSolipedeEdit() {
         observacao: observacaoEdicao,
         recomendacoes: recomendacoesEdicao || null,
       };
+
+      // Adicionar diagnóstico se for Tratamento
+      if (registroEditando.tipo === "Tratamento") {
+        dadosAtualizacao.diagnosticos = diagnosticoEdicao || null;
+      }
 
       // Apenas incluir data_validade se for uma Restrição
       if (registroEditando.tipo === "Restrições") {
@@ -2308,7 +2329,7 @@ export default function ProntuarioSolipedeEdit() {
                             <option>Suplementação</option>
                             <option>Movimentação</option>
                             {/* <option>Exame</option>
-                          <option>Vacinação</option>
+                            <option>Vacinação</option>
                           <option>Vermifugação</option>
                           <option>Exames AIE / Mormo</option>
                           <option>Observações Comportamentais</option> */}
@@ -2371,13 +2392,13 @@ export default function ProntuarioSolipedeEdit() {
                               checked={dietaSelecionada.jejum}
                               onChange={(e) => setDietaSelecionada({ ...dietaSelecionada, jejum: e.target.checked })}
                             />
-                              <Form.Check
-                                type="checkbox"
-                                label="1/2 ração"
-                                className="mb-2"
-                                checked={dietaSelecionada.meiaRacao}
-                                onChange={(e) => setDietaSelecionada({ ...dietaSelecionada, meiaRacao: e.target.checked })}
-                              />
+                            <Form.Check
+                              type="checkbox"
+                              label="1/2 ração"
+                              className="mb-2"
+                              checked={dietaSelecionada.meiaRacao}
+                              onChange={(e) => setDietaSelecionada({ ...dietaSelecionada, meiaRacao: e.target.checked })}
+                            />
                             <Form.Check
                               type="checkbox"
                               label="Feno (só feno)"
@@ -2423,14 +2444,14 @@ export default function ProntuarioSolipedeEdit() {
                               <Col md={6}>
                                 <Form.Group className="mb-3">
                                   <Form.Label className="fw-bold">Data de Finalização</Form.Label>
-                                  
+
                                   <Form.Control
-                                  type="date"
-                                  size="sm"
-                                  value={dataValidade}
-                                  onChange={(e) => setDataValidade(e.target.value)}
-                                />
-                                <small className="text-muted d-block mb-1">
+                                    type="date"
+                                    size="sm"
+                                    value={dataValidade}
+                                    onChange={(e) => setDataValidade(e.target.value)}
+                                  />
+                                  <small className="text-muted d-block mb-1">
                                     Data de Validade da Suplementação (Opcional)
                                   </small>
                                 </Form.Group>
@@ -2790,6 +2811,27 @@ export default function ProntuarioSolipedeEdit() {
                         )}
 
 
+                        {/* Campo de Diagnóstico para Tratamento */}
+                        {tipoObservacao === "Tratamento" && (
+                          <Form.Group className="mb-3">
+                            <Form.Label className="fw-bold">
+                              🔬 Diagnóstico
+                            </Form.Label>
+                            <Form.Control
+                              as="textarea"
+                              rows={3}
+                              placeholder="Descreva o diagnóstico do solípede..."
+                              value={diagnostico}
+                              onChange={(e) => setDiagnostico(e.target.value)}
+                              style={{ resize: "vertical" }}
+                              disabled={salvando}
+                            />
+                            <small className="text-muted d-block mt-1">
+                              {diagnostico.length} caracteres
+                            </small>
+                          </Form.Group>
+                        )}
+
                         <Form.Group className="mb-3">
                           <Form.Label className="fw-bold">
                             {tipoObservacao === "Exame"
@@ -2800,7 +2842,7 @@ export default function ProntuarioSolipedeEdit() {
                                   ? "🩺 Observação Clínica"
                                   : tipoObservacao === "Restrições"
                                     ? "Tipo de Restrição"
-                                  : "Observação"}
+                                    : "Observação"}
                           </Form.Label>
 
                           {/* Campos de digitação dos registros em NOVO REGISTRO */}
@@ -3151,12 +3193,13 @@ export default function ProntuarioSolipedeEdit() {
                                               <div className="d-flex align-items-center gap-2">
                                                 <span className="text-muted">Data de Validade Suplementação:</span>
                                                 <Badge bg="primary" style={{ fontSize: "11px" }}>
-                                                  {new Date(registro.data_validade).toLocaleDateString("pt-BR")}
+                                                  {registro.data_validade && registro.data_validade !== null && registro.data_validade !== "" 
+                                                    ? new Date(registro.data_validade).toLocaleDateString("pt-BR")
+                                                    : "-"}
                                                 </Badge>
                                               </div>
                                             </Col>
                                           )}
-
                                         </Row>
                                       </div>
                                     </div>
@@ -3232,6 +3275,28 @@ export default function ProntuarioSolipedeEdit() {
                                     )}
                                   </div>
 
+                                  {/* DIAGNÓSTICO (apenas para Tratamento) */}
+                                  {registro.tipo === "Tratamento" && registro.diagnosticos && (
+                                    <div className="mb-3 p-3 rounded" style={{ backgroundColor: "#e3f2fd", border: "1px solid #90caf9" }}>
+                                      <div className="d-flex align-items-center mb-2">
+                                        <span style={{ fontSize: "14px", fontWeight: "600", color: "#1976d2" }}>
+                                          🔬 Diagnóstico
+                                        </span>
+                                      </div>
+                                      <p
+                                        className="mb-0"
+                                        style={{
+                                          fontSize: "14px",
+                                          lineHeight: "1.8",
+                                          whiteSpace: "pre-line",
+                                          color: isConcluido ? "#999" : "#333"
+                                        }}
+                                      >
+                                        {registro.diagnosticos}
+                                      </p>
+                                    </div>
+                                  )}
+
                                   {/* OBSERVAÇÃO */}
                                   <div className="bg-light p-3 rounded mb-3">
                                     <p
@@ -3244,11 +3309,13 @@ export default function ProntuarioSolipedeEdit() {
                                       }}
                                     >
                                       {registro.observacao}
-                                      {registro.tipo === "Suplementação" && ( 
+                                      {registro.tipo === "Suplementação" && (
                                         <p>
-                                            Data de Validade da Suplementação: {new Date(registro.data_validade).toLocaleDateString('pt-BR')}
+                                          Data de Validade da Suplementação: {registro.data_validade && registro.data_validade !== null && registro.data_validade !== "" 
+                                            ? new Date(registro.data_validade).toLocaleDateString('pt-BR')
+                                            : "-"}
                                         </p>
-                                  )}
+                                      )}
                                     </p>
                                   </div>
 
@@ -3280,7 +3347,7 @@ export default function ProntuarioSolipedeEdit() {
                                             </span>
                                           </Col>
                                         )}
-                                        {registro.data_validade && (
+                                        {registro.data_validade && registro.data_validade !== null && registro.data_validade !== "" && (
                                           <Col md={3}>
                                             <small className="text-muted d-block">Validade</small>
                                             <span style={{ fontSize: "13px" }}>
@@ -3319,7 +3386,7 @@ export default function ProntuarioSolipedeEdit() {
                                     </div>
                                   )}
 
-                                  {registro.tipo === "Restrições" && registro.data_validade && (
+                                  {registro.tipo === "Restrições" && registro.data_validade && registro.data_validade !== null && registro.data_validade !== "" && (
                                     <div className="mb-3 p-2 bg-light rounded">
                                       <small className="text-muted d-block">Válido até</small>
                                       <span style={{ fontSize: "14px", color: isRestricaoExpiradaReg ? "#dc3545" : "#28a745", fontWeight: "600" }}>
@@ -3444,6 +3511,7 @@ export default function ProntuarioSolipedeEdit() {
                                 </Card.Body>
                               </Card>
                             );
+                            
                           })}
 
                           {/* Navegação de páginas do Histórico */}
@@ -3503,20 +3571,20 @@ export default function ProntuarioSolipedeEdit() {
                           </Nav.Link>
                         </Nav.Item>
                         <Nav.Item>
+                        <Nav.Link eventKey="vermifugacao" className="me-2">
+                        💊 Vermifugação
+                        </Nav.Link>
+                        </Nav.Item>
+                        <Nav.Item>
+                        <Nav.Link eventKey="aie" className="me-2">
+                        🧪 Exames AIE/Mormo
+                        </Nav.Link>
+                        </Nav.Item> */}
+                        <Nav.Item>
                           <Nav.Link eventKey="vacinacao" className="me-2">
                             💉 Vacinação
                           </Nav.Link>
                         </Nav.Item>
-                        <Nav.Item>
-                          <Nav.Link eventKey="vermifugacao" className="me-2">
-                            💊 Vermifugação
-                          </Nav.Link>
-                        </Nav.Item>
-                        <Nav.Item>
-                          <Nav.Link eventKey="aie" className="me-2">
-                            🧪 Exames AIE/Mormo
-                          </Nav.Link>
-                        </Nav.Item> */}
                         <Nav.Item>
                           <Nav.Link eventKey="restricoes">
                             ⚠️ Restrições
@@ -4490,7 +4558,9 @@ export default function ProntuarioSolipedeEdit() {
                                                     fontWeight: "500"
                                                   }}
                                                 >
-                                                  📅 Validade: {new Date(registro.data_validade).toLocaleDateString('pt-BR')}
+                                                  📅 Validade: {registro.data_validade && registro.data_validade !== null && registro.data_validade !== "" 
+                                                    ? new Date(registro.data_validade).toLocaleDateString('pt-BR')
+                                                    : "-"}
                                                   {isRestricaoExpiradaReg && " (Expirada)"}
                                                 </Badge>
                                               )}
@@ -4869,60 +4939,62 @@ export default function ProntuarioSolipedeEdit() {
                                       <Card.Body>
                                         <div className="d-flex justify-content-between align-items-start mb-3">
                                           <div className="flex-grow-1">
-  <div className="d-flex align-items-center gap-2 mb-2">
-    <Badge
-      bg="info"
-      className="bg-opacity-10"
-      text="info"
-      style={{
-        fontSize: "11px",
-        padding: "4px 10px",
-        fontWeight: "600",
-        textTransform: "uppercase",
-        letterSpacing: "0.5px"
-      }}
-    >
-      Suplementação
-    </Badge>
+                                            <div className="d-flex align-items-center gap-2 mb-2">
+                                              <Badge
+                                                bg="info"
+                                                className="bg-opacity-10"
+                                                text="info"
+                                                style={{
+                                                  fontSize: "11px",
+                                                  padding: "4px 10px",
+                                                  fontWeight: "600",
+                                                  textTransform: "uppercase",
+                                                  letterSpacing: "0.5px"
+                                                }}
+                                              >
+                                                Suplementação
+                                              </Badge>
 
-    {isConcluido && (
-      <Badge
-        bg="success"
-        className="bg-opacity-10"
-        text="success"
-        style={{
-          fontSize: "10px",
-          padding: "4px 8px",
-          fontWeight: "500"
-        }}
-      >
-        <BsCheckCircle className="me-1" style={{ fontSize: "10px" }} />
-        Concluída
-      </Badge>
-    )}
-  </div>
+                                              {isConcluido && (
+                                                <Badge
+                                                  bg="success"
+                                                  className="bg-opacity-10"
+                                                  text="success"
+                                                  style={{
+                                                    fontSize: "10px",
+                                                    padding: "4px 8px",
+                                                    fontWeight: "500"
+                                                  }}
+                                                >
+                                                  <BsCheckCircle className="me-1" style={{ fontSize: "10px" }} />
+                                                  Concluída
+                                                </Badge>
+                                              )}
+                                            </div>
 
-  {/* Data e hora + validade */}
-  <div className="text-muted" style={{ fontSize: "12px", fontWeight: "400" }}>
-    <Row className="align-items-center">
-      <Col md="auto" className="d-flex align-items-center">
-        <BsClockHistory className="me-1" style={{ fontSize: "11px" }} />
-        {dataBR} às {horaBR}
-      </Col>
+                                            {/* Data e hora + validade */}
+                                            <div className="text-muted" style={{ fontSize: "12px", fontWeight: "400" }}>
+                                              <Row className="align-items-center">
+                                                <Col md="auto" className="d-flex align-items-center">
+                                                  <BsClockHistory className="me-1" style={{ fontSize: "11px" }} />
+                                                  {dataBR} às {horaBR}
+                                                </Col>
 
-      {registro.tipo === "Suplementação" && (
-        <Col md={6}>
-          <div className="d-flex align-items-center gap-2">
-            <span className="text-muted">Data de Validade Suplementação:</span>
-            <Badge bg="primary" style={{ fontSize: "11px" }}>
-              {new Date(registro.data_validade).toLocaleDateString("pt-BR")}
-            </Badge>
-          </div>
-        </Col>
-      )}
-    </Row>
-  </div>
-</div>
+                                                {registro.tipo === "Suplementação" && (
+                                                  <Col md={6}>
+                                                    <div className="d-flex align-items-center gap-2">
+                                                      <span className="text-muted">Data de Validade Suplementação:</span>
+                                                      <Badge bg="primary" style={{ fontSize: "11px" }}>
+                                                        {registro.data_validade && registro.data_validade !== null && registro.data_validade !== "" 
+                                                          ? new Date(registro.data_validade).toLocaleDateString("pt-BR")
+                                                          : "-"}
+                                                      </Badge>
+                                                    </div>
+                                                  </Col>
+                                                )}
+                                              </Row>
+                                            </div>
+                                          </div>
 
 
                                           <div className="d-flex gap-2">
@@ -5417,6 +5489,20 @@ export default function ProntuarioSolipedeEdit() {
                 <strong>Criado em:</strong> {new Date(registroEditando.data_criacao).toLocaleString('pt-BR')}
               </Alert>
 
+              {registroEditando.tipo === "Tratamento" && (
+                <Form.Group className="mb-3">
+                  <Form.Label className="fw-bold">🔬 Diagnóstico</Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    rows={3}
+                    value={diagnosticoEdicao}
+                    onChange={(e) => setDiagnosticoEdicao(e.target.value)}
+                    style={{ resize: "vertical" }}
+                    placeholder="Descreva o diagnóstico do solípede..."
+                  />
+                </Form.Group>
+              )}
+
               <Form.Group className="mb-3">
                 <Form.Label className="fw-bold">Observação</Form.Label>
                 <Form.Control
@@ -5726,20 +5812,6 @@ export default function ProntuarioSolipedeEdit() {
             </Alert>
           )}
 
-          <Form.Group className="mb-3">
-            <Form.Label>Novo Status:</Form.Label>
-            <Form.Select
-              value={novoStatus}
-              onChange={(e) => setNovoStatus(e.target.value)}
-              disabled={alterandoStatus}
-            >
-              <option value="">Selecione...</option>
-              <option value="Operante">Operante</option>
-              <option value="Baixado">Baixado</option>
-              <option value="Em Tratamento">Em Tratamento</option>
-              <option value="Descanso">Descanso</option>
-            </Form.Select>
-          </Form.Group>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleFecharModalAlterarStatus} disabled={alterandoStatus}>
