@@ -15,7 +15,7 @@ export const ReceituarioTemplate = React.forwardRef(({ solipede, tratamento, usu
         margin: 0,
         padding: '15mm 20mm 20mm 20mm',
         fontFamily: 'Arial, sans-serif',
-        fontSize: '12px',
+        fontSize: '11px',
         backgroundColor: '#fff',
         color: '#000',
         boxSizing: 'border-box',

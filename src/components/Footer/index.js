@@ -130,16 +130,16 @@ const Footer = () => {
                   Portal Gov.br
                 </a>
               </li>
-              {/* <li>
+              <li>
                 <a
                   href="https://rpmon.intranet.policiamilitar.sp.gov.br/dashboard/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-warning text-decoration-none"
                 >
-                  Portal Veterinário RPMon
+                  Portal Veterinário
                 </a>
-              </li> */}
+              </li> 
             </ul>
           </Col>
 
