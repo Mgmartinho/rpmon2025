@@ -71,7 +71,7 @@ const HeaderDashboard = () => {
   const handleLogin = async () => {
     try {
       const data = await api.login(credenciais.email, credenciais.senha);
-
+       window.location.href = "/dashboard/list";
       if (data.error) {
         alert(data.error);
         return;
@@ -113,29 +113,36 @@ const HeaderDashboard = () => {
 
           {/* CENTRO - MENUS (COLUNA 2) */}
           <Nav className="dashboard-nav d-flex gap-3 justify-content-center">
-            {/* ABAS PÚBLICAS - SEMPRE VISÍVEIS */}
-            <OverlayTrigger placement="bottom" overlay={<Tooltip>Dashboard</Tooltip>}>
-              <Nav.Link as={NavLink} to="/dashboard">
-                <BsHouse />
-              </Nav.Link>
-            </OverlayTrigger>
-
-            <OverlayTrigger placement="bottom" overlay={<Tooltip>Listagem</Tooltip>}>
-              <Nav.Link as={NavLink} to="/dashboard/list">
-                <BsListCheck />
-              </Nav.Link>
-            </OverlayTrigger>
-
-            {/* Carga Horária - Todos podem visualizar */}
-            <OverlayTrigger placement="bottom" overlay={<Tooltip>Carga Horária</Tooltip>}>
-              <Nav.Link as={NavLink} to="/dashboard/AdminCargaHoraria">
-                <BsClockHistory />
-              </Nav.Link>
-            </OverlayTrigger>
-
-            {/* ABAS PROTEGIDAS - SÓ MOSTRA SE LOGADO */}
+            {/* ABAS PROTEGIDAS - SÓ MOSTRA SE LOGADO E COM PERMISSÃO */}
             {usuario && (
               <>
+                {/* Listagem - Todos exceto Consulta */}
+                {temPermissao(usuario.perfil, "VISUALIZAR_DASHBOARD") && (
+                <OverlayTrigger placement="bottom" overlay={<Tooltip>Listagem</Tooltip>}>
+                  <Nav.Link as={NavLink} to="/dashboard/list">
+                    <BsListCheck />
+                  </Nav.Link>
+                </OverlayTrigger>
+                )}
+
+                {/* Estatísticas - Todos exceto Consulta */}
+                {temPermissao(usuario.perfil, "VISUALIZAR_ESTATISTICAS") && (
+                <OverlayTrigger placement="bottom" overlay={<Tooltip>Estatísticas</Tooltip>}>
+                  <Nav.Link as={NavLink} to="/dashboard/estatisticas">
+                    <BsBarChart />
+                  </Nav.Link>
+                </OverlayTrigger>
+                )}
+
+                {/* Carga Horária - Visível para todos exceto Consulta e Ferrador */}
+                {temPermissao(usuario.perfil, "ADMIN_CARGA_HORARIA") && (
+                <OverlayTrigger placement="bottom" overlay={<Tooltip>Carga Horária</Tooltip>}>
+                  <Nav.Link as={NavLink} to="/dashboard/AdminCargaHoraria">
+                    <BsClockHistory />
+                  </Nav.Link>
+                </OverlayTrigger>
+                )}
+
                 {/* Ferradoria - Ferrador e acima */}
                 {temPermissao(usuario.perfil, "GESTAO_FERRAGEAMENTO") && (
                 <OverlayTrigger placement="bottom" overlay={<Tooltip>Ferradoria</Tooltip>}>

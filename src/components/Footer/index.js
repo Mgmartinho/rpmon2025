@@ -122,16 +122,6 @@ const Footer = () => {
               </li>
               <li>
                 <a
-                  href="https://www.stf.jus.br/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-warning text-decoration-none"
-                >
-                  Supremo Tribunal Federal
-                </a>
-              </li>
-              <li>
-                <a
                   href="https://www.gov.br/"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -140,6 +130,16 @@ const Footer = () => {
                   Portal Gov.br
                 </a>
               </li>
+              {/* <li>
+                <a
+                  href="https://rpmon.intranet.policiamilitar.sp.gov.br/dashboard/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-warning text-decoration-none"
+                >
+                  Portal Veterinário RPMon
+                </a>
+              </li> */}
             </ul>
           </Col>
 

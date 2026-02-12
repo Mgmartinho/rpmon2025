@@ -42,17 +42,32 @@ const MainRoutes = () => {
 
       {/* DASHBOARD */}
       <Route path="/dashboard" element={<DashboardLayout />}>
-        {/* Rota padrão - Estatísticas públicas */}
-        <Route index element={<Estatisticas />} />
-        <Route path="list" element={<DashboardList />} />
+        {/* Rota padrão - Listagem protegida (EXCETO Consulta) */}
+        <Route index element={
+          <ProtectedRoute requiredPermission="VISUALIZAR_DASHBOARD">
+            <DashboardList />
+          </ProtectedRoute>
+        } />
         
+        <Route path="list" element={
+          <ProtectedRoute requiredPermission="VISUALIZAR_DASHBOARD">
+            <DashboardList />
+          </ProtectedRoute>
+        } />
+        
+        {/* Estatísticas - Protegida (EXCETO Consulta) */}
+        <Route path="estatisticas" element={
+          <ProtectedRoute requiredPermission="VISUALIZAR_ESTATISTICAS">
+            <Estatisticas />
+          </ProtectedRoute>
+        } />
 
-        {/* Carga Horária - Página Privada (botões internos com controle de permissão) */}
+        {/* Carga Horária - Visível para todos exceto Consulta e Ferrador */}
         <Route path="AdminCargaHoraria" element={
-            <AdminCargaHoraria /> }
-          // <ProtectedRoute requiredPermission="GESTAO_SOLIPEDES">
-          // </ProtectedRoute>
-         />
+          <ProtectedRoute requiredPermission="ADMIN_CARGA_HORARIA">
+            <AdminCargaHoraria />
+          </ProtectedRoute>
+         } />
 
         {/* Estatísticas GestãoFVR - Veterinários e acima */}
         <Route path="estatisticasfvr" element={
@@ -68,12 +83,8 @@ const MainRoutes = () => {
           </ProtectedRoute>
         } />
         
-        {/* Gestão de Solípedes - Ferrador, Pagador e acima */}
-        <Route path="gestaofvr" element={
-          <ProtectedRoute requiredPermission="GESTAO_SOLIPEDES">
-            <GestaoFvr />
-          </ProtectedRoute>
-        } />
+        {/* Gestão de Solípedes - Listagem PÚBLICA, funcionalidades PROTEGIDAS */}
+        <Route path="gestaofvr" element={<GestaoFvr />} />
         
         {/* Tasks/Lançamentos - Veterinários e acima */}
         <Route path="gestaofvr/taskcreatepage" element={

@@ -40,6 +40,7 @@ const ExclusaoSolipede = () => {
   const [solipedeSelecionado, setSolipedeSelecionado] = useState(null);
   const [motivoExclusao, setMotivoExclusao] = useState("");
   const [motivoOutro, setMotivoOutro] = useState(""); // Para quando selecionar "Outro"
+  const [observacao, setObservacao] = useState(""); // Campo adicional de observação
   const [senha, setSenha] = useState("");
   const [erro, setErro] = useState("");
   const [sucesso, setSucesso] = useState("");
@@ -107,6 +108,7 @@ const ExclusaoSolipede = () => {
     setSolipedeSelecionado(solipede);
     setMotivoExclusao("");
     setMotivoOutro("");
+    setObservacao("");
     setSenha("");
     setErro("");
     setShowModal(true);
@@ -141,6 +143,7 @@ const ExclusaoSolipede = () => {
       const resultado = await api.excluirSolipede(
         solipedeSelecionado.numero,
         motivoFinal,
+        observacao,
         senha
       );
 
@@ -250,7 +253,7 @@ const ExclusaoSolipede = () => {
         </Col>
       </Row>
 
-      {/* Filtros com design melhorado */}
+      {/* Filtros */}
       <Card className="mb-4 border-0 shadow-sm">
         <Card.Header className="bg-light border-0">
           <h5 className="mb-0">
@@ -307,7 +310,7 @@ const ExclusaoSolipede = () => {
         </Card.Body>
       </Card>
 
-      {/* Tabela com design melhorado */}
+      {/* Tabela  */}
       <Card className="border-0 shadow-sm">
         <Card.Header className="bg-white border-bottom d-flex justify-content-between align-items-center py-3">
           <h5 className="mb-0">
@@ -334,12 +337,12 @@ const ExclusaoSolipede = () => {
                   <th>Nome</th>
                   <th>Sexo</th>
                   <th>Pelagem</th>
-                  <th>Status</th>
                   <th>Alocação</th>
                   {visualizacao === "excluidos" && (
                     <>
                       <th>Data Exclusão</th>
                       <th>Motivo</th>
+                      <th>Observação</th>
                       <th>Usuário</th>
                     </>
                   )}
@@ -353,13 +356,7 @@ const ExclusaoSolipede = () => {
                     <td>{item.nome || "—"}</td>
                     <td>{item.sexo || "—"}</td>
                     <td>{item.pelagem || "—"}</td>
-                    <td>
-                      <Badge
-                        bg={item.status === "Ativo" ? "success" : "secondary"}
-                      >
-                        {item.status}
-                      </Badge>
-                    </td>
+                   
                     <td>{item.alocacao || "—"}</td>
                     {visualizacao === "excluidos" && (
                       <>
@@ -377,6 +374,21 @@ const ExclusaoSolipede = () => {
                           >
                             {item.motivo_exclusao?.substring(0, 30)}
                             {item.motivo_exclusao?.length > 30 ? "..." : ""}
+                          </span>
+                        </td>
+                        <td>
+                          <span
+                            title={item.observacao || "Sem observações"}
+                            style={{ cursor: "help" }}
+                          >
+                            {item.observacao ? (
+                              <>
+                                {item.observacao?.substring(0, 30)}
+                                {item.observacao?.length > 30 ? "..." : ""}
+                              </>
+                            ) : (
+                              "—"
+                            )}
                           </span>
                         </td>
                         <td>{item.usuario_nome || "—"}</td>
@@ -561,6 +573,20 @@ const ExclusaoSolipede = () => {
               />
             </Form.Group>
           )}
+
+          <Form.Group className="mb-3">
+            <Form.Label>
+              Observações Adicionais
+            </Form.Label>
+            <Form.Control
+              as="textarea"
+              rows={3}
+              placeholder="Adicione observações adicionais sobre a exclusão (opcional)..."
+              value={observacao}
+              onChange={(e) => setObservacao(e.target.value)}
+              disabled={processando}
+            />
+          </Form.Group>
 
           <Form.Group className="mb-3">
             <Form.Label>

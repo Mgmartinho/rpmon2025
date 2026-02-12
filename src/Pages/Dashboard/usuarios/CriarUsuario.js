@@ -15,12 +15,24 @@ const CriarUsuario = () => {
     email: "",
     senha: "",
     confirmarSenha: "",
-    perfil: "Consulta",
+    perfil: "Pendente de Aprovacao", // Perfil padrão para novos usuários deve ser aprovado por um admin
   });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    let valorFormatado = value;
+    
+    // Converte nome para uppercase
+    if (name === "nome") {
+      valorFormatado = value.toUpperCase();
+    }
+    
+    // Converte email para lowercase
+    if (name === "email") {
+      valorFormatado = value.toLowerCase();
+    }
+    
+    setFormData((prev) => ({ ...prev, [name]: valorFormatado }));
   };
 
   const handleSubmit = async (e) => {
@@ -40,8 +52,7 @@ const CriarUsuario = () => {
         formData.nome,
         formData.registro,
         formData.email,
-        formData.senha,
-        formData.perfil
+        formData.senha
       );
 
       if (data.error) {
@@ -52,7 +63,7 @@ const CriarUsuario = () => {
 
       setSucesso("Usuário criado com sucesso!");
       setTimeout(() => {
-        navigate("/dashboard");
+        navigate("/dashboard/list");
       }, 2000);
     } catch (erro) {
       console.error("Erro:", erro);
@@ -82,17 +93,20 @@ const CriarUsuario = () => {
                   value={formData.nome}
                   onChange={handleChange}
                   placeholder="Digite seu nome completo"
+                  style={{ textTransform: 'uppercase' }}
                   required
                 />
               </Form.Group>
 
               <Form.Group className="mb-3">
                 <Form.Label>Registro Militar / RE</Form.Label>
+                <small className="text-muted"> (Sem dígito, apenas 6 primeiros números)</small>  
                 <Form.Control
                   name="registro"
                   value={formData.registro}
                   onChange={handleChange}
                   placeholder="Digite o seu RE sem digito: "
+                  maxLength={6}
                   required
                 />
               </Form.Group>
@@ -105,6 +119,7 @@ const CriarUsuario = () => {
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="Digite seu e-mail"
+                  style={{ textTransform: 'lowercase' }}
                   required
                 />
               </Form.Group>

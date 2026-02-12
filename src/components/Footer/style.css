@@ -1,3 +1,12 @@
+.custom-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 999;
+  margin-top: 0 !important;
+}
+
 .link-hover:hover {
   color: #FFD700;
   text-decoration: none;

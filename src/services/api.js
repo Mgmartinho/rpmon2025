@@ -48,11 +48,11 @@ export const api = {
     return response.json();
   },
 
-  criarUsuario: async (nome, registro, email, senha, perfil) => {
+  criarUsuario: async (nome, registro, email, senha) => {
     const response = await fetch(`${API_BASE_URL}/auth/criar`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ nome, registro, email, senha, perfil }),
+      body: JSON.stringify({ nome, registro, email, senha }),
     });
     return response.json();
   },
@@ -490,7 +490,7 @@ export const api = {
   },
 
   // Exclusão (soft delete)
-  excluirSolipede: async (numero, motivoExclusao, senha) => {
+  excluirSolipede: async (numero, motivoExclusao, observacao, senha) => {
     const token = localStorage.getItem("token");
     const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/solipedes/excluir`, {
       method: "POST",
@@ -498,7 +498,7 @@ export const api = {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ numero, motivoExclusao, senha }),
+      body: JSON.stringify({ numero, motivoExclusao, observacao, senha }),
     });
     return response.json();
   },

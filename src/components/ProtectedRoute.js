@@ -2,11 +2,13 @@ import { Navigate } from "react-router-dom";
 import { Alert, Container } from "react-bootstrap";
 import { temPermissao } from "../utils/permissions";
 import { isAuthenticated, getUsuarioLogado } from "../utils/auth";
+import WelcomeDashboard from "../Pages/Dashboard/geral/WelcomeDashboard";
 
 const ProtectedRoute = ({ children, requiredPermission }) => {
   // Verifica se está autenticado e se o token é válido
   if (!isAuthenticated()) {
-    return <Navigate to="/dashboard" replace />;
+    // Mostra página de boas-vindas estilizada
+    return <WelcomeDashboard />;
   }
 
   const usuario = getUsuarioLogado();

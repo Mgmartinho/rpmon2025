@@ -34,15 +34,18 @@ const PERFIS_SISTEMA = [
   { valor: "Desenvolvedor", label: "Desenvolvedor", descricao: "Acesso completo ao sistema e desenvolvimento", cor: "danger" },
   { valor: "Veterinario Admin", label: "Veterinário Admin", descricao: "Gestão veterinária completa", cor: "primary" },
   { valor: "Veterinario", label: "Veterinário", descricao: "Atendimento e consultas veterinárias", cor: "info" },
+  { valor: "Enfermeiro Veterinario", label: "Enfermeiro Veterinário", descricao: "Apoio e assistência veterinária", cor: "secondary" },
   { valor: "Ferrador", label: "Ferrador", descricao: "Gestão de ferrageamento", cor: "dark" },
+  { valor: "Coordenador Operacional", label: "Coordenador Operacional", descricao: "Gestão operacional e supervisão", cor: "secondary" },
+  { valor: "Observacao Comportamental", label: "Observação Comportamental", descricao: "Registro e acompanhamento comportamental dos solípedes", cor: "info" },
   { valor: "Pagador de cavalo", label: "Pagador de Cavalo", descricao: "Gestão de pagamentos e carga horária", cor: "warning" },
   { valor: "Lancador de Carga Horaria", label: "Lançador de Carga Horária", descricao: "Lançamento e controle de carga horária", cor: "success" },
-  { valor: "Observacao Comportamental", label: "Observação Comportamental", descricao: "Registro e acompanhamento comportamental dos solípedes", cor: "info" },
   { valor: "Consulta", label: "Consulta", descricao: "Apenas visualização de dados públicos", cor: "secondary" },
+  { valor: "Pendente de Aprovacao", label: "Pendente de Aprovação", descricao: "Aguardando aprovação de administrador", cor: "warning" },
 ];
 
 const getPerfilInfo = (perfil) => {
-  return PERFIS_SISTEMA.find(p => p.valor === perfil) || PERFIS_SISTEMA[5];
+  return PERFIS_SISTEMA.find(p => p.valor === perfil) || PERFIS_SISTEMA[10]; // Pendente de Aprovacao como padrão
 };
 
 const ConfiguracaoPerfil = () => {
@@ -54,7 +57,7 @@ const ConfiguracaoPerfil = () => {
   const [nome, setNome] = useState("");
   const [registro, setRegistro] = useState("");
   const [email, setEmail] = useState("");
-  const [perfil, setPerfil] = useState("Consulta");
+  const [perfil, setPerfil] = useState("Pendente de Aprovacao");
 
   // Lista de usuários (para gerenciamento)
   const [usuarios, setUsuarios] = useState([]);
@@ -104,16 +107,16 @@ const ConfiguracaoPerfil = () => {
             setNome(dados.nome || "");
             setRegistro(dados.registro || "");
             setEmail(dados.email || "");
-            setPerfil(dados.perfil || "Consulta");
-            setPerfilSelecionado(dados.perfil || "Consulta");
+            setPerfil(dados.perfil || "Pendente de Aprovacao");
+            setPerfilSelecionado(dados.perfil || "Pendente de Aprovacao");
             localStorage.setItem("usuario", JSON.stringify(dados));
           } else {
             setUsuarioId(usuario.id);
             setNome(usuario.nome || "");
             setRegistro(usuario.registro || "");
             setEmail(usuario.email || "");
-            setPerfil(usuario.perfil || "Consulta");
-            setPerfilSelecionado(usuario.perfil || "Consulta");
+            setPerfil(usuario.perfil || "Pendente de Aprovacao");
+            setPerfilSelecionado(usuario.perfil || "Pendente de Aprovacao");
           }
         } catch (error) {
           console.error("Erro ao carregar dados:", error);
@@ -121,8 +124,8 @@ const ConfiguracaoPerfil = () => {
           setNome(usuario.nome || "");
           setRegistro(usuario.registro || "");
           setEmail(usuario.email || "");
-          setPerfil(usuario.perfil || "Consulta");
-          setPerfilSelecionado(usuario.perfil || "Consulta");
+          setPerfil(usuario.perfil || "Pendente de Aprovacao");
+          setPerfilSelecionado(usuario.perfil || "Pendente de Aprovacao");
         }
       }
     };

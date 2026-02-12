@@ -130,21 +130,6 @@ export const ReceituarioTemplate = React.forwardRef(({ solipede, tratamento, usu
           </div>
         )}
 
-        {/* Avaliação Clínica - COM ALTURA MÁXIMA */}
-        <div style={{ marginBottom: '12px' }}>
-          <div style={{ fontWeight: 'bold', marginBottom: '5px' }}>Avaliação Clínica:</div>
-          <div style={{
-            padding: '2px 0',
-            whiteSpace: 'pre-wrap',
-            lineHeight: '1.6',
-            maxHeight: '150px',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis'
-          }}>
-            {tratamento?.observacao || 'Nenhuma observação registrada.'}
-          </div>
-        </div>
-
         {/* Prescrição - COM ALTURA MÁXIMA */}
         <div style={{ marginBottom: '12px' }}>
           <div style={{ fontWeight: 'bold', marginBottom: '5px' }}>Prescrição / Conduta Terapêutica:</div>
@@ -152,7 +137,6 @@ export const ReceituarioTemplate = React.forwardRef(({ solipede, tratamento, usu
             padding: '2px 0',
             whiteSpace: 'pre-wrap',
             lineHeight: '1.6',
-            maxHeight: '150px',
             overflow: 'hidden',
             textOverflow: 'ellipsis'
           }}>

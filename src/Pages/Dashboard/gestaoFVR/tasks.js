@@ -12,6 +12,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { BsClockHistory, BsClipboard2 } from "react-icons/bs";
 import { api } from "../../../services/api";
+import { getUsuarioLogado } from "../../../utils/auth";
 
 export default function TaskCreatePage() {
   const navigate = useNavigate();
@@ -21,6 +22,13 @@ export default function TaskCreatePage() {
   const [filtroUsuario, setFiltroUsuario] = useState("Todos");
   const [dataInicio, setDataInicio] = useState("");
   const [dataFim, setDataFim] = useState("");
+
+  // Obter perfil do usuário logado
+  const usuarioLogado = getUsuarioLogado();
+  const perfilUsuario = usuarioLogado?.perfil || "";
+
+  // Verificar se é veterinário
+  const isVeterinario = perfilUsuario === "Veterinário" || perfilUsuario === "Veterinário Admin" || perfilUsuario === "Desenvolvedor";
 
   // Paginação
   const [currentPage, setCurrentPage] = useState(1);
@@ -148,6 +156,14 @@ export default function TaskCreatePage() {
       (registro) => registro.status_conclusao === "em_andamento"
     )
     : currentItems;
+
+    const mensagemPersonalizada = [
+      {title: 'Tratamento', message: 'Observações clínicas'},
+      {title: 'Restrições', message: 'Detalhes da restrição'},
+      {title: 'Dieta', message: 'observações'},
+      {title: 'Suplementação', message: 'Detalhes da suplementação prescrita'},
+      {title: 'Movimentação', message: 'Detalhes da movimentação'},
+    ]
 
 
   if (loading) {
@@ -344,10 +360,9 @@ export default function TaskCreatePage() {
                       className="shadow-sm border-0 mb-3 border-start border-4"
                       style={{
                         borderLeftColor: `var(--bs-${getTipoColor(registro.tipo || "Observação Geral")})`,
-                        cursor: "pointer",
                       }}
-                      onClick={() => abrirProntuario(registro.numero_solipede)}
                     >
+                       {/* Inicio do card de lançamentos */}
                       <Card.Body>
                         <Row className="align-items-start mb-2">
                           <Col md={6}>
@@ -370,7 +385,16 @@ export default function TaskCreatePage() {
                                 </Badge>
                               )}
                             </p>
+                            <p>
+                              {registro.foi_responsavel_pela_baixa === 1 && (
+                              <small className="text-muted">
+                                <strong>🔢 Solipede Baixado </strong> 
+                              </small>
+                            
+                            )}
+                          </p>
                           </Col>
+
                           <Col md={6} className="text-end">
                             <div style={{ fontSize: "13px" }}>
                               <p className="mb-1">
@@ -400,9 +424,32 @@ export default function TaskCreatePage() {
                                 <strong>🔄 Movimentação:</strong> {registro.origem} → {registro.destino}
                               </span>
                             )}
-                            {registro.observacao}
+                            {/* Mensagens Personalizadas */}
+                            {registro.tipo === "Tratamento" && (
+                              <span className="d-block mb-1"> 
+                                <strong>Diagnóstico:</strong> 
+                                {registro.diagnosticos || "N/A"}
+                              </span>
+                            )}
+
+                            <span className="d-block mb-1">
+                              <strong>
+                                {mensagemPersonalizada.find(m => m.title === registro.tipo)?.message || "Observações"}:
+                               </strong> {registro.observacao}
+                            </span>
+                          </p>
+
+                          <p>
+                            {/* Adição de data de validade da suplementação */}
+                            {registro.tipo === "Suplementação" && registro.data_validade && (
+                              <span className="d-block mb-1"> 
+                                <strong>Data de validade da suplementação: </strong> 
+                                {registro.data_validade && new Date(registro.data_validade).toLocaleDateString("pt-BR")}
+                              </span>
+                            )}
                           </p>
                         </div>
+
                         {registro.recomendacoes && (
                           <div className="bg-warning bg-opacity-10 p-2 rounded border-start border-warning">
                             <small className="text-muted">
@@ -415,10 +462,9 @@ export default function TaskCreatePage() {
                           <Button
                             size="sm"
                             variant="outline-primary"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              abrirProntuario(registro.numero_solipede);
-                            }}
+                            disabled={!isVeterinario}
+                            onClick={() => abrirProntuario(registro.numero_solipede)}
+                            title={!isVeterinario ? "Acesso restrito a veterinários" : ""}
                           >
                             Ver Prontuário Completo
                           </Button>
@@ -430,10 +476,14 @@ export default function TaskCreatePage() {
               )}
             </Card.Body>
 
-
             {/* Paginação */}
             {itemsPerPage !== "Todos" && totalPages > 1 && (
+
+
+              
               <Card.Footer className="bg-white border-top">
+               
+         
                 <Row className="align-items-center">
                   <Col md={6}>
                     <small className="text-muted">
