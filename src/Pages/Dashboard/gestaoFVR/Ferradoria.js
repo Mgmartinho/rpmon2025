@@ -832,6 +832,7 @@ const Ferradoria = () => {
                   <th><CabecalhoOrdenavel label="Próximo Ferrageamento" campo="proximoFerrageamento" /></th>
                   <th><CabecalhoOrdenavel label="Dias Restantes" campo="diasRestantes" /></th>
                   <th><CabecalhoOrdenavel label="Status" campo="status" /></th>
+                  <th><CabecalhoOrdenavel label="Baia" campo="baia" /></th>
                   <th>Ações</th>
                 </tr>
               </thead>
@@ -895,6 +896,7 @@ const Ferradoria = () => {
                       ) : "—"}
                     </td>
                     <td>{getStatusBadge(item.statusFerrageamento)}</td>
+                    <td>{item.baia || "—"}</td>
                     <td>
                       <Button
                         size="sm"

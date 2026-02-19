@@ -5,6 +5,7 @@ import LogoPmesp from '../Imagens/Logo-PM.png';
 export const ReceituarioTemplate = React.forwardRef(({ solipede, tratamento, usuarioLogado }, ref) => {
   const dataAtual = new Date();
   const dataFormatada = dataAtual.toLocaleDateString('pt-BR');
+  const nomeResponsavel = tratamento?.usuario_nome || usuarioLogado?.nome || '—';
 
   return (
     <div
@@ -77,7 +78,9 @@ export const ReceituarioTemplate = React.forwardRef(({ solipede, tratamento, usu
       <div style={{
         height: 'calc(297mm - 15mm - 20mm - 100px - 16px - 10px - 80px)', // Altura total - paddings - cabeçalho - título - rodapé
         overflow: 'hidden'
-      }}>
+      }}
+          key={solipede?.id}
+      >
         {/* Dados do Solípede */}
         <div style={{ marginBottom: '15px' }}>
           <div style={{ display: 'flex', marginBottom: '8px' }}>
@@ -115,8 +118,8 @@ export const ReceituarioTemplate = React.forwardRef(({ solipede, tratamento, usu
         
         {/* Diagnóstico - COM ALTURA MÁXIMA */}
         {tratamento?.diagnosticos && (
-          <div style={{ marginBottom: '12px' }}>
-            <div style={{ fontWeight: 'bold', marginBottom: '5px' }}>Diagnóstico:</div>
+          <div style={{ marginBottom: '2px' }}>
+            <div style={{ fontWeight: 'bold' }}>Diagnóstico:</div>
             <div style={{
               padding: '2px 0',
               whiteSpace: 'pre-wrap',
@@ -131,8 +134,8 @@ export const ReceituarioTemplate = React.forwardRef(({ solipede, tratamento, usu
         )}
 
         {/* Prescrição - COM ALTURA MÁXIMA */}
-        <div style={{ marginBottom: '12px' }}>
-          <div style={{ fontWeight: 'bold', marginBottom: '5px' }}>Prescrição / Conduta Terapêutica:</div>
+        <div style={{ marginBottom: '2px' }}>
+          <div style={{ fontWeight: 'bold' }}>Prescrição:</div>
           <div style={{
             padding: '2px 0',
             whiteSpace: 'pre-wrap',
@@ -145,7 +148,7 @@ export const ReceituarioTemplate = React.forwardRef(({ solipede, tratamento, usu
         </div>
 
         {/* Observações Adicionais */}
-        <div style={{ marginTop: '15px' }}>
+        <div style={{ marginTop: '2px' }}>
           <div style={{ fontWeight: 'bold', marginBottom: '5px' }}>Observações Adicionais:</div>
           
         </div>
@@ -183,7 +186,7 @@ export const ReceituarioTemplate = React.forwardRef(({ solipede, tratamento, usu
             <strong>Data:</strong> {dataFormatada}
           </div>
           <div>
-            <strong>Responsável:</strong> {usuarioLogado?.nome || '—'}
+            <strong>Responsável:</strong> {nomeResponsavel}
           </div>
         </div>
       </div>

@@ -823,8 +823,8 @@ const GestaoFvr = () => {
                   </Card.Body>
                 </Card>
               </Col>
-              {/*
-              <Col md={1}>
+              
+              {/* <Col md={1}>
                 <Card
                   className="h-100 text-center shadow-sm border-start"
                   onClick={() => setShowExamesModal(true)}
@@ -835,7 +835,7 @@ const GestaoFvr = () => {
                     <small className="fw-semibold">Exames</small>
                   </Card.Body>
                 </Card>
-              </Col> */}
+              </Col>  */}
 
               {/* EXPORTAR EXCEL */}
               <Col md={1}>
@@ -994,6 +994,7 @@ const GestaoFvr = () => {
                       ["alocacao", "Alocação"],
                       ["origem", "Origem"],
                       ["esquadrao", "Esquadrão"],
+                      ["baia", "Baia"],
                       ["status", "Status"],
                     ].map(([key, label]) => (
                       <th
@@ -1034,7 +1035,7 @@ const GestaoFvr = () => {
                       <td>{item.alocacao}</td>
                       <td>{item.origem}</td>
                       <td>{item.esquadrao}</td>
-
+                      <td>{item.baia}</td>
                       <td>
                         <Badge
                           pill

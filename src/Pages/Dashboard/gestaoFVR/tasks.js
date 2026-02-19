@@ -11,8 +11,13 @@ import {
 } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { BsClockHistory, BsClipboard2 } from "react-icons/bs";
+import { FaFileExcel } from "react-icons/fa";
+import * as XLSX from "xlsx";
 import { api } from "../../../services/api";
 import { getUsuarioLogado } from "../../../utils/auth";
+
+import { GiOpenGate } from "react-icons/gi";
+
 
 export default function TaskCreatePage() {
   const navigate = useNavigate();
@@ -28,7 +33,7 @@ export default function TaskCreatePage() {
   const perfilUsuario = usuarioLogado?.perfil || "";
 
   // Verificar se é veterinário
-  const isVeterinario = perfilUsuario === "Veterinário" || perfilUsuario === "Veterinário Admin" || perfilUsuario === "Desenvolvedor";
+  const isVeterinario = perfilUsuario === "Veterinario" || perfilUsuario === "Veterinario Admin" || perfilUsuario === "Desenvolvedor";
 
   // Paginação
   const [currentPage, setCurrentPage] = useState(1);
@@ -149,6 +154,52 @@ export default function TaskCreatePage() {
     navigate(`/dashboard/gestaofvr/solipede/prontuario/edit/${numeroSolipede}`);
   };
 
+  // Função para exportar dados para Excel
+  const exportarParaExcel = () => {
+    try {
+      // Preparar dados para exportação
+      const dadosExportacao = lancamentosFiltrados.map((registro, index) => ({
+        'Nº': index + 1,
+        'Solípede': registro.numero_solipede || '-',
+        'Baia': registro.solipede_baia || '-',
+        'Tipo': registro.tipo || '-',
+        'Data': registro.data_criacao ? new Date(registro.data_criacao).toLocaleDateString('pt-BR') : '-',
+        'Observações': registro.observacao || registro.restricao || registro.dieta || registro.detalhes || '-'
+      }));
+
+      // Criar workbook
+      const ws = XLSX.utils.json_to_sheet(dadosExportacao);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Lançamentos');
+
+      // Ajustar largura das colunas
+      const colWidths = [
+        { wch: 5 },  // Nº
+        { wch: 12 }, // Solípede
+        { wch: 20 }, // Nome
+        { wch: 18 }, // Tipo
+        { wch: 12 }, // Data
+        { wch: 8 },  // Hora
+        { wch: 20 }, // Usuário
+        { wch: 15 }, // Status
+        { wch: 50 }  // Observações
+      ];
+      ws['!cols'] = colWidths;
+
+      // Gerar nome do arquivo com data atual
+      const dataAtual = new Date().toLocaleDateString('pt-BR').replace(/\//g, '-');
+      const nomeArquivo = `Lancamentos_Prontuario_${filtroTipo !== 'Todos' ? filtroTipo + '_' : ''}${dataAtual}.xlsx`;
+
+      // Fazer download
+      XLSX.writeFile(wb, nomeArquivo);
+
+      console.log('✅ Exportação realizada com sucesso!');
+    } catch (error) {
+      console.error('❌ Erro ao exportar para Excel:', error);
+      alert('Erro ao exportar dados para Excel. Tente novamente.');
+    }
+  };
+
   const mostrarSomenteEmAndamento = true;
 
   const registrosFiltrados = mostrarSomenteEmAndamento
@@ -265,6 +316,15 @@ export default function TaskCreatePage() {
                       <option value={30}>30</option>
                       <option value="Todos">Todos</option>
                     </Form.Select>
+                    <Button
+                      variant="outline-dark"
+                      size="md"
+                      onClick={exportarParaExcel}
+                      className="d-flex align-items-center gap-1"
+                      title="Exportar dados filtrados para Excel"
+                    >
+                      <FaFileExcel />
+                    </Button>
                   </div>
                 </Col>
               </Row>
@@ -383,8 +443,13 @@ export default function TaskCreatePage() {
                                 <Badge bg="light" text="dark" className="ms-2">
                                   {registro.solipede_esquadrao}
                                 </Badge>
+
                               )}
                             </p>
+                            <span className="mb-0" style={{ fontSize: "13px" }}> 
+                              <GiOpenGate size={16}/> <strong>Baia Nº: </strong>
+                              {registro.solipede_baia || "N/A"}
+                            </span>
                             <p>
                               {registro.foi_responsavel_pela_baixa === 1 && (
                               <small className="text-muted">

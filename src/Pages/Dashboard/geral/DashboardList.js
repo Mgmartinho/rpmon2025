@@ -17,7 +17,6 @@ import {
   BsChevronUp,
   BsChevronDown,
   BsInfoCircle,
-  BsTools,
   BsPlus,
   BsPencil,
   BsTrash,
@@ -27,7 +26,6 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { api } from "../../../services/api";
 import { isAuthenticated, getUsuarioLogado } from "../../../utils/auth";
-import { temPermissao } from "../../../utils/permissions";
 
 const DashboardList = () => {
   const [dados, setDados] = useState([]);
@@ -38,8 +36,11 @@ const DashboardList = () => {
   
   // Permissão especial para Observações Comportamentais nesta página
   // Apenas perfil "Observacao Comportamental" pode adicionar observações comportamentais
-  const perfisPermitidos = ["Observacao Comportamental", "Veterinario Admin", "Desenvolvedor"];
-  const podeEditar = isAuthenticated() && usuarioLogado && perfisPermitidos.includes(usuarioLogado.perfil);
+  const perfisPermitidosObservacao = ["Observacao Comportamental", "Veterinario Admin", "Desenvolvedor"];
+  const podeEditarObservacao =
+    isAuthenticated() && usuarioLogado && perfisPermitidosObservacao.includes(usuarioLogado.perfil);
+  const perfisPermitidosBaia = ["Pagador de cavalo", "Pagador de cavalos", "Veterinario", "Veterinario Admin", "Desenvolvedor"];
+  const podeEditarBaia = isAuthenticated() && usuarioLogado && perfisPermitidosBaia.includes(usuarioLogado.perfil);
 
   // filtros
   const [filtroTexto, setFiltroTexto] = useState("");
@@ -82,6 +83,12 @@ const DashboardList = () => {
   
   // ferrageamento
   const [ferrageamentos, setFerrageamentos] = useState({});
+
+  // modal editar baia
+  const [showModalEditarBaia, setShowModalEditarBaia] = useState(false);
+  const [solipedeEditandoBaia, setSolipedeEditandoBaia] = useState(null);
+  const [baiaEditada, setBaiaEditada] = useState("");
+  const [salvandoBaia, setSalvandoBaia] = useState(false);
 
   // 🔹 FUNÇÃO PARA CALCULAR IDADE
   const calcularIdade = (dataNascimento) => {
@@ -137,7 +144,8 @@ const DashboardList = () => {
         (item) =>
           item.nome?.toLowerCase().includes(termo) ||
           String(item.numero).includes(termo) ||
-          item.esquadrao?.toLowerCase().includes(termo)
+          item.esquadrao?.toLowerCase().includes(termo) ||
+          item.baia?.toLowerCase().includes(termo)
       )
       .map(item => ({
         ...item,
@@ -521,6 +529,44 @@ const DashboardList = () => {
     }
   };
 
+  const abrirModalEditarBaia = (solipede) => {
+    setSolipedeEditandoBaia(solipede);
+    setBaiaEditada(solipede.baia || "");
+    setShowModalEditarBaia(true);
+  };
+
+  const salvarEdicaoBaia = async () => {
+    if (!solipedeEditandoBaia) return;
+
+    setSalvandoBaia(true);
+
+    try {
+      const resposta = await api.atualizarSolipede(solipedeEditandoBaia.numero, {
+        baia: baiaEditada.trim() || null,
+      });
+
+      if (resposta?.error) {
+        throw new Error(resposta.error);
+      }
+
+      setDados((prev) =>
+        prev.map((item) =>
+          item.numero === solipedeEditandoBaia.numero
+            ? { ...item, baia: baiaEditada.trim() || null }
+            : item
+        )
+      );
+
+      setShowModalEditarBaia(false);
+      alert("✅ Baia atualizada com sucesso!");
+    } catch (error) {
+      console.error("❌ Erro ao atualizar baia:", error);
+      alert(`Erro ao atualizar baia: ${error.message || "Tente novamente."}`);
+    } finally {
+      setSalvandoBaia(false);
+    }
+  };
+
   // 🔍 VERIFICAR RESTRIÇÕES (chamado automaticamente ao carregar) - OTIMIZADO
   useEffect(() => {
     const verificarRestricoes = async () => {
@@ -655,7 +701,7 @@ const DashboardList = () => {
       <Row className="mb-3 g-2">
         <Col md={6}>
           <Form.Control
-            placeholder="Filtrar por nome, número ou esquadrão"
+            placeholder="Filtrar por nome, número, esquadrão ou baia"
             value={filtroTexto}
             onChange={(e) => {
               setFiltroTexto(e.target.value);
@@ -701,6 +747,9 @@ const DashboardList = () => {
               <CabecalhoOrdenavel label="Esquadrão" campo="esquadrao" />
             </th>
             <th>
+              <CabecalhoOrdenavel label="Baia" campo="baia" />
+            </th>
+            <th>
               <CabecalhoOrdenavel label="Status" campo="status" />
             </th>
             <th>
@@ -718,7 +767,7 @@ const DashboardList = () => {
         <tbody>
           {dadosPaginados.length === 0 ? (
             <tr>
-              <td colSpan={7} className="text-center text-muted py-4">
+              <td colSpan={8} className="text-center text-muted py-4">
                 Nenhum registro encontrado
               </td>
             </tr>
@@ -748,6 +797,21 @@ const DashboardList = () => {
                   <td className="text-center">{item.idade} anos</td>
                   <td className="text-center">
                     {item.esquadrao || "-"}
+                  </td>
+                  <td className="text-center">
+                    <div className="d-flex justify-content-center align-items-center gap-2">
+                      <span>{item.baia || "-"}</span>
+                      {podeEditarBaia && (
+                        <Button
+                          variant="outline-primary"
+                          size="sm"
+                          title="Editar baia"
+                          onClick={() => abrirModalEditarBaia(item)}
+                        >
+                          <BsPencil size={12} />
+                        </Button>
+                      )}
+                    </div>
                   </td>
                   <td className="text-center">
                     <Badge bg={baixado ? "danger" : "success"}>
@@ -793,7 +857,7 @@ const DashboardList = () => {
                   <td className="text-center">
                     <div className="d-flex justify-content-center align-items-center gap-2">
                       {/* Botão adicionar observação - Apenas para usuários com permissão */}
-                      {podeEditar && (
+                      {podeEditarObservacao && (
                         <span
                           style={{
                             backgroundColor: "#d4f4dd",
@@ -925,6 +989,58 @@ const DashboardList = () => {
         </div>
       )}
 
+      <Modal
+        show={showModalEditarBaia}
+        onHide={() => setShowModalEditarBaia(false)}
+        centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>
+            Editar Baia - {solipedeEditandoBaia?.nome} (#{solipedeEditandoBaia?.numero})
+          </Modal.Title>
+        </Modal.Header>
+
+        <Modal.Body>
+          <Form.Group>
+            <Form.Label className="fw-semibold">Baia</Form.Label>
+            <Form.Control
+              type="text"
+              placeholder="Informe a baia do solípede"
+              value={baiaEditada}
+              onChange={(e) => setBaiaEditada(e.target.value)}
+              maxLength={80}
+            />
+            <Form.Text className="text-muted">
+              Deixe em branco para remover a informação da baia.
+            </Form.Text>
+          </Form.Group>
+        </Modal.Body>
+
+        <Modal.Footer>
+          <Button
+            variant="secondary"
+            onClick={() => setShowModalEditarBaia(false)}
+            disabled={salvandoBaia}
+          >
+            Cancelar
+          </Button>
+          <Button
+            variant="primary"
+            onClick={salvarEdicaoBaia}
+            disabled={salvandoBaia}
+          >
+            {salvandoBaia ? (
+              <>
+                <Spinner animation="border" size="sm" className="me-2" />
+                Salvando...
+              </>
+            ) : (
+              "Salvar"
+            )}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
       {/* 📋 MODAL PRONTUÁRIO/RESTRIÇÕES */}
       <Modal
         show={showModalProntuario}
@@ -1033,7 +1149,7 @@ const DashboardList = () => {
                   <th style={{ width: "18%" }}>Tipo</th>
                   <th>Observação</th>
                   <th style={{ width: "15%" }}>Usuário</th>
-                  {podeEditar && <th style={{ width: "10%" }} className="text-center">Ações</th>}
+                  {podeEditarObservacao && <th style={{ width: "10%" }} className="text-center">Ações</th>}
                 </tr>
               </thead>
               <tbody>
@@ -1089,7 +1205,7 @@ const DashboardList = () => {
                         </div>
                       )}
                     </td>
-                    {podeEditar && (
+                    {podeEditarObservacao && (
                       <td className="text-center">
                         <div className="d-flex justify-content-center gap-1">
                           <Button

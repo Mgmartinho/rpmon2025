@@ -30,6 +30,7 @@ import {
 import { LuTriangleAlert } from "react-icons/lu";
 
 import { useParams, useSearchParams } from "react-router-dom";
+import { flushSync } from "react-dom";
 import { api } from "../../../services/api";
 import html2pdf from 'html2pdf.js';
 import htmlDocx from 'html-docx-js/dist/html-docx';
@@ -193,6 +194,7 @@ export default function ProntuarioSolipedeEdit() {
 
   // Ref para receituário
   const receituarioRef = useRef(null);
+  const [tratamentoReceituarioSelecionado, setTratamentoReceituarioSelecionado] = useState(null);
 
   // Estados para exames laboratoriais (quando tipoObservacao === "Exame")
   const [examesSelecionados, setExamesSelecionados] = useState({
@@ -595,6 +597,10 @@ export default function ProntuarioSolipedeEdit() {
         return;
       }
 
+      flushSync(() => {
+        setTratamentoReceituarioSelecionado(tratamento);
+      });
+
       // Atualizar o ref com os dados do tratamento antes de gerar
       receituarioRef.current.style.display = "block";
 
@@ -605,7 +611,7 @@ export default function ProntuarioSolipedeEdit() {
       const element = receituarioRef.current;
       const opt = {
         margin: 0,
-        filename: `Receituario_${solipede.nome}_${solipede.numero}_${new Date().toISOString().split('T')[0]}.pdf`,
+        filename: `Receituario_ID-${tratamento.id}_${solipede.nome}_${solipede.numero}_${new Date().toISOString().split('T')[0]}.pdf`,
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: {
           scale: 2,
@@ -5964,9 +5970,10 @@ export default function ProntuarioSolipedeEdit() {
       {/* Template do Receituário (hidden) */}
       <div style={{ display: "none" }}>
         <ReceituarioTemplate
+          key={tratamentoReceituarioSelecionado?.id || "receituario-sem-id"}
           ref={receituarioRef}
           solipede={solipede}
-          tratamento={historico.find(h => h.tipo === "Tratamento")}
+          tratamento={tratamentoReceituarioSelecionado}
           usuarioLogado={usuarioLogado}
         />
       </div>
