@@ -27,6 +27,7 @@ export default function TaskCreatePage() {
   const [filtroUsuario, setFiltroUsuario] = useState("Todos");
   const [dataInicio, setDataInicio] = useState("");
   const [dataFim, setDataFim] = useState("");
+  const [solipedeNumero, setSolipedeNumero] = useState("");
 
   // Obter perfil do usuário logado
   const usuarioLogado = getUsuarioLogado();
@@ -100,6 +101,9 @@ export default function TaskCreatePage() {
 
   // Filtros combinados
   const lancamentosFiltrados = lancamentos.filter((l) => {
+    // Filtro por número do solípede
+    if (solipedeNumero && !String(l.numero_solipede || "").includes(solipedeNumero.trim())) return false;
+
     // Filtro por tipo
     if (filtroTipo !== "Todos" && l.tipo !== filtroTipo) return false;
     
@@ -141,7 +145,7 @@ export default function TaskCreatePage() {
   // Reset da página ao mudar filtro
   useEffect(() => {
     setCurrentPage(1);
-  }, [filtroTipo, filtroUsuario, dataInicio, dataFim, itemsPerPage]);
+  }, [filtroTipo, filtroUsuario, dataInicio, dataFim, solipedeNumero, itemsPerPage]);
 
   const tiposDisponiveis = ["Todos", "Tratamento", "Restrições", "Dieta", "Suplementação", "Movimentação"];
 
@@ -164,7 +168,27 @@ export default function TaskCreatePage() {
         'Baia': registro.solipede_baia || '-',
         'Tipo': registro.tipo || '-',
         'Data': registro.data_criacao ? new Date(registro.data_criacao).toLocaleDateString('pt-BR') : '-',
-        'Observações': registro.observacao || registro.restricao || registro.dieta || registro.detalhes || '-'
+        'Usuário': registro.usuario_nome || '-',
+        'Observações': registro.observacao || '-',
+        'Diagnóstico': registro.diagnosticos || '-',
+        'Prescrição/Recomendações': registro.recomendacoes || '-',
+        'Produto (Suplementação)': registro.suplementacao_produto || '-',
+        'Dose (Suplementação)': registro.suplementacao_dose || '-',
+        'Frequência (Suplementação)': registro.suplementacao_frequencia || '-',
+        'Data Finalização (Suplementação)': registro.suplementacao_data_finalizacao ? new Date(registro.suplementacao_data_finalizacao).toLocaleDateString('pt-BR') : '-',
+        'Dieta - Jejum': registro.dieta_jejum ? 'Sim' : 'Não',
+        'Dieta - Meia Ração': registro.dieta_meia_racao ? 'Sim' : 'Não',
+        'Dieta - Feno Só Feno': registro.dieta_feno_so_feno ? 'Sim' : 'Não',
+        'Dieta - Feno Só Feno Molhado': registro.dieta_feno_so_feno_molhado ? 'Sim' : 'Não',
+        'Dieta - Feno Molhado + Ração': registro.dieta_feno_molhado_mais_racao ? 'Sim' : 'Não',
+        'Tipo Baixa': registro.tipo_baixa || '-',
+        'Status Baixa': registro.status_baixa || '-',
+        'Data Lançamento Baixa': registro.data_lancamento ? new Date(registro.data_lancamento).toLocaleDateString('pt-BR') : '-',
+        'Data Validade': registro.data_validade ? new Date(registro.data_validade).toLocaleDateString('pt-BR') : '-',
+        'Precisa Baixar': registro.precisa_baixar || '-',
+        'Origem': registro.origem || '-',
+        'Destino': registro.destino || '-',
+        'Status Conclusão': registro.status_conclusao || '-'
       }));
 
       // Criar workbook
@@ -176,13 +200,30 @@ export default function TaskCreatePage() {
       const colWidths = [
         { wch: 5 },  // Nº
         { wch: 12 }, // Solípede
-        { wch: 20 }, // Nome
+        { wch: 12 }, // Baia
         { wch: 18 }, // Tipo
         { wch: 12 }, // Data
-        { wch: 8 },  // Hora
         { wch: 20 }, // Usuário
-        { wch: 15 }, // Status
-        { wch: 50 }  // Observações
+        { wch: 50 }, // Observações
+        { wch: 40 }, // Diagnóstico
+        { wch: 45 }, // Prescrição
+        { wch: 25 }, // Produto
+        { wch: 18 }, // Dose
+        { wch: 18 }, // Frequência
+        { wch: 18 }, // Data finalização
+        { wch: 14 }, // Dieta Jejum
+        { wch: 18 }, // Dieta Meia Ração
+        { wch: 20 }, // Dieta Feno Só Feno
+        { wch: 26 }, // Dieta Feno Só Feno Molhado
+        { wch: 26 }, // Dieta Feno Molhado + Ração
+        { wch: 16 }, // Tipo Baixa
+        { wch: 16 }, // Status Baixa
+        { wch: 20 }, // Data lançamento baixa
+        { wch: 15 }, // Data validade
+        { wch: 15 }, // Precisa baixar
+        { wch: 18 }, // Origem
+        { wch: 18 }, // Destino
+        { wch: 18 }  // Status conclusão
       ];
       ws['!cols'] = colWidths;
 
@@ -331,7 +372,19 @@ export default function TaskCreatePage() {
               
               {/* Linha de Filtros Avançados */}
               <Row className="g-2 align-items-end">
-                <Col md={4}>
+                <Col md={2} sm={6}>
+                  <Form.Group>
+                    <Form.Label className="small text-muted mb-1">Nº Solipede</Form.Label>
+                    <Form.Control
+                      type="text"
+                      size="sm"
+                      placeholder="número"
+                      value={solipedeNumero}
+                      onChange={(e) => setSolipedeNumero(e.target.value)}
+                    />
+                  </Form.Group>
+                </Col>
+                <Col md={4} sm={6}>
                   <Form.Group>
                     <Form.Label className="small text-muted mb-1">👤 Filtrar por Usuário</Form.Label>
                     <Form.Select
@@ -347,7 +400,7 @@ export default function TaskCreatePage() {
                     </Form.Select>
                   </Form.Group>
                 </Col>
-                <Col md={3}>
+                <Col md={2} sm={6}>
                   <Form.Group>
                     <Form.Label className="small text-muted mb-1">📅 Data Início</Form.Label>
                     <Form.Control
@@ -358,7 +411,7 @@ export default function TaskCreatePage() {
                     />
                   </Form.Group>
                 </Col>
-                <Col md={3}>
+                <Col md={2} sm={6}>
                   <Form.Group>
                     <Form.Label className="small text-muted mb-1">📅 Data Fim</Form.Label>
                     <Form.Control
@@ -369,12 +422,13 @@ export default function TaskCreatePage() {
                     />
                   </Form.Group>
                 </Col>
-                <Col md={2}>
+                <Col md={2} sm={12}>
                   <Button
                     size="sm"
                     variant="outline-secondary"
                     className="w-100"
                     onClick={() => {
+                      setSolipedeNumero("");
                       setFiltroUsuario("Todos");
                       setDataInicio("");
                       setDataFim("");
