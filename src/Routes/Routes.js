@@ -28,6 +28,11 @@ import ExclusaoSolipede from "../Pages/Dashboard/gestaoFVR/ExclusaoSolipede";
 import Ferradoria from "../Pages/Dashboard/gestaoFVR/Ferradoria";
 import Exames from "../Pages/Dashboard/gestaoFVR/exames";
 
+import ProntuarioDieta from "../Pages/Dashboard/gestaoFVR/prontuario/prontuarioDieta"
+import ProntuarioSuplementacao from "../Pages/Dashboard/gestaoFVR/prontuario/prontuarioSuplementacao";
+import ProntuarioRestricao from "../Pages/Dashboard/gestaoFVR/prontuario/prontuarioRestricao";
+import ProntuarioTratamento from "../Pages/Dashboard/gestaoFVR/prontuario/prontuarioTratamento";
+
 const MainRoutes = () => {
   return (
     <Routes>
@@ -83,8 +88,12 @@ const MainRoutes = () => {
           </ProtectedRoute>
         } />
         
-        {/* Gestão de Solípedes - Listagem PÚBLICA, funcionalidades PROTEGIDAS */}
-        <Route path="gestaofvr" element={<GestaoFvr />} />
+        {/* Gestão de Solípedes - Protegida por permissão */}
+        <Route path="gestaofvr" element={
+          <ProtectedRoute requiredPermission="GESTAO_SOLIPEDES">
+            <GestaoFvr />
+          </ProtectedRoute>
+        } />
         
         {/* Tasks/Lançamentos - Veterinários e acima */}
         <Route path="gestaofvr/taskcreatepage" element={
@@ -149,6 +158,10 @@ const MainRoutes = () => {
       {/* 404 */}
       <Route path="*" element={<NotFound />} />
 
+      <Route path="prontuariodieta" element={<ProntuarioDieta />} />
+      <Route path="prontuarioSuplementacao" element={<ProntuarioSuplementacao />} />
+      <Route path="prontuarioRestricao" element={<ProntuarioRestricao />} />
+      <Route path="prontuarioTratamento" element={<ProntuarioTratamento />} />
     </Routes>
   );
 };

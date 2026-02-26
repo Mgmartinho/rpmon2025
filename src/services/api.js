@@ -1,5 +1,5 @@
-// Usa a configuração dinâmica do window.ENV se disponível, senão usa a variável de ambiente
-const API_BASE_URL = (window.ENV && window.ENV.API_URL) || process.env.REACT_APP_API_URL || "http://localhost:3000";
+// URL da API centralizada no .env
+const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
 
 console.log('🔗 API configurada para:', API_BASE_URL);
 
