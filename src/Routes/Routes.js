@@ -32,7 +32,7 @@ import ProntuarioDieta from "../Pages/Dashboard/gestaoFVR/prontuario/prontuarioD
 import ProntuarioSuplementacao from "../Pages/Dashboard/gestaoFVR/prontuario/prontuarioSuplementacao";
 import ProntuarioRestricao from "../Pages/Dashboard/gestaoFVR/prontuario/prontuarioRestricao";
 import ProntuarioTratamento from "../Pages/Dashboard/gestaoFVR/prontuario/prontuarioTratamento";
-
+import ProntuarioSolipedeEditCopy from "../Pages/Dashboard/gestaoFVR/pronturarioEditCopy";
 const MainRoutes = () => {
   return (
     <Routes>
@@ -119,6 +119,11 @@ const MainRoutes = () => {
         <Route path="gestaofvr/solipede/prontuario/edit/:numero" element={
           <ProtectedRoute requiredPermission="GESTAO_PRONTUARIO">
             <ProntuarioSolipedeEdit />
+          </ProtectedRoute>
+        } />
+        <Route path="gestaofvr/solipede/prontuario/edit2/:numero" element={
+          <ProtectedRoute requiredPermission="GESTAO_PRONTUARIO">
+            <ProntuarioSolipedeEditCopy />
           </ProtectedRoute>
         } />
         
