@@ -16,6 +16,8 @@ function App() {
     };
   }, []);
 
+  alert(`Esta aplicação é apenas para TESTES, Favor utilizar o Portal Veterinario: https://rpmon.intranet.policiamilitar.sp.gov.br/dashboard`);
+
 
   return (
     <Container fluid className="d-flex flex-column min-vh-100 p-0">

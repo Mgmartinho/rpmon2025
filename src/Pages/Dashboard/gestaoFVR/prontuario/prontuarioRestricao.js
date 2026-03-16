@@ -73,7 +73,7 @@ const ProntuarioRestricao = () => {
                     <Form onSubmit={handleRestricaoSubmit}>
                         <Form.Group className="mb-3">
                             <Form.Label className="fw-bold">
-                                Restrição - {dataFormatada}
+                                Restrição 
                             </Form.Label>
                         </Form.Group>
                         <div className="mt-3 mb-3 p-3 rounded" style={{ backgroundColor: "#f8f9fa", border: "1px solid #dee2e6" }}>

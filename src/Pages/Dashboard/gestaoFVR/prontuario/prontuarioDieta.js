@@ -66,9 +66,6 @@ const ProntuarioDieta = () => {
         <div>
 
             <Card className="shadow-sm border-0">
-                <Card.Header className="bg-light border-0 fw-bold">
-                    Adicionar Dieta
-                </Card.Header>
                 <Card.Body>
                     <Form onSubmit={handleDietaSubmit}>
                         <Form.Group className="mb-3">

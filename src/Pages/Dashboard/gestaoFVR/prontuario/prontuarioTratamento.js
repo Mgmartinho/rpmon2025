@@ -111,13 +111,7 @@ const ProntuarioTratamento = () => {
 
                         <Form.Group className="mb-3">
                             <Form.Label className="fw-bold">
-                                Tratamento -{" "}
-                                {new Date(hoje).toLocaleDateString("pt-BR", {
-                                    day: "2-digit",
-                                    month: "2-digit",
-                                    year: "numeric",
-                                })}{" "}
-                                {hora}
+                                Tratamento 
                             </Form.Label>
                         </Form.Group>
 
