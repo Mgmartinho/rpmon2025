@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import {
   Row,
   Col,
@@ -17,29 +16,11 @@ import {
   BsClipboardCheck,
   BsTrash,
 } from "react-icons/bs";
-import { api } from "../../../../services/api";
 
 
 const HistoricoProntuarioDieta = ({ registros = [] }) => {
 
-  const [dados, setDados] = useState([
-
-    {
-      id: 1,
-      prontuario_id: 123,
-      usuario_id: 456,
-      tipo: "Dieta",
-      tipo_dieta: "Ração",
-      descricao: "Feno de alta qualidade.",
-      data_criacao: "2024-06-15T14:30:00Z",
-      data_fim: "2024-12-31",
-      status_conclusao: "em_andamento",
-      data_atualizacao: "2024-06-20T10:00:00Z",
-      usuario_nome: "MARCELO GUILHERME DE ARAUJO MARTINHO",
-      usuario_registro: "190378",
-    },
-
-  ]);
+  const dados = Array.isArray(registros) ? registros : [];
 
 
   return (
@@ -116,7 +97,7 @@ const HistoricoProntuarioDieta = ({ registros = [] }) => {
 
               <hr />
 
-              {item.descricao.length > 0 && (
+              {(item.descricao || "").trim().length > 0 && (
                 <div className=" border-4 border-success ps-3 mb-3">
                 <strong className="text-success">Descrição</strong>
                 <p className="mb-0 text-muted">

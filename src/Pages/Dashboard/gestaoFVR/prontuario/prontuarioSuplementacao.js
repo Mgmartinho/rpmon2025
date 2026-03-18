@@ -1,18 +1,19 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
     Col,
     Row,
     Card,
     Form,
-    Spinner,
     Button,
+    Spinner,
 } from "react-bootstrap";
+import { useParams } from "react-router-dom";
 
 import { api } from "../../../../services/api";
 
 
 const ProntuarioSuplementacao = () => {
-    const [loading, setLoading] = useState(true);
+    const { numero } = useParams();
 
     // Estados para suplementação (quando tipoObservacao === "Suplementação")
     const [suplementacao, setSuplementacao] = useState({
@@ -23,47 +24,54 @@ const ProntuarioSuplementacao = () => {
         data_validade: "",
     });
 
-
-    const CarregarSuplementacao = async () => {
-        try {
-            const response = await api.get("/suplementacao");
-            console.log("Suplementação carregada:", response.data);
-            // Aqui você pode atualizar o estado com os dados da suplementação, se necessário
-        } catch (error) {
-            console.error("Erro ao carregar a suplementação:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        CarregarSuplementacao();
-    }, []);
-
-
-    const data = new Date();
-    const dataFormatada = data.toLocaleDateString("pt-BR"); // Formato data Brazileira (DD/MM/YYYY)
-
-
-
     const [descricao, setDescricao] = useState("");
-    const [dataInicio, setDataInicio] = useState("");
     const [dataFim, setDataFim] = useState("");
     const [salvando, setSalvando] = useState(false);
 
 
-    const handleSuplementacaoSubmit = (e) => {
+    const handleSuplementacaoSubmit = async (e) => {
         e.preventDefault();
 
-    }
+        setSalvando(true);
 
-    if (loading) {
-        return (
-            <div className="text-center my-5">
-                <Spinner animation="border" />
-                <p>Carregando...</p>
-            </div>
-        );
+        if (!numero) {
+            alert("Número do solípede não encontrado na rota.");
+            setSalvando(false);
+            return;
+        }
+
+        const payload = {
+            numero_solipede: Number(numero),
+            produto: suplementacao.produto?.trim() || "",
+            dose: suplementacao.dose?.trim() || "",
+            frequencia: suplementacao.frequencia?.trim() || "",
+            descricao: descricao?.trim() || null,
+            data_fim: dataFim || null,
+        };
+
+        try {
+            const resultado = await api.criarProntuarioSuplementacao(payload);
+            if (resultado?.success || resultado?.id) {
+                alert("Suplementação salva com sucesso! ✅");
+                setSuplementacao({
+                    produto: "",
+                    dose: "",
+                    frequencia: "",
+                    data_inicio: "",
+                    data_validade: "",
+                });
+                setDescricao("");
+                setDataFim("");
+            } else {
+                alert(`Erro ao salvar suplementação: ${resultado?.erro || resultado?.error || "Falha desconhecida"}`);
+            }
+        } catch (error) {
+            console.error("Erro ao enviar suplementação:", error);
+            alert("Erro de conexão ao enviar suplementação para a API.");
+        } finally {
+            setSalvando(false);
+        }
+
     }
 
     return (
@@ -71,7 +79,7 @@ const ProntuarioSuplementacao = () => {
 
             <Card className="shadow-sm border-0">
                 <Card.Body>
-                    <Form onSubmit={handleSuplementacaoSubmit}>
+                    <Form id="form-prontuario-suplementacao" onSubmit={handleSuplementacaoSubmit}>
                         <Form.Group className="mb-3">
                             <Form.Label className="fw-bold">
                                 Suplementação 
@@ -133,8 +141,8 @@ const ProntuarioSuplementacao = () => {
                                 <Form.Label className="fw-bold">Inicio da Dieta (Opcional)</Form.Label>
                                 <Form.Control
                                     type="date"
-                                    value={dataInicio}
-                                    onChange={(e) => setDataInicio(e.target.value)}
+                                    value={suplementacao.data_inicio || ""}
+                                    onChange={(e) => setSuplementacao({ ...suplementacao, data_inicio: e.target.value })}
                                 />
                                 <Form.Text className="text-muted">
                                     Se não informada, o sistema marcará com a data atual.
@@ -176,8 +184,9 @@ const ProntuarioSuplementacao = () => {
 
                 <div className="d-flex gap-2">
                     <Button
+                        type="submit"
+                        form="form-prontuario-suplementacao"
                         variant="success"
-                        onClick={handleSuplementacaoSubmit}
                         disabled={salvando}
                     >
                         {salvando ? (
@@ -194,6 +203,7 @@ const ProntuarioSuplementacao = () => {
                         )}
                     </Button>
                     <Button
+                        type="button"
                         variant="secondary"
                         onClick={() => {
                             // Resetar campos de suplementação

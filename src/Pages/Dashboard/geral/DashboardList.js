@@ -57,7 +57,6 @@ const DashboardList = () => {
   const [prontuarios, setProntuarios] = useState([]);
   const [loadingProntuario, setLoadingProntuario] = useState(false);
   const [solipedesComRestricao, setSolipedesComRestricao] = useState(new Set());
-  const [solipedesSemRestricao, setSolipedesSemRestricao] = useState(new Set());
   
   // modal observações
   const [showModalObservacoes, setShowModalObservacoes] = useState(false);
@@ -136,6 +135,8 @@ const DashboardList = () => {
   }, []);
 
   // 🔹 FILTRO + ORDENAÇÃO
+  const normalizarNumeroSolipede = (numero) => String(numero ?? "").trim();
+
   const dadosFiltrados = useMemo(() => {
     const termo = filtroTexto.toLowerCase();
 
@@ -150,8 +151,8 @@ const DashboardList = () => {
       .map(item => ({
         ...item,
         idade: calcularIdade(item.DataNascimento),
-        temRestricao: solipedesComRestricao.has(item.numero),
-        temObservacoes: solipedesComObservacoes.has(item.numero)
+        temRestricao: solipedesComRestricao.has(normalizarNumeroSolipede(item.numero)),
+        temObservacoes: solipedesComObservacoes.has(normalizarNumeroSolipede(item.numero))
       }));
 
     return filtrados.sort((a, b) => {
@@ -320,8 +321,8 @@ const DashboardList = () => {
           ? Math.ceil((new Date(proximoFerrageamento) - new Date()) / (1000 * 60 * 60 * 24))
           : null;
         
-        const temRestricao = solipedesComRestricao.has(item.numero);
-        const temObservacoes = solipedesComObservacoes.has(item.numero);
+        const temRestricao = solipedesComRestricao.has(normalizarNumeroSolipede(item.numero));
+        const temObservacoes = solipedesComObservacoes.has(normalizarNumeroSolipede(item.numero));
 
         return [
           item.numero,
@@ -571,27 +572,22 @@ const DashboardList = () => {
   useEffect(() => {
     const verificarRestricoes = async () => {
       try {
-        // 🚀 UMA ÚNICA CHAMADA: retorna array de números com restrições ativas
+        // 🚀 UMA ÚNICA CHAMADA: retorna array de números com restrições em andamento
         const numerosComRestricao = await api.listarSolipedesComRestricao();
         
         // Converter para Set para busca rápida
-        const comRestricao = new Set(numerosComRestricao);
-        
-        // Criar set de sem restrição com base nos dados atuais
-        const semRestricao = new Set(
-          dados
-            .map(s => s.numero)
-            .filter(num => !comRestricao.has(num))
+        const comRestricao = new Set(
+          (Array.isArray(numerosComRestricao) ? numerosComRestricao : [])
+            .map(normalizarNumeroSolipede)
+            .filter(Boolean)
         );
-
-        setSolipedesComRestricao(comRestricao);
-        setSolipedesSemRestricao(semRestricao);
         
-        console.log(`✅ Restrições carregadas: ${comRestricao.size} solípedes com restrições ativas`);
+        setSolipedesComRestricao(comRestricao);
+        
+        console.log(`✅ Restrições carregadas: ${comRestricao.size} solípedes com restrições em andamento`);
       } catch (error) {
         console.error("❌ Erro ao verificar restrições:", error);
         setSolipedesComRestricao(new Set());
-        setSolipedesSemRestricao(new Set());
       }
     };
 
@@ -605,7 +601,11 @@ const DashboardList = () => {
     const verificarObservacoes = async () => {
       try {
         const numerosComObservacoes = await api.listarSolipedesComObservacoes();
-        const comObservacoes = new Set(numerosComObservacoes);
+        const comObservacoes = new Set(
+          (Array.isArray(numerosComObservacoes) ? numerosComObservacoes : [])
+            .map(normalizarNumeroSolipede)
+            .filter(Boolean)
+        );
         setSolipedesComObservacoes(comObservacoes);
         console.log(`✅ Observações carregadas: ${comObservacoes.size} solípedes com observações`);
       } catch (error) {
@@ -776,10 +776,10 @@ const DashboardList = () => {
               const baixado = item.status?.toLowerCase() === "baixado";
               
               // Estados das restrições
-              const temRestricao = solipedesComRestricao.has(item.numero);
+              const temRestricao = solipedesComRestricao.has(normalizarNumeroSolipede(item.numero));
               
               // Observações
-              const temObservacoes = solipedesComObservacoes.has(item.numero);
+              const temObservacoes = solipedesComObservacoes.has(normalizarNumeroSolipede(item.numero));
               
               // Ferrageamento
               const ferrageamento = ferrageamentos[item.numero];
@@ -841,7 +841,7 @@ const DashboardList = () => {
                           e.currentTarget.style.backgroundColor = "#cfe2ff";
                           e.currentTarget.style.borderColor = "#0d6efd";
                         }}
-                        title="Possui restrições ativas - Clique para ver"
+                        title="Possui restrições em andamento - Clique para ver"
                       >
                         <BsClockHistory
                           size={10}
@@ -854,6 +854,7 @@ const DashboardList = () => {
                       </span>
                     )}
                   </td>
+                  
                   <td className="text-center">
                     <div className="d-flex justify-content-center align-items-center gap-2">
                       {/* Botão adicionar observação - Apenas para usuários com permissão */}
@@ -927,6 +928,7 @@ const DashboardList = () => {
                       )}
                     </div>
                   </td>
+
                   <td className="text-center">
                     {proximoFerrageamento ? (
                       <div
@@ -1063,7 +1065,7 @@ const DashboardList = () => {
           ) : prontuarios.length === 0 ? (
             <div className="text-center text-muted py-4">
               <BsClockHistory size={48} className="mb-3 opacity-50" />
-              <p>Nenhuma restrição ativa encontrada</p>
+              <p>Nenhuma restrição encontrada</p>
             </div>
           ) : (
             <Table striped bordered hover size="sm">

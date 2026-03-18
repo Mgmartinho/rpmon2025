@@ -199,11 +199,22 @@ const GestaoFvr = () => {
     [dados]
   );
 
+  const normalizarNumeroSolipede = useCallback(
+    (numero) => String(numero ?? "").trim(),
+    []
+  );
+
+  const restricaoEmAndamento = useCallback((item) => {
+    const statusConclusao = String(item?.status_conclusao || "").toLowerCase();
+    return item?.tipo === "Restrições" && statusConclusao !== "concluido";
+  }, []);
+
   // Consolidar filtragem de restrições em um único useMemo (otimização de performance)
   const { restricoes, numerosComRestricoes } = useMemo(() => {
     const solipedesComRestricoes = dadosProntuario
-      .filter((item) => item.tipo === "Restrições")
-      .map((item) => item.numero_solipede);
+      .filter(restricaoEmAndamento)
+      .map((item) => normalizarNumeroSolipede(item.numero_solipede))
+      .filter(Boolean);
     
     const numeros = new Set(solipedesComRestricoes);
     
@@ -211,12 +222,12 @@ const GestaoFvr = () => {
       restricoes: numeros.size,
       numerosComRestricoes: numeros
     };
-  }, [dadosProntuario]);
+  }, [dadosProntuario, restricaoEmAndamento, normalizarNumeroSolipede]);
 
   // Função para verificar se um solípede tem restrição
   const temRestricao = useCallback(
-    (numeroSolipede) => numerosComRestricoes.has(numeroSolipede),
-    [numerosComRestricoes]
+    (numeroSolipede) => numerosComRestricoes.has(normalizarNumeroSolipede(numeroSolipede)),
+    [numerosComRestricoes, normalizarNumeroSolipede]
   );
 
   /* ===========================
@@ -279,7 +290,7 @@ const GestaoFvr = () => {
         setDataMovimentacao(hoje);
       }
     }
-  }, [showMovModal]);
+  }, [showMovModal, dataMovimentacao]);
 
   // Verificar se tem movimentação - MEMOIZADO
   const temMovimentacao = useMemo(
@@ -295,13 +306,14 @@ const GestaoFvr = () => {
     if (indicador === "RESTRICOES") {
       const numerosComRestricoes = new Set(
         dadosProntuario
-          .filter((item) => item.tipo === "Restrições")
-          .map((item) => item.numero_solipede)
+          .filter(restricaoEmAndamento)
+          .map((item) => normalizarNumeroSolipede(item.numero_solipede))
+          .filter(Boolean)
       );
 
       return dados.filter((item) => {
         // Verifica se o solípede tem restrição
-        if (!numerosComRestricoes.has(item.numero)) return false;
+        if (!numerosComRestricoes.has(normalizarNumeroSolipede(item.numero))) return false;
 
         /* FILTROS MANUAIS */
         if (!item.numero.toString().includes(filtroNumero)) return false;
@@ -340,7 +352,7 @@ const GestaoFvr = () => {
 
       return true;
     });
-  }, [dados, dadosProntuario, indicador, filtroNumero, filtroAlocacao]);
+  }, [dados, dadosProntuario, indicador, filtroNumero, filtroAlocacao, restricaoEmAndamento, normalizarNumeroSolipede]);
 
   // Memoizar lista filtrada do modal de movimentação com early return (otimização de performance)
   const modalFiltrados = useMemo(() => {
@@ -397,7 +409,7 @@ const GestaoFvr = () => {
   /* ===========================
      PAGINAÇÃO – SOLÍPEDES - MEMOIZADA
   =========================== */
-  const { totalSolipedes, totalPagesSolipede, solipedesPaginados } = useMemo(() => {
+  const { totalPagesSolipede, solipedesPaginados } = useMemo(() => {
     const total = solipeddesOrdenados.length;
     const totalPages = itemsPerPage === "all" ? 1 : Math.ceil(total / itemsPerPage);
     const inicio = itemsPerPage === "all" ? 0 : (pageSolipede - 1) * itemsPerPage;
@@ -405,7 +417,6 @@ const GestaoFvr = () => {
     const paginados = solipeddesOrdenados.slice(inicio, fim);
 
     return {
-      totalSolipedes: total,
       totalPagesSolipede: totalPages,
       solipedesPaginados: paginados,
     };

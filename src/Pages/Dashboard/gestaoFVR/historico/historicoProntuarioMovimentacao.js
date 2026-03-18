@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import {
   Row,
   Col,
@@ -17,30 +16,11 @@ import {
   BsClipboardCheck,
   BsTrash,
 } from "react-icons/bs";
-import { api } from "../../../../services/api";
 
 
 const HistoricoProntuarioMovimentacao = ({ registros = [] }) => {
 
-  const [dados, setDados] = useState([
-
-    {
-      id: 1,
-      tipo: "Movimentação",
-      origem: "RPMon",
-      destino: "Hospital Veterinário",
-      destino_final: "RPMon",
-      motivo: "Tratamento especializado",
-      data_criacao: "2024-06-15T14:30:00Z",
-      data_conclusao: "2024-12-31",
-      status_conclusao: "em andamento",
-      usuario_nome: "MARCELO GUILHERME DE ARAUJO MARTINHO",
-      usuario_registro: "190378",
-    },
-
-
-
-  ]);
+  const dados = Array.isArray(registros) ? registros : [];
 
   return (
     <div>

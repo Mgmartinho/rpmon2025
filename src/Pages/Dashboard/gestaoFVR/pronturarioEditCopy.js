@@ -41,6 +41,7 @@ import HistoricoProntuarioRestricoes from "./historico/historicoProntuarioRestri
 import HistoricoProntuarioTratamento from "./historico/historicoProntuarioTratamento";
 import HistoricoProntuarioSuplementacao from "./historico/historicoProntuarioSuplementacao";
 import HistoricoProntuarioMovimentacao from "./historico/historicoProntuarioMovimentacao";
+import ProntuarioTable from "./tabelaProntuario/prontuarioTable";
 
 export default function ProntuarioSolipedeEditCopy() {
 
@@ -60,6 +61,8 @@ export default function ProntuarioSolipedeEditCopy() {
   const [tipoObservacao, setTipoObservacao] = useState("Tratamento");
   const [filtroHistorico, setFiltroHistorico] = useState("Todos");
   const [buscaHistorico, setBuscaHistorico] = useState("");
+  const [activeTab, setActiveTab] = useState("tabelaDeLancamentos");
+  const [registroSelecionadoId, setRegistroSelecionadoId] = useState(null);
 
   // Carrega dados do solípede
   useEffect(() => {
@@ -171,6 +174,7 @@ export default function ProntuarioSolipedeEditCopy() {
     );
   }
 
+  const tratamentosAtivos = historico.filter((reg) => reg.tipo === "Tratamento");
   const restricoesAtivas = historico.filter((reg) => reg.tipo === "Restrições");
   const historicoOrdenado = [...historico].sort((a, b) => {
     const dataA = new Date(a.data_criacao || 0).getTime();
@@ -191,24 +195,34 @@ export default function ProntuarioSolipedeEditCopy() {
     const matchTipo = filtroHistorico === "Todos" || item.tipo === filtroHistorico;
     const alvo = `${item.tipo || ""} ${item.observacao || ""} ${item.recomendacoes || ""}`.toLowerCase();
     const matchBusca = !buscaHistorico || alvo.includes(buscaHistorico.toLowerCase());
-    return matchTipo && matchBusca;
+    const matchRegistro = !registroSelecionadoId || String(item.id) === String(registroSelecionadoId);
+    return matchTipo && matchBusca && matchRegistro;
   });
 
-  const getTipoStyle = (tipo) => {
-    switch (tipo) {
-      case "Tratamento":
-        return { bg: "#e3f2fd", color: "#0d47a1", border: "#90caf9" };
-      case "Restrições":
-        return { bg: "#fff8e1", color: "#795548", border: "#ffe082" };
-      case "Dieta":
-        return { bg: "#e8f5e9", color: "#1b5e20", border: "#a5d6a7" };
-      case "Suplementação":
-        return { bg: "#ede7f6", color: "#4527a0", border: "#b39ddb" };
-      case "Movimentação":
-        return { bg: "#f3e5f5", color: "#6a1b9a", border: "#ce93d8" };
-      default:
-        return { bg: "#eceff1", color: "#37474f", border: "#cfd8dc" };
-    }
+  const handleConsultarRegistro = (registro) => {
+    if (!registro) return;
+    setActiveTab("historico");
+    setFiltroHistorico(registro.tipo || "Todos");
+    setBuscaHistorico("");
+    setRegistroSelecionadoId(registro.id || null);
+  };
+
+  const handleFiltroHistoricoChange = (e) => {
+    setFiltroHistorico(e.target.value);
+    setRegistroSelecionadoId(null);
+  };
+
+  const handleBuscaHistoricoChange = (e) => {
+    setBuscaHistorico(e.target.value);
+    setRegistroSelecionadoId(null);
+  };
+
+  const historicoPorTipo = {
+    tratamento: historicoFiltrado.filter((item) => item.tipo === "Tratamento"),
+    restricoes: historicoFiltrado.filter((item) => item.tipo === "Restrições"),
+    dieta: historicoFiltrado.filter((item) => item.tipo === "Dieta"),
+    suplementacao: historicoFiltrado.filter((item) => item.tipo === "Suplementação"),
+    movimentacao: historicoFiltrado.filter((item) => item.tipo === "Movimentação"),
   };
 
   return (
@@ -290,6 +304,18 @@ export default function ProntuarioSolipedeEditCopy() {
             >
               <LuShieldAlert className="me-1" size={14} />
               {restricoesAtivas.length} restrição{restricoesAtivas.length > 1 ? "ões" : ""} ativa{restricoesAtivas.length > 1 ? "s" : ""}
+            </Badge>
+          )}
+
+          {tratamentosAtivos.length > 0 && (
+            <Badge
+              bg="danger"
+              text="dark"
+              className="px-3 py-2 rounded-pill"
+              style={{ fontSize: "12px" }}
+            >
+              <LuShieldAlert className="me-1" size={14} />
+              {tratamentosAtivos.length} tratamento{tratamentosAtivos.length > 1 ? "os" : ""} ativa{restricoesAtivas.length > 1 ? "s" : ""}
             </Badge>
           )}
         </div>
@@ -504,7 +530,7 @@ export default function ProntuarioSolipedeEditCopy() {
           <Card className="border-0 shadow-sm" style={{ borderRadius: "16px", overflow: "hidden" }}>
             <div style={{ height: "4px", background: "linear-gradient(90deg, #1565c0, #42a5f5)" }} />
 
-            <TabContainer defaultActiveKey="historico">
+            <TabContainer activeKey={activeTab} onSelect={(key) => setActiveTab(key || "tabelaDeLancamentos")}>
               <Card.Header className="bg-white border-0 pb-0">
                 <div className="d-flex flex-wrap gap-2 align-items-center justify-content-between">
                   <div>
@@ -516,6 +542,16 @@ export default function ProntuarioSolipedeEditCopy() {
 
                   <Nav variant="pills" className="gap-2">
                     <Nav.Item>
+
+                      <Nav.Item>
+                        <Nav.Link
+                          eventKey="tabelaDeLancamentos"
+                          className="px-3 py-2"
+                          style={{ borderRadius: "10px", fontSize: "13px" }}
+                        >
+                          <BsPlusCircle className="me-1" /> Lançamentos
+                        </Nav.Link>
+                      </Nav.Item>
                       <Nav.Link
                         eventKey="historico"
                         className="px-3 py-2"
@@ -539,6 +575,11 @@ export default function ProntuarioSolipedeEditCopy() {
 
               <Card.Body className="p-3 p-md-4">
                 <Tab.Content>
+
+                  <Tab.Pane eventKey="tabelaDeLancamentos">
+                    <ProntuarioTable onConsultarRegistro={handleConsultarRegistro} />
+                  </Tab.Pane>
+
                   <Tab.Pane eventKey="historico">
                     {/* Filtro */}
                     <Row className="g-2 mb-3">
@@ -548,7 +589,7 @@ export default function ProntuarioSolipedeEditCopy() {
                         </Form.Label>
                         <Form.Select
                           value={filtroHistorico}
-                          onChange={(e) => setFiltroHistorico(e.target.value)}
+                          onChange={handleFiltroHistoricoChange}
                           style={{ borderRadius: "10px", fontSize: "13px" }}
                         >
                           {tiposDisponiveis.map((tipo) => (
@@ -562,7 +603,7 @@ export default function ProntuarioSolipedeEditCopy() {
                         </Form.Label>
                         <Form.Control
                           value={buscaHistorico}
-                          onChange={(e) => setBuscaHistorico(e.target.value)}
+                          onChange={handleBuscaHistoricoChange}
                           placeholder="Digite termos para filtrar o histórico..."
                           style={{ borderRadius: "10px", fontSize: "13px" }}
                         />
@@ -578,32 +619,23 @@ export default function ProntuarioSolipedeEditCopy() {
                           </Card.Body>
                         </Card>
                       ) : (
-                        historicoFiltrado.map((reg, index) => {
-                          const tipoStyle = getTipoStyle(reg.tipo);
-                          const dataHora = reg.data_criacao
-                            ? new Date(reg.data_criacao).toLocaleString("pt-BR")
-                            : "Data não informada";
-
-                          return (
-                            <Card
-                              key={reg.id || `${reg.tipo || "tipo"}-${reg.data_criacao || index}`}
-                              className="border-0 mb-2"
-                              style={{
-                                borderRadius: "12px",
-                                backgroundColor: "#ffffff",
-                                boxShadow: "0 1px 6px rgba(0,0,0,0.05)",
-                                borderLeft: `4px solid ${tipoStyle.border}`,
-                              }}
-                            >
-                              <HistoricoProntuarioTratamento />
-                              <HistoricoProntuarioRestricoes />
-                              <HistoricoProntuarioDieta />
-                              <HistoricoProntuarioSuplementacao />
-                              <HistoricoProntuarioMovimentacao />
-                              
-                            </Card>
-                          );
-                        })
+                        <>
+                          {historicoPorTipo.tratamento.length > 0 && (
+                            <HistoricoProntuarioTratamento registros={historicoPorTipo.tratamento} />
+                          )}
+                          {historicoPorTipo.restricoes.length > 0 && (
+                            <HistoricoProntuarioRestricoes registros={historicoPorTipo.restricoes} />
+                          )}
+                          {historicoPorTipo.dieta.length > 0 && (
+                            <HistoricoProntuarioDieta registros={historicoPorTipo.dieta} />
+                          )}
+                          {historicoPorTipo.suplementacao.length > 0 && (
+                            <HistoricoProntuarioSuplementacao registros={historicoPorTipo.suplementacao} />
+                          )}
+                          {historicoPorTipo.movimentacao.length > 0 && (
+                            <HistoricoProntuarioMovimentacao registros={historicoPorTipo.movimentacao} />
+                          )}
+                        </>
                       )}
                     </div>
                   </Tab.Pane>

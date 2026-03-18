@@ -1,38 +1,19 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
     Col,
     Row,
     Card,
     Form,
-    Spinner,
     Button,
+    Spinner,
 } from "react-bootstrap";
+import { useParams } from "react-router-dom";
 
 import { api } from "../../../../services/api";
 
 
 const ProntuarioDieta = () => {
-    const [loading, setLoading] = useState(true);
-
-    const CarregarDieta = async () => {
-        try {
-            const response = await api.get("/dieta");
-            console.log("Dieta carregada:", response.data);
-            // Aqui você pode atualizar o estado com os dados da dieta, se necessário
-        } catch (error) {
-            console.error("Erro ao carregar a dieta:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        CarregarDieta();
-    }, []);
-
-
-    const data = new Date();
-    const dataFormatada = data.toLocaleDateString("pt-BR"); // Formato data Brazileira (DD/MM/YYYY)
+    const { numero } = useParams();
 
     const [dietaSelecionada, setDietaSelecionada] = useState({
         jejum: false,
@@ -48,18 +29,57 @@ const ProntuarioDieta = () => {
     const [salvando, setSalvando] = useState(false);
 
 
-    const handleDietaSubmit = (e) => {
+    const handleDietaSubmit = async (e) => {
         e.preventDefault();
 
-    }
+        setSalvando(true);
 
-    if (loading) {
-        return (
-            <div className="text-center my-5">
-                <Spinner animation="border" />
-                <p>Carregando...</p>
-            </div>
-        );
+        if (!numero) {
+            alert("Número do solípede não encontrado na rota.");
+            setSalvando(false);
+            return;
+        }
+
+        const opcoesSelecionadas = [];
+        if (dietaSelecionada.jejum) opcoesSelecionadas.push("Jejum");
+        if (dietaSelecionada.meiaRacao) opcoesSelecionadas.push("1/2 ração");
+        if (dietaSelecionada.fenoSoFeno) opcoesSelecionadas.push("Feno (só feno)");
+        if (dietaSelecionada.fenoSoFenoMolhado) opcoesSelecionadas.push("Feno molhado");
+        if (dietaSelecionada.fenoMolhadoMaisRacao) opcoesSelecionadas.push("Feno molhado + meia ração");
+
+        const payload = {
+            numero_solipede: Number(numero),
+            tipo_dieta: opcoesSelecionadas.join("; ") || null,
+            descricao: descricao?.trim() || null,
+            data_criacao: dataInicio || null,
+            data_fim: dataFim || null,
+            status_conclusao: "em_andamento",
+        };
+
+        try {
+            const resultado = await api.criarProntuarioDieta(payload);
+            if (resultado?.success || resultado?.id) {
+                alert("Dieta salva com sucesso! ✅");
+                setDietaSelecionada({
+                    jejum: false,
+                    meiaRacao: false,
+                    fenoSoFeno: false,
+                    fenoSoFenoMolhado: false,
+                    fenoMolhadoMaisRacao: false,
+                });
+                setDescricao("");
+                setDataInicio("");
+                setDataFim("");
+            } else {
+                alert(`Erro ao salvar dieta: ${resultado?.erro || resultado?.error || "Falha desconhecida"}`);
+            }
+        } catch (error) {
+            console.error("Erro ao enviar dieta:", error);
+            alert("Erro de conexão ao enviar dieta para a API.");
+        } finally {
+            setSalvando(false);
+        }
+
     }
 
     return (
@@ -67,7 +87,7 @@ const ProntuarioDieta = () => {
 
             <Card className="shadow-sm border-0">
                 <Card.Body>
-                    <Form onSubmit={handleDietaSubmit}>
+                    <Form id="form-prontuario-dieta" onSubmit={handleDietaSubmit}>
                         <Form.Group className="mb-3">
                             <Form.Label className="fw-bold">
                                 Dieta
@@ -163,8 +183,9 @@ const ProntuarioDieta = () => {
 
                 <div className="d-flex gap-2">
                     <Button
+                        type="submit"
+                        form="form-prontuario-dieta"
                         variant="success"
-                        onClick={handleDietaSubmit}
                         disabled={salvando}
                     >
                         {salvando ? (
@@ -181,6 +202,7 @@ const ProntuarioDieta = () => {
                         )}
                     </Button>
                     <Button
+                        type="button"
                         variant="secondary"
                         onClick={() => {
                             // Resetar checkboxes de dieta

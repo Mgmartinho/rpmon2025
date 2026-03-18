@@ -1,52 +1,23 @@
-import { useEffect, useState } from "react";
 import {
   Row,
   Col,
   Card,
   Button,
   Badge,
-  Form,
-  Modal,
-  Alert,
-  Spinner,
 } from "react-bootstrap";
 import {
-  BsClockHistory,
   BsCheckCircle,
   BsPencilSquare,
   BsClipboardCheck,
   BsTrash,
 } from "react-icons/bs";
-import { api } from "../../../../services/api";
-
 
 const HistoricoProntuarioTratamento = ({ registros = [] }) => {
 
-  const [dados, setDados] = useState([
-
-    {
-      id: 1,
-      tipo: "Tratamento",
-      diagnostico: "Lombalgia",
-      observacao_clinica: "Apresentou sensibilidade ao toque",
-      prescricao: "Medicamento XXX 10mg, 1 vez ao dia",
-      data_criacao: "2024-06-15T14:30:00Z",
-      data_validade: "2024-12-31",
-      status_conclusao: "em_andamento",
-      data_conclusao: null,
-      usuario_conclusao: "",
-      precisa_baixar: 0,
-      foi_responsavel_pela_baixa: 0,
-      usuario_nome: "MARCELO GUILHERME DE ARAUJO MARTINHO",
-      usuario_registro: "190378",
-      data_atualizacao: "2024-06-20T10:00:00Z",
-      },
-
-
-
-  ]);
+  const dados = Array.isArray(registros) ? registros : [];
 
   return (
+
     <div>
 
       {dados.map((item) => {

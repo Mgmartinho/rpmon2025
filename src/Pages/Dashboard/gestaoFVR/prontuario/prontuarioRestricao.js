@@ -1,18 +1,19 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
     Col,
     Row,
     Card,
     Form,
-    Spinner,
     Button,
+    Spinner,
 } from "react-bootstrap";
+import { useParams } from "react-router-dom";
 
 import { api } from "../../../../services/api";
 
 
 const ProntuarioRestricao = () => {
-    const [loading, setLoading] = useState(true);
+    const { numero } = useParams();
 
     // Estados para restrição (quando tipoObservacao === "Restrição")
     const [restricao, setRestricao] = useState({
@@ -22,47 +23,48 @@ const ProntuarioRestricao = () => {
         data_validade: "",
     });
 
-
-    const CarregarRestricao = async () => {
-        try {
-            const response = await api.get("/restricao");
-            console.log("Restrição carregada:", response.data);
-            // Aqui você pode atualizar o estado com os dados da restrição, se necessário
-        } catch (error) {
-            console.error("Erro ao carregar a restrição:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        CarregarRestricao();
-    }, []);
-
-
-    const data = new Date();
-    const dataFormatada = data.toLocaleDateString("pt-BR"); // Formato data Brazileira (DD/MM/YYYY)
-
-
-
-    const [descricao, setDescricao] = useState("");
-    const [dataInicio, setDataInicio] = useState("");
-    const [dataFim, setDataFim] = useState("");
     const [salvando, setSalvando] = useState(false);
 
 
-    const handleRestricaoSubmit = (e) => {
+    const handleRestricaoSubmit = async (e) => {
         e.preventDefault();
+        setSalvando(true);
 
-    }
+        if (!numero) {
+            alert("Número do solípede não encontrado na rota.");
+            setSalvando(false);
+            return;
+        }
 
-    if (loading) {
-        return (
-            <div className="text-center my-5">
-                <Spinner animation="border" />
-                <p>Carregando...</p>
-            </div>
-        );
+        const payload = {
+            numero_solipede: Number(numero),
+            restricao: restricao.descricao?.trim() || "",
+            recomendacoes: restricao.observacao?.trim() || null,
+            data_validade: restricao.data_validade || null,
+            status_conclusao: "em_andamento",
+            data_inicio: restricao.data_inicio || null,
+        };
+
+        try {
+            const resultado = await api.criarProntuarioRestricao(payload);
+            if (resultado?.success || resultado?.id) {
+                alert("Restrição salva com sucesso! ✅");
+                setRestricao({
+                    descricao: "",
+                    observacao: "",
+                    data_inicio: "",
+                    data_validade: "",
+                });
+            } else {
+                alert(`Erro ao salvar restrição: ${resultado?.erro || resultado?.error || "Falha desconhecida"}`);
+            }
+        } catch (error) {
+            console.error("Erro ao enviar restrição:", error);
+            alert("Erro de conexão ao enviar restrição para a API.");
+        } finally {
+            setSalvando(false);
+        }
+
     }
 
     return (
@@ -70,7 +72,7 @@ const ProntuarioRestricao = () => {
 
             <Card className="shadow-sm border-0">
                 <Card.Body>
-                    <Form onSubmit={handleRestricaoSubmit}>
+                    <Form id="form-prontuario-restricao" onSubmit={handleRestricaoSubmit}>
                         <Form.Group className="mb-3">
                             <Form.Label className="fw-bold">
                                 Restrição 
@@ -154,8 +156,9 @@ const ProntuarioRestricao = () => {
 
                 <div className="d-flex gap-2">
                     <Button
+                        type="submit"
+                        form="form-prontuario-restricao"
                         variant="success"
-                        onClick={handleRestricaoSubmit}
                         disabled={salvando}
                     >
                         {salvando ? (
@@ -172,6 +175,7 @@ const ProntuarioRestricao = () => {
                         )}
                     </Button>
                     <Button
+                        type="button"
                         variant="secondary"
                         onClick={() => {
                             // Resetar campos de restrição

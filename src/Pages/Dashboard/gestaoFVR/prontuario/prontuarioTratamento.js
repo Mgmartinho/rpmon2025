@@ -7,20 +7,17 @@ import {
     Spinner,
     Button,
 } from "react-bootstrap";
+import { useParams } from "react-router-dom";
 
 import { api } from "../../../../services/api";
 
+
+
 const ProntuarioTratamento = () => {
-    const [loading, setLoading] = useState(true);
+    const { numero } = useParams();
     const [salvando, setSalvando] = useState(false);
 
     const hoje = new Date().toISOString().split("T")[0];
-    const hora = new Date().toLocaleTimeString("pt-BR", {
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-    });
-
     const [tratamento, setTratamento] = useState({
         diagnostico: "",
         prescricao: "",
@@ -51,14 +48,25 @@ const ProntuarioTratamento = () => {
     //     CarregarRestricao();
     // }, []);
 
-    const handleTratamentoSubmit = (e) => {
+    const handleTratamentoSubmit = async (e) => {
         e.preventDefault();
         setSalvando(true);
 
+        if (!numero) {
+            alert("Número do solípede não encontrado na rota.");
+            setSalvando(false);
+            return;
+        }
+
         const payload = {
-            ...tratamento,
-            precisaBaixar: precisaBaixarSelecionado,
-            data_registro: new Date().toISOString(),
+            numero_solipede: Number(numero),
+            diagnostico: tratamento.diagnostico?.trim() || "",
+            observacao_clinica: tratamento.observacaoClinica?.trim() || "",
+            prescricao: tratamento.prescricao?.trim() || "",
+            precisa_baixar: precisaBaixarSelecionado,
+            foi_responsavel_pela_baixa: precisaBaixarSelecionado === "sim" ? 1 : 0,
+            data_inicio: tratamento.data_inicio || null,
+            data_validade: tratamento.data_validade || null,
         };
 
         console.log("=================================");
@@ -67,19 +75,28 @@ const ProntuarioTratamento = () => {
         console.log(payload);
         console.log("=================================");
 
-        setTimeout(() => {
-            alert("Dados passaram pelo handle com sucesso! ✅");
+        try {
+            const resultado = await api.criarProntuarioTratamento(payload);
+
+            if (resultado?.success || resultado?.id) {
+                alert("Tratamento salvo com sucesso! ✅");
+                setTratamento({
+                    diagnostico: "",
+                    prescricao: "",
+                    observacaoClinica: "",
+                    data_inicio: hoje,
+                    data_validade: "",
+                });
+                setPrecisaBaixarSelecionado("nao");
+            } else {
+                alert(`Erro ao salvar tratamento: ${resultado?.erro || resultado?.error || "Falha desconhecida"}`);
+            }
+        } catch (error) {
+            console.error("Erro ao enviar tratamento:", error);
+            alert("Erro de conexão ao enviar tratamento para a API.");
+        } finally {
             setSalvando(false);
-        }, 1000);
-
-
-        setTratamento({
-            diagnostico: "",
-            prescricao: "",
-            observacaoClinica: "",
-            data_inicio: hoje,
-            data_validade: "",
-        });
+        }
     };
 
     const handleReset = () => {
@@ -93,15 +110,6 @@ const ProntuarioTratamento = () => {
 
         setPrecisaBaixarSelecionado("nao");
     };
-
-    // if (loading) {
-    //     return (
-    //         <div className="text-center my-5">
-    //             <Spinner animation="border" />
-    //             <p>Carregando...</p>
-    //         </div>
-    //     );
-    // }
 
     return (
         <div>

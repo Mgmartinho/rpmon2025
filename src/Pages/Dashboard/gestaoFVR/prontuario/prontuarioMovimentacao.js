@@ -1,17 +1,18 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
     Col,
     Row,
     Card,
     Form,
-    Spinner,
     Button,
+    Spinner,
 } from "react-bootstrap";
+import { useParams } from "react-router-dom";
 
 import { api } from "../../../../services/api";
 
 const ProntuarioMovimentacao = () => {
-    const [loading, setLoading] = useState(true);
+    const { numero } = useParams();
     const [salvando, setSalvando] = useState(false);
 
     const hoje = new Date().toISOString().split("T")[0];
@@ -47,14 +48,21 @@ const ProntuarioMovimentacao = () => {
         "Representacao",
     ];
 
-    const handleMovimentacaoSubmit = (e) => {
+    const handleMovimentacaoSubmit = async (e) => {
         e.preventDefault();
         setSalvando(true);
 
+        if (!numero) {
+            alert("Número do solípede não encontrado na rota.");
+            setSalvando(false);
+            return;
+        }
+
         const payload = {
-            ...movimentacao,
-            opcoesMovimentacao: opcoesMovimentacao,
-            data_movimentacao: new Date().toISOString(),
+            numero_solipede: Number(numero),
+            motivo: movimentacao.movimentacao?.trim() || "",
+            destino: movimentacao.alocacao || "",
+            data_movimentacao: movimentacao.data_movimentacao || hoje,
         };
 
         console.log("=================================");
@@ -63,17 +71,24 @@ const ProntuarioMovimentacao = () => {
         console.log(payload);
         console.log("=================================");
 
-        setTimeout(() => {
-            alert("Dados passaram pelo handle com sucesso! ✅");
+        try {
+            const resultado = await api.criarProntuarioMovimentacao(payload);
+            if (resultado?.success || resultado?.id) {
+                alert("Movimentação salva com sucesso! ✅");
+                setMovimentacao({
+                    movimentacao: "",
+                    alocacao: "",
+                    data_movimentacao: hoje,
+                });
+            } else {
+                alert(`Erro ao salvar movimentação: ${resultado?.erro || resultado?.error || "Falha desconhecida"}`);
+            }
+        } catch (error) {
+            console.error("Erro ao enviar movimentação:", error);
+            alert("Erro de conexão ao enviar movimentação para a API.");
+        } finally {
             setSalvando(false);
-        }, 1000);
-
-
-        setMovimentacao({
-            movimentacao: "",
-            alocacao: "",
-            data_movimentacao: hoje,
-        });
+        }
     };
 
     const handleReset = () => {
@@ -84,15 +99,6 @@ const ProntuarioMovimentacao = () => {
         });
 
     };
-
-    // if (loading) {
-    //     return (
-    //         <div className="text-center my-5">
-    //             <Spinner animation="border" />
-    //             <p>Carregando...</p>
-    //         </div>
-    //     );
-    // }
 
     return (
         <div>

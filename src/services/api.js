@@ -3,15 +3,6 @@ const API_BASE_URL = process.env.REACT_APP_API_URL;
 
 console.log('🔗 API configurada para:', API_BASE_URL);
 
-// Função auxiliar para verificar se token está presente
-const checkAuth = () => {
-  const token = localStorage.getItem("token");
-  if (!token) {
-    return false;
-  }
-  return true;
-};
-
 // Função para fazer logout e redirecionar
 const handleUnauthorized = () => {
   localStorage.removeItem("token");
@@ -287,12 +278,6 @@ export const api = {
     return response.json();
   },
 
-  // Listar TODOS os prontuários (para indicador de restrições)
-  listarTodosProntuarios: async () => {
-    const response = await fetch(`${API_BASE_URL}/gestaoFVR/prontuario/todos`);
-    return response.json();
-  },
-  
   // Observações Gerais Público (todos os tipos exceto Restrições) - COM dados do usuário
   listarObservacoesPublico: async (numero) => {
     const response = await fetch(`${API_BASE_URL}/observacoes/${numero}`);
@@ -614,7 +599,79 @@ export const api = {
   //NOVOS METODOS PARA PRONTUARIOS
 
   //TRATAMENTOS
-  
+  listarProntuarioTratamentos: async (numero) => {
+    const token = localStorage.getItem("token");
+    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/prontuario/${numero}/tratamentos`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.json();
+  },
+
+  criarProntuarioTratamento: async (dados) => {
+    const token = localStorage.getItem("token");
+    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/prontuario/tratamentos`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(dados),
+    });
+    return response.json();
+  },
+
+    //RESTRIÇÕES
+  criarProntuarioRestricao: async (dados) => {
+    const token = localStorage.getItem("token");
+    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/prontuario/restricoes`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(dados),
+    });
+    return response.json();
+  },
+
+  criarProntuarioDieta: async (dados) => {
+    const token = localStorage.getItem("token");
+    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/prontuario/dietas`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(dados),
+    });
+    return response.json();
+  },
+
+  criarProntuarioSuplementacao: async (dados) => {
+    const token = localStorage.getItem("token");
+    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/prontuario/suplementacoes`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(dados),
+    });
+    return response.json();
+  },
+
+  criarProntuarioMovimentacao: async (dados) => {
+    const token = localStorage.getItem("token");
+    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/prontuario/movimentacoes`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(dados),
+    });
+    return response.json();
+  },
 
 
 

@@ -2105,7 +2105,7 @@ export default function ProntuarioSolipedeEdit() {
           </Card>
 
           {/* RESTRIÇÕES LANÇADAS APARECE NO PERFIL DO SOLÍPEDE */}
-          {historico.filter(reg => reg.tipo === "Restrições").length > 0 ? (
+                    {historico.some(reg => reg.tipo === "Restrições" && reg.status_conclusao === "em_andamento") ? (
             <Card className="shadow-sm border-0 mb-3">
               <Card.Header className="bg-warning text-dark border-0 fw-semibold d-flex align-items-center gap-2 opacity-90">
                 <LuTriangleAlert size={18} />
@@ -2114,7 +2114,7 @@ export default function ProntuarioSolipedeEdit() {
 
               <ListGroup variant="flush">
                 {historico
-                  .filter(reg => reg.tipo === "Restrições")
+                            .filter(reg => reg.tipo === "Restrições" && reg.status_conclusao === "em_andamento")
                   .map((reg, index) => (
                     <ListGroup.Item key={index} className="py-3">
                       <small className="text-muted d-block mb-1">
