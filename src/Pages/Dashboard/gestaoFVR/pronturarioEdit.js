@@ -679,7 +679,7 @@ export default function ProntuarioSolipedeEdit() {
         }
 
         // Garantir que response seja sempre um array e filtrar Observações Comportamentais
-        const historicoFiltrado = Array.isArray(response) 
+        const historicoFiltrado = Array.isArray(response)
           ? response.filter(reg => reg.tipo !== "Observações Comportamentais")
           : [];
         setHistorico(historicoFiltrado);
@@ -2105,7 +2105,7 @@ export default function ProntuarioSolipedeEdit() {
           </Card>
 
           {/* RESTRIÇÕES LANÇADAS APARECE NO PERFIL DO SOLÍPEDE */}
-                    {historico.some(reg => reg.tipo === "Restrições" && reg.status_conclusao === "em_andamento") ? (
+          {historico.some(reg => reg.tipo === "Restrições" && reg.status_conclusao === "em_andamento") ? (
             <Card className="shadow-sm border-0 mb-3">
               <Card.Header className="bg-warning text-dark border-0 fw-semibold d-flex align-items-center gap-2 opacity-90">
                 <LuTriangleAlert size={18} />
@@ -2114,7 +2114,7 @@ export default function ProntuarioSolipedeEdit() {
 
               <ListGroup variant="flush">
                 {historico
-                            .filter(reg => reg.tipo === "Restrições" && reg.status_conclusao === "em_andamento")
+                  .filter(reg => reg.tipo === "Restrições" && reg.status_conclusao === "em_andamento")
                   .map((reg, index) => (
                     <ListGroup.Item key={index} className="py-3">
                       <small className="text-muted d-block mb-1">
@@ -3199,7 +3199,7 @@ export default function ProntuarioSolipedeEdit() {
                                               <div className="d-flex align-items-center gap-2">
                                                 <span className="text-muted">Data de Validade Suplementação:</span>
                                                 <Badge bg="primary" style={{ fontSize: "11px" }}>
-                                                  {registro.data_validade && registro.data_validade !== null && registro.data_validade !== "" 
+                                                  {registro.data_validade && registro.data_validade !== null && registro.data_validade !== ""
                                                     ? new Date(registro.data_validade).toLocaleDateString("pt-BR")
                                                     : "-"}
                                                 </Badge>
@@ -3317,7 +3317,7 @@ export default function ProntuarioSolipedeEdit() {
                                       {registro.observacao}
                                       {registro.tipo === "Suplementação" && (
                                         <p>
-                                          Data de Validade da Suplementação: {registro.data_validade && registro.data_validade !== null && registro.data_validade !== "" 
+                                          Data de Validade da Suplementação: {registro.data_validade && registro.data_validade !== null && registro.data_validade !== ""
                                             ? new Date(registro.data_validade).toLocaleDateString('pt-BR')
                                             : "-"}
                                         </p>
@@ -3517,7 +3517,7 @@ export default function ProntuarioSolipedeEdit() {
                                 </Card.Body>
                               </Card>
                             );
-                            
+
                           })}
 
                           {/* Navegação de páginas do Histórico */}
@@ -4564,7 +4564,7 @@ export default function ProntuarioSolipedeEdit() {
                                                     fontWeight: "500"
                                                   }}
                                                 >
-                                                  📅 Validade: {registro.data_validade && registro.data_validade !== null && registro.data_validade !== "" 
+                                                  📅 Validade: {registro.data_validade && registro.data_validade !== null && registro.data_validade !== ""
                                                     ? new Date(registro.data_validade).toLocaleDateString('pt-BR')
                                                     : "-"}
                                                   {isRestricaoExpiradaReg && " (Expirada)"}
@@ -4991,7 +4991,7 @@ export default function ProntuarioSolipedeEdit() {
                                                     <div className="d-flex align-items-center gap-2">
                                                       <span className="text-muted">Data de Validade Suplementação:</span>
                                                       <Badge bg="primary" style={{ fontSize: "11px" }}>
-                                                        {registro.data_validade && registro.data_validade !== null && registro.data_validade !== "" 
+                                                        {registro.data_validade && registro.data_validade !== null && registro.data_validade !== ""
                                                           ? new Date(registro.data_validade).toLocaleDateString("pt-BR")
                                                           : "-"}
                                                       </Badge>

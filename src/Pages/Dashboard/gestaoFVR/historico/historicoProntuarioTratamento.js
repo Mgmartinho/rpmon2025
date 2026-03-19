@@ -30,7 +30,7 @@ const HistoricoProntuarioTratamento = ({ registros = [] }) => {
 
             {/* HEADER CLEAN */}
             <Card.Header className="bg-white border-0 py-3 d-flex justify-content-between align-items-center">
-
+              <Row>
               <div className="">
                 <Badge bg="danger" className="me-2 px-3 py-2">
                   {item.tipo || "Restrições"}
@@ -50,7 +50,7 @@ const HistoricoProntuarioTratamento = ({ registros = [] }) => {
                 )}
 
               </div>
-
+                {/* CAMPO DE MENUS */}
               <div className="d-flex gap-2">
                 {item.status_conclusao !== "concluido" && (
                   <Button
@@ -72,7 +72,17 @@ const HistoricoProntuarioTratamento = ({ registros = [] }) => {
                 </Button>
 
               </div>
+            </Row>  
+            <Row>
+              
+               
+                {item.precisa_baixar !== "sim" && (
+                  <Badge bg="success-subtle" text="danger" className="px-3 py-2">
+                    Tratamento Baixou o Solipede
+                  </Badge>
+                )}
 
+            </Row>
             </Card.Header>
 
             {/* BODY MAIS ORGANIZADO */}

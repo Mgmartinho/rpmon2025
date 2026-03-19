@@ -33,6 +33,8 @@ import ProntuarioSuplementacao from "../Pages/Dashboard/gestaoFVR/prontuario/pro
 import ProntuarioRestricao from "../Pages/Dashboard/gestaoFVR/prontuario/prontuarioRestricao";
 import ProntuarioTratamento from "../Pages/Dashboard/gestaoFVR/prontuario/prontuarioTratamento";
 import ProntuarioSolipedeEditCopy from "../Pages/Dashboard/gestaoFVR/pronturarioEditCopy";
+import TaskCreatePage2 from "../Pages/Dashboard/gestaoFVR/tasks2";
+
 const MainRoutes = () => {
   return (
     <Routes>
@@ -95,10 +97,11 @@ const MainRoutes = () => {
           </ProtectedRoute>
         } />
         
+        
         {/* Tasks/Lançamentos - Veterinários e acima */}
         <Route path="gestaofvr/taskcreatepage" element={
           <ProtectedRoute requiredPermission="VISUALIZAR_TASKS">
-            <TaskCreatePage />
+            <TaskCreatePage2 />
           </ProtectedRoute>
         } />
         
@@ -116,12 +119,8 @@ const MainRoutes = () => {
           </ProtectedRoute>
         } />
         
+        
         <Route path="gestaofvr/solipede/prontuario/edit/:numero" element={
-          <ProtectedRoute requiredPermission="GESTAO_PRONTUARIO">
-            <ProntuarioSolipedeEdit />
-          </ProtectedRoute>
-        } />
-        <Route path="gestaofvr/solipede/prontuario/edit2/:numero" element={
           <ProtectedRoute requiredPermission="GESTAO_PRONTUARIO">
             <ProntuarioSolipedeEditCopy />
           </ProtectedRoute>

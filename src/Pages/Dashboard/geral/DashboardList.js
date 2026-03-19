@@ -572,7 +572,7 @@ const DashboardList = () => {
   useEffect(() => {
     const verificarRestricoes = async () => {
       try {
-        // 🚀 UMA ÚNICA CHAMADA: retorna array de números com restrições em andamento
+        // 🚀 UMA ÚNICA CHAMADA: retorna array de números com lançamentos de restrição
         const numerosComRestricao = await api.listarSolipedesComRestricao();
         
         // Converter para Set para busca rápida
@@ -584,7 +584,7 @@ const DashboardList = () => {
         
         setSolipedesComRestricao(comRestricao);
         
-        console.log(`✅ Restrições carregadas: ${comRestricao.size} solípedes com restrições em andamento`);
+        console.log(`✅ Restrições carregadas: ${comRestricao.size} solípedes com lançamentos de restrição`);
       } catch (error) {
         console.error("❌ Erro ao verificar restrições:", error);
         setSolipedesComRestricao(new Set());
@@ -814,7 +814,7 @@ const DashboardList = () => {
                     </div>
                   </td>
                   <td className="text-center">
-                    <Badge bg={baixado ? "danger" : "success"}>
+                    <Badge bg={baixado ? "danger" : temRestricao ? "warning" : "success"}>
                       {item.status}
                     </Badge>
                   </td>
@@ -841,7 +841,7 @@ const DashboardList = () => {
                           e.currentTarget.style.backgroundColor = "#cfe2ff";
                           e.currentTarget.style.borderColor = "#0d6efd";
                         }}
-                        title="Possui restrições em andamento - Clique para ver"
+                        title="Possui restrições lançadas - Clique para ver"
                       >
                         <BsClockHistory
                           size={10}
@@ -854,7 +854,6 @@ const DashboardList = () => {
                       </span>
                     )}
                   </td>
-                  
                   <td className="text-center">
                     <div className="d-flex justify-content-center align-items-center gap-2">
                       {/* Botão adicionar observação - Apenas para usuários com permissão */}
@@ -928,7 +927,7 @@ const DashboardList = () => {
                       )}
                     </div>
                   </td>
-
+                  
                   <td className="text-center">
                     {proximoFerrageamento ? (
                       <div

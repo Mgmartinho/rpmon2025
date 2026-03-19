@@ -229,7 +229,7 @@ const GestaoFvr = () => {
     (numeroSolipede) => numerosComRestricoes.has(normalizarNumeroSolipede(numeroSolipede)),
     [numerosComRestricoes, normalizarNumeroSolipede]
   );
-
+  
   /* ===========================
      BUSCA DADOS
   =========================== */

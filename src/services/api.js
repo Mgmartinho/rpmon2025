@@ -322,7 +322,7 @@ export const api = {
     }
     
     try {
-      const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/prontuario/todos`, {
+      const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/prontuario/novo-modelo`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       
@@ -340,7 +340,7 @@ export const api = {
 
   listarProntuario: async (numero) => {
     const token = localStorage.getItem("token");
-    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/prontuario/${numero}`, {
+    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/prontuario/novo-modelo/${numero}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return response.json();
@@ -596,7 +596,19 @@ export const api = {
     return response.json();
   },
 
+
+
+
   //NOVOS METODOS PARA PRONTUARIOS
+  // Lista registros de prontuario_geral; se numero for informado, filtra por solipede
+  listarNovoModeloProntuarios: async (numero) => {
+    const token = localStorage.getItem("token");
+    const sufixo = numero !== undefined && numero !== null && numero !== "" ? `/${numero}` : "";
+    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/prontuario/novo-modelo${sufixo}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.json();
+  },
 
   //TRATAMENTOS
   listarProntuarioTratamentos: async (numero) => {
@@ -619,7 +631,6 @@ export const api = {
     });
     return response.json();
   },
-
     //RESTRIÇÕES
   criarProntuarioRestricao: async (dados) => {
     const token = localStorage.getItem("token");
@@ -633,7 +644,7 @@ export const api = {
     });
     return response.json();
   },
-
+    //DIETAS
   criarProntuarioDieta: async (dados) => {
     const token = localStorage.getItem("token");
     const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/prontuario/dietas`, {
@@ -646,7 +657,7 @@ export const api = {
     });
     return response.json();
   },
-
+    //SUPLEMENTAÇÕES
   criarProntuarioSuplementacao: async (dados) => {
     const token = localStorage.getItem("token");
     const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/prontuario/suplementacoes`, {
@@ -659,7 +670,7 @@ export const api = {
     });
     return response.json();
   },
-
+    //MOVIMENTAÇÕES
   criarProntuarioMovimentacao: async (dados) => {
     const token = localStorage.getItem("token");
     const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/prontuario/movimentacoes`, {
@@ -672,7 +683,6 @@ export const api = {
     });
     return response.json();
   },
-
 
 
 };
