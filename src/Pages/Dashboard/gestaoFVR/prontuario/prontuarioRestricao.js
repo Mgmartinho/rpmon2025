@@ -29,6 +29,7 @@ const ProntuarioRestricao = () => {
     const handleRestricaoSubmit = async (e) => {
         e.preventDefault();
         setSalvando(true);
+        window.location.reload();
 
         if (!numero) {
             alert("Número do solípede não encontrado na rota.");

@@ -33,25 +33,10 @@ const ProntuarioTratamento = () => {
         { value: "sim", label: "✅ Sim - Baixar o solípede para este tratamento" }
     ];
 
-    // const CarregarRestricao = async () => {
-    //     try {
-    //         const response = await api.get("/restricao");
-    //         console.log("Restrição carregada:", response.data);
-    //     } catch (error) {
-    //         console.error("Erro ao carregar a restrição:", error);
-    //     } finally {
-    //         setLoading(false);
-    //     }
-    // };
-
-    // useEffect(() => {
-    //     CarregarRestricao();
-    // }, []);
-
     const handleTratamentoSubmit = async (e) => {
         e.preventDefault();
         setSalvando(true);
-
+        window.location.reload();
         if (!numero) {
             alert("Número do solípede não encontrado na rota.");
             setSalvando(false);

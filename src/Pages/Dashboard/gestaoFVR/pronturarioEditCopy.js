@@ -15,11 +15,9 @@ import {
 } from "react-bootstrap";
 import {
   BsCheckCircle,
-  BsExclamationTriangle,
   BsArchive,
   BsPersonFill,
   BsGeoAltFill,
-  BsClipboard2PulseFill,
   BsCalendar3,
   BsShieldFill,
   BsClockHistory,
@@ -36,6 +34,7 @@ import ProntuarioRestricao from "./prontuario/prontuarioRestricao";
 import ProntuarioDieta from "./prontuario/prontuarioDieta";
 import ProntuarioSuplementacao from "./prontuario/prontuarioSuplementacao";
 import ProntuarioMovimentacao from "./prontuario/prontuarioMovimentacao";
+import ProntuarioVacinacao from "./prontuario/prontuarioVacinacao";
 import HistoricoProntuarioDieta from "./historico/historicoProntuarioDieta";
 import HistoricoProntuarioRestricoes from "./historico/historicoProntuarioRestricoes";
 import HistoricoProntuarioTratamento from "./historico/historicoProntuarioTratamento";
@@ -55,8 +54,6 @@ export default function ProntuarioSolipedeEditCopy() {
   const [error, setError] = useState(null);
   const [historico, setHistorico] = useState([]);
   const [, setLoadingHistorico] = useState(true);
-  const [tratamentosEmAndamento, setTratamentosEmAndamento] = useState(0);
-  const [baixasPendentes, setBaixasPendentes] = useState(0);
 
   const [tipoObservacao, setTipoObservacao] = useState("Tratamento");
   const [filtroHistorico, setFiltroHistorico] = useState("Todos");
@@ -104,12 +101,6 @@ export default function ProntuarioSolipedeEditCopy() {
           ? response.filter(reg => reg.tipo !== "Observações Comportamentais")
           : [];
         setHistorico(historicoFiltrado);
-
-        const baixas = await api.contarBaixasPendentes(solipede.numero);
-        setBaixasPendentes(baixas.total || 0);
-
-        const tratamentos = await api.contarTratamentosEmAndamento(solipede.numero);
-        setTratamentosEmAndamento(tratamentos.total || 0);
       } catch (err) {
         console.error("Erro ao carregar prontuário", err);
         setHistorico([]);
@@ -174,8 +165,65 @@ export default function ProntuarioSolipedeEditCopy() {
     );
   }
 
-  const tratamentosAtivos = historico.filter((reg) => reg.tipo === "Tratamento");
-  const restricoesAtivas = historico.filter((reg) => reg.tipo === "Restrições");
+  const normalizarTexto = (valor = "") =>
+    String(valor)
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .trim();
+
+  const emAndamento = (valor = "") => {
+    const status = normalizarTexto(valor).replace(/\s+/g, "_");
+
+    if (!status) return true;
+
+    const statusConcluidos = [
+      "concluido",
+      "concluida",
+      "finalizado",
+      "finalizada",
+      "encerrado",
+      "encerrada",
+      "cancelado",
+      "cancelada",
+      "inativo",
+      "inativa",
+    ];
+
+    if (statusConcluidos.includes(status)) return false;
+
+    const statusAtivos = ["em_andamento", "ativo", "ativa", "pendente", "aberto", "aberta"];
+    return statusAtivos.includes(status) || !statusConcluidos.includes(status);
+  };
+
+  const tratamentosAtivos = historico.filter((reg) => {
+    const tipo = normalizarTexto(reg.tipo);
+    const status = reg.tratamento_status || reg.status_conclusao || reg.status;
+    const tipoTratamento = tipo === "tratamento";
+    return tipoTratamento && emAndamento(status);
+  });
+
+  const restricoesAtivas = historico.filter((reg) => {
+    const tipo = normalizarTexto(reg.tipo);
+    const status = reg.restricao_status || reg.status_conclusao || reg.status;
+    const tipoRestricao = ["restricao", "restricoes"].includes(tipo);
+    return tipoRestricao && emAndamento(status);
+  });
+
+  const procedimentosEmAndamento = historico.filter((reg) => {
+    const status = normalizarTexto(
+      reg.status_conclusao ||
+      reg.tratamento_status ||
+      reg.restricao_status ||
+      reg.dieta_status ||
+      reg.suplementacao_status ||
+      reg.movimentacao_status ||
+      reg.status
+    ).replace(/\s+/g, "_");
+
+    return status === "em_andamento";
+  }).length;
+
   const historicoOrdenado = [...historico].sort((a, b) => {
     const dataA = new Date(a.data_criacao || 0).getTime();
     const dataB = new Date(b.data_criacao || 0).getTime();
@@ -189,6 +237,7 @@ export default function ProntuarioSolipedeEditCopy() {
     "Dieta",
     "Suplementação",
     "Movimentação",
+    "Vacinação",
   ];
 
   const historicoFiltrado = historicoOrdenado.filter((item) => {
@@ -274,7 +323,7 @@ export default function ProntuarioSolipedeEditCopy() {
 
         {/* Alertas de cabeçalho */}
         <div className="d-flex gap-2 flex-wrap justify-content-end">
-          {tratamentosEmAndamento > 0 && (
+          {/* {tratamentosEmAndamento > 0 && (
             <Badge
               bg="danger"
               className="px-3 py-2 rounded-pill"
@@ -283,18 +332,18 @@ export default function ProntuarioSolipedeEditCopy() {
               <BsClipboard2PulseFill className="me-1" />
               {tratamentosEmAndamento} tratamento{tratamentosEmAndamento > 1 ? "s" : ""} em andamento
             </Badge>
-          )}
-          {baixasPendentes > 0 && (
+          )} */}
+          {/* {baixasPendentes > 0 && (
             <Badge
               bg="warning"
-              text="dark"
+              text="danger"
               className="px-3 py-2 rounded-pill"
               style={{ fontSize: "12px" }}
             >
               <BsExclamationTriangle className="me-1" />
               {baixasPendentes} baixa{baixasPendentes > 1 ? "s" : ""} pendente{baixasPendentes > 1 ? "s" : ""}
             </Badge>
-          )}
+          )} */}
           {restricoesAtivas.length > 0 && (
             <Badge
               bg="warning"
@@ -310,12 +359,12 @@ export default function ProntuarioSolipedeEditCopy() {
           {tratamentosAtivos.length > 0 && (
             <Badge
               bg="danger"
-              text="dark"
+              text="white"
               className="px-3 py-2 rounded-pill"
               style={{ fontSize: "12px" }}
             >
               <LuShieldAlert className="me-1" size={14} />
-              {tratamentosAtivos.length} tratamento{tratamentosAtivos.length > 1 ? "os" : ""} ativa{restricoesAtivas.length > 1 ? "s" : ""}
+              {tratamentosAtivos.length} tratamento{tratamentosAtivos.length > 1 ? "s" : ""} ativo{tratamentosAtivos.length > 1 ? "s" : ""}
             </Badge>
           )}
         </div>
@@ -391,17 +440,17 @@ export default function ProntuarioSolipedeEditCopy() {
                 </Badge>
               </Card.Header>
               <ListGroup variant="flush">
-                {restricoesAtivas.map((reg, index) => (
+                {restricoesAtivas.map((reg) => (
                   <ListGroup.Item
-                    key={index}
+                    key={reg.restricao_id || reg.id}
                     className="py-3 px-3"
                     style={{ borderLeft: "3px solid #fbc02d" }}
                   >
-                    <small className="text-muted d-block mb-1" style={{ fontSize: "11px" }}>
-                      {reg.descricao || "Restrição registrada"}
+                    <small className="text-muted d-block mb-1" style={{ fontSize: "12px" }}>
+                      <strong>Restrição: </strong>{reg.restricao || "Sem descrição"}
                     </small>
-                    <span className="fw-semibold" style={{ fontSize: "13px", color: "#4e342e" }}>
-                      {reg.observacao || "Ativa"}
+                    <span className="text-muted d-block mb-1" style={{ fontSize: "12px" }}>
+                       <strong>Criado em: </strong> {reg.data_criacao ? new Date(reg.data_criacao).toLocaleDateString("pt-BR") : "N/A"}
                     </span>
                   </ListGroup.Item>
                 ))}
@@ -518,9 +567,9 @@ export default function ProntuarioSolipedeEditCopy() {
             <Col md={4}>
               <Card className="border-0 shadow-sm" style={{ borderRadius: "14px" }}>
                 <Card.Body className="py-3">
-                  <small className="text-muted d-block">Tipos Ativos</small>
+                  <small className="text-muted d-block">Procedimentos em Aberto</small>
                   <h4 className="fw-bold mb-0" style={{ color: "#1a2b4a" }}>
-                    {new Set(historico.map((h) => h.tipo).filter(Boolean)).size}
+                    {procedimentosEmAndamento}
                   </h4>
                 </Card.Body>
               </Card>
@@ -659,6 +708,7 @@ export default function ProntuarioSolipedeEditCopy() {
                           <option>Dieta</option>
                           <option>Suplementação</option>
                           <option>Movimentação</option>
+                          <option>Vacinação</option>
                         </Form.Select>
                       </Card.Body>
                     </Card>
@@ -677,6 +727,7 @@ export default function ProntuarioSolipedeEditCopy() {
                       {tipoObservacao === "Dieta" && <ProntuarioDieta />}
                       {tipoObservacao === "Suplementação" && <ProntuarioSuplementacao />}
                       {tipoObservacao === "Movimentação" && <ProntuarioMovimentacao />}
+                      {tipoObservacao === "Vacinação" && <ProntuarioVacinacao />}
                     </div>
                   </Tab.Pane>
 

@@ -34,6 +34,7 @@ import ProntuarioRestricao from "../Pages/Dashboard/gestaoFVR/prontuario/prontua
 import ProntuarioTratamento from "../Pages/Dashboard/gestaoFVR/prontuario/prontuarioTratamento";
 import ProntuarioSolipedeEditCopy from "../Pages/Dashboard/gestaoFVR/pronturarioEditCopy";
 import TaskCreatePage2 from "../Pages/Dashboard/gestaoFVR/tasks2";
+import LancamentosLotePage from "../Pages/Dashboard/gestaoFVR/lancamentosLotes/lancamentosLotePage";
 
 const MainRoutes = () => {
   return (
@@ -102,6 +103,12 @@ const MainRoutes = () => {
         <Route path="gestaofvr/taskcreatepage" element={
           <ProtectedRoute requiredPermission="VISUALIZAR_TASKS">
             <TaskCreatePage2 />
+          </ProtectedRoute>
+        } />
+
+        <Route path="gestaofvr/lancamentos-lote" element={
+          <ProtectedRoute requiredPermission="GESTAO_SOLIPEDES">
+            <LancamentosLotePage />
           </ProtectedRoute>
         } />
         

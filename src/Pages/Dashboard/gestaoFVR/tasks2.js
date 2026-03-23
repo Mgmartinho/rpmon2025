@@ -23,6 +23,7 @@ export default function TaskCreatePage2() {
   const [lancamentos, setLancamentos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filtroTipo, setFiltroTipo] = useState("Todos");
+  const [filtroStatus, setFiltroStatus] = useState("Todos");
   const [filtroUsuario, setFiltroUsuario] = useState("Todos");
   const [dataInicio, setDataInicio] = useState("");
   const [dataFim, setDataFim] = useState("");
@@ -46,9 +47,18 @@ export default function TaskCreatePage2() {
       registro.dieta_status ||
       registro.suplementacao_status ||
       registro.movimentacao_status ||
+      registro.vacinacao_status ||
       "",
     data_conclusao: registro.tratamento_data_conclusao || registro.data_conclusao || null,
   });
+
+  const normalizarStatus = (valor = "") =>
+    String(valor)
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, "_");
 
   const carregarLancamentos = useCallback(async () => {
     try {
@@ -111,11 +121,16 @@ export default function TaskCreatePage2() {
 
   // Filtros combinados
   const lancamentosFiltrados = lancamentos.filter((l) => {
+    const statusLancamento = normalizarStatus(l.status_conclusao);
+
     // Filtro por número do solípede
     if (solipedeNumero && !String(l.numero_solipede || "").includes(solipedeNumero.trim())) return false;
 
     // Filtro por tipo
     if (filtroTipo !== "Todos" && l.tipo !== filtroTipo) return false;
+
+    // Filtro por status
+    if (filtroStatus !== "Todos" && statusLancamento !== filtroStatus) return false;
     
     // Filtro por usuário
     if (filtroUsuario !== "Todos" && l.usuario_nome !== filtroUsuario) return false;
@@ -155,7 +170,7 @@ export default function TaskCreatePage2() {
   // Reset da página ao mudar filtro
   useEffect(() => {
     setCurrentPage(1);
-  }, [filtroTipo, filtroUsuario, dataInicio, dataFim, solipedeNumero, itemsPerPage]);
+  }, [filtroTipo, filtroStatus, filtroUsuario, dataInicio, dataFim, solipedeNumero, itemsPerPage]);
 
   const tiposDisponiveis = ["Todos", ...new Set(lancamentos.map((l) => l.tipo).filter(Boolean))];
 
@@ -168,78 +183,165 @@ export default function TaskCreatePage2() {
     navigate(`/dashboard/gestaofvr/solipede/prontuario/edit/${numeroSolipede}`);
   };
 
-  // Função para exportar dados para Excel
-  const exportarParaExcel = () => {
-    try {
-      // Preparar dados para exportação
-      const dadosExportacao = lancamentosFiltrados.map((registro, index) => ({
-        'Nº': index + 1,
-        'Solípede': registro.numero_solipede || '-',
-        'Baia': registro.solipede_baia || '-',
-        'Tipo': registro.tipo || '-',
-        'Data': registro.data_criacao ? new Date(registro.data_criacao).toLocaleDateString('pt-BR') : '-',
-        'Usuário': registro.usuario_nome || '-',
-        'Observações': registro.observacao || '-',
-        'Diagnóstico': registro.diagnosticos || '-',
-        'Prescrição/Recomendações': registro.recomendacoes || '-',
-        'Produto (Suplementação)': registro.suplementacao_produto || '-',
-        'Dose (Suplementação)': registro.suplementacao_dose || '-',
-        'Frequência (Suplementação)': registro.suplementacao_frequencia || '-',
-        'Data Finalização (Suplementação)': registro.suplementacao_data_finalizacao ? new Date(registro.suplementacao_data_finalizacao).toLocaleDateString('pt-BR') : '-',
-        'Dieta - Jejum': registro.dieta_jejum ? 'Sim' : 'Não',
-        'Dieta - Meia Ração': registro.dieta_meia_racao ? 'Sim' : 'Não',
-        'Dieta - Feno Só Feno': registro.dieta_feno_so_feno ? 'Sim' : 'Não',
-        'Dieta - Feno Só Feno Molhado': registro.dieta_feno_so_feno_molhado ? 'Sim' : 'Não',
-        'Dieta - Feno Molhado + Ração': registro.dieta_feno_molhado_mais_racao ? 'Sim' : 'Não',
-        'Tipo Baixa': registro.tipo_baixa || '-',
-        'Status Baixa': registro.status_baixa || '-',
-        'Data Lançamento Baixa': registro.data_lancamento ? new Date(registro.data_lancamento).toLocaleDateString('pt-BR') : '-',
-        'Data Validade': registro.data_validade ? new Date(registro.data_validade).toLocaleDateString('pt-BR') : '-',
-        'Precisa Baixar': registro.precisa_baixar || '-',
-        'Origem': registro.origem || '-',
-        'Destino': registro.destino || '-',
-        'Status Conclusão': registro.status_conclusao || '-'
-      }));
+  const registrosFiltrados = currentItems;
 
-      // Criar workbook
+  const formatarData = (valor) =>
+    valor ? new Date(valor).toLocaleDateString("pt-BR") : "-";
+
+  const formatarStatus = (valor) => {
+    const status = normalizarStatus(valor);
+    if (status === "em_andamento") return "Em andamento";
+    if (status === "concluido") return "Concluido";
+    return valor || "-";
+  };
+
+  const limparTrechoNomeArquivo = (valor) =>
+    String(valor || "todos")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/\s+/g, "_")
+      .replace(/[^a-zA-Z0-9_-]/g, "")
+      .toLowerCase();
+
+  const montarNomeArquivo = (escopo) => {
+    const dataAtual = new Date().toLocaleDateString("pt-BR").replace(/\//g, "-");
+    const tipo = limparTrechoNomeArquivo(filtroTipo);
+    const status = limparTrechoNomeArquivo(filtroStatus);
+    const usuario = limparTrechoNomeArquivo(filtroUsuario);
+    const sufixoEscopo = escopo === "pagina" ? "pagina_atual" : "filtrados";
+
+    return `lancamentos_prontuario_${tipo}_${status}_${usuario}_${sufixoEscopo}_${dataAtual}.xlsx`;
+  };
+
+  const gerarDadosExportacao = (registros) => {
+    const tipoSelecionado = filtroTipo;
+
+    if (tipoSelecionado === "Tratamento") {
+      return registros.map((registro, index) => ({
+        "Nº": index + 1,
+        "Solípede": registro.numero_solipede || "-",
+        "Baia": registro.solipede_baia || "-",
+        "Data": formatarData(registro.data_criacao),
+        "Usuário": registro.usuario_nome || "-",
+        "Diagnóstico": registro.diagnosticos || "-",
+        "Observações": registro.observacao || "-",
+        "Prescrição": registro.recomendacoes || "-",
+        "Precisa Baixar": registro.precisa_baixar || "-",
+        "Status Conclusão": formatarStatus(registro.status_conclusao),
+      }));
+    }
+
+    if (tipoSelecionado === "Restrições") {
+      return registros.map((registro, index) => ({
+        "Nº": index + 1,
+        "Solípede": registro.numero_solipede || "-",
+        "Baia": registro.solipede_baia || "-",
+        "Data": formatarData(registro.data_criacao),
+        "Usuário": registro.usuario_nome || "-",
+        "Restrição": registro.restricao || registro.observacao || "-",
+        "Recomendações": registro.recomendacoes || "-",
+        "Data Validade": formatarData(registro.restricao_data_validade || registro.data_validade),
+        "Status Conclusão": formatarStatus(registro.status_conclusao),
+      }));
+    }
+
+    if (tipoSelecionado === "Dieta") {
+      return registros.map((registro, index) => ({
+        "Nº": index + 1,
+        "Solípede": registro.numero_solipede || "-",
+        "Baia": registro.solipede_baia || "-",
+        "Data": formatarData(registro.data_criacao),
+        "Usuário": registro.usuario_nome || "-",
+        "Descrição": registro.descricao || registro.observacao || "-",
+        "Recomendações": registro.recomendacoes || "-",
+        "Data Fim": formatarData(registro.data_fim),
+        "Status Conclusão": formatarStatus(registro.status_conclusao),
+      }));
+    }
+
+    if (tipoSelecionado === "Suplementação") {
+      return registros.map((registro, index) => ({
+        "Nº": index + 1,
+        "Solípede": registro.numero_solipede || "-",
+        "Baia": registro.solipede_baia || "-",
+        "Data": formatarData(registro.data_criacao),
+        "Usuário": registro.usuario_nome || "-",
+        "Produto": registro.suplementacao_produto || registro.produto || "-",
+        "Dose": registro.suplementacao_dose || registro.dose || "-",
+        "Frequência": registro.suplementacao_frequencia || registro.frequencia || "-",
+        "Observações": registro.suplementacao_observacoes || registro.observacao || "-",
+        "Status Conclusão": formatarStatus(registro.status_conclusao),
+      }));
+    }
+
+    if (tipoSelecionado === "Movimentação") {
+      return registros.map((registro, index) => ({
+        "Nº": index + 1,
+        "Solípede": registro.numero_solipede || "-",
+        "Baia": registro.solipede_baia || "-",
+        "Data": formatarData(registro.data_criacao),
+        "Usuário": registro.usuario_nome || "-",
+        "Origem": registro.movimentacao_origem || registro.origem || "-",
+        "Destino": registro.destino || "-",
+        "Motivo": registro.motivo || registro.observacao || "-",
+        "Data Movimentação": formatarData(registro.data_movimentacao),
+        "Status Conclusão": formatarStatus(registro.status_conclusao),
+      }));
+    }
+
+    return registros.map((registro, index) => ({
+      "Nº": index + 1,
+      "Solípede": registro.numero_solipede || "-",
+      "Baia": registro.solipede_baia || "-",
+      "Tipo": registro.tipo || "-",
+      "Data": formatarData(registro.data_criacao),
+      "Usuário": registro.usuario_nome || "-",
+      "Observações": registro.observacao || "-",
+      "Diagnóstico": registro.diagnosticos || "-",
+      "Prescrição/Recomendações": registro.recomendacoes || "-",
+      "Origem": registro.movimentacao_origem || registro.origem || "-",
+      "Destino": registro.destino || "-",
+      "Status Conclusão": formatarStatus(registro.status_conclusao),
+    }));
+  };
+
+  const gerarResumoExportacao = (registros, escopo) => [
+    { Filtro: "Escopo", Valor: escopo === "pagina" ? "Página atual" : "Resultados filtrados" },
+    { Filtro: "Tipo", Valor: filtroTipo },
+    { Filtro: "Status", Valor: filtroStatus === "Todos" ? "Todos" : formatarStatus(filtroStatus) },
+    { Filtro: "Usuário", Valor: filtroUsuario },
+    { Filtro: "Nº Solípede", Valor: solipedeNumero || "Todos" },
+    { Filtro: "Data Início", Valor: dataInicio || "Sem filtro" },
+    { Filtro: "Data Fim", Valor: dataFim || "Sem filtro" },
+    { Filtro: "Total exportado", Valor: registros.length },
+  ];
+
+  // Função para exportar dados para Excel
+  const exportarParaExcel = (escopo = "filtrados") => {
+    try {
+      const origem = escopo === "pagina" ? registrosFiltrados : lancamentosFiltrados;
+      if (!origem.length) {
+        alert("Nao ha registros para exportar com os filtros atuais.");
+        return;
+      }
+
+      const dadosExportacao = gerarDadosExportacao(origem);
+      const dadosResumo = gerarResumoExportacao(origem, escopo);
+
+      // Criar workbook com resumo + lançamentos
       const ws = XLSX.utils.json_to_sheet(dadosExportacao);
+      const wsResumo = XLSX.utils.json_to_sheet(dadosResumo);
       const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, 'Lançamentos');
+      XLSX.utils.book_append_sheet(wb, wsResumo, "Resumo");
+      XLSX.utils.book_append_sheet(wb, ws, "Lançamentos");
 
       // Ajustar largura das colunas
-      const colWidths = [
-        { wch: 5 },  // Nº
-        { wch: 12 }, // Solípede
-        { wch: 12 }, // Baia
-        { wch: 18 }, // Tipo
-        { wch: 12 }, // Data
-        { wch: 20 }, // Usuário
-        { wch: 50 }, // Observações
-        { wch: 40 }, // Diagnóstico
-        { wch: 45 }, // Prescrição
-        { wch: 25 }, // Produto
-        { wch: 18 }, // Dose
-        { wch: 18 }, // Frequência
-        { wch: 18 }, // Data finalização
-        { wch: 14 }, // Dieta Jejum
-        { wch: 18 }, // Dieta Meia Ração
-        { wch: 20 }, // Dieta Feno Só Feno
-        { wch: 26 }, // Dieta Feno Só Feno Molhado
-        { wch: 26 }, // Dieta Feno Molhado + Ração
-        { wch: 16 }, // Tipo Baixa
-        { wch: 16 }, // Status Baixa
-        { wch: 20 }, // Data lançamento baixa
-        { wch: 15 }, // Data validade
-        { wch: 15 }, // Precisa baixar
-        { wch: 18 }, // Origem
-        { wch: 18 }, // Destino
-        { wch: 18 }  // Status conclusão
-      ];
-      ws['!cols'] = colWidths;
+      const chaves = Object.keys(dadosExportacao[0] || {});
+      ws["!cols"] = chaves.map((chave) => ({ wch: Math.min(Math.max(chave.length + 4, 14), 45) }));
+      wsResumo["!cols"] = [{ wch: 22 }, { wch: 35 }];
 
-      // Gerar nome do arquivo com data atual
-      const dataAtual = new Date().toLocaleDateString('pt-BR').replace(/\//g, '-');
-      const nomeArquivo = `Lancamentos_Prontuario_${filtroTipo !== 'Todos' ? filtroTipo + '_' : ''}${dataAtual}.xlsx`;
+      // Gerar nome do arquivo com filtros aplicados
+      const nomeArquivo = montarNomeArquivo(escopo);
 
       // Fazer download
       XLSX.writeFile(wb, nomeArquivo);
@@ -250,8 +352,6 @@ export default function TaskCreatePage2() {
       alert('Erro ao exportar dados para Excel. Tente novamente.');
     }
   };
-
-  const registrosFiltrados = currentItems;
 
     const mensagemPersonalizada = [
       {title: 'Tratamento', message: 'Observações clínicas'},
@@ -362,13 +462,13 @@ export default function TaskCreatePage2() {
                       <option value="Todos">Todos</option>
                     </Form.Select>
                     <Button
-                      variant="outline-dark"
-                      size="md"
-                      onClick={exportarParaExcel}
+                      variant="outline-success"
+                      size="sm"
+                      onClick={() => exportarParaExcel("filtrados")}
                       className="d-flex align-items-center gap-1"
-                      title="Exportar dados filtrados para Excel"
+                      title="Exportar resultados filtrados"
                     >
-                      <FaFileExcel />
+                      <FaFileExcel /> Exporte Com Filtros
                     </Button>
                   </div>
                 </Col>
@@ -388,7 +488,21 @@ export default function TaskCreatePage2() {
                     />
                   </Form.Group>
                 </Col>
-                <Col md={4} sm={6}>
+                <Col md={3} sm={6}>
+                  <Form.Group>
+                    <Form.Label className="small text-muted mb-1">Status</Form.Label>
+                    <Form.Select
+                      size="sm"
+                      value={filtroStatus}
+                      onChange={(e) => setFiltroStatus(e.target.value)}
+                    >
+                      <option value="Todos">Todos</option>
+                      <option value="em_andamento">Em andamento</option>
+                      <option value="concluido">Concluído</option>
+                    </Form.Select>
+                  </Form.Group>
+                </Col>
+                <Col md={3} sm={6}>
                   <Form.Group>
                     <Form.Label className="small text-muted mb-1">👤 Filtrar por Usuário</Form.Label>
                     <Form.Select
@@ -433,6 +547,7 @@ export default function TaskCreatePage2() {
                     className="w-100"
                     onClick={() => {
                       setSolipedeNumero("");
+                      setFiltroStatus("Todos");
                       setFiltroUsuario("Todos");
                       setDataInicio("");
                       setDataFim("");

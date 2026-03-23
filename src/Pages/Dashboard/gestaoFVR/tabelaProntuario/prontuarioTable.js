@@ -88,6 +88,7 @@ const ProntuarioTable = ({ onConsultarRegistro }) => {
                 <th>Tipo</th>
                 <th>Data Criação</th>
                 <th>Usuário</th>
+                <th>Ciclo de atendimento</th>
                 <th>Consulta</th>
               </tr>
             </thead>
@@ -103,6 +104,7 @@ const ProntuarioTable = ({ onConsultarRegistro }) => {
                       : "-"}
                   </td>
                   <td>{item.usuario_nome || item.usuario || "-"}</td>
+                  <td>{item.status_conclusao} </td>
                   <td>
                     <button
                       className="btn btn-primary btn-sm"

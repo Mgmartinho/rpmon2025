@@ -79,20 +79,6 @@ const GestaoFvr = () => {
   const [pageSolipede, setPageSolipede] = useState(1);
 
   /* ===========================
-      MODAL – MOVIMENTAÇÃO EM LOTE
-    =========================== */
-  const [showMovModal, setShowMovModal] = useState(false);
-  const [selecionados, setSelecionados] = useState([]);
-  const [novaMovimentacao, setNovaMovimentacao] = useState("");
-  const [dataMovimentacao, setDataMovimentacao] = useState("");
-  const [observacaoMovimentacao, setObservacaoMovimentacao] = useState("");
-  const [senhaConfirmacao, setSenhaConfirmacao] = useState("");
-  const [movLoading, setMovLoading] = useState(false);
-  const [movErro, setMovErro] = useState("");
-  const [movSucesso, setMovSucesso] = useState("");
-  const [filtroModal, setFiltroModal] = useState("");
-
-  /* ===========================
       MODAL – SOLICITAR EXAMES EM LOTE
     =========================== */
   const [showExamesModal, setShowExamesModal] = useState(false);
@@ -159,30 +145,6 @@ const GestaoFvr = () => {
     opg: false,
     coprocultura: false,
   });
-
-  const opcoesMovimentacao = [
-    "",
-    "RPMon",
-    "Barro Branco",
-    "Hospital Veterinário",
-    "Avare",
-    "Barretos",
-    "Bauru",
-    "Campinas",
-    "Colina",
-    "Escola Equitação Exército",
-    "Itapetininga",
-    "Marilia",
-    "Maua",
-    "Presidente Prudente",
-    "Ribeirão Preto",
-    "Santos",
-    "São Bernardo do Campo",
-    "São José do Rio Preto",
-    "Sorocaba",
-    "Taubate",
-    "Representacao",
-  ];
 
   /* ===========================
      INDICADORES (DADOS REAIS) - MEMOIZADOS
@@ -281,17 +243,6 @@ const GestaoFvr = () => {
     restricoesProntuario();
   }, []);
 
-  // Definir data atual quando o modal de movimentação abrir pela primeira vez
-  useEffect(() => {
-    if (showMovModal) {
-      // Só define a data se estiver vazia (modal foi limpo após fechar)
-      if (dataMovimentacao === "") {
-        const hoje = new Date().toISOString().split('T')[0];
-        setDataMovimentacao(hoje);
-      }
-    }
-  }, [showMovModal, dataMovimentacao]);
-
   // Verificar se tem movimentação - MEMOIZADO
   const temMovimentacao = useMemo(
     () => dados.some((item) => item.movimentacao !== null && item.movimentacao !== ""),
@@ -353,28 +304,6 @@ const GestaoFvr = () => {
       return true;
     });
   }, [dados, dadosProntuario, indicador, filtroNumero, filtroAlocacao, restricaoEmAndamento, normalizarNumeroSolipede]);
-
-  // Memoizar lista filtrada do modal de movimentação com early return (otimização de performance)
-  const modalFiltrados = useMemo(() => {
-    // Early return: se não há filtro, retornar lista completa sem iterar
-    if (!filtroModal || filtroModal.trim() === "") {
-      return solipedesFiltrados;
-    }
-    
-    const termo = filtroModal.toLowerCase();
-    return solipedesFiltrados.filter((s) => {
-      return (
-        s.nome?.toLowerCase().includes(termo) ||
-        s.numero?.toString().includes(termo) ||
-        (s.alocacao || "").toLowerCase().includes(termo)
-      );
-    });
-  }, [solipedesFiltrados, filtroModal]);
-
-  // Verificar se todos os solípedes filtrados no modal estão selecionados
-  const todosSelecionadosModal = useMemo(() => {
-    return modalFiltrados.length > 0 && modalFiltrados.every((s) => selecionados.includes(s.numero));
-  }, [modalFiltrados, selecionados]);
 
   /* ===========================
      ORDENAÇÃO – SOLÍPEDES - MEMOIZADA
@@ -823,16 +752,17 @@ const GestaoFvr = () => {
               </Col>
 
               <Col md={2}>
-                <Card
-                  className="h-100 text-center shadow-sm border-start"
-                  onClick={() => setShowMovModal(true)}
-                  style={{ cursor: "pointer" }}
+                <Link
+                  to="/dashboard/gestaofvr/lancamentos-lote"
+                  className="text-decoration-none text-reset"
                 >
-                  <Card.Body className="d-flex flex-column justify-content-center align-items-center">
-                    <BsArrowRepeat size={22} className="mb-2" />
-                    <small className="fw-semibold">Movimentar</small>
-                  </Card.Body>
-                </Card>
+                  <Card className="h-100 text-center shadow-sm border-start">
+                    <Card.Body className="d-flex flex-column justify-content-center align-items-center">
+                      <BsArrowRepeat size={22} className="mb-2" />
+                      <small className="fw-semibold">Lançamentos em Lote</small>
+                    </Card.Body>
+                  </Card>
+                </Link>
               </Col>
               
               {/* <Col md={1}>
@@ -1132,235 +1062,6 @@ const GestaoFvr = () => {
           </Card.Body>
         </Card>
 
-        {/* ===== MODAL MOVIMENTAÇÃO EM LOTE - ALTERA ALOCAÇÃO ===== */}
-        <Modal
-          show={showMovModal}
-          onHide={() => setShowMovModal(false)}
-          size="lg"
-        >
-          <Modal.Header closeButton>
-            <Modal.Title>Movimentar Solípedes (Alterar Alocação)</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <Alert variant="info" className="mb-3">
-              <small>
-                ℹ️ Esta operação irá <strong>alterar a alocação</strong> dos solípedes selecionados e
-                registrar o histórico no prontuário.
-              </small>
-            </Alert>
-
-            <Row className="mb-3">
-              <Col md={6}>
-                <Form.Group>
-                  <Form.Label>Nova Alocação *</Form.Label>
-                  <Form.Select
-                    value={novaMovimentacao}
-                    onChange={(e) => setNovaMovimentacao(e.target.value)}
-                  >
-                    <option value="">Selecione a nova alocação</option>
-                    {opcoesMovimentacao.filter(opt => opt !== "").map((opt) => (
-                      <option key={opt} value={opt}>
-                        {opt}
-                      </option>
-                    ))}
-                  </Form.Select>
-                </Form.Group>
-              </Col>
-              <Col md={6}>
-                <Form.Group>
-                  <Form.Label>Senha do Usuário *</Form.Label>
-                  <Form.Control
-                    type="password"
-                    value={senhaConfirmacao}
-                    onChange={(e) => setSenhaConfirmacao(e.target.value)}
-                    placeholder="Confirme sua senha"
-                  />
-                </Form.Group>
-              </Col>
-            </Row>
-
-            {/* <Row className="mb-3">
-              <Col md={6}>
-                <Form.Group>
-                  <Form.Label>Data da Movimentação *</Form.Label>
-                  <Form.Control
-                    type="date"
-                    value={dataMovimentacao}
-                    onChange={(e) => setDataMovimentacao(e.target.value)}
-                    max={new Date().toISOString().split('T')[0]}
-                  />
-                  <Form.Text className="text-muted">
-                    Data padrão: hoje. Pode ser alterada se necessário.
-                  </Form.Text>
-                </Form.Group>
-              </Col>
-            </Row> */}
-
-            <Row className="mb-3">
-              <Col md={12}>
-                <Form.Group>
-                  <Form.Label>Motivo da Movimentação (opcional)</Form.Label>
-                  <Form.Control
-                    as="textarea"
-                    rows={3}
-                    value={observacaoMovimentacao}
-                    onChange={(e) => setObservacaoMovimentacao(e.target.value)}
-                    placeholder="Descreva o motivo ou detalhes desta movimentação..."
-                  />
-                </Form.Group>
-              </Col>
-            </Row>
-
-            <div className="border rounded p-2 mb-3" style={{ maxHeight: 360, overflowY: "auto" }}>
-              <div className="d-flex justify-content-between align-items-center mb-2">
-                <strong>Selecionar Solípedes</strong>
-                <div className="d-flex gap-2">
-                  <Form.Control
-                    size="sm"
-                    placeholder="Filtrar por nº, nome ou alocação atual"
-                    value={filtroModal}
-                    onChange={(e) => setFiltroModal(e.target.value)}
-                    style={{ width: 260 }}
-                  />
-                  <Button
-                    size="sm"
-                    variant="outline-secondary"
-                    onClick={() => {
-                      if (todosSelecionadosModal) {
-                        const restantes = selecionados.filter((n) => !modalFiltrados.some((s) => s.numero === n));
-                        setSelecionados(restantes);
-                      } else {
-                        const novos = modalFiltrados.map((s) => s.numero);
-                        const merge = Array.from(new Set([...selecionados, ...novos]));
-                        setSelecionados(merge);
-                      }
-                    }}
-                  >
-                    {todosSelecionadosModal ? "Limpar seleção" : "Selecionar todos"}
-                  </Button>
-                </div>
-              </div>
-
-              <Table size="sm" hover className="align-middle mb-0">
-                <thead className="table-light">
-                  <tr>
-                    <th style={{ width: 40 }}></th>
-                    <th>Nº</th>
-                    <th>Nome</th>
-                    <th>Alocação Atual</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {modalFiltrados.map((s) => {
-                    const checked = selecionados.includes(s.numero);
-                    return (
-                      <tr key={s.numero}>
-                        <td>
-                          <Form.Check
-                            type="checkbox"
-                            checked={checked}
-                            onChange={(e) => {
-                              setSelecionados((prev) => {
-                                if (e.target.checked) return [...prev, s.numero];
-                                return prev.filter((n) => n !== s.numero);
-                              });
-                            }}
-                          />
-                        </td>
-                        <td className="fw-semibold">{s.numero}</td>
-                        <td className="fw-semibold">{s.nome}</td>
-                        <td>
-                          <Badge bg="secondary" className="bg-opacity-50">
-                            {s.alocacao || "Não definida"}
-                          </Badge>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                  {modalFiltrados.length === 0 && (
-                    <tr>
-                      <td colSpan={4} className="text-center text-muted py-3">
-                        Nenhum solípede encontrado com esse filtro.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </Table>
-            </div>
-
-            {movErro && <Alert variant="danger">{movErro}</Alert>}
-            {movSucesso && <Alert variant="success">{movSucesso}</Alert>}
-          </Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onClick={() => setShowMovModal(false)}>
-              Cancelar
-            </Button>
-            <Button
-              variant="primary"
-              disabled={
-                movLoading ||
-                !senhaConfirmacao ||
-                !novaMovimentacao ||
-                !dataMovimentacao ||
-                selecionados.length === 0
-              }
-              onClick={async () => {
-                try {
-                  setMovErro("");
-                  setMovSucesso("");
-                  setMovLoading(true);
-
-                  const resp = await api.movimentacaoBulk({
-                    numeros: selecionados,
-                    novaAlocacao: novaMovimentacao,
-                    dataMovimentacao: dataMovimentacao,
-                    observacao: observacaoMovimentacao || null,
-                    senha: senhaConfirmacao,
-                  });
-
-                  if (resp && resp.success) {
-                    // Atualiza a alocação dos solípedes selecionados
-                    setDados((prev) =>
-                      prev.map((d) =>
-                        selecionados.includes(d.numero)
-                          ? { ...d, alocacao: novaMovimentacao }
-                          : d
-                      )
-                    );
-                    setMovSucesso(
-                      `Alocação alterada com sucesso para ${resp.count} solípede(s)!`
-                    );
-
-                    // Limpar campos e fechar modal
-                    setSelecionados([]);
-                    setSenhaConfirmacao("");
-                    setNovaMovimentacao("");
-                    setDataMovimentacao("");
-                    setObservacaoMovimentacao("");
-                    setFiltroModal("");
-
-                    // Recarregar dados para garantir sincronização
-                    setTimeout(async () => {
-                      await carregarDados();
-                      setShowMovModal(false);
-                      setMovSucesso("");
-                    }, 1500);
-                  } else {
-                    setMovErro(resp?.error || "Falha ao aplicar movimentação");
-                  }
-                } catch (e) {
-                  console.error("❌ ERRO capturado:", e);
-                  setMovErro(e.message || "Erro inesperado");
-                } finally {
-                  setMovLoading(false);
-                }
-              }}
-            >
-              {movLoading ? "Aplicando..." : "Confirmar Movimentação"}
-            </Button>
-          </Modal.Footer>
-        </Modal>
-
         {/* ==========================================
             MODAL – SOLICITAR EXAMES EM LOTE
         ========================================== */}
@@ -1659,6 +1360,7 @@ const GestaoFvr = () => {
               )}
             </Button>
           </Modal.Footer>
+          
         </Modal>
       </div>
     </div>

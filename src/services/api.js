@@ -168,10 +168,16 @@ export const api = {
     return response.json();
   },
 
-  movimentacaoBulk: async ({ numeros, novaAlocacao, dataMovimentacao, observacao, senha }) => {
+  movimentacaoBulk: async ({ numeros, destino, novaAlocacao, data_movimentacao, dataMovimentacao, motivo, observacao, senha }) => {
     const token = localStorage.getItem("token");
     const url = `${API_BASE_URL}/gestaoFVR/solipedes/movimentacao/bulk`;
-    const body = { numeros, novaAlocacao, dataMovimentacao, observacao, senha };
+    const body = {
+      numeros,
+      destino: destino || novaAlocacao,
+      data_movimentacao: data_movimentacao || dataMovimentacao,
+      motivo: motivo || observacao || null,
+      senha,
+    };
     
     // Não usar fetchWithAuth aqui para evitar logout automático em caso de senha incorreta
     const response = await fetch(url, {
@@ -406,10 +412,11 @@ export const api = {
     }
   },
 
-  concluirRegistro: async (prontuarioId, senha) => {
+  concluirRegistro: async (prontuarioId, senha, opcoes = {}) => {
     console.log(`🔐 API: Concluindo registro ${prontuarioId}`);
     try {
       const token = localStorage.getItem("token");
+      const payload = { senha, ...opcoes };
       // Usar fetch normal, sem fetchWithAuth que intercepta 401
       const response = await fetch(`${API_BASE_URL}/gestaoFVR/prontuario/${prontuarioId}/concluir-registro`, {
         method: "PATCH",
@@ -417,7 +424,7 @@ export const api = {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`,
         },
-        body: JSON.stringify({ senha }),
+        body: JSON.stringify(payload),
       });
       
       console.log(`📡 Status da resposta: ${response.status}`);
@@ -684,6 +691,19 @@ export const api = {
     return response.json();
   },
 
+  //VACINAÇÕES
+  criarProntuarioVacinacao: async (dados) => {
+    const token = localStorage.getItem("token");
+    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/prontuario/vacinacoes`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(dados),
+    });
+    return response.json();
+  },
 
 };
 

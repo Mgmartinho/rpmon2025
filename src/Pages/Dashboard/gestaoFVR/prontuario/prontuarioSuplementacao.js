@@ -33,7 +33,7 @@ const ProntuarioSuplementacao = () => {
         e.preventDefault();
 
         setSalvando(true);
-
+        window.location.reload();
         if (!numero) {
             alert("Número do solípede não encontrado na rota.");
             setSalvando(false);
