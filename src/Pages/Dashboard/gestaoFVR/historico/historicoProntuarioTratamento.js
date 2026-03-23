@@ -1,9 +1,14 @@
+import { useEffect, useState } from "react";
 import {
   Row,
   Col,
   Card,
   Button,
   Badge,
+  Modal,
+  Form,
+  Alert,
+  Spinner,
 } from "react-bootstrap";
 import {
   BsCheckCircle,
@@ -11,88 +16,254 @@ import {
   BsClipboardCheck,
   BsTrash,
 } from "react-icons/bs";
+import { api } from "../../../../services/api";
 
 const HistoricoProntuarioTratamento = ({ registros = [] }) => {
+  const [dadosLocais, setDadosLocais] = useState([]);
 
-  const dados = Array.isArray(registros) ? registros : [];
+  const [showModalConclusaoRegistro, setShowModalConclusaoRegistro] = useState(false);
+  const [showModalEdicaoTratamento, setShowModalEdicaoTratamento] = useState(false);
+  const [showModalExclusaoRegistro, setShowModalExclusaoRegistro] = useState(false);
+
+  const [registroSelecionado, setRegistroSelecionado] = useState(null);
+
+  const [senhaConclusaoRegistro, setSenhaConclusaoRegistro] = useState("");
+  const [senhaExclusaoRegistro, setSenhaExclusaoRegistro] = useState("");
+
+  const [concluindoRegistro, setConcluindoRegistro] = useState(false);
+  const [salvandoEdicao, setSalvandoEdicao] = useState(false);
+  const [excluindoRegistro, setExcluindoRegistro] = useState(false);
+
+  const [erroConclusaoRegistro, setErroConclusaoRegistro] = useState("");
+  const [erroEdicaoTratamento, setErroEdicaoTratamento] = useState("");
+  const [erroExclusaoRegistro, setErroExclusaoRegistro] = useState("");
+
+  const [edicaoTratamento, setEdicaoTratamento] = useState({
+    diagnostico: "",
+    observacao_clinica: "",
+    prescricao: "",
+  });
+
+  useEffect(() => {
+    setDadosLocais(Array.isArray(registros) ? registros : []);
+  }, [registros]);
+
+  const handleAbrirModalConclusaoRegistro = (item) => {
+    setRegistroSelecionado(item);
+    setSenhaConclusaoRegistro("");
+    setErroConclusaoRegistro("");
+    setShowModalConclusaoRegistro(true);
+  };
+
+  const handleFecharModalConclusaoRegistro = () => {
+    setShowModalConclusaoRegistro(false);
+    setRegistroSelecionado(null);
+    setSenhaConclusaoRegistro("");
+    setErroConclusaoRegistro("");
+  };
+
+  const handleAbrirEdicaoTratamento = (item) => {
+    setRegistroSelecionado(item);
+    setErroEdicaoTratamento("");
+    setEdicaoTratamento({
+      diagnostico: item.diagnostico || "",
+      observacao_clinica: item.observacao_clinica || "",
+      prescricao: item.prescricao || "",
+    });
+    setShowModalEdicaoTratamento(true);
+  };
+
+  const handleFecharEdicaoTratamento = () => {
+    setShowModalEdicaoTratamento(false);
+    setRegistroSelecionado(null);
+    setErroEdicaoTratamento("");
+  };
+
+  const handleAbrirExclusaoRegistro = (item) => {
+    setRegistroSelecionado(item);
+    setSenhaExclusaoRegistro("");
+    setErroExclusaoRegistro("");
+    setShowModalExclusaoRegistro(true);
+  };
+
+  const handleFecharExclusaoRegistro = () => {
+    setShowModalExclusaoRegistro(false);
+    setRegistroSelecionado(null);
+    setSenhaExclusaoRegistro("");
+    setErroExclusaoRegistro("");
+  };
+
+  const handleConcluirRegistro = async (e) => {
+    e.preventDefault();
+
+    if (!registroSelecionado?.id) return;
+
+    setConcluindoRegistro(true);
+    setErroConclusaoRegistro("");
+
+    try {
+      const response = await api.concluirTratamento(registroSelecionado.id, senhaConclusaoRegistro);
+
+      if (response?.error) {
+        setErroConclusaoRegistro(response.error);
+        return;
+      }
+
+      handleFecharModalConclusaoRegistro();
+      window.location.reload();
+    } catch (error) {
+      setErroConclusaoRegistro("Erro ao concluir registro. Tente novamente.");
+    } finally {
+      setConcluindoRegistro(false);
+    }
+  };
+
+  const handleSalvarEdicaoTratamento = async (e) => {
+    e.preventDefault();
+
+    if (!registroSelecionado?.id) return;
+
+    setSalvandoEdicao(true);
+    setErroEdicaoTratamento("");
+
+    try {
+      const payload = {
+        diagnosticos: edicaoTratamento.diagnostico,
+        observacao: edicaoTratamento.observacao_clinica,
+        recomendacoes: edicaoTratamento.prescricao,
+      };
+
+      const response = await api.atualizarProntuario(registroSelecionado.id, payload);
+
+      if (response?.error) {
+        setErroEdicaoTratamento(response.error);
+        return;
+      }
+
+      handleFecharEdicaoTratamento();
+      window.location.reload();
+    } catch (error) {
+      setErroEdicaoTratamento("Erro ao salvar edicao. Tente novamente.");
+    } finally {
+      setSalvandoEdicao(false);
+    }
+  };
+
+  const handleExcluirRegistro = async (e) => {
+    e.preventDefault();
+
+    if (!registroSelecionado?.id) return;
+
+    setExcluindoRegistro(true);
+    setErroExclusaoRegistro("");
+
+    try {
+      const response = await api.excluirRegistroProntuario(registroSelecionado.id, senhaExclusaoRegistro);
+
+      if (response?.error) {
+        setErroExclusaoRegistro(response.error);
+        return;
+      }
+
+      handleFecharExclusaoRegistro();
+      window.location.reload();
+    } catch (error) {
+      setErroExclusaoRegistro("Erro ao excluir registro. Tente novamente.");
+    } finally {
+      setExcluindoRegistro(false);
+    }
+  };
 
   return (
-
     <div>
+      {dadosLocais.map((item) => {
+        const precisaBaixar = String(
+          item.tratamento_precisa_baixar ?? item.precisa_baixar ?? ""
+        )
+          .trim()
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "");
 
-      {dados.map((item) => {
+        const statusConclusao = String(item.status_conclusao || "").toLowerCase();
+        const isConcluido = statusConclusao === "concluido";
+        const dataAtualizacao = item.tratamento_data_atualizacao || item.data_atualizacao;
+        const usuarioAtualizacao = item.tratamento_usuario_atualizacao_nome;
+        const usuarioAtualizacaoRe = item.tratamento_usuario_atualizacao_registro;
 
         return (
           <Card
             key={item.id}
             className="shadow-sm border-start border-danger border-0 mb-3 rounded-3"
           >
-
-            {/* HEADER CLEAN */}
-            <Card.Header className="bg-white border-0 py-3 d-flex justify-content-between align-items-center">
-              <Row>
-              <div className="">
-                <Badge bg="danger" className="me-2 px-3 py-2">
-                  {item.tipo || "Restrições"}
-                </Badge>
-                <small className="text-muted m-2">
-                  {new Date(item.data_criacao).toLocaleDateString("pt-BR")}
-                </small>
-
-                {item.status_conclusao === "concluido" ? (
-                  <Badge bg="success-subtle" text="success" className="px-3 py-2">
-                    Concluído
+            <Card.Header className="bg-white border-0 py-3">
+              <div className="d-flex justify-content-between align-items-center">
+                <div className="d-flex align-items-center gap-2 flex-wrap">
+                  <Badge bg="danger" className="px-3 py-2">
+                    {item.tipo || "Tratamento"}
                   </Badge>
-                ) : (
-                  <Badge bg="warning-subtle" text="warning" className="px-3 py-2">
-                    Em andamento
-                  </Badge>
-                )}
 
-              </div>
-                {/* CAMPO DE MENUS */}
-              <div className="d-flex gap-2">
-                {item.status_conclusao !== "concluido" && (
+                  <small className="text-muted">
+                    {new Date(item.data_criacao).toLocaleDateString("pt-BR")}
+                  </small>
+
+                  {isConcluido ? (
+                    <Badge bg="success-subtle" text="success" className="px-3 py-2">
+                      Concluido
+                    </Badge>
+                  ) : (
+                    <Badge bg="warning-subtle" text="warning" className="px-3 py-2">
+                      Em andamento
+                    </Badge>
+                  )}
+                </div>
+
+                <div className="d-flex gap-2">
+                  {!isConcluido && (
+                    <Button
+                      size="sm"
+                      variant="light"
+                      title="Concluir registro"
+                      onClick={() => handleAbrirModalConclusaoRegistro(item)}
+                    >
+                      <BsCheckCircle />
+                    </Button>
+                  )}
+
                   <Button
                     size="sm"
                     variant="light"
-                    // onClick={() => handleAbrirModalConclusaoRegistro(item.id)}
-                    title="Concluir registro"
+                    title="Editar registro"
+                    onClick={() => handleAbrirEdicaoTratamento(item)}
                   >
-                    <BsCheckCircle />
+                    <BsPencilSquare />
                   </Button>
-                )}
-                <Button size="sm" variant="light"
-                // onClick={() => handleAbrirEdicaoRestricao(item)}
-                >
-                  <BsPencilSquare />
-                </Button>
-                <Button size="sm" variant="light">
-                  <BsTrash />
-                </Button>
 
+                  <Button
+                    size="sm"
+                    variant="light"
+                    title="Excluir registro"
+                    onClick={() => handleAbrirExclusaoRegistro(item)}
+                  >
+                    <BsTrash />
+                  </Button>
+                </div>
               </div>
-            </Row>  
-            <Row>
-              
-               
-                {item.precisa_baixar !== "sim" && (
-                  <Badge bg="success-subtle" text="danger" className="px-3 py-2">
+
+              {precisaBaixar === "sim" && (
+                <div className="mt-2">
+                  <Badge bg="success-subtle" text="danger">
                     Tratamento Baixou o Solipede
                   </Badge>
-                )}
-
-            </Row>
+                </div>
+              )}
             </Card.Header>
 
-            {/* BODY MAIS ORGANIZADO */}
             <Card.Body>
-
-              {/* Diagnóstico */}
               <div className="mb-3">
                 <h6 className="text-danger mb-1">
                   <BsClipboardCheck className="me-1" />
-                  Restrição
+                  Diagnostico
                 </h6>
                 <p className="mb-0 text-muted">
                   {item.diagnostico || "-"}
@@ -101,59 +272,60 @@ const HistoricoProntuarioTratamento = ({ registros = [] }) => {
 
               <hr />
 
-              <div className=" border-4 border-danger ps-3 mb-3">
-                <strong className="text-danger">Recomendações</strong>
+              <div className="border-4 border-danger ps-3 mb-3">
+                <strong className="text-danger">Observacoes Clinicas</strong>
                 <p className="mb-0 text-muted">
                   {item.observacao_clinica || "-"}
                 </p>
               </div>
-            
             </Card.Body>
 
             <Card.Footer className="bg-white border-0 d-flex justify-content-between align-items-center">
-              <div className=" border-4 border-warning ps-3 mb-3">
+              <div className="border-4 border-warning ps-3 mb-3 w-100">
                 <Row>
                   <Col xl={8}>
                     <small className="text-muted">
-                      <strong>Criado por:</strong> {item.usuario_nome} <strong>RE:</strong> {item.usuario_registro}
-
+                      <strong>Criado por:</strong> {item.usuario_nome || "-"} <strong>RE:</strong> {item.usuario_registro || "-"}
                     </small>
                   </Col>
                   <Col xl={2}>
                     <p className="mb-0 text-muted">
-                      {new Date(item.data_criacao).toLocaleDateString("pt-BR")}
+                      {item.data_criacao ? new Date(item.data_criacao).toLocaleDateString("pt-BR") : "-"}
                     </p>
                   </Col>
                   <Col xl={2}>
                     <p className="mb-0 text-muted">
-                      {new Date(item.data_validade).toLocaleDateString("pt-BR")}
+                      {item.data_validade ? new Date(item.data_validade).toLocaleDateString("pt-BR") : "-"}
                     </p>
                   </Col>
                 </Row>
+
+                {(usuarioAtualizacao || dataAtualizacao) && (
+                  <Row className="mt-2">
+                    <Col>
+                      <small className="text-muted">
+                        <strong>Ultima atualizacao:</strong>{" "}
+                        {usuarioAtualizacao ? `${usuarioAtualizacao}${usuarioAtualizacaoRe ? ` (RE: ${usuarioAtualizacaoRe})` : ""}` : "-"}
+                        {" | "}
+                        {dataAtualizacao ? new Date(dataAtualizacao).toLocaleString("pt-BR") : "-"}
+                      </small>
+                    </Col>
+                  </Row>
+                )}
               </div>
-              </Card.Footer>
+            </Card.Footer>
           </Card>
-        )
+        );
       })}
 
-
-      {/* Modal de Conclusão de Registro */}
-      {/* <Modal show={"showModalConclusaoRegistro"} onHide={"handleFecharModalConclusaoRegistro"} centered>
+      <Modal show={showModalConclusaoRegistro} onHide={handleFecharModalConclusaoRegistro} centered>
         <Modal.Header closeButton>
-          <Modal.Title>🔒 Confirmar Conclusão de Registro</Modal.Title>
+          <Modal.Title>Confirmar conclusao do tratamento</Modal.Title>
         </Modal.Header>
-        <Form onSubmit={"handleConcluirRegistro"}>
+        <Form onSubmit={handleConcluirRegistro}>
           <Modal.Body>
-            {"usuarioLogado" && (
-              <Alert variant="info" className="mb-3">
-                <strong>👤 Usuário:</strong> {usuarioLogado.nome}<br />
-                <strong>📧 Email:</strong> {usuarioLogado.email}<br />
-                {usuarioLogado.registro && <><strong>🆔 Registro:</strong> {usuarioLogado.registro}</>}
-              </Alert>
-            )}
-
             <p className="text-muted mb-3">
-              Para confirmar a conclusão deste registro, digite sua senha:
+              Para confirmar a conclusao deste registro, digite sua senha:
             </p>
 
             {erroConclusaoRegistro && (
@@ -163,7 +335,7 @@ const HistoricoProntuarioTratamento = ({ registros = [] }) => {
             )}
 
             <Form.Group className="mb-3">
-              <Form.Label>🔑 Senha:</Form.Label>
+              <Form.Label>Senha</Form.Label>
               <Form.Control
                 type="password"
                 value={senhaConclusaoRegistro}
@@ -187,7 +359,7 @@ const HistoricoProntuarioTratamento = ({ registros = [] }) => {
               ) : (
                 <>
                   <BsCheckCircle className="me-2" />
-                  Confirmar Conclusão
+                  Confirmar conclusao
                 </>
               )}
             </Button>
@@ -195,72 +367,127 @@ const HistoricoProntuarioTratamento = ({ registros = [] }) => {
         </Form>
       </Modal>
 
-      {/* Modal de Edição de Restrição */}
-      {/* <Modal show={"showModalEdicaoRestricao"} onHide={"handleFecharEdicaoRestricao"} centered size="lg">
+      <Modal show={showModalEdicaoTratamento} onHide={handleFecharEdicaoTratamento} centered size="lg">
         <Modal.Header closeButton>
-          <Modal.Title>⚠️ Editar Restrição</Modal.Title>
+          <Modal.Title>Editar tratamento</Modal.Title>
         </Modal.Header>
-        <Modal.Body>
-          {registroEditando && (
-            <>
-              <Alert variant="info" className="mb-3">
-                <strong>Tipo:</strong> {registroEditando?.tipo || "Restrições"}
-                <br />
-                <strong>Criado em:</strong> {registroEditando?.data_criacao ? new Date(registroEditando.data_criacao).toLocaleString('pt-BR') : "-"}
+        <Form onSubmit={handleSalvarEdicaoTratamento}>
+          <Modal.Body>
+            {registroSelecionado && (
+              <>
+                <Alert variant="info" className="mb-3">
+                  <strong>Tipo:</strong> {registroSelecionado?.tipo || "Tratamento"}
+                  <br />
+                  <strong>Criado em:</strong> {registroSelecionado?.data_criacao ? new Date(registroSelecionado.data_criacao).toLocaleString("pt-BR") : "-"}
+                </Alert>
+
+                {erroEdicaoTratamento && (
+                  <Alert variant="danger" className="py-2">
+                    {erroEdicaoTratamento}
+                  </Alert>
+                )}
+
+                <Form.Group className="mb-3">
+                  <Form.Label className="fw-bold">Diagnostico *</Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    rows={4}
+                    value={edicaoTratamento.diagnostico}
+                    maxLength={1000}
+                    onChange={(e) => setEdicaoTratamento({ ...edicaoTratamento, diagnostico: e.target.value })}
+                    style={{ resize: "vertical" }}
+                    placeholder="Descreva o diagnostico..."
+                  />
+                </Form.Group>
+
+                <Form.Group className="mb-3">
+                  <Form.Label className="fw-bold">Observacoes clinicas</Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    rows={3}
+                    value={edicaoTratamento.observacao_clinica}
+                    onChange={(e) => setEdicaoTratamento({ ...edicaoTratamento, observacao_clinica: e.target.value })}
+                    style={{ resize: "vertical" }}
+                  />
+                </Form.Group>
+
+                <Form.Group className="mb-3">
+                  <Form.Label className="fw-bold">Prescricao</Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    rows={3}
+                    value={edicaoTratamento.prescricao}
+                    onChange={(e) => setEdicaoTratamento({ ...edicaoTratamento, prescricao: e.target.value })}
+                    style={{ resize: "vertical" }}
+                  />
+                </Form.Group>
+              </>
+            )}
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={handleFecharEdicaoTratamento} disabled={salvandoEdicao}>
+              Cancelar
+            </Button>
+            <Button variant="primary" type="submit" disabled={salvandoEdicao}>
+              {salvandoEdicao ? (
+                <>
+                  <Spinner size="sm" className="me-2" />
+                  Salvando...
+                </>
+              ) : (
+                "Salvar alteracoes"
+              )}
+            </Button>
+          </Modal.Footer>
+        </Form>
+      </Modal>
+
+      <Modal show={showModalExclusaoRegistro} onHide={handleFecharExclusaoRegistro} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Excluir registro</Modal.Title>
+        </Modal.Header>
+        <Form onSubmit={handleExcluirRegistro}>
+          <Modal.Body>
+            <p className="text-muted mb-3">
+              Esta acao nao pode ser desfeita. Informe sua senha para confirmar a exclusao.
+            </p>
+
+            {erroExclusaoRegistro && (
+              <Alert variant="danger" className="py-2">
+                {erroExclusaoRegistro}
               </Alert>
+            )}
 
-              <Form.Group className="mb-3">
-                <Form.Label className="fw-bold">Restrição *</Form.Label>
-                <Form.Control
-                  as="textarea"
-                  rows={4}
-                  value={restricaoEdicao.restricao}
-                  maxLength={1000}
-                  onChange={(e) => setRestricaoEdicao({ ...restricaoEdicao, restricao: e.target.value })}
-                  style={{ resize: "vertical" }}
-                  placeholder="Descreva a restrição..."
-                />
-                <small className="text-muted">
-                  {restricaoEdicao.restricao.length}/1000 caracteres
-                </small>
-              </Form.Group>
-
-              <Form.Group className="mb-3">
-                <Form.Label className="fw-bold">Data de Validade (Opcional)</Form.Label>
-                <Form.Control
-                  type="date"
-                  value={restricaoEdicao.data_validade}
-                  onChange={(e) => setRestricaoEdicao({ ...restricaoEdicao, data_validade: e.target.value })}
-                />
-              </Form.Group>
-
-              <Form.Group className="mb-3">
-                <Form.Label className="fw-bold">Recomendações (Opcional)</Form.Label>
-                <Form.Control
-                  as="textarea"
-                  rows={3}
-                  value={restricaoEdicao.recomendacoes}
-                  onChange={(e) => setRestricaoEdicao({ ...restricaoEdicao, recomendacoes: e.target.value })}
-                  style={{ resize: "vertical" }}
-                />
-              </Form.Group>
-            </>
-          )}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleFecharEdicaoRestricao}>
-            Cancelar
-          </Button>
-          <Button variant="primary" onClick={handleSalvarEdicaoRestricao}>
-            💾 Salvar Alterações
-          </Button>
-        </Modal.Footer>
-      </Modal> */}
+            <Form.Group className="mb-3">
+              <Form.Label>Senha</Form.Label>
+              <Form.Control
+                type="password"
+                value={senhaExclusaoRegistro}
+                onChange={(e) => setSenhaExclusaoRegistro(e.target.value)}
+                placeholder="Digite sua senha"
+                required
+              />
+            </Form.Group>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={handleFecharExclusaoRegistro} disabled={excluindoRegistro}>
+              Cancelar
+            </Button>
+            <Button variant="danger" type="submit" disabled={excluindoRegistro}>
+              {excluindoRegistro ? (
+                <>
+                  <Spinner size="sm" className="me-2" />
+                  Excluindo...
+                </>
+              ) : (
+                "Confirmar exclusao"
+              )}
+            </Button>
+          </Modal.Footer>
+        </Form>
+      </Modal>
     </div>
-
-
-
   );
-}
+};
 
 export default HistoricoProntuarioTratamento;
