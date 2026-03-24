@@ -1,9 +1,12 @@
 import { useState } from "react";
-import { Alert, Badge, Button, Card, Col, Container, Row } from "react-bootstrap";
+import {  Badge, Button, Card, Col, Container, Row } from "react-bootstrap";
 import { BsArrowLeftRight, BsCapsulePill, BsShieldPlus } from "react-icons/bs";
 import { Link } from "react-router-dom";
-import MovimentacaoLote from "./movimentacaoLote";
 
+import MovimentacaoLote from "./movimentacaoLote";
+import VacinacaoLote from "./vacinacaoLote";
+import VermifugacaoLote from "./vermifugacaoLote";
+import AieMormoLote from "./aieMormoLote";
 const tipos = [
   {
     key: "movimentacao",
@@ -25,6 +28,13 @@ const tipos = [
     descricao: "Planejado para lancamentos em lote de vermifugacao.",
     icon: BsCapsulePill,
     variant: "warning",
+  },
+  {
+    key: "aieMormo",
+    titulo: "AIE Mormo",
+    descricao: "Planejado para lancamentos em lote de AIE Mormo.",
+    icon: BsCapsulePill,
+    variant: "danger",
   },
 ];
 
@@ -76,17 +86,12 @@ export default function LancamentosLotePage() {
 
       {tipoSelecionado === "movimentacao" && <MovimentacaoLote />}
 
-      {tipoSelecionado === "vacinacao" && (
-        <Alert variant="success" className="shadow-sm">
-          Modulo de vacinacao em lote selecionado. Podemos implementar o formulario completo na sequencia.
-        </Alert>
-      )}
+      {tipoSelecionado === "vacinacao" && <VacinacaoLote />}
 
-      {tipoSelecionado === "vermifugacao" && (
-        <Alert variant="warning" className="shadow-sm">
-          Modulo de vermifugacao em lote selecionado. Podemos implementar o formulario completo na sequencia.
-        </Alert>
-      )}
+      {tipoSelecionado === "vermifugacao" && <VermifugacaoLote />}
+      
+      {tipoSelecionado === "aieMormo" && <AieMormoLote />}
+
     </Container>
   );
 }

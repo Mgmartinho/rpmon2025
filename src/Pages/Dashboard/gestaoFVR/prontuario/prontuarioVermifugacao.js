@@ -11,27 +11,24 @@ import { useParams } from "react-router-dom";
 
 import { api } from "../../../../services/api";
 
-const ProntuarioVacinacao = () => {
+const ProntuarioVermifugacao = () => {
     const { numero } = useParams();
 
     const hoje = new Date().toISOString().split("T")[0];
 
-    // Estados para vacinação
-    const [vacinacao, setVacinacao] = useState({
+    const [vermifugacao, setVermifugacao] = useState({
         produto: "",
         partida: "",
         fabricacao: "",
-        lote: "",
-        dose: "",
         data_inicio: hoje,
+        data_fabricacao: "",
         data_validade: "",
+        descricao: "",
+        status_conclusao: "concluido",
     });
-
-    const [descricao, setDescricao] = useState("");
-    const [dataFim, setDataFim] = useState("");
     const [salvando, setSalvando] = useState(false);
 
-    const handleVacinacaoSubmit = async (e) => {
+    const handleVermifugacaoSubmit = async (e) => {
         e.preventDefault();
 
         if (!numero) {
@@ -39,82 +36,78 @@ const ProntuarioVacinacao = () => {
             return;
         }
 
-        if (!vacinacao.produto || !vacinacao.produto.trim()) {
-            alert("Produto (vacina) é obrigatório");
+        if (!vermifugacao.produto || !vermifugacao.produto.trim()) {
+            alert("Produto (vermífugo) é obrigatório");
             return;
         }
 
         setSalvando(true);
-        window.location.reload();
         const payload = {
             numero_solipede: Number(numero),
-            produto: vacinacao.produto?.trim() || "",
-            partida: vacinacao.partida?.trim() || null,
-            fabricacao: vacinacao.fabricacao || null,
-            lote: vacinacao.lote?.trim() || null,
-            dose: vacinacao.dose?.trim() || null,
-            data_inicio: vacinacao.data_inicio || hoje,
-            data_validade: vacinacao.data_validade || null,
-            descricao: descricao?.trim() || null,
-            data_fim: dataFim || null,
+            produto: vermifugacao.produto?.trim() || "",
+            partida: vermifugacao.partida?.trim() || null,
+            fabricacao: vermifugacao.fabricacao || null,
+            data_inicio: vermifugacao.data_inicio || hoje,
+            data_fabricacao: vermifugacao.data_fabricacao || null,
+            data_validade: vermifugacao.data_validade || null,
+            descricao: vermifugacao.descricao?.trim() || null,
             status_conclusao: "concluido",
         };
 
         console.log("=================================");
-        console.log("💉 HANDLE VACINACAO SUBMIT");
+        console.log("💊 HANDLE VERMIFUGACAO SUBMIT");
         console.log("Dados recebidos:");
         console.log(payload);
         console.log("=================================");
 
         try {
-            const resultado = await api.criarProntuarioVacinacao(payload);
+            const resultado = await api.criarProntuarioVermifugacao(payload);
             if (resultado?.success || resultado?.id) {
-                alert("Vacinação salva com sucesso! ✅");
-                setVacinacao({
+                alert("Vermifugação salva com sucesso! ✅");
+                setVermifugacao({
                     produto: "",
                     partida: "",
                     fabricacao: "",
-                    lote: "",
-                    dose: "",
                     data_inicio: hoje,
+                    data_fabricacao: "",
                     data_validade: "",
+                    descricao: "",
+                    status_conclusao: "concluido",
                 });
-                setDescricao("");
-                setDataFim("");
+                window.location.reload();
             } else {
-                alert(`Erro ao salvar vacinação: ${resultado?.erro || resultado?.error || "Falha desconhecida"}`);
+                alert(`Erro ao salvar vermifugação: ${resultado?.erro || resultado?.error || "Falha desconhecida"}`);
             }
         } catch (error) {
-            console.error("Erro ao enviar vacinação:", error);
-            alert("Erro de conexão ao enviar vacinação para a API.");
+            console.error("Erro ao enviar vermifugação:", error);
+            alert("Erro de conexão ao enviar vermifugação para a API.");
         } finally {
             setSalvando(false);
         }
     };
 
     const handleReset = () => {
-        setVacinacao({
+        setVermifugacao({
             produto: "",
             partida: "",
             fabricacao: "",
-            lote: "",
-            dose: "",
             data_inicio: hoje,
+            data_fabricacao: "",
             data_validade: "",
+            descricao: "",
+            status_conclusao: "concluido",
         });
-        setDescricao("");
-        setDataFim("");
     };
 
     return (
         <div>
             <Card className="shadow-sm border-0">
                 <Card.Body>
-                    <Form onSubmit={handleVacinacaoSubmit}>
+                    <Form onSubmit={handleVermifugacaoSubmit}>
 
                         <Form.Group className="mb-3">
                             <Form.Label className="fw-bold">
-                                Vacinação
+                                Vermifugação
                             </Form.Label>
                         </Form.Group>
 
@@ -129,16 +122,16 @@ const ProntuarioVacinacao = () => {
                                 <Col md={6}>
                                     <Form.Group className="mb-3">
                                         <Form.Label className="fw-bold">
-                                            Produto (Vacina) *
+                                            Produto (Vermífugo) *
                                         </Form.Label>
                                         <Form.Control
                                             type="text"
                                             size="sm"
-                                            placeholder="Nome da vacina"
-                                            value={vacinacao.produto}
+                                            placeholder="Nome do vermífugo utilizado"
+                                            value={vermifugacao.produto}
                                             onChange={(e) =>
-                                                setVacinacao({
-                                                    ...vacinacao,
+                                                setVermifugacao({
+                                                    ...vermifugacao,
                                                     produto: e.target.value,
                                                 })
                                             }
@@ -155,10 +148,10 @@ const ProntuarioVacinacao = () => {
                                             type="text"
                                             size="sm"
                                             placeholder="Número da partida"
-                                            value={vacinacao.partida}
+                                            value={vermifugacao.partida}
                                             onChange={(e) =>
-                                                setVacinacao({
-                                                    ...vacinacao,
+                                                setVermifugacao({
+                                                    ...vermifugacao,
                                                     partida: e.target.value,
                                                 })
                                             }
@@ -173,15 +166,15 @@ const ProntuarioVacinacao = () => {
                                 <Col md={6}>
                                     <Form.Group className="mb-3">
                                         <Form.Label className="fw-bold">
-                                            Data de Fabricação
+                                           Data de Fabricação 
                                         </Form.Label>
                                         <Form.Control
                                             type="date"
-                                            value={vacinacao.fabricacao}
+                                            value={vermifugacao.data_fabricacao}
                                             onChange={(e) =>
-                                                setVacinacao({
-                                                    ...vacinacao,
-                                                    fabricacao: e.target.value,
+                                                setVermifugacao({
+                                                    ...vermifugacao,
+                                                    data_fabricacao: e.target.value,
                                                 })
                                             }
                                             disabled={salvando}
@@ -195,10 +188,10 @@ const ProntuarioVacinacao = () => {
                                         </Form.Label>
                                         <Form.Control
                                             type="date"
-                                            value={vacinacao.data_validade}
+                                            value={vermifugacao.data_validade}
                                             onChange={(e) =>
-                                                setVacinacao({
-                                                    ...vacinacao,
+                                                setVermifugacao({
+                                                    ...vermifugacao,
                                                     data_validade: e.target.value,
                                                 })
                                             }
@@ -207,6 +200,7 @@ const ProntuarioVacinacao = () => {
                                     </Form.Group>
                                 </Col>
                             </Row>
+
                         </div>
 
                         <Row>
@@ -217,10 +211,10 @@ const ProntuarioVacinacao = () => {
                                     </Form.Label>
                                     <Form.Control
                                         type="date"
-                                        value={vacinacao.data_inicio}
+                                        value={vermifugacao.data_inicio}
                                         onChange={(e) =>
-                                            setVacinacao({
-                                                ...vacinacao,
+                                            setVermifugacao({
+                                                ...vermifugacao,
                                                 data_inicio: e.target.value,
                                             })
                                         }
@@ -231,22 +225,7 @@ const ProntuarioVacinacao = () => {
                                     </small>
                                 </Form.Group>
                             </Col>
-                            <Col md={6}>
-                                <Form.Group className="mb-3">
-                                    <Form.Label className="fw-bold">
-                                        Data Final (Opcional)
-                                    </Form.Label>
-                                    <Form.Control
-                                        type="date"
-                                        value={dataFim}
-                                        onChange={(e) => setDataFim(e.target.value)}
-                                        disabled={salvando}
-                                    />
-                                    <small className="text-muted">
-                                        Data da conclusão do tratamento vacinador.
-                                    </small>
-                                </Form.Group>
-                            </Col>
+                            <Col md={6}></Col>
                         </Row>
 
                         <Form.Group className="mb-3">
@@ -257,13 +236,18 @@ const ProntuarioVacinacao = () => {
                                 as="textarea"
                                 rows={4}
                                 maxLength={500}
-                                placeholder="Observações adicionais sobre a vacinação..."
-                                value={descricao}
-                                onChange={(e) => setDescricao(e.target.value)}
+                                placeholder="Observações adicionais sobre a vermifugação..."
+                                value={vermifugacao.descricao}
+                                onChange={(e) =>
+                                    setVermifugacao({
+                                        ...vermifugacao,
+                                        descricao: e.target.value,
+                                    })
+                                }
                                 disabled={salvando}
                             />
                             <small className="text-muted">
-                                {descricao.length}/500 caracteres
+                                {vermifugacao.descricao.length}/500 caracteres
                             </small>
                         </Form.Group>
 
@@ -303,4 +287,4 @@ const ProntuarioVacinacao = () => {
     );
 };
 
-export default ProntuarioVacinacao;
+export default ProntuarioVermifugacao;

@@ -35,11 +35,16 @@ import ProntuarioDieta from "./prontuario/prontuarioDieta";
 import ProntuarioSuplementacao from "./prontuario/prontuarioSuplementacao";
 import ProntuarioMovimentacao from "./prontuario/prontuarioMovimentacao";
 import ProntuarioVacinacao from "./prontuario/prontuarioVacinacao";
+import ProntuarioVermifugacao from "./prontuario/prontuarioVermifugacao";
+
 import HistoricoProntuarioDieta from "./historico/historicoProntuarioDieta";
 import HistoricoProntuarioRestricoes from "./historico/historicoProntuarioRestricoes";
 import HistoricoProntuarioTratamento from "./historico/historicoProntuarioTratamento";
 import HistoricoProntuarioSuplementacao from "./historico/historicoProntuarioSuplementacao";
 import HistoricoProntuarioMovimentacao from "./historico/historicoProntuarioMovimentacao";
+import HistoricoProntuarioVacinacao from "./historico/historicoProntuarioVacinacao";
+import HistoricoProntuarioVermifugacao from "./historico/historicoProntuarioVermifugacao";
+
 import ProntuarioTable from "./tabelaProntuario/prontuarioTable";
 
 export default function ProntuarioSolipedeEditCopy() {
@@ -272,6 +277,8 @@ export default function ProntuarioSolipedeEditCopy() {
     dieta: historicoFiltrado.filter((item) => item.tipo === "Dieta"),
     suplementacao: historicoFiltrado.filter((item) => item.tipo === "Suplementação"),
     movimentacao: historicoFiltrado.filter((item) => item.tipo === "Movimentação"),
+    vacinacao: historicoFiltrado.filter((item) => item.tipo === "Vacinação"),
+    vermifugacao: historicoFiltrado.filter((item) => item.tipo === "Vermifugação"),
   };
 
   return (
@@ -684,6 +691,15 @@ export default function ProntuarioSolipedeEditCopy() {
                           {historicoPorTipo.movimentacao.length > 0 && (
                             <HistoricoProntuarioMovimentacao registros={historicoPorTipo.movimentacao} />
                           )}
+                          {historicoPorTipo.vacinacao.length > 0 && (
+                            <HistoricoProntuarioVacinacao registros={historicoPorTipo.vacinacao} />
+                          )}
+                          {historicoPorTipo.vermifugacao.length > 0 && (
+                            <HistoricoProntuarioVermifugacao
+                              registros={historicoPorTipo.vermifugacao}
+                              prontuarioId={historicoPorTipo.vermifugacao[0]?.id || null}
+                            />
+                          )}
                         </>
                       )}
                     </div>
@@ -709,6 +725,7 @@ export default function ProntuarioSolipedeEditCopy() {
                           <option>Suplementação</option>
                           <option>Movimentação</option>
                           <option>Vacinação</option>
+                          <option>Vermifugação</option>
                         </Form.Select>
                       </Card.Body>
                     </Card>
@@ -728,6 +745,7 @@ export default function ProntuarioSolipedeEditCopy() {
                       {tipoObservacao === "Suplementação" && <ProntuarioSuplementacao />}
                       {tipoObservacao === "Movimentação" && <ProntuarioMovimentacao />}
                       {tipoObservacao === "Vacinação" && <ProntuarioVacinacao />}
+                      {tipoObservacao === "Vermifugação" && <ProntuarioVermifugacao />}
                     </div>
                   </Tab.Pane>
 

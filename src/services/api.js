@@ -28,6 +28,35 @@ const fetchWithAuth = async (url, options = {}) => {
   }
 };
 
+const parseApiResponse = async (response, endpointLabel = "API") => {
+  const contentType = response.headers.get("content-type") || "";
+  const raw = await response.text();
+
+  if (contentType.includes("application/json")) {
+    try {
+      return JSON.parse(raw);
+    } catch (error) {
+      return {
+        error: `Resposta JSON inválida em ${endpointLabel}`,
+        detail: raw,
+      };
+    }
+  }
+
+  // Quando backend/roteamento falha, costuma voltar HTML (ex.: página de erro)
+  if (raw.trim().startsWith("<!DOCTYPE") || raw.trim().startsWith("<html")) {
+    return {
+      error: `Resposta não-JSON recebida em ${endpointLabel}. Verifique se a rota existe e se a API está rodando.`,
+      status: response.status,
+    };
+  }
+
+  return {
+    error: raw || `Falha na chamada ${endpointLabel}`,
+    status: response.status,
+  };
+};
+
 export const api = {
   // Auth
   login: async (email, senha) => {
@@ -692,6 +721,14 @@ export const api = {
   },
 
   //VACINAÇÕES
+  listarProntuarioVacinacoes: async (prontuarioId) => {
+    const token = localStorage.getItem("token");
+    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/prontuario/${prontuarioId}/vacinacoes`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.json();
+  },
+
   criarProntuarioVacinacao: async (dados) => {
     const token = localStorage.getItem("token");
     const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/prontuario/vacinacoes`, {
@@ -702,7 +739,73 @@ export const api = {
       },
       body: JSON.stringify(dados),
     });
-    return response.json();
+    return parseApiResponse(response, "criarProntuarioVacinacao");
+  },
+
+  atualizarProntuarioVacinacao: async (id, dados) => {
+    const token = localStorage.getItem("token");
+    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/prontuario/vacinacoes/${id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(dados),
+    });
+    return parseApiResponse(response, "atualizarProntuarioVacinacao");
+  },
+
+  excluirProntuarioVacinacao: async (id) => {
+    const token = localStorage.getItem("token");
+    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/prontuario/vacinacoes/${id}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return parseApiResponse(response, "excluirProntuarioVacinacao");
+  },
+
+  //VERMIFUGAÇÕES
+  listarProntuarioVermifugacoes: async (prontuarioId) => {
+    const token = localStorage.getItem("token");
+    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/prontuario/${prontuarioId}/vermifugacoes`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return parseApiResponse(response, "listarProntuarioVermifugacoes");
+  },
+
+  criarProntuarioVermifugacao: async (dados) => {
+    const token = localStorage.getItem("token");
+    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/prontuario/vermifugacoes`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(dados),
+    });
+    return parseApiResponse(response, "criarProntuarioVermifugacao");
+  },
+
+  atualizarProntuarioVermifugacao: async (id, dados) => {
+    const token = localStorage.getItem("token");
+    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/prontuario/vermifugacoes/${id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(dados),
+    });
+    return parseApiResponse(response, "atualizarProntuarioVermifugacao");
+  },
+
+  excluirProntuarioVermifugacao: async (id) => {
+    const token = localStorage.getItem("token");
+    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/prontuario/vermifugacoes/${id}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return parseApiResponse(response, "excluirProntuarioVermifugacao");
   },
 
 };

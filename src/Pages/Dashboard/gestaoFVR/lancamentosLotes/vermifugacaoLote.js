@@ -5,7 +5,7 @@ import { api } from "../../../../services/api";
 
 const HOJE = new Date().toISOString().split("T")[0];
 
-export default function VacinacaoLote() {
+export default function VermifugacaoLote() {
   const navigate = useNavigate();
   const debounceRef = useRef(null);
 
@@ -17,11 +17,9 @@ export default function VacinacaoLote() {
     produto: "",
     partida: "",
     fabricacao: "",
-    lote: "",
-    dose: "",
     data_inicio: HOJE,
+    data_fabricacao: "",
     data_validade: "",
-    data_fim: "",
     descricao: "",
     status_conclusao: "concluido",
     senha_confirmacao: "",
@@ -90,11 +88,9 @@ export default function VacinacaoLote() {
       produto: "",
       partida: "",
       fabricacao: "",
-      lote: "",
-      dose: "",
       data_inicio: HOJE,
+      data_fabricacao: "",
       data_validade: "",
-      data_fim: "",
       descricao: "",
       status_conclusao: "concluido",
       senha_confirmacao: "",
@@ -105,7 +101,7 @@ export default function VacinacaoLote() {
 
   const confirmarLancamentoLote = async () => {
     if (!form.produto.trim()) {
-      setLoteErro("Informe o produto da vacina.");
+      setLoteErro("Informe o produto do vermífugo.");
       return;
     }
 
@@ -127,17 +123,15 @@ export default function VacinacaoLote() {
       setLoteLoading(true);
 
       const operacoes = numeros.map((numero_solipede) =>
-        api.criarProntuarioVacinacao({
+        api.criarProntuarioVermifugacao({
           numero_solipede,
           produto: form.produto.trim(),
           partida: form.partida.trim() || null,
           fabricacao: form.fabricacao || null,
-          lote: form.lote.trim() || null,
-          dose: form.dose.trim() || null,
           data_inicio: form.data_inicio || HOJE,
+          data_fabricacao: form.data_fabricacao || null,
           data_validade: form.data_validade || null,
           descricao: form.descricao.trim() || null,
-          data_fim: form.data_fim || null,
           status_conclusao: "concluido",
           senha: form.senha_confirmacao,
         })
@@ -157,7 +151,7 @@ export default function VacinacaoLote() {
       });
 
       if (sucesso.length > 0) {
-        setLoteSucesso(`Lançamento de vacinação criado para ${sucesso.length} solípede(s).`);
+        setLoteSucesso(`Lançamento de vermifugação criado para ${sucesso.length} solípede(s).`);
       }
 
       if (falha.length > 0) {
@@ -196,9 +190,9 @@ export default function VacinacaoLote() {
       <Card.Body>
         <Row className="mb-3 ">
           <Col md={8}>
-            <h5 className="mb-1">Informações referente a Vacina</h5>
+            <h5 className="mb-1">Informações referente a Vermifugação</h5>
             <small className="text-muted">
-              Descreva os detalhes da vacinação para aplicar em lote.
+              Descreva os detalhes da vermifugação, como Data e Local.
             </small>
           </Col>
         </Row>
@@ -217,7 +211,7 @@ export default function VacinacaoLote() {
           </Col>
           <Col md={4} className="p-2">
             <Form.Group>
-              <Form.Label>Partida/Lote *</Form.Label>
+              <Form.Label>Partida *</Form.Label>
               <Form.Control
                 type="text"
                 placeholder="Ex: xx/xx/xxxx - Lote 123"
@@ -241,6 +235,17 @@ export default function VacinacaoLote() {
           </Col>
           <Col md={4} className="p-2">
             <Form.Group>
+              <Form.Label>Data de Fabricação *</Form.Label>
+              <Form.Control
+                type="date"
+                value={form.data_fabricacao}
+                onChange={(e) => setForm((prev) => ({ ...prev, data_fabricacao: e.target.value }))}
+
+              />
+            </Form.Group>
+          </Col>
+          <Col md={4} className="p-2">
+            <Form.Group>
               <Form.Label>Data de Validade *</Form.Label>
               <Form.Control
                 type="date"
@@ -250,17 +255,7 @@ export default function VacinacaoLote() {
               />
             </Form.Group>
           </Col>
-          <Col md={4} className="p-2">
-            <Form.Group>
-              <Form.Label>Data Final (Opcional)</Form.Label>
-              <Form.Control
-                type="date"
-                value={form.data_fim}
-                onChange={(e) => setForm((prev) => ({ ...prev, data_fim: e.target.value }))}
-
-              />
-            </Form.Group>
-          </Col>
+          
         </Row>
 
         <Row>
@@ -268,13 +263,13 @@ export default function VacinacaoLote() {
             <Col md={8}>
               <h5 className="mb-1">Detalhes da Aplicação</h5>
               <small className="text-muted">
-                Descreva os detalhes da aplicação da vacina, como Data e Local.
+                Descreva os detalhes da aplicação da vermifugação, como Data e Local.
               </small>
             </Col>
           </Row>
           <Col md={3}>
             <Form.Group>
-              <Form.Label>Data da Vacinação *</Form.Label>
+              <Form.Label>Data da Vermifugação *</Form.Label>
               <Form.Control
                 type="date"
                 value={form.data_inicio}

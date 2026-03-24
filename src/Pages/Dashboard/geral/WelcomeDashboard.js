@@ -1,10 +1,51 @@
-import { Container, Row, Col, Card, Badge } from "react-bootstrap";
+import { Container, Row, Col, Card, Badge, Modal, Form, Button } from "react-bootstrap";
 import { GiHorseHead, GiHorseshoe } from "react-icons/gi";
 import { FaShieldAlt, FaChartLine, FaUserMd, FaHistory } from "react-icons/fa";
 import { MdSecurity } from "react-icons/md";
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { api } from "../../../../src/services/api";
 import "./WelcomeDashboard.css";
 
 const WelcomeDashboard = () => {
+  const [showLogin, setShowLogin] = useState(false);
+  const [credenciais, setCredenciais] = useState({
+    email: "",
+    senha: "",
+  });
+
+  useEffect(() => {
+    const usuarioArmazenado = localStorage.getItem("usuario");
+    if (usuarioArmazenado) {
+      window.location.href = "/dashboard/list";
+    }
+  }, []);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setCredenciais((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleLogin = async () => {
+    try {
+      const data = await api.login(credenciais.email, credenciais.senha);
+      if (data.error) {
+        alert(data.error);
+        return;
+      }
+
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("usuario", JSON.stringify(data.usuario));
+
+      setShowLogin(false);
+      setCredenciais({ email: "", senha: "" });
+      window.location.href = "/dashboard/list";
+    } catch (erro) {
+      console.error("Erro:", erro);
+      alert("Erro ao fazer login");
+    }
+  };
+
   const features = [
     { icon: <FaShieldAlt />, title: "Gestão Completa", desc: "Controle total do sistema" },
     { icon: <GiHorseshoe />, title: "Ferrageamento", desc: "Acompanhamento especializado" },
@@ -39,7 +80,7 @@ const WelcomeDashboard = () => {
                 </div>
                 
                 <h1 className="welcome-title mb-3">
-                  <span className="brand-text">RPMON</span>
+                  <span className="brand-text">RPMon</span>
                 </h1>
                 
                 <h4 className="welcome-subtitle mb-4">
@@ -48,7 +89,7 @@ const WelcomeDashboard = () => {
                 
                 <p className="welcome-description mb-4">
                   Plataforma integrada para gerenciamento completo dos solípedes<br />
-                  <strong>Regimento de Polícia Montada</strong>
+                  <strong>Regimento de Polícia Montada "9 de Julho"</strong>
                 </p>
 
                 <div className="divider my-4"></div>
@@ -71,9 +112,9 @@ const WelcomeDashboard = () => {
                 <div className="divider my-4"></div>
 
                 {/* Info Box */}
-                <div className="info-box">
+                <div className="info-box" onClick={() => setShowLogin(true)} style={{ cursor: 'pointer' }}>
                   <p className="mb-2">
-                    <strong>💡 Faça login</strong> para acessar todas as funcionalidades do sistema
+                    <strong>💡Clique aqui </strong>Faça seu login para acessar todas as funcionalidades do sistema
                   </p>
                   <p className="text-muted small mb-0">
                     Controle de acesso baseado em perfis e permissões
@@ -86,7 +127,7 @@ const WelcomeDashboard = () => {
             <Card className="footer-card border-0 shadow-sm">
               <Card.Body className="text-center py-3">
                 <p className="text-muted small mb-1">
-                  © {new Date().getFullYear()} RPMON - Regimento de Polícia Montada
+                  RPMon - Regimento de Polícia Montada "9 de Julho"
                 </p>
                 <p className="text-muted small mb-0">
                   Desenvolvido por <strong className="text-primary">MARTINHO EQUINO TECH</strong>
@@ -96,6 +137,53 @@ const WelcomeDashboard = () => {
           </Col>
         </Row>
       </Container>
+
+      {/* MODAL LOGIN */}
+      <Modal show={showLogin} onHide={() => setShowLogin(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Login</Modal.Title>
+        </Modal.Header>
+
+        <Modal.Body>
+          <Form>
+            <Form.Group className="mb-3">
+              <Form.Label>E-mail</Form.Label>
+              <Form.Control
+                name="email"
+                type="email"
+                value={credenciais.email}
+                onChange={handleChange}
+                placeholder="Digite seu email"
+              />
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Senha</Form.Label>
+              <Form.Control
+                type="password"
+                name="senha"
+                value={credenciais.senha}
+                onChange={handleChange}
+                placeholder="Digite sua senha"
+              />
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+
+        <Modal.Footer className="d-flex justify-content-between">
+          <Link to="/dashboard/criarusuario">
+            <Button variant="link">Criar Conta</Button>
+          </Link>
+          <div>
+            <Button variant="secondary" onClick={() => setShowLogin(false)} className="me-2">
+              Fechar
+            </Button>
+            <Button variant="primary" onClick={handleLogin}>
+              Entrar
+            </Button>
+          </div>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };

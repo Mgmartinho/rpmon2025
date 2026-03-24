@@ -935,7 +935,6 @@ const GestaoFvr = () => {
                       ["alocacao", "Alocação"],
                       ["origem", "Origem"],
                       ["esquadrao", "Esquadrão"],
-                      ["baia", "Baia"],
                       ["status", "Status"],
                     ].map(([key, label]) => (
                       <th
@@ -976,7 +975,6 @@ const GestaoFvr = () => {
                       <td>{item.alocacao}</td>
                       <td>{item.origem}</td>
                       <td>{item.esquadrao}</td>
-                      <td>{item.baia}</td>
                       <td>
                         <Badge
                           pill
