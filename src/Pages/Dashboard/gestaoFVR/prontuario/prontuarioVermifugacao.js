@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
     Col,
     Row,
@@ -25,8 +25,39 @@ const ProntuarioVermifugacao = () => {
         data_validade: "",
         descricao: "",
         status_conclusao: "concluido",
+        usuario_aplicacao: "",
     });
+    const [usuarios, setUsuarios] = useState([]);
+    const [carregandoUsuarios, setCarregandoUsuarios] = useState(true);
     const [salvando, setSalvando] = useState(false);
+
+    useEffect(() => {
+        let ativo = true;
+
+        api.listarVeterinarios()
+            .then((data) => {
+                if (!ativo) return;
+                const lista = Array.isArray(data) ? data : [];
+                setUsuarios(lista);
+                if (lista.length > 0) {
+                    setVermifugacao((prev) => ({
+                        ...prev,
+                        usuario_aplicacao: prev.usuario_aplicacao || String(lista[0].id),
+                    }));
+                }
+            })
+            .catch(() => {
+                if (!ativo) return;
+                setUsuarios([]);
+            })
+            .finally(() => {
+                if (ativo) setCarregandoUsuarios(false);
+            });
+
+        return () => {
+            ativo = false;
+        };
+    }, []);
 
     const handleVermifugacaoSubmit = async (e) => {
         e.preventDefault();
@@ -41,6 +72,11 @@ const ProntuarioVermifugacao = () => {
             return;
         }
 
+        if (!vermifugacao.usuario_aplicacao) {
+            alert("Selecione o responsável pela aplicação.");
+            return;
+        }
+
         setSalvando(true);
         const payload = {
             numero_solipede: Number(numero),
@@ -52,6 +88,7 @@ const ProntuarioVermifugacao = () => {
             data_validade: vermifugacao.data_validade || null,
             descricao: vermifugacao.descricao?.trim() || null,
             status_conclusao: "concluido",
+            usuario_aplicacao: Number(vermifugacao.usuario_aplicacao),
         };
 
         console.log("=================================");
@@ -73,6 +110,7 @@ const ProntuarioVermifugacao = () => {
                     data_validade: "",
                     descricao: "",
                     status_conclusao: "concluido",
+                    usuario_aplicacao: usuarios[0]?.id ? String(usuarios[0].id) : "",
                 });
                 window.location.reload();
             } else {
@@ -96,6 +134,7 @@ const ProntuarioVermifugacao = () => {
             data_validade: "",
             descricao: "",
             status_conclusao: "concluido",
+            usuario_aplicacao: usuarios[0]?.id ? String(usuarios[0].id) : "",
         });
     };
 
@@ -225,7 +264,33 @@ const ProntuarioVermifugacao = () => {
                                     </small>
                                 </Form.Group>
                             </Col>
-                            <Col md={6}></Col>
+                            <Col md={6}>
+                                <Form.Group className="mb-3">
+                                    <Form.Label className="fw-bold">
+                                        Responsável pela aplicação
+                                    </Form.Label>
+                                    <Form.Select
+                                        value={vermifugacao.usuario_aplicacao}
+                                        onChange={(e) =>
+                                            setVermifugacao({
+                                                ...vermifugacao,
+                                                usuario_aplicacao: e.target.value,
+                                            })
+                                        }
+                                        required
+                                        disabled={salvando || carregandoUsuarios}
+                                    >
+                                        <option value="">
+                                            {carregandoUsuarios ? "Carregando usuários..." : "Selecione o responsável"}
+                                        </option>
+                                        {usuarios.map((usuario) => (
+                                            <option key={usuario.id} value={usuario.id}>
+                                                {usuario.nome}
+                                            </option>
+                                        ))}
+                                    </Form.Select>
+                                </Form.Group>
+                            </Col>
                         </Row>
 
                         <Form.Group className="mb-3">

@@ -1,5 +1,4 @@
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
+import html2pdf from 'html2pdf.js';
 
 /**
  * Gera um PDF de receituário baseado em um elemento HTML
@@ -7,54 +6,22 @@ import jsPDF from 'jspdf';
  * @param {string} nomeArquivo - Nome do arquivo PDF
  */
 export const gerarReceituarioPDF = async (elementId, nomeArquivo = 'receituario.pdf') => {
-  try {
-    const element = document.getElementById(elementId);
-    
-    if (!element) {
-      console.error(`Elemento com ID '${elementId}' não encontrado`);
-      return;
-    }
+  const element = document.getElementById(elementId);
 
-    // Captura o elemento como imagem
-    const canvas = await html2canvas(element, {
-      scale: 2,
-      useCORS: true,
-      logging: false,
-      backgroundColor: '#ffffff'
-    });
-
-    const imgData = canvas.toDataURL('image/png');
-    const pdf = new jsPDF({
-      orientation: 'portrait',
-      unit: 'mm',
-      format: 'a4'
-    });
-
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-    const imgWidth = pageWidth - 20; // margem de 10mm de cada lado
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-    let heightLeft = imgHeight;
-    let position = 10;
-
-    // Adiciona a imagem ao PDF (com suporte a múltiplas páginas)
-    pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
-    heightLeft -= pageHeight - 20;
-
-    while (heightLeft >= 0) {
-      position = heightLeft - imgHeight;
-      pdf.addPage();
-      pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
-    }
-
-    // Faz download do PDF
-    pdf.save(nomeArquivo);
-  } catch (error) {
-    console.error('Erro ao gerar PDF:', error);
-    throw error;
+  if (!element) {
+    console.error(`Elemento com ID '${elementId}' não encontrado`);
+    return;
   }
+
+  const opcoes = {
+    margin: 0,
+    filename: nomeArquivo,
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2, useCORS: true, logging: false },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+  };
+
+  await html2pdf().set(opcoes).from(element).save();
 };
 
 /**

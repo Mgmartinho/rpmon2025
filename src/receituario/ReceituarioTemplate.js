@@ -12,7 +12,7 @@ export const ReceituarioTemplate = React.forwardRef(({ solipede, tratamento, usu
       ref={ref}
       style={{
         width: '210mm',
-        height: '296mm',
+        height: '295mm',
         margin: 0,
         padding: '15mm 20mm 20mm 20mm',
         fontFamily: 'Arial, sans-serif',
@@ -117,7 +117,7 @@ export const ReceituarioTemplate = React.forwardRef(({ solipede, tratamento, usu
         <hr style={{ margin: '10px 0' }} />
         
         {/* Diagnóstico - COM ALTURA MÁXIMA */}
-        {tratamento?.diagnosticos && (
+        {tratamento?.diagnostico && (
           <div style={{ marginBottom: '2px' }}>
             <div style={{ fontWeight: 'bold' }}>Diagnóstico:</div>
             <div style={{
@@ -128,14 +128,14 @@ export const ReceituarioTemplate = React.forwardRef(({ solipede, tratamento, usu
               overflow: 'hidden',
               textOverflow: 'ellipsis'
             }}>
-              {tratamento.diagnosticos}
+              {tratamento.diagnostico}
             </div>
           </div>
         )}
 
         {/* Prescrição - COM ALTURA MÁXIMA */}
         <div style={{ marginBottom: '2px' }}>
-          <div style={{ fontWeight: 'bold' }}>Prescrição:</div>
+          <div style={{ fontWeight: 'bold' }}>Prescrição veterinária:</div>
           <div style={{
             padding: '2px 0',
             whiteSpace: 'pre-wrap',
@@ -143,7 +143,7 @@ export const ReceituarioTemplate = React.forwardRef(({ solipede, tratamento, usu
             overflow: 'hidden',
             textOverflow: 'ellipsis'
           }}>
-            {tratamento?.recomendacoes || 'Nenhuma prescrição registrada.'}
+            {tratamento?.prescricao || 'Nenhuma prescrição registrada.'}
           </div>
         </div>
 

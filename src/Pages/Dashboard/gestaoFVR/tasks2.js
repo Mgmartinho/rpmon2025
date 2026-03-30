@@ -23,7 +23,7 @@ export default function TaskCreatePage2() {
   const [lancamentos, setLancamentos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filtroTipo, setFiltroTipo] = useState("Todos");
-  const [filtroStatus, setFiltroStatus] = useState("Todos");
+  const [filtroStatus, setFiltroStatus] = useState("em_andamento");
   const [filtroUsuario, setFiltroUsuario] = useState("Todos");
   const [dataInicio, setDataInicio] = useState("");
   const [dataFim, setDataFim] = useState("");

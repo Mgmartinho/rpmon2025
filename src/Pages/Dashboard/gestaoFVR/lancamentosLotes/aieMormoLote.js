@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Alert, Badge, Button, Card, Col, Form, Row, Spinner, Table, Input } from "react-bootstrap";
+import { Alert, Badge, Button, Card, Col, Form, Row, Spinner, Table } from "react-bootstrap";
 import { api } from "../../../../services/api";
 
 const HOJE = new Date().toISOString().split("T")[0];
@@ -10,26 +10,41 @@ export default function AieMormoLote() {
   const debounceRef = useRef(null);
 
   const [solipedes, setSolipedes] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loadingSolipedes, setLoadingSolipedes] = useState(true);
+  const [veterinarios, setVeterinarios] = useState([]);
+  const [loadingVeterinarios, setLoadingVeterinarios] = useState(true);
 
   // Set para selecionados: lookup O(1) ao invés de O(n) com array
   const [selecionados, setSelecionados] = useState(() => new Set());
-  const [destino, setDestino] = useState("");
-  const [data_movimentacao, setData_movimentacao] = useState(HOJE);
-  const [motivo, setMotivo] = useState("");
+  const [dataExame, setDataExame] = useState(HOJE);
+  const [validade, setValidade] = useState("60");
+  const [resultado, setResultado] = useState("");
+  const [descricao, setDescricao] = useState("");
+  const [usuarioAplicacao, setUsuarioAplicacao] = useState("");
   const [senhaConfirmacao, setSenhaConfirmacao] = useState("");
   const [filtro, setFiltro] = useState("");
   const [filtroBusca, setFiltroBusca] = useState(""); // valor com debounce
 
-  const [movLoading, setMovLoading] = useState(false);
-  const [movErro, setMovErro] = useState("");
-  const [movSucesso, setMovSucesso] = useState("");
+  const [loteLoading, setLoteLoading] = useState(false);
+  const [loteErro, setLoteErro] = useState("");
+  const [loteSucesso, setLoteSucesso] = useState("");
 
   useEffect(() => {
     api.listarSolipedes()
       .then((data) => setSolipedes(Array.isArray(data) ? data : []))
       .catch(() => setSolipedes([]))
-      .finally(() => setLoading(false));
+      .finally(() => setLoadingSolipedes(false));
+
+    api.listarVeterinarios()
+      .then((data) => {
+        const lista = Array.isArray(data) ? data : [];
+        setVeterinarios(lista);
+        if (lista.length > 0) {
+          setUsuarioAplicacao(String(lista[0].id));
+        }
+      })
+      .catch(() => setVeterinarios([]))
+      .finally(() => setLoadingVeterinarios(false));
   }, []);
 
   // Debounce no filtro: só recalcula 250ms após parar de digitar
@@ -80,49 +95,86 @@ export default function AieMormoLote() {
   const limparFormulario = useCallback(() => {
     setSelecionados(new Set());
     setSenhaConfirmacao("");
-    setDestino("");
-    setData_movimentacao(HOJE);
-    setMotivo("");
+    setDataExame(HOJE);
+    setValidade("60");
+    setResultado("");
+    setDescricao("");
+    setUsuarioAplicacao(veterinarios[0]?.id ? String(veterinarios[0].id) : "");
     setFiltro("");
     setFiltroBusca("");
-  }, []);
+  }, [veterinarios]);
 
-  const confirmarMovimentacao = async () => {
+  const confirmarLancamentoLote = async () => {
     const numeros = Array.from(selecionados);
+
+    if (!usuarioAplicacao) {
+      setLoteErro("Selecione o responsável pela aplicação.");
+      return;
+    }
+
+    if (!senhaConfirmacao.trim()) {
+      setLoteErro("Informe a confirmação de senha.");
+      return;
+    }
+
+    if (numeros.length === 0) {
+      setLoteErro("Selecione ao menos um solípede para lançar em lote.");
+      return;
+    }
+
     const primeiroNumero = numeros[0];
     try {
-      setMovErro("");
-      setMovSucesso("");
-      setMovLoading(true);
+      setLoteErro("");
+      setLoteSucesso("");
+      setLoteLoading(true);
 
-      const resp = await api.movimentacaoBulk({
-        numeros,
-        destino,
-        data_movimentacao,
-        motivo: motivo.trim() || null,
-        senha: senhaConfirmacao,
+      const operacoes = numeros.map((numero_solipede) =>
+        api.criarProntuarioAieMormo({
+          numero_solipede,
+          data_exame: dataExame || HOJE,
+          validade: validade || null,
+          resultado: resultado || null,
+          descricao: descricao.trim() || null,
+          status_conclusao: "concluido",
+          usuario_aplicacao: Number(usuarioAplicacao),
+          senha: senhaConfirmacao,
+        })
+      );
+
+      const resultados = await Promise.allSettled(operacoes);
+      const sucesso = [];
+      const falha = [];
+
+      resultados.forEach((item, index) => {
+        if (item.status === "fulfilled" && !item.value?.error && !item.value?.erro) {
+          sucesso.push(numeros[index]);
+        } else {
+          falha.push(numeros[index]);
+        }
       });
 
-      if (resp && resp.success) {
-        setSolipedes((prev) =>
-          prev.map((d) => selecionados.has(d.numero) ? { ...d, alocacao: destino } : d)
-        );
-        setMovSucesso(`Movimentação concluída para ${resp.count} solípede(s)! Abrindo prontuário...`);
+      if (sucesso.length > 0) {
+        setLoteSucesso(`Lançamento de AIE & Mormo criado para ${sucesso.length} solípede(s).`);
+      }
+
+      if (falha.length > 0) {
+        setLoteErro(`Falha ao lançar para: ${falha.join(", ")}.`);
+      }
+
+      if (falha.length === 0) {
         limparFormulario();
         setTimeout(() => {
           if (primeiroNumero) navigate(`/dashboard/gestaofvr/solipede/prontuario/edit/${primeiroNumero}`);
-        }, 2000);
-      } else {
-        setMovErro(resp?.error || "Falha ao aplicar movimentação");
+        }, 1200);
       }
     } catch (e) {
-      setMovErro(e.message || "Erro inesperado");
+      setLoteErro(e.message || "Erro inesperado");
     } finally {
-      setMovLoading(false);
+      setLoteLoading(false);
     }
   };
 
-  if (loading) {
+  if (loadingSolipedes) {
     return (
       <div className="text-center py-4">
         <Spinner animation="border" />
@@ -151,8 +203,8 @@ export default function AieMormoLote() {
               <Form.Label>Data do Exame *</Form.Label>
               <Form.Control
                 type="date"
-                value={data_movimentacao}
-                onChange={(e) => setData_movimentacao(e.target.value)}
+                value={dataExame}
+                onChange={(e) => setDataExame(e.target.value)}
                 max={HOJE}
               />
             </Form.Group>
@@ -162,10 +214,29 @@ export default function AieMormoLote() {
               <Form.Label>Validade *</Form.Label>
               <Form.Control
                 type="number"
-                value={60}
-                onChange={(e) => setData_movimentacao(e.target.value)}
-                max={HOJE}
+                value={validade}
+                onChange={(e) => setValidade(e.target.value)}
+                min="0"
               />
+            </Form.Group>
+          </Col>
+          <Col md={3}>
+            <Form.Group>
+              <Form.Label>Responsável pela Aplicação *</Form.Label>
+              <Form.Select
+                value={usuarioAplicacao}
+                onChange={(e) => setUsuarioAplicacao(e.target.value)}
+                disabled={loadingVeterinarios}
+              >
+                <option value="">
+                  {loadingVeterinarios ? "Carregando usuários..." : "Selecione o responsável"}
+                </option>
+                {veterinarios.map((usuario) => (
+                  <option key={usuario.id} value={usuario.id}>
+                    {usuario.nome}
+                  </option>
+                ))}
+              </Form.Select>
             </Form.Group>
           </Col>
           <Col md={3}>
@@ -180,6 +251,7 @@ export default function AieMormoLote() {
             </Form.Group>
           </Col>
         </Row>
+
 
         <div className="border rounded p-2 mb-3 mt-5">
           <div className="d-flex justify-content-between align-items-center mb-2">
@@ -241,19 +313,19 @@ export default function AieMormoLote() {
           </div>
         </div>
 
-        {movErro && <Alert variant="danger" className="mb-2">{movErro}</Alert>}
-        {movSucesso && <Alert variant="success" className="mb-2">{movSucesso}</Alert>}
+        {loteErro && <Alert variant="danger" className="mb-2">{loteErro}</Alert>}
+        {loteSucesso && <Alert variant="success" className="mb-2">{loteSucesso}</Alert>}
 
         <div className="d-flex justify-content-end gap-2">
-          <Button variant="secondary" onClick={limparFormulario} disabled={movLoading}>
+          <Button variant="secondary" onClick={limparFormulario} disabled={loteLoading}>
             Limpar
           </Button>
           <Button
             variant="primary"
-            disabled={movLoading || !senhaConfirmacao || !destino || !data_movimentacao || !motivo.trim() || totalSelecionados === 0}
-            onClick={confirmarMovimentacao}
+            disabled={loteLoading || !senhaConfirmacao.trim() || !usuarioAplicacao || !dataExame || totalSelecionados === 0}
+            onClick={confirmarLancamentoLote}
           >
-            {movLoading ? <><Spinner size="sm" className="me-1" />Aplicando...</> : `Confirmar (${totalSelecionados})`}
+            {loteLoading ? <><Spinner size="sm" className="me-1" />Aplicando...</> : `Confirmar (${totalSelecionados})`}
           </Button>
         </div>
       </Card.Body>

@@ -12,6 +12,9 @@ export default function VacinacaoLote() {
   const [solipedes, setSolipedes] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const [veterinarios, setVeterinarios] = useState([]);
+  const [loadingVeterinarios, setLoadingVeterinarios] = useState(true);
+
   const [selecionados, setSelecionados] = useState(() => new Set());
   const [form, setForm] = useState({
     produto: "",
@@ -25,6 +28,7 @@ export default function VacinacaoLote() {
     descricao: "",
     status_conclusao: "concluido",
     senha_confirmacao: "",
+    usuario_id: "",
   });
   const [filtro, setFiltro] = useState("");
   const [filtroBusca, setFiltroBusca] = useState("");
@@ -38,6 +42,11 @@ export default function VacinacaoLote() {
       .then((data) => setSolipedes(Array.isArray(data) ? data : []))
       .catch(() => setSolipedes([]))
       .finally(() => setLoading(false));
+
+    api.listarVeterinarios()
+      .then((data) => setVeterinarios(Array.isArray(data) ? data : []))
+      .catch(() => setVeterinarios([]))
+      .finally(() => setLoadingVeterinarios(false));
   }, []);
 
   const handleFiltroChange = useCallback((e) => {
@@ -98,6 +107,7 @@ export default function VacinacaoLote() {
       descricao: "",
       status_conclusao: "concluido",
       senha_confirmacao: "",
+      usuario_id: "",
     });
     setFiltro("");
     setFiltroBusca("");
@@ -106,6 +116,11 @@ export default function VacinacaoLote() {
   const confirmarLancamentoLote = async () => {
     if (!form.produto.trim()) {
       setLoteErro("Informe o produto da vacina.");
+      return;
+    }
+
+    if (!form.usuario_id) {
+      setLoteErro("Selecione o veterinário responsável.");
       return;
     }
 
@@ -138,6 +153,7 @@ export default function VacinacaoLote() {
           data_validade: form.data_validade || null,
           descricao: form.descricao.trim() || null,
           data_fim: form.data_fim || null,
+          usuario_aplicacao: Number(form.usuario_id),
           status_conclusao: "concluido",
           senha: form.senha_confirmacao,
         })
@@ -250,17 +266,6 @@ export default function VacinacaoLote() {
               />
             </Form.Group>
           </Col>
-          <Col md={4} className="p-2">
-            <Form.Group>
-              <Form.Label>Data Final (Opcional)</Form.Label>
-              <Form.Control
-                type="date"
-                value={form.data_fim}
-                onChange={(e) => setForm((prev) => ({ ...prev, data_fim: e.target.value }))}
-
-              />
-            </Form.Group>
-          </Col>
         </Row>
 
         <Row>
@@ -281,6 +286,25 @@ export default function VacinacaoLote() {
                 onChange={(e) => setForm((prev) => ({ ...prev, data_inicio: e.target.value }))}
                 max={HOJE}
               />
+            </Form.Group>
+          </Col>
+          <Col md={3}>
+            <Form.Group>
+              <Form.Label>Veterinário Responsável *</Form.Label>
+              <Form.Select
+                value={form.usuario_id}
+                onChange={(e) => setForm((prev) => ({ ...prev, usuario_id: e.target.value }))}
+                disabled={loadingVeterinarios}
+              >
+                <option value="">
+                  {loadingVeterinarios ? "Carregando..." : "Selecione um veterinário"}
+                </option>
+                {veterinarios.map((vet) => (
+                  <option key={vet.id} value={vet.id}>
+                    {vet.nome}
+                  </option>
+                ))}
+              </Form.Select>
             </Form.Group>
           </Col>
           <Col md={3}>
@@ -365,7 +389,7 @@ export default function VacinacaoLote() {
           </Button>
           <Button
             variant="primary"
-            disabled={loteLoading || !form.produto.trim() || !form.data_inicio || !form.senha_confirmacao.trim() || totalSelecionados === 0}
+            disabled={loteLoading || !form.produto.trim() || !form.data_inicio || !form.usuario_id || !form.senha_confirmacao.trim() || totalSelecionados === 0}
             onClick={confirmarLancamentoLote}
           >
             {loteLoading ? <><Spinner size="sm" className="me-1" />Aplicando...</> : `Confirmar (${totalSelecionados})`}

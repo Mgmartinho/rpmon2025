@@ -77,6 +77,22 @@ export const api = {
     return response.json();
   },
 
+  listarVeterinarios: async () => {
+    const token = localStorage.getItem("token");
+    const response = await fetchWithAuth(`${API_BASE_URL}/auth/usuarios/veterinarios/lista`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.json();
+  },
+
+  listarUsuarios: async () => {
+    const token = localStorage.getItem("token");
+    const response = await fetchWithAuth(`${API_BASE_URL}/auth/usuarios`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.json();
+  },
+
   // Solípedes PÚBLICO (sem autenticação)
   listarSolipedesPublico: async () => {
     const response = await fetch(`${API_BASE_URL}/solipedes/publico`);
@@ -720,6 +736,65 @@ export const api = {
     return response.json();
   },
 
+  // CIRURGIAS
+  criarProntuarioCirurgia: async (dados) => {
+    const token = localStorage.getItem("token");
+    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/prontuario/cirurgias`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(dados),
+    });
+    return parseApiResponse(response, "criarProntuarioCirurgia");
+  },
+
+  listarProntuarioCirurgias: async (prontuarioId) => {
+    const token = localStorage.getItem("token");
+    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/prontuario/${prontuarioId}/cirurgias`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return parseApiResponse(response, "listarProntuarioCirurgias");
+  },
+
+  atualizarProntuarioCirurgia: async (id, dados) => {
+    const token = localStorage.getItem("token");
+    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/prontuario/cirurgias/${id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(dados),
+    });
+    return parseApiResponse(response, "atualizarProntuarioCirurgia");
+  },
+
+  excluirProntuarioCirurgia: async (id) => {
+    const token = localStorage.getItem("token");
+    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/prontuario/cirurgias/${id}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return parseApiResponse(response, "excluirProntuarioCirurgia");
+  },
+
+  concluirProntuarioCirurgia: async (id) => {
+    const token = localStorage.getItem("token");
+    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/prontuario/cirurgias/${id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ status_conclusao: "concluido" }),
+    });
+    return parseApiResponse(response, "concluirProntuarioCirurgia");
+  },
+
   //VACINAÇÕES
   listarProntuarioVacinacoes: async (prontuarioId) => {
     const token = localStorage.getItem("token");
@@ -755,11 +830,15 @@ export const api = {
     return parseApiResponse(response, "atualizarProntuarioVacinacao");
   },
 
-  excluirProntuarioVacinacao: async (id) => {
+  excluirProntuarioVacinacao: async (id, senha) => {
     const token = localStorage.getItem("token");
     const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/prontuario/vacinacoes/${id}`, {
       method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ senha }),
     });
     return parseApiResponse(response, "excluirProntuarioVacinacao");
   },
@@ -799,13 +878,74 @@ export const api = {
     return parseApiResponse(response, "atualizarProntuarioVermifugacao");
   },
 
-  excluirProntuarioVermifugacao: async (id) => {
+  excluirProntuarioVermifugacao: async (id, senha) => {
     const token = localStorage.getItem("token");
     const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/prontuario/vermifugacoes/${id}`, {
       method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ senha }),
     });
     return parseApiResponse(response, "excluirProntuarioVermifugacao");
+  },
+
+  // AIE & MORMO
+  listarProntuarioAieMormo: async (prontuarioId) => {
+    const token = localStorage.getItem("token");
+    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/prontuario/${prontuarioId}/aiemormo`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.json();
+  },
+
+  criarProntuarioAieMormo: async (dados) => {
+    const token = localStorage.getItem("token");
+    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/prontuario/aiemormo`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(dados),
+    });
+    return parseApiResponse(response, "criarProntuarioAieMormo");
+  },
+
+  atualizarProntuarioAieMormo: async (id, dados) => {
+    const token = localStorage.getItem("token");
+    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/prontuario/aiemormo/${id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(dados),
+    });
+    return parseApiResponse(response, "atualizarProntuarioAieMormo");
+  },
+
+  excluirProntuarioAieMormo: async (id, senha) => {
+    const token = localStorage.getItem("token");
+    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/prontuario/aiemormo/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ senha }),
+    });
+    return parseApiResponse(response, "excluirProntuarioAieMormo");
+  },
+
+  concluirProntuarioAieMormo: async (id) => {
+    const token = localStorage.getItem("token");
+    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/prontuario/aiemormo/${id}/concluir`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return parseApiResponse(response, "concluirProntuarioAieMormo");
   },
 
 };

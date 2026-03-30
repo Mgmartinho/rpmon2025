@@ -12,6 +12,36 @@ const OPCOES_DESTINO = [
 
 const HOJE = new Date().toISOString().split("T")[0];
 
+const formatarDataHoraMySql = (date = new Date()) => {
+  const pad = (n) => String(n).padStart(2, "0");
+  const ano = date.getFullYear();
+  const mes = pad(date.getMonth() + 1);
+  const dia = pad(date.getDate());
+  const hora = pad(date.getHours());
+  const minuto = pad(date.getMinutes());
+  const segundo = pad(date.getSeconds());
+  return `${ano}-${mes}-${dia} ${hora}:${minuto}:${segundo}`;
+};
+
+const montarDataHoraMovimentacao = (dataBase) => {
+  if (!dataBase) return formatarDataHoraMySql(new Date());
+
+  const agora = new Date();
+  const [ano, mes, dia] = String(dataBase).split("-");
+  if (!ano || !mes || !dia) return formatarDataHoraMySql(agora);
+
+  const combinada = new Date(
+    Number(ano),
+    Number(mes) - 1,
+    Number(dia),
+    agora.getHours(),
+    agora.getMinutes(),
+    agora.getSeconds()
+  );
+
+  return formatarDataHoraMySql(combinada);
+};
+
 export default function MovimentacaoLote() {
   const navigate = useNavigate();
   const debounceRef = useRef(null);
@@ -97,6 +127,7 @@ export default function MovimentacaoLote() {
   const confirmarMovimentacao = async () => {
     const numeros = Array.from(selecionados);
     const primeiroNumero = numeros[0];
+    const dataHoraMovimentacao = montarDataHoraMovimentacao(data_movimentacao);
     try {
       setMovErro("");
       setMovSucesso("");
@@ -105,7 +136,7 @@ export default function MovimentacaoLote() {
       const resp = await api.movimentacaoBulk({
         numeros,
         destino,
-        data_movimentacao,
+        data_movimentacao: dataHoraMovimentacao,
         motivo: motivo.trim() || null,
         senha: senhaConfirmacao,
       });

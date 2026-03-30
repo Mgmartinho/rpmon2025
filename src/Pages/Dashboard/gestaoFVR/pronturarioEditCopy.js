@@ -36,6 +36,8 @@ import ProntuarioSuplementacao from "./prontuario/prontuarioSuplementacao";
 import ProntuarioMovimentacao from "./prontuario/prontuarioMovimentacao";
 import ProntuarioVacinacao from "./prontuario/prontuarioVacinacao";
 import ProntuarioVermifugacao from "./prontuario/prontuarioVermifugacao";
+import ProntuarioAieMormo from "./prontuario/prontuarioAieMormo";
+import ProntuarioCirurgia from "./prontuario/prontuarioCirurgia";
 
 import HistoricoProntuarioDieta from "./historico/historicoProntuarioDieta";
 import HistoricoProntuarioRestricoes from "./historico/historicoProntuarioRestricoes";
@@ -44,6 +46,8 @@ import HistoricoProntuarioSuplementacao from "./historico/historicoProntuarioSup
 import HistoricoProntuarioMovimentacao from "./historico/historicoProntuarioMovimentacao";
 import HistoricoProntuarioVacinacao from "./historico/historicoProntuarioVacinacao";
 import HistoricoProntuarioVermifugacao from "./historico/historicoProntuarioVermifugacao";
+import HistoricoProntuarioAieMormo from "./historico/historicoProntuarioAieMormo";
+import HistoricoProntuarioCirurgia from "./historico/historicoProntuarioCirurgia";
 
 import ProntuarioTable from "./tabelaProntuario/prontuarioTable";
 
@@ -243,6 +247,9 @@ export default function ProntuarioSolipedeEditCopy() {
     "Suplementação",
     "Movimentação",
     "Vacinação",
+    "Vermifugação",
+    "AIE & Mormo",
+    "Cirurgia",
   ];
 
   const historicoFiltrado = historicoOrdenado.filter((item) => {
@@ -279,6 +286,8 @@ export default function ProntuarioSolipedeEditCopy() {
     movimentacao: historicoFiltrado.filter((item) => item.tipo === "Movimentação"),
     vacinacao: historicoFiltrado.filter((item) => item.tipo === "Vacinação"),
     vermifugacao: historicoFiltrado.filter((item) => item.tipo === "Vermifugação"),
+    aiemormo: historicoFiltrado.filter((item) => item.tipo === "AIE & Mormo"),
+    cirurgia: historicoFiltrado.filter((item) => item.tipo === "Cirurgia"),
   };
 
   return (
@@ -457,7 +466,7 @@ export default function ProntuarioSolipedeEditCopy() {
                       <strong>Restrição: </strong>{reg.restricao || "Sem descrição"}
                     </small>
                     <span className="text-muted d-block mb-1" style={{ fontSize: "12px" }}>
-                       <strong>Criado em: </strong> {reg.data_criacao ? new Date(reg.data_criacao).toLocaleDateString("pt-BR") : "N/A"}
+                      <strong>Criado em: </strong> {reg.data_criacao ? new Date(reg.data_criacao).toLocaleDateString("pt-BR") : "N/A"}
                     </span>
                   </ListGroup.Item>
                 ))}
@@ -542,6 +551,39 @@ export default function ProntuarioSolipedeEditCopy() {
             </ListGroup>
           </Card>
 
+          {/* VACINAS E EXAMES */}
+          <Card
+            className="border-0 shadow-sm mb-3 overflow-hidden"
+            style={{ borderRadius: "16px" }}
+          >
+            <Card.Header
+              className="border-0 d-flex align-items-center gap-2 fw-semibold"
+              style={{
+                background: "linear-gradient(135deg, #f8f9fa, #e9ecef)",
+                color: "#1a2b4a",
+                padding: "12px 16px",
+              }}
+            >
+              <BsGeoAltFill size={15} style={{ color: "#1565c0" }} />
+              <span>Vacinas e Exames</span>
+            </Card.Header>
+            <ListGroup variant="flush">
+              {[
+                { label: "Vacina", value: solipede.vacina },
+                { label: "Vermifugo", value: solipede.vermifugo },
+                { label: "Aie / Mormo", value: solipede.aiemormo },
+              ].map(({ label, value }, i) => (
+                <ListGroup.Item
+                  key={i}
+                  className="px-3 py-2 d-flex justify-content-between align-items-center"
+                  style={{ fontSize: "13px" }}
+                >
+                  <span className="text-muted">{label}</span>
+                  <strong style={{ color: "#1a2b4a" }}>{value || "N/A"}</strong>
+                </ListGroup.Item>
+              ))}
+            </ListGroup>
+          </Card>
         </Col>
 
         {/* ── SEGUNDA COLUNA — Conteúdo expandido ── */}
@@ -677,7 +719,7 @@ export default function ProntuarioSolipedeEditCopy() {
                       ) : (
                         <>
                           {historicoPorTipo.tratamento.length > 0 && (
-                            <HistoricoProntuarioTratamento registros={historicoPorTipo.tratamento} />
+                            <HistoricoProntuarioTratamento registros={historicoPorTipo.tratamento} solipede={solipede} />
                           )}
                           {historicoPorTipo.restricoes.length > 0 && (
                             <HistoricoProntuarioRestricoes registros={historicoPorTipo.restricoes} />
@@ -692,12 +734,27 @@ export default function ProntuarioSolipedeEditCopy() {
                             <HistoricoProntuarioMovimentacao registros={historicoPorTipo.movimentacao} />
                           )}
                           {historicoPorTipo.vacinacao.length > 0 && (
-                            <HistoricoProntuarioVacinacao registros={historicoPorTipo.vacinacao} />
+                            <HistoricoProntuarioVacinacao
+                              registros={historicoPorTipo.vacinacao}
+                              prontuarioId={historicoPorTipo.vacinacao[0]?.id || null}
+                            />
                           )}
                           {historicoPorTipo.vermifugacao.length > 0 && (
                             <HistoricoProntuarioVermifugacao
                               registros={historicoPorTipo.vermifugacao}
                               prontuarioId={historicoPorTipo.vermifugacao[0]?.id || null}
+                            />
+                          )}
+                          {historicoPorTipo.aiemormo.length > 0 && (
+                            <HistoricoProntuarioAieMormo
+                              registros={historicoPorTipo.aiemormo}
+                              prontuarioId={historicoPorTipo.aiemormo[0]?.id || null}
+                            />
+                          )}
+                          {historicoPorTipo.cirurgia.length > 0 && (
+                            <HistoricoProntuarioCirurgia
+                              registros={historicoPorTipo.cirurgia}
+                              prontuarioId={historicoPorTipo.cirurgia[0]?.id || null}
                             />
                           )}
                         </>
@@ -726,6 +783,8 @@ export default function ProntuarioSolipedeEditCopy() {
                           <option>Movimentação</option>
                           <option>Vacinação</option>
                           <option>Vermifugação</option>
+                          <option>AIE & Mormo</option>
+                          <option>Cirurgia</option>
                         </Form.Select>
                       </Card.Body>
                     </Card>
@@ -746,6 +805,8 @@ export default function ProntuarioSolipedeEditCopy() {
                       {tipoObservacao === "Movimentação" && <ProntuarioMovimentacao />}
                       {tipoObservacao === "Vacinação" && <ProntuarioVacinacao />}
                       {tipoObservacao === "Vermifugação" && <ProntuarioVermifugacao />}
+                      {tipoObservacao === "AIE & Mormo" && <ProntuarioAieMormo />}
+                      {tipoObservacao === "Cirurgia" && <ProntuarioCirurgia />}
                     </div>
                   </Tab.Pane>
 

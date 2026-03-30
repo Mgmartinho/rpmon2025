@@ -35,6 +35,7 @@ const HistoricoProntuarioVermifugacao = ({ registros = [], prontuarioId = null }
   const [erroConclusaoRegistro, setErroConclusaoRegistro] = useState("");
   const [erroEdicao, setErroEdicao] = useState("");
   const [erroExclusaoRegistro, setErroExclusaoRegistro] = useState("");
+  const [senhaExclusaoRegistro, setSenhaExclusaoRegistro] = useState("");
 
   const [edicao, setEdicao] = useState({
     produto: "",
@@ -63,6 +64,12 @@ const HistoricoProntuarioVermifugacao = ({ registros = [], prontuarioId = null }
       status_conclusao: item.vermifugacao_status || item.status_conclusao,
       usuario_nome: item.vermifugacao_usuario_nome || item.usuario_nome,
       usuario_registro: item.vermifugacao_usuario_registro || item.usuario_registro,
+      usuario_aplicacao: item.usuario_aplicacao || item.vermifugacao_usuario_aplicacao,
+      usuario_aplicacao_nome:
+        item.usuario_aplicacao_nome ||
+        item.vermifugacao_usuario_aplicacao_nome ||
+        item.vermifugacao_usuario_nome ||
+        item.usuario_nome,
       data_criacao: item.data_criacao,
       data_atualizacao: item.vermifugacao_data_atualizacao || item.data_atualizacao,
     };
@@ -146,6 +153,7 @@ const HistoricoProntuarioVermifugacao = ({ registros = [], prontuarioId = null }
 
   const handleAbrirExclusaoRegistro = (item) => {
     setRegistroSelecionado(item);
+    setSenhaExclusaoRegistro("");
     setErroExclusaoRegistro("");
     setShowModalExclusaoRegistro(true);
   };
@@ -153,6 +161,7 @@ const HistoricoProntuarioVermifugacao = ({ registros = [], prontuarioId = null }
   const handleFecharExclusaoRegistro = () => {
     setShowModalExclusaoRegistro(false);
     setRegistroSelecionado(null);
+    setSenhaExclusaoRegistro("");
     setErroExclusaoRegistro("");
   };
 
@@ -217,14 +226,18 @@ const HistoricoProntuarioVermifugacao = ({ registros = [], prontuarioId = null }
     }
   };
 
-  const handleExcluirRegistro = async () => {
+  const handleExcluirRegistro = async (e) => {
+    if (e?.preventDefault) e.preventDefault();
     if (!registroSelecionado?.id) return;
 
     setExcluindoRegistro(true);
     setErroExclusaoRegistro("");
 
     try {
-      const response = await api.excluirProntuarioVermifugacao(registroSelecionado.id);
+      const response = await api.excluirProntuarioVermifugacao(
+        registroSelecionado.id,
+        senhaExclusaoRegistro
+      );
       const respostaErro = response?.error || response?.erro;
       if (respostaErro) {
         setErroExclusaoRegistro(respostaErro);
@@ -251,6 +264,12 @@ const HistoricoProntuarioVermifugacao = ({ registros = [], prontuarioId = null }
 
       {dadosLocais.map((item) => {
         const isConcluido = String(item.status_conclusao || "").toLowerCase() === "concluido";
+        const responsavelAplicacao =
+          item.usuario_aplicacao_nome ||
+          item.vermifugacao_usuario_aplicacao_nome ||
+          item.usuario_nome ||
+          item.usuario_aplicacao ||
+          "-";
 
         return (
           <Card
@@ -304,29 +323,36 @@ const HistoricoProntuarioVermifugacao = ({ registros = [], prontuarioId = null }
                   Vermifugação
                 </h6>
                 <Row className="mt-3">
-                  <Col xl={4} md={4} sm={12}>
+                  <Col xl={3} md={4} sm={12}>
                     <p className="mb-0 text-muted">
                       <strong>Produto (Vermífugo):</strong> {item.produto || "-"}
                     </p>
                   </Col>
-                  <Col xl={4} md={4} sm={12}>
+                  <Col xl={3} md={4} sm={12}>
                     <p className="mb-0 text-muted">
                       <strong>Partida:</strong> {item.partida || "-"}
                     </p>
                   </Col>
-                  <Col xl={4} md={4} sm={12}>
+                  <Col xl={3} md={4} sm={12}>
                     <p className="mb-0 text-muted">
-                      <strong>Data de Fabricação:</strong> {formatarData(item.data_fabricacao)}
+                      <strong>Data de Fabricação:</strong> {formatarData(item.fabricacao)}
                     </p>
                   </Col>
-                  <Col xl={4} md={4} sm={12}>
+                 
+                  <Col xl={3} md={4} sm={12}>
+                    <p className="mb-0 text-muted">
+                      <strong>Data de Validade:</strong> {formatarData(item.data_validade)}
+                    </p>
+                  </Col>
+
+                   <Col xl={6} md={6} sm={12}>
                     <p className="mb-0 text-muted">
                       <strong>Data da Aplicação:</strong> {formatarData(item.data_inicio)}
                     </p>
                   </Col>
-                  <Col xl={4} md={4} sm={12}>
+                  <Col xl={6} md={6} sm={12}>
                     <p className="mb-0 text-muted">
-                      <strong>Data de Validade:</strong> {formatarData(item.data_validade)}
+                      <strong>Responsável Aplicação:</strong> {responsavelAplicacao}
                     </p>
                   </Col>
                 </Row>
@@ -395,23 +421,12 @@ const HistoricoProntuarioVermifugacao = ({ registros = [], prontuarioId = null }
               <Form.Control type="date" value={edicao.fabricacao} onChange={(e) => setEdicao({ ...edicao, fabricacao: e.target.value })} />
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label className="fw-bold">Data de Fabricação</Form.Label>
-              <Form.Control type="date" value={edicao.data_fabricacao} onChange={(e) => setEdicao({ ...edicao, data_fabricacao: e.target.value })} />
-            </Form.Group>
-            <Form.Group className="mb-3">
               <Form.Label className="fw-bold">Data de Inicio</Form.Label>
               <Form.Control type="date" value={edicao.data_inicio} onChange={(e) => setEdicao({ ...edicao, data_inicio: e.target.value })} />
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label className="fw-bold">Data de Validade</Form.Label>
               <Form.Control type="date" value={edicao.data_validade} onChange={(e) => setEdicao({ ...edicao, data_validade: e.target.value })} />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label className="fw-bold">Status</Form.Label>
-              <Form.Select value={edicao.status_conclusao} onChange={(e) => setEdicao({ ...edicao, status_conclusao: e.target.value })}>
-                <option value="em_andamento">Em andamento</option>
-                <option value="concluido">Concluido</option>
-              </Form.Select>
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label className="fw-bold">Descricao</Form.Label>
@@ -431,16 +446,28 @@ const HistoricoProntuarioVermifugacao = ({ registros = [], prontuarioId = null }
         <Modal.Header closeButton>
           <Modal.Title>Excluir registro</Modal.Title>
         </Modal.Header>
-        <Modal.Body>
-          <p className="text-muted mb-3">Esta acao nao pode ser desfeita. Confirma a exclusao deste registro?</p>
-          {erroExclusaoRegistro && <Alert variant="danger" className="py-2">{erroExclusaoRegistro}</Alert>}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleFecharExclusaoRegistro} disabled={excluindoRegistro}>Cancelar</Button>
-          <Button variant="danger" onClick={handleExcluirRegistro} disabled={excluindoRegistro}>
-            {excluindoRegistro ? <><Spinner size="sm" className="me-2" />Excluindo...</> : "Confirmar exclusao"}
-          </Button>
-        </Modal.Footer>
+        <Form onSubmit={handleExcluirRegistro}>
+          <Modal.Body>
+            <p className="text-muted mb-3">Esta acao nao pode ser desfeita. Informe sua senha para confirmar a exclusao.</p>
+            {erroExclusaoRegistro && <Alert variant="danger" className="py-2">{erroExclusaoRegistro}</Alert>}
+            <Form.Group className="mb-3">
+              <Form.Label>Senha</Form.Label>
+              <Form.Control
+                type="password"
+                value={senhaExclusaoRegistro}
+                onChange={(e) => setSenhaExclusaoRegistro(e.target.value)}
+                placeholder="Digite sua senha"
+                required
+              />
+            </Form.Group>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={handleFecharExclusaoRegistro} disabled={excluindoRegistro}>Cancelar</Button>
+            <Button variant="danger" type="submit" disabled={excluindoRegistro}>
+              {excluindoRegistro ? <><Spinner size="sm" className="me-2" />Excluindo...</> : "Confirmar exclusao"}
+            </Button>
+          </Modal.Footer>
+        </Form>
       </Modal>
     </div>
   );

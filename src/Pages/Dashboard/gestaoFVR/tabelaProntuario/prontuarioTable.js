@@ -19,20 +19,34 @@ const ProntuarioTable = ({ onConsultarRegistro }) => {
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState("");
 
+  const formatarStatus = (valor) => {
+    if (!valor) return "-";
+    const normalizado = String(valor).trim().toLowerCase();
+
+    if (normalizado.includes("concl")) return "Concluído";
+    if (normalizado.includes("andamento") || normalizado.includes("pendente") || normalizado.includes("aberto")) {
+      return "Em andamento";
+    }
+
+    return String(valor);
+  };
+
   const resolverStatus = (item) => {
-    const status =
+    const statusBruto =
       item?.status_conclusao ||
+      item?.cirurgia_status ||
+      item?.aiemormo_status ||
+      item?.aie_mormo_status ||
       item?.vermifugacao_status ||
       item?.vacinacao_status ||
       item?.tratamento_status ||
       item?.restricao_status ||
       item?.dieta_status ||
       item?.suplementacao_status ||
-      item?.movimentacao_status;
+      item?.movimentacao_status ||
+      item?.status;
 
-    if (status) return status;
-    if (item?.tipo === "Vermifugação") return "em_andamento";
-    return "-";
+    return formatarStatus(statusBruto);
   };
 
   const exportarExcel = () => {

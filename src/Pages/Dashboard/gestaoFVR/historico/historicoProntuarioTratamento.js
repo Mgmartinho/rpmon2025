@@ -17,8 +17,10 @@ import {
   BsTrash,
 } from "react-icons/bs";
 import { api } from "../../../../services/api";
+import ReceituarioTemplate from "../../../../receituario/ReceituarioTemplate";
+import { gerarReceituarioPDF } from "../../../../services/receituarioService";
 
-const HistoricoProntuarioTratamento = ({ registros = [] }) => {
+const HistoricoProntuarioTratamento = ({ registros = [], solipede = null }) => {
   const [dadosLocais, setDadosLocais] = useState([]);
 
   const [showModalConclusaoRegistro, setShowModalConclusaoRegistro] = useState(false);
@@ -43,6 +45,10 @@ const HistoricoProntuarioTratamento = ({ registros = [] }) => {
     observacao_clinica: "",
     prescricao: "",
   });
+
+  const [showModalReceituario, setShowModalReceituario] = useState(false);
+  const [tratamentoReceituario, setTratamentoReceituario] = useState(null);
+  const [gerandoPDF, setGerandoPDF] = useState(false);
 
   useEffect(() => {
     setDadosLocais(Array.isArray(registros) ? registros : []);
@@ -91,6 +97,30 @@ const HistoricoProntuarioTratamento = ({ registros = [] }) => {
     setRegistroSelecionado(null);
     setSenhaExclusaoRegistro("");
     setErroExclusaoRegistro("");
+  };
+
+  const handleAbrirReceituario = (item) => {
+    setTratamentoReceituario(item);
+    setShowModalReceituario(true);
+  };
+
+  const handleFecharReceituario = () => {
+    setShowModalReceituario(false);
+    setTratamentoReceituario(null);
+  };
+
+  const handleGerarPDF = async () => {
+    setGerandoPDF(true);
+    try {
+      await gerarReceituarioPDF(
+        "receituario-impressao",
+        `receituario_${tratamentoReceituario?.numero_solipede || "tratamento"}.pdf`
+      );
+    } catch (err) {
+      console.error("Erro ao gerar PDF:", err);
+    } finally {
+      setGerandoPDF(false);
+    }
   };
 
   const handleConcluirRegistro = async (e) => {
@@ -219,7 +249,7 @@ const HistoricoProntuarioTratamento = ({ registros = [] }) => {
                 </div>
 
                 <div className="d-flex gap-2">
-                  {!isConcluido && (
+                  
                     <Button
                       size="sm"
                       variant="light"
@@ -228,7 +258,7 @@ const HistoricoProntuarioTratamento = ({ registros = [] }) => {
                     >
                       <BsCheckCircle />
                     </Button>
-                  )}
+                  
 
                   <Button
                     size="sm"
@@ -246,6 +276,15 @@ const HistoricoProntuarioTratamento = ({ registros = [] }) => {
                     onClick={() => handleAbrirExclusaoRegistro(item)}
                   >
                     <BsTrash />
+                  </Button>
+
+                  <Button
+                    size="auto"
+                    variant="light"
+                    title="Receituário"
+                    onClick={() => handleAbrirReceituario(item)}
+                  >
+                    <BsClipboardCheck />
                   </Button>
                 </div>
               </div>
@@ -485,6 +524,46 @@ const HistoricoProntuarioTratamento = ({ registros = [] }) => {
             </Button>
           </Modal.Footer>
         </Form>
+      </Modal>
+
+      <Modal
+        show={showModalReceituario}
+        onHide={handleFecharReceituario}
+        centered
+        style={{ "--bs-modal-width": "min(96vw, 220mm)" }}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Receituário Veterinário</Modal.Title>
+        </Modal.Header>
+        <Modal.Body
+          className="p-3"
+          style={{
+            overflowX: "auto",
+            background: "#f8f9fa",
+            display: "flex",
+            justifyContent: "center",
+          }}
+        >
+          <div id="receituario-impressao" style={{ width: "210mm", maxWidth: "100%" }}>
+            <ReceituarioTemplate
+              solipede={solipede}
+              tratamento={tratamentoReceituario}
+              usuarioLogado={null}
+            />
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleFecharReceituario}>
+            Fechar
+          </Button>
+          <Button variant="primary" onClick={handleGerarPDF} disabled={gerandoPDF}>
+            {gerandoPDF ? (
+              <><Spinner size="sm" className="me-2" />Gerando PDF...</>
+            ) : (
+              "Gerar PDF"
+            )}
+          </Button>
+        </Modal.Footer>
       </Modal>
     </div>
   );

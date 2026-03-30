@@ -50,14 +50,53 @@ const HistoricoProntuarioVacinacao = ({ registros = [], prontuarioId = null }) =
     descricao: "",
   });
 
+  const mapearConsolidado = (item) => {
+    if (item.produto !== undefined && item.prontuario_id !== undefined) {
+      return item;
+    }
+
+    return {
+      id: item.vacinacao_id,
+      prontuario_id: item.prontuario_id || item.id,
+      produto: item.produto || item.vacinacao_produto || "",
+      partida: item.partida || item.vacinacao_partida || "",
+      fabricacao: item.fabricacao || item.vacinacao_fabricacao || null,
+      lote: item.lote || item.vacinacao_lote || "",
+      dose: item.dose || item.vacinacao_dose || "",
+      data_inicio: item.data_inicio || item.vacinacao_data_inicio || null,
+      data_validade: item.data_validade || item.vacinacao_data_validade || null,
+      descricao: item.descricao || item.vacinacao_descricao || "",
+      status_conclusao: item.vacinacao_status || item.status_conclusao || "",
+      usuario_nome: item.vacinacao_usuario_nome || item.usuario_nome || "",
+      usuario_registro: item.vacinacao_usuario_registro || item.usuario_registro || "",
+      usuario_aplicacao:
+        item.usuario_aplicacao ||
+        item.vacinacao_usuario_aplicacao ||
+        item.vacinacao_usuario_id ||
+        null,
+      usuario_aplicacao_nome:
+        item.usuario_aplicacao_nome ||
+        item.vacinacao_usuario_aplicacao_nome ||
+        item.vacinacao_usuario_nome ||
+        item.usuario_nome ||
+        null,
+      data_criacao: item.data_criacao || null,
+      data_atualizacao: item.vacinacao_data_atualizacao || item.data_atualizacao || null,
+      data_fim: item.data_fim || item.vacinacao_data_fim || null,
+      tipo: item.tipo || "Vacinacao",
+    };
+  };
+
   useEffect(() => {
     let ativo = true;
 
     const carregarRegistros = async () => {
-      const idProntuario = prontuarioId || registros?.[0]?.prontuario_id;
+      const idProntuario = prontuarioId || registros?.[0]?.prontuario_id || registros?.[0]?.id;
 
       if (!idProntuario) {
-        setDadosLocais(Array.isArray(registros) ? registros : []);
+        setDadosLocais(
+          (Array.isArray(registros) ? registros : []).map(mapearConsolidado)
+        );
         return;
       }
 
@@ -66,10 +105,12 @@ const HistoricoProntuarioVacinacao = ({ registros = [], prontuarioId = null }) =
         const response = await api.listarProntuarioVacinacoes(idProntuario);
         if (!ativo) return;
 
-        setDadosLocais(Array.isArray(response) ? response : []);
+        setDadosLocais((Array.isArray(response) ? response : []).map(mapearConsolidado));
       } catch (error) {
         if (!ativo) return;
-        setDadosLocais(Array.isArray(registros) ? registros : []);
+        setDadosLocais(
+          (Array.isArray(registros) ? registros : []).map(mapearConsolidado)
+        );
       } finally {
         if (ativo) {
           setCarregandoRegistros(false);
@@ -205,9 +246,12 @@ const HistoricoProntuarioVacinacao = ({ registros = [], prontuarioId = null }) =
     setErroExclusaoRegistro("");
 
     try {
-      const response = await api.excluirRegistroProntuario(registroSelecionado.prontuario_id, senhaExclusaoRegistro);
-      if (response?.error) {
-        setErroExclusaoRegistro(response.error);
+      const response = await api.excluirProntuarioVacinacao(
+        registroSelecionado.id,
+        senhaExclusaoRegistro
+      );
+      if (response?.error || response?.erro) {
+        setErroExclusaoRegistro(response.error || response.erro);
         return;
       }
 
@@ -231,6 +275,8 @@ const HistoricoProntuarioVacinacao = ({ registros = [], prontuarioId = null }) =
 
       {dadosLocais.map((item) => {
         const isConcluido = String(item.status_conclusao || "").toLowerCase() === "concluido";
+        const responsavelAplicacao =
+          item.usuario_aplicacao_nome || item.usuario_aplicacao || "-";
 
         return (
           <Card
@@ -294,21 +340,27 @@ const HistoricoProntuarioVacinacao = ({ registros = [], prontuarioId = null }) =
                       <strong>Partida:</strong> {item.partida || "-"}
                     </p>
                   </Col>
-                  <Col xl={6} md={4} sm={12}>
+                  <Col xl={3} md={4} sm={12}>
                     <p className="mb-1 text-muted">
                       <strong>Data de Fabricacao:</strong> {formatarData(item.fabricacao)}
                     </p>
                   </Col>
-                  <Col xl={4} md={4} sm={12}>
-                    <p className="mb-1 text-muted">
-                      <strong>Data da Aplicacao:</strong> {formatarData(item.data_inicio)}
-                    </p>
-                  </Col>
-                  <Col xl={4} md={4} sm={12}>
+                   <Col xl={3} md={4} sm={12}>
                     <p className="mb-1 text-muted">
                       <strong>Data de Validade:</strong> {formatarData(item.data_validade)}
                     </p>
                   </Col>
+                  <Col xl={6} md={6} sm={12}>
+                    <p className="mb-1 text-muted">
+                      <strong>Data da Aplicacao:</strong> {formatarData(item.data_inicio)}
+                    </p>
+                  </Col>
+                   <Col xl={6} md={6} sm={12}>
+                    <p className="mb-1 text-muted">
+                      <strong>Responsável Aplicação:</strong> {responsavelAplicacao}
+                    </p>
+                  </Col>
+                 
                 </Row>
               </div>
 
@@ -318,13 +370,6 @@ const HistoricoProntuarioVacinacao = ({ registros = [], prontuarioId = null }) =
             <Card.Footer className="bg-white border-0 d-flex justify-content-between align-items-center">
               <div className="border-4 border-warning ps-3 mb-3 w-100">
                 <Row>
-                  <Row>
-                    <Col md={12}>
-                      <h5 className="mb-1">Dados da Aplicação</h5>
-                    </Col>
-                  </Row>
-                  <Row className="mb-3">
-                  </Row>
                   <Col xl={8}>
                     <small className="text-muted">
                       <strong>Criado por:</strong> {item.usuario_nome || "-"} <strong>RE:</strong> {item.usuario_registro || "-"}

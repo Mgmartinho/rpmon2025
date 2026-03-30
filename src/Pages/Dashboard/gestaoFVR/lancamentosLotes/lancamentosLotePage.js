@@ -10,29 +10,29 @@ import AieMormoLote from "./aieMormoLote";
 const tipos = [
   {
     key: "movimentacao",
-    titulo: "Movimentacao",
-    descricao: "Altera alocacao de varios solipedes e registra prontuario em lote.",
+    titulo: "Movimentação",
+    descricao: "Altera alocação de vários solípedes e registra prontuário em lote.",
     icon: BsArrowLeftRight,
     variant: "primary",
   },
   {
     key: "vacinacao",
-    titulo: "Vacinacao",
-    descricao: "Planejado para lancamentos em lote de vacinas.",
+    titulo: "Vacinação",
+    descricao: "Planejado para lançamentos em lote de vacinas.",
     icon: BsShieldPlus,
     variant: "success",
   },
   {
     key: "vermifugacao",
-    titulo: "Vermifugacao",
-    descricao: "Planejado para lancamentos em lote de vermifugacao.",
+    titulo: "Vermifugação",
+    descricao: "Planejado para lançamentos em lote de vermifugação.",
     icon: BsCapsulePill,
     variant: "warning",
   },
   {
     key: "aieMormo",
-    titulo: "AIE Mormo",
-    descricao: "Planejado para lancamentos em lote de AIE Mormo.",
+    titulo: "AIE / Mormo",
+    descricao: "Planejado para lançamentos em lote de AIE / Mormo.",
     icon: BsCapsulePill,
     variant: "danger",
   },
@@ -45,14 +45,14 @@ export default function LancamentosLotePage() {
     <Container fluid className="py-4">
       <Row className="mb-3 align-items-center">
         <Col md={8}>
-          <h4 className="mb-1">Lancamentos em Lote</h4>
+          <h4 className="mb-1">Lançamentos em Lote</h4>
           <small className="text-muted">
-            Selecione o tipo de lancamento para executar operacoes em lote.
+            Selecione o tipo de lançamento para executar operações em lote.
           </small>
         </Col>
         <Col md={4} className="text-md-end mt-2 mt-md-0">
           <Link to="/dashboard/gestaofvr">
-            <Button variant="outline-secondary">Voltar para Gestao FVR</Button>
+            <Button variant="outline-secondary">Voltar para Gestão FVR</Button>
           </Link>
         </Col>
       </Row>
