@@ -569,9 +569,9 @@ export default function ProntuarioSolipedeEditCopy() {
             </Card.Header>
             <ListGroup variant="flush">
               {[
-                { label: "Vacina", value: solipede.vacina },
-                { label: "Vermifugo", value: solipede.vermifugo },
-                { label: "Aie / Mormo", value: solipede.aiemormo },
+                { label: "Vacina", value: "02/01/2026" },
+                { label: "Vermifugo", value: "09/07/2025" },
+                { label: "Aie / Mormo", value: "01/01/2026" },
               ].map(({ label, value }, i) => (
                 <ListGroup.Item
                   key={i}
