@@ -17,6 +17,7 @@ import {
   BsTrash,
 } from "react-icons/bs";
 import { api } from "../../../../services/api";
+import { buildUserErrorMessage } from "../../../../utils/errorHandling";
 
 const HistoricoProntuarioAieMormo = ({ registros = [], prontuarioId = null }) => {
   const [dadosLocais, setDadosLocais] = useState([]);
@@ -174,7 +175,13 @@ const HistoricoProntuarioAieMormo = ({ registros = [], prontuarioId = null }) =>
       const response = await api.atualizarProntuarioAieMormo(registroSelecionado.id, payload);
 
       if (response?.error || response?.erro) {
-        setErroEdicao(response.error || response.erro);
+        setErroEdicao(
+          buildUserErrorMessage(
+            "Falha ao editar AIE & Mormo",
+            response,
+            "A API rejeitou a atualização do exame"
+          )
+        );
         return;
       }
 
@@ -184,7 +191,13 @@ const HistoricoProntuarioAieMormo = ({ registros = [], prontuarioId = null }) =>
 
       handleFecharEdicao();
     } catch (error) {
-      setErroEdicao(error.message || "Erro ao atualizar AIE & Mormo");
+      setErroEdicao(
+        buildUserErrorMessage(
+          "Falha ao atualizar AIE & Mormo",
+          error,
+          "Não foi possível atualizar o registro de AIE & Mormo"
+        )
+      );
     } finally {
       setSalvandoEdicao(false);
     }
@@ -207,7 +220,13 @@ const HistoricoProntuarioAieMormo = ({ registros = [], prontuarioId = null }) =>
       );
 
       if (response?.error || response?.erro) {
-        setErroExclusaoRegistro(response.error || response.erro);
+        setErroExclusaoRegistro(
+          buildUserErrorMessage(
+            "Falha ao excluir AIE & Mormo",
+            response,
+            "A API rejeitou a exclusão do exame"
+          )
+        );
         return;
       }
 
@@ -215,7 +234,13 @@ const HistoricoProntuarioAieMormo = ({ registros = [], prontuarioId = null }) =>
 
       handleFecharExclusaoRegistro();
     } catch (error) {
-      setErroExclusaoRegistro(error.message || "Erro ao excluir AIE & Mormo");
+      setErroExclusaoRegistro(
+        buildUserErrorMessage(
+          "Falha ao excluir AIE & Mormo",
+          error,
+          "Não foi possível excluir o registro de AIE & Mormo"
+        )
+      );
     } finally {
       setExcluindoRegistro(false);
     }
@@ -231,7 +256,13 @@ const HistoricoProntuarioAieMormo = ({ registros = [], prontuarioId = null }) =>
       const response = await api.concluirProntuarioAieMormo(item.id);
 
       if (response?.error || response?.erro) {
-        setErroConclusaoRegistro(response.error || response.erro);
+        setErroConclusaoRegistro(
+          buildUserErrorMessage(
+            "Falha ao concluir AIE & Mormo",
+            response,
+            "A API rejeitou a conclusão do exame"
+          )
+        );
         return;
       }
 
@@ -247,7 +278,13 @@ const HistoricoProntuarioAieMormo = ({ registros = [], prontuarioId = null }) =>
         )
       );
     } catch (error) {
-      setErroConclusaoRegistro(error.message || "Erro ao concluir AIE & Mormo");
+      setErroConclusaoRegistro(
+        buildUserErrorMessage(
+          "Falha ao concluir AIE & Mormo",
+          error,
+          "Não foi possível concluir o registro de AIE & Mormo"
+        )
+      );
     } finally {
       setConcluindoRegistroId(null);
     }

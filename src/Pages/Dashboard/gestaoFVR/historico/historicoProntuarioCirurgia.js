@@ -17,6 +17,7 @@ import {
   BsTrash,
 } from "react-icons/bs";
 import { api } from "../../../../services/api";
+import { buildUserErrorMessage } from "../../../../utils/errorHandling";
 
 const HistoricoProntuarioCirurgia = ({ registros = [], prontuarioId = null }) => {
   const [dadosLocais, setDadosLocais] = useState([]);
@@ -189,7 +190,13 @@ const HistoricoProntuarioCirurgia = ({ registros = [], prontuarioId = null }) =>
       const response = await api.atualizarProntuarioCirurgia(registroSelecionado.id, payload);
 
       if (response?.error || response?.erro) {
-        setErroEdicao(response.error || response.erro);
+        setErroEdicao(
+          buildUserErrorMessage(
+            "Falha ao editar cirurgia",
+            response,
+            "A API rejeitou a atualização da cirurgia"
+          )
+        );
         return;
       }
 
@@ -207,7 +214,13 @@ const HistoricoProntuarioCirurgia = ({ registros = [], prontuarioId = null }) =>
 
       handleFecharEdicao();
     } catch (error) {
-      setErroEdicao(error.message || "Erro ao atualizar cirurgia");
+      setErroEdicao(
+        buildUserErrorMessage(
+          "Falha ao atualizar cirurgia",
+          error,
+          "Não foi possível atualizar o registro de cirurgia"
+        )
+      );
     } finally {
       setSalvandoEdicao(false);
     }
@@ -227,14 +240,26 @@ const HistoricoProntuarioCirurgia = ({ registros = [], prontuarioId = null }) =>
       const response = await api.excluirProntuarioCirurgia(registroSelecionado.id);
 
       if (response?.error || response?.erro) {
-        setErroExclusaoRegistro(response.error || response.erro);
+        setErroExclusaoRegistro(
+          buildUserErrorMessage(
+            "Falha ao excluir cirurgia",
+            response,
+            "A API rejeitou a exclusão da cirurgia"
+          )
+        );
         return;
       }
 
       setDadosLocais((prev) => prev.filter((r) => r.id !== registroSelecionado.id));
       handleFecharExclusaoRegistro();
     } catch (error) {
-      setErroExclusaoRegistro(error.message || "Erro ao excluir cirurgia");
+      setErroExclusaoRegistro(
+        buildUserErrorMessage(
+          "Falha ao excluir cirurgia",
+          error,
+          "Não foi possível excluir o registro de cirurgia"
+        )
+      );
     } finally {
       setExcluindoRegistro(false);
     }
@@ -250,7 +275,13 @@ const HistoricoProntuarioCirurgia = ({ registros = [], prontuarioId = null }) =>
       const response = await api.concluirProntuarioCirurgia(item.id);
 
       if (response?.error || response?.erro) {
-        setErroConclusaoRegistro(response.error || response.erro);
+        setErroConclusaoRegistro(
+          buildUserErrorMessage(
+            "Falha ao concluir cirurgia",
+            response,
+            "A API rejeitou a conclusão da cirurgia"
+          )
+        );
         return;
       }
 
@@ -266,7 +297,13 @@ const HistoricoProntuarioCirurgia = ({ registros = [], prontuarioId = null }) =>
         )
       );
     } catch (error) {
-      setErroConclusaoRegistro(error.message || "Erro ao concluir cirurgia");
+      setErroConclusaoRegistro(
+        buildUserErrorMessage(
+          "Falha ao concluir cirurgia",
+          error,
+          "Não foi possível concluir o registro de cirurgia"
+        )
+      );
     } finally {
       setConcluindoRegistroId(null);
     }

@@ -38,6 +38,7 @@ import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { api } from "../../../services/api";
+import { buildUserErrorMessage } from "../../../utils/errorHandling";
 import "./ferradoriastyles.css";
 
 const Ferradoria = () => {
@@ -215,7 +216,13 @@ const Ferradoria = () => {
       }
     } catch (error) {
       console.error("❌ Erro ao carregar dados:", error);
-      setErro("Erro ao carregar dados");
+      setErro(
+        buildUserErrorMessage(
+          "Falha ao carregar Ferradoria",
+          error,
+          "Não foi possível consultar solípedes e ferrageamentos"
+        )
+      );
     } finally {
       setLoading(false);
     }
@@ -399,7 +406,13 @@ const Ferradoria = () => {
       console.log('📥 Resultado da criação:', resultado);
 
       if (resultado.error) {
-        setErro(resultado.error);
+        setErro(
+          buildUserErrorMessage(
+            "Falha ao registrar ferrageamento",
+            resultado,
+            "A API rejeitou o lançamento de ferrageamento"
+          )
+        );
         return;
       }
 
@@ -413,7 +426,13 @@ const Ferradoria = () => {
       }, 1500);
     } catch (error) {
       console.error("Erro ao salvar:", error);
-      setErro("Erro ao salvar ferrageamento");
+      setErro(
+        buildUserErrorMessage(
+          "Erro ao salvar ferrageamento",
+          error,
+          "Não foi possível concluir o lançamento de ferrageamento"
+        )
+      );
     } finally {
       setProcessando(false);
     }
@@ -428,6 +447,13 @@ const Ferradoria = () => {
     } catch (error) {
       console.error("Erro ao buscar histórico:", error);
       setHistoricoSolipede([]);
+      setErro(
+        buildUserErrorMessage(
+          "Falha ao consultar histórico",
+          error,
+          "Não foi possível carregar o histórico de ferrageamentos"
+        )
+      );
     }
     setShowHistoricoModal(true);
   };
@@ -489,7 +515,13 @@ const Ferradoria = () => {
       setShowModalIndocibilidade(false);
     } catch (error) {
       console.error("Erro ao salvar indocibilidade:", error);
-      setFeedbackMessage("Erro ao salvar alterações.");
+      setFeedbackMessage(
+        buildUserErrorMessage(
+          "Falha ao salvar indocibilidade",
+          error,
+          "Não foi possível persistir as alterações de indocilidade"
+        )
+      );
       setFeedbackSuccess(false);
       setShowFeedback(true);
     } finally {

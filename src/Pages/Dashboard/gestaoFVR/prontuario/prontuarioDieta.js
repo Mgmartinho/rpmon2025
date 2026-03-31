@@ -10,6 +10,7 @@ import {
 import { useParams } from "react-router-dom";
 
 import { api } from "../../../../services/api";
+import { buildUserErrorMessage } from "../../../../utils/errorHandling";
 
 
 const ProntuarioDieta = () => {
@@ -71,11 +72,23 @@ const ProntuarioDieta = () => {
                 setDataInicio("");
                 setDataFim("");
             } else {
-                alert(`Erro ao salvar dieta: ${resultado?.erro || resultado?.error || "Falha desconhecida"}`);
+                alert(
+                    buildUserErrorMessage(
+                        "Falha ao salvar dieta",
+                        resultado,
+                        "A API rejeitou o lançamento de dieta"
+                    )
+                );
             }
         } catch (error) {
             console.error("Erro ao enviar dieta:", error);
-            alert("Erro de conexão ao enviar dieta para a API.");
+            alert(
+                buildUserErrorMessage(
+                    "Erro ao enviar dieta",
+                    error,
+                    "Falha na comunicação durante o envio da dieta"
+                )
+            );
         } finally {
             setSalvando(false);
         }

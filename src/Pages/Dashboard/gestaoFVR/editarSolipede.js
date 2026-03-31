@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Container, Card, Row, Col, Form, Button } from "react-bootstrap";
 import { Link, useParams } from "react-router-dom";
 import { api } from "../../../services/api";
+import { buildUserErrorMessage } from "../../../utils/errorHandling";
 
 const EditarSolipede = () => {
   const { numero } = useParams(); // pega o número do solípede da URL
@@ -9,6 +10,8 @@ const EditarSolipede = () => {
   const [formData, setFormData] = useState({
     numero: "",
     nome: "",
+    microchip: "",
+    paleta_direita: "",
     DataNascimento: "",
     sexo: "",
     pelagem: "",
@@ -39,7 +42,13 @@ const EditarSolipede = () => {
         setFormData(dataFormatada);
       } catch (error) {
         console.error(error);
-        alert("Erro ao carregar dados do solípede");
+        alert(
+          buildUserErrorMessage(
+            "Falha ao carregar solípede",
+            error,
+            "Não foi possível buscar os dados para edição"
+          )
+        );
       }
     };
 
@@ -56,15 +65,36 @@ const EditarSolipede = () => {
     e.preventDefault();
 
     try {
-      const response = await api.atualizarSolipede(numero, formData);
+      const payload = {
+        ...formData,
+        microchip: formData.microchip?.trim() || null,
+        paleta_direita: formData.paleta_direita?.trim() || null,
+      };
 
-      if (response.error) throw new Error(response.error);
+      const response = await api.atualizarSolipede(numero, payload);
+
+      if (response.error) {
+        alert(
+          buildUserErrorMessage(
+            "Falha ao atualizar solípede",
+            response,
+            "A API rejeitou a atualização do solípede"
+          )
+        );
+        return;
+      }
 
       alert("Solípede atualizado com sucesso!");
       window.location.href = "/dashboard/gestaofvr";
     } catch (error) {
       console.error(error);
-      alert("Erro ao salvar dados");
+      alert(
+        buildUserErrorMessage(
+          "Falha ao salvar edição",
+          error,
+          "Erro inesperado ao salvar alterações"
+        )
+      );
     }
   };
 
@@ -91,7 +121,7 @@ const EditarSolipede = () => {
                     name="numero"
                     value={formData.numero}
                     onChange={handleChange}
-                    placeholder="Número da paleta"
+                    placeholder="Número do solípede"
                     required
                     disabled // geralmente não alteramos o número primário
                   />
@@ -178,6 +208,33 @@ const EditarSolipede = () => {
                 </Col>
               </Row>
 
+               <Row className="mb-3">
+                <Col md={6}>
+                  <Form.Label>Microchip</Form.Label>
+                  <Form.Control
+                    type="text"
+                    inputMode="numberic"
+                    name="microchip"
+                    value={formData.microchip || ""}
+                    onChange={handleChange}
+                    maxLength={20}
+                    placeholder="Digite o número do microchip"
+                  />
+                </Col>
+
+                <Col md={6}>
+                  <Form.Label>Paleta Direita</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="paleta_direita"
+                    value={formData.paleta_direita || ""}
+                    onChange={handleChange}
+                    maxLength={30}
+                    placeholder="Digite a identificação da paleta direita"
+                  />
+                </Col>
+              </Row>
+
               {/* LINHA 4 */}
               <Row className="mb-3">
                 <Col md={6}>
@@ -230,6 +287,8 @@ const EditarSolipede = () => {
 
                     <option value="Equoterapia">Equoterapia</option>
                     <option value="Representacao">Representação</option>
+                    <option value="Banda">Banda</option>
+                    <option value="Volteio">Volteio</option>
 
                     <option value="1 BAEP">1 BAEP - Campinas</option>
                     <option value="2 BAEP">2 BAEP - Santos</option>

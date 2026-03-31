@@ -25,7 +25,36 @@ import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { api } from "../../../services/api";
+import { buildUserErrorMessage } from "../../../utils/errorHandling";
 import { isAuthenticated, getUsuarioLogado } from "../../../utils/auth";
+
+const normalizarNumeroSolipede = (numero) => {
+  const valor = String(numero ?? "").trim();
+  if (/^\d+$/.test(valor)) {
+    return String(Number(valor));
+  }
+  return valor.toUpperCase();
+};
+
+const gerarChavesNumeroSolipede = (numero) => {
+  const valorBruto = String(numero ?? "").trim();
+  if (!valorBruto) return [];
+
+  const chaves = new Set([
+    valorBruto,
+    valorBruto.toUpperCase(),
+    normalizarNumeroSolipede(valorBruto),
+  ]);
+
+  if (/^\d+$/.test(valorBruto)) {
+    chaves.add(String(Number(valorBruto)));
+  }
+
+  return Array.from(chaves).filter(Boolean);
+};
+
+const possuiObservacaoNoSet = (setNumeros, numero) =>
+  gerarChavesNumeroSolipede(numero).some((chave) => setNumeros.has(chave));
 
 const DashboardList = () => {
   const [dados, setDados] = useState([]);
@@ -135,7 +164,7 @@ const DashboardList = () => {
   }, []);
 
   // 🔹 FILTRO + ORDENAÇÃO
-  const normalizarNumeroSolipede = (numero) => String(numero ?? "").trim();
+  const obterDataObservacao = (obs) => obs?.data_lancamento || obs?.data_criacao;
 
   const dadosFiltrados = useMemo(() => {
     const termo = filtroTexto.toLowerCase();
@@ -152,7 +181,7 @@ const DashboardList = () => {
         ...item,
         idade: calcularIdade(item.DataNascimento),
         temRestricao: solipedesComRestricao.has(normalizarNumeroSolipede(item.numero)),
-        temObservacoes: solipedesComObservacoes.has(normalizarNumeroSolipede(item.numero))
+        temObservacoes: possuiObservacaoNoSet(solipedesComObservacoes, item.numero)
       }));
 
     return filtrados.sort((a, b) => {
@@ -254,7 +283,11 @@ const DashboardList = () => {
             const obs = await api.listarObservacoesPublico(item.numero);
             if (Array.isArray(obs) && obs.length > 0) {
               observacoesTexto = obs
-                .map(o => `${new Date(o.data_criacao).toLocaleDateString("pt-BR")} [${o.tipo}]: ${o.observacao}`)
+                .map((o) => {
+                  const dataObs = obterDataObservacao(o);
+                  const tipoObs = o.tipo || "Observações Comportamentais";
+                  return `${new Date(dataObs).toLocaleDateString("pt-BR")} [${tipoObs}]: ${o.observacao}`;
+                })
                 .join(" | ");
             }
           } catch (error) {
@@ -301,7 +334,13 @@ const DashboardList = () => {
       XLSX.writeFile(workbook, "solipedes_rpmon.xlsx");
     } catch (error) {
       console.error("Erro ao exportar Excel:", error);
-      alert("Erro ao gerar arquivo Excel. Tente novamente.");
+      alert(
+        buildUserErrorMessage(
+          "Falha ao exportar Excel",
+          error,
+          "Não foi possível gerar o arquivo Excel"
+        )
+      );
     }
   };
 
@@ -322,7 +361,7 @@ const DashboardList = () => {
           : null;
         
         const temRestricao = solipedesComRestricao.has(normalizarNumeroSolipede(item.numero));
-        const temObservacoes = solipedesComObservacoes.has(normalizarNumeroSolipede(item.numero));
+        const temObservacoes = possuiObservacaoNoSet(solipedesComObservacoes, item.numero);
 
         return [
           item.numero,
@@ -377,6 +416,11 @@ const DashboardList = () => {
       
       if (Array.isArray(response) && response.length > 0) {
         setObservacoes(response);
+        setSolipedesComObservacoes((prev) => {
+          const proximo = new Set(prev);
+          proximo.add(normalizarNumeroSolipede(solipede.numero));
+          return proximo;
+        });
         setShowModalObservacoes(true);
       } else {
         setObservacoes([]);
@@ -426,6 +470,10 @@ const DashboardList = () => {
       const response = await api.criarObservacao(dadosObservacao);
       
       console.log("✅ Resposta da API:", response);
+
+      if (response?.error) {
+        throw new Error(response.error);
+      }
       
       if (response.success || response.id) {
         alert(`✅ Observação comportamental criada com sucesso para ${solipedeSelecionadoParaCriar.nome}!`);
@@ -436,7 +484,10 @@ const DashboardList = () => {
         // Recarregar lista de solípedes com observações
         try {
           const numerosComObservacoes = await api.listarSolipedesComObservacoes();
-          const comObservacoes = new Set(numerosComObservacoes);
+          const comObservacoes = new Set();
+          (Array.isArray(numerosComObservacoes) ? numerosComObservacoes : []).forEach((numero) => {
+            gerarChavesNumeroSolipede(numero).forEach((chave) => comObservacoes.add(chave));
+          });
           setSolipedesComObservacoes(comObservacoes);
           console.log("🔄 Lista de observações atualizada");
         } catch (error) {
@@ -448,7 +499,13 @@ const DashboardList = () => {
       
     } catch (error) {
       console.error("❌ Erro ao salvar observação:", error);
-      alert(`Erro ao salvar observação: ${error.message || "Tente novamente."}`);
+      const mensagemErro = String(error?.message || "");
+
+      if (mensagemErro.toLowerCase().includes("senha")) {
+        alert("Não foi possível realizar a operação: senha incorreta.");
+      } else {
+        alert("Não foi possível realizar a operação. Tente novamente.");
+      }
     } finally {
       setSalvandoObservacao(false);
     }
@@ -494,7 +551,13 @@ const DashboardList = () => {
       }
     } catch (error) {
       console.error("❌ Erro ao editar observação:", error);
-      alert(`Erro ao editar observação: ${error.message}`);
+      alert(
+        buildUserErrorMessage(
+          "Falha ao editar observação",
+          error,
+          "Não foi possível atualizar a observação comportamental"
+        )
+      );
     } finally {
       setEditandoObservacao(false);
     }
@@ -519,14 +582,23 @@ const DashboardList = () => {
         
         // Recarregar lista de solípedes com observações
         const numerosComObservacoes = await api.listarSolipedesComObservacoes();
-        const comObservacoes = new Set(numerosComObservacoes);
+        const comObservacoes = new Set();
+        (Array.isArray(numerosComObservacoes) ? numerosComObservacoes : []).forEach((numero) => {
+          gerarChavesNumeroSolipede(numero).forEach((chave) => comObservacoes.add(chave));
+        });
         setSolipedesComObservacoes(comObservacoes);
       } else {
         throw new Error(response.error || "Erro ao excluir observação");
       }
     } catch (error) {
       console.error("❌ Erro ao deletar observação:", error);
-      alert(`Erro ao excluir observação: ${error.message}`);
+      alert(
+        buildUserErrorMessage(
+          "Falha ao excluir observação",
+          error,
+          "Não foi possível excluir a observação comportamental"
+        )
+      );
     }
   };
 
@@ -562,7 +634,13 @@ const DashboardList = () => {
       alert("✅ Baia atualizada com sucesso!");
     } catch (error) {
       console.error("❌ Erro ao atualizar baia:", error);
-      alert(`Erro ao atualizar baia: ${error.message || "Tente novamente."}`);
+      alert(
+        buildUserErrorMessage(
+          "Falha ao atualizar baia",
+          error,
+          "Não foi possível atualizar a baia do solípede"
+        )
+      );
     } finally {
       setSalvandoBaia(false);
     }
@@ -601,11 +679,11 @@ const DashboardList = () => {
     const verificarObservacoes = async () => {
       try {
         const numerosComObservacoes = await api.listarSolipedesComObservacoes();
-        const comObservacoes = new Set(
-          (Array.isArray(numerosComObservacoes) ? numerosComObservacoes : [])
-            .map(normalizarNumeroSolipede)
-            .filter(Boolean)
-        );
+        const comObservacoes = new Set();
+        (Array.isArray(numerosComObservacoes) ? numerosComObservacoes : []).forEach((numero) => {
+          gerarChavesNumeroSolipede(numero).forEach((chave) => comObservacoes.add(chave));
+        });
+
         setSolipedesComObservacoes(comObservacoes);
         console.log(`✅ Observações carregadas: ${comObservacoes.size} solípedes com observações`);
       } catch (error) {
@@ -779,7 +857,7 @@ const DashboardList = () => {
               const temRestricao = solipedesComRestricao.has(normalizarNumeroSolipede(item.numero));
               
               // Observações
-              const temObservacoes = solipedesComObservacoes.has(normalizarNumeroSolipede(item.numero));
+              const temObservacoes = item.temObservacoes || possuiObservacaoNoSet(solipedesComObservacoes, item.numero);
               
               // Ferrageamento
               const ferrageamento = ferrageamentos[item.numero];
@@ -893,7 +971,7 @@ const DashboardList = () => {
                         </span>
                       )}
                       
-                      {/* Botão ver observações (se existirem) */}
+                      {/* Botão ver observações - Apenas se houver observações no banco */}
                       {temObservacoes && (
                         <span
                           style={{
@@ -916,7 +994,7 @@ const DashboardList = () => {
                             e.currentTarget.style.backgroundColor = "#ffffff";
                             e.currentTarget.style.borderColor = "#6c757d";
                           }}
-                          title="Ver observações gerais"
+                          title="Ver observações comportamentais"
                         >
                           <BsInfoCircle
                             size={16}
@@ -1146,10 +1224,10 @@ const DashboardList = () => {
             <Table striped bordered hover size="sm">
               <thead className="table-light">
                 <tr>
-                  <th style={{ width: "12%" }}>Data</th>
-                  <th style={{ width: "18%" }}>Tipo</th>
-                  <th>Observação</th>
-                  <th style={{ width: "15%" }}>Usuário</th>
+                  <th style={{ width: "10%" }}>Data</th>
+                  <th style={{ width: "auto" }}>Observações Comportamentais</th>
+                  <th  style={{ width: "auto" }}>Recomendações</th>
+                  <th style={{ width: "30%" }}>Usuário</th>
                   {podeEditarObservacao && <th style={{ width: "10%" }} className="text-center">Ações</th>}
                 </tr>
               </thead>
@@ -1157,34 +1235,22 @@ const DashboardList = () => {
                 {observacoes.map((obs) => (
                   <tr key={obs.id}>
                     <td className="text-center align-items-center">
-                      {new Date(obs.data_criacao).toLocaleDateString("pt-BR")}
+                      {new Date(obterDataObservacao(obs)).toLocaleDateString("pt-BR")}
                       <br />
                       <small className="text-muted ">
-                        {new Date(obs.data_criacao).toLocaleTimeString("pt-BR", { hour: '2-digit', minute: '2-digit' })}
+                        {new Date(obterDataObservacao(obs)).toLocaleTimeString("pt-BR", { hour: '2-digit', minute: '2-digit' })}
                       </small>
                     </td>
-                    <td style={{ width: "110px", textAlign: "center" }}>
-                      <Badge
-                        bg="info"
-                        style={{
-                          whiteSpace: "normal",
-                          wordBreak: "break-word",
-                          fontSize: "12px",
-                          padding: "4px 6px",
-                          lineHeight: "1.2"
-                        }}
-                      >
-                        {obs.tipo}
-                      </Badge>
-                    </td>
-
+                    
                     <td>
                       <div style={{ fontSize: "14px" }}>
                         {obs.observacao}
                       </div>
-                      {obs.recomendacoes && (
+                    </td>
+                    <td>
+                       {obs.recomendacoes && (
                         <small className="text-muted d-block mt-1">
-                          <strong>Recomendações:</strong> {obs.recomendacoes}
+                          {obs.recomendacoes}
                         </small>
                       )}
                     </td>
@@ -1206,7 +1272,7 @@ const DashboardList = () => {
                         </div>
                       )}
                     </td>
-                    {podeEditarObservacao && (
+                    {podeEditarObservacao && !obs.somente_leitura && (
                       <td className="text-center">
                         <div className="d-flex justify-content-center gap-1">
                           <Button
@@ -1386,7 +1452,7 @@ const DashboardList = () => {
               </div>
             </div>
             <small className="text-muted d-block mt-1">
-              Criado em: <strong>{observacaoEditando && new Date(observacaoEditando.data_criacao).toLocaleString("pt-BR")}</strong>
+              Criado em: <strong>{observacaoEditando && new Date(obterDataObservacao(observacaoEditando)).toLocaleString("pt-BR")}</strong>
             </small>
           </div>
 

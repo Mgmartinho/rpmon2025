@@ -81,7 +81,7 @@ const TasksTable = ({ onConsultarRegistro, registros = [] }) => {
           <Table responsive hover className="align-middle mb-0">
             <thead>
               <tr>
-                <th>ID</th>
+                
                 <th>Nº Solípede</th>
                 <th>Tipo</th>
                 <th>Data Criação</th>
@@ -93,7 +93,7 @@ const TasksTable = ({ onConsultarRegistro, registros = [] }) => {
             <tbody>
               {dados.map((item) => (
                 <tr key={item.id || `${item.tipo}-${item.data_criacao}`}>
-                  <td>{item.id || "-"}</td>
+                  
                   <td>{item.numero_solipede || "-"}</td>
                   <td>{item.tipo || "-"}</td>
                   <td>
@@ -116,6 +116,8 @@ const TasksTable = ({ onConsultarRegistro, registros = [] }) => {
             </tbody>
           </Table>
         )}
+
+        
       </Card.Body>
     </Card>
   );

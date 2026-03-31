@@ -17,6 +17,7 @@ import { FaSort, FaSortUp, FaSortDown } from "react-icons/fa";
 import { FaClock, FaFileExcel, FaFilePdf, FaInfoCircle } from "react-icons/fa";
 import { OverlayTrigger, Tooltip } from "react-bootstrap";
 import { api } from "../../../services/api";
+import { buildUserErrorMessage } from "../../../utils/errorHandling";
 import { temPermissao } from "../../../utils/permissions";
 
 import * as XLSX from "xlsx";
@@ -255,7 +256,11 @@ const AdminCargaHoraria = () => {
       // Verificar se algum resultado contém erro
       const erros = resultados.filter(r => r.error || r.message?.includes("Senha"));
       if (erros.length > 0) {
-        const mensagemErro = erros[0].error || erros[0].message || "Erro ao aplicar horas";
+        const mensagemErro = buildUserErrorMessage(
+          "Falha parcial ao aplicar horas",
+          erros[0],
+          "Uma ou mais operações de lançamento de horas falharam"
+        );
         throw new Error(mensagemErro);
       }
 
@@ -279,7 +284,13 @@ const AdminCargaHoraria = () => {
       setSenhaConfirmacao("");
     } catch (err) {
       console.error("Erro completo:", err);
-      setFeedbackMessage(err.message || "Erro ao aplicar horas.");
+      setFeedbackMessage(
+        buildUserErrorMessage(
+          "Falha ao aplicar horas",
+          err,
+          "Não foi possível lançar as horas selecionadas"
+        )
+      );
       setFeedbackSuccess(false);
       setShowFeedback(true);
     } finally {
@@ -318,7 +329,13 @@ const AdminCargaHoraria = () => {
     } catch (err) {
       console.error(err);
       setHistorico([]);
-      setFeedbackMessage("Erro ao buscar histórico.");
+      setFeedbackMessage(
+        buildUserErrorMessage(
+          "Falha ao buscar histórico",
+          err,
+          "Não foi possível consultar o histórico de horas"
+        )
+      );
       setFeedbackSuccess(false);
       setShowFeedback(true);
     }
@@ -343,7 +360,13 @@ const AdminCargaHoraria = () => {
       setShowFeedback(true);
     } catch (err) {
       console.error(err);
-      setFeedbackMessage("Erro ao atualizar histórico.");
+      setFeedbackMessage(
+        buildUserErrorMessage(
+          "Falha ao atualizar histórico",
+          err,
+          "Não foi possível atualizar as horas lançadas"
+        )
+      );
       setFeedbackSuccess(false);
       setShowFeedback(true);
     }
@@ -438,7 +461,13 @@ const AdminCargaHoraria = () => {
       console.error("   Tipo:", typeof err);
       console.error("   Message:", err.message);
       console.error("   Stack:", err.stack);
-      setFeedbackMessage(err.message || "Erro ao realizar movimentação.");
+      setFeedbackMessage(
+        buildUserErrorMessage(
+          "Falha ao realizar movimentação",
+          err,
+          "Não foi possível concluir a movimentação do solípede"
+        )
+      );
       setFeedbackSuccess(false);
       setShowFeedback(true);
     } finally {

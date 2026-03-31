@@ -10,6 +10,7 @@ import {
 import { useParams } from "react-router-dom";
 
 import { api } from "../../../../services/api";
+import { buildUserErrorMessage } from "../../../../utils/errorHandling";
 
 
 
@@ -74,11 +75,23 @@ const ProntuarioTratamento = () => {
                 });
                 setPrecisaBaixarSelecionado("nao");
             } else {
-                alert(`Erro ao salvar tratamento: ${resultado?.erro || resultado?.error || "Falha desconhecida"}`);
+                alert(
+                    buildUserErrorMessage(
+                        "Falha ao salvar tratamento",
+                        resultado,
+                        "A API rejeitou o lançamento de tratamento"
+                    )
+                );
             }
         } catch (error) {
             console.error("Erro ao enviar tratamento:", error);
-            alert("Erro de conexão ao enviar tratamento para a API.");
+            alert(
+                buildUserErrorMessage(
+                    "Erro ao enviar tratamento",
+                    error,
+                    "Falha na comunicação durante o envio do tratamento"
+                )
+            );
         } finally {
             setSalvando(false);
         }

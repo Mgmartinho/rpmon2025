@@ -10,6 +10,7 @@ import {
 import { useParams } from "react-router-dom";
 
 import { api } from "../../../../services/api";
+import { buildUserErrorMessage } from "../../../../utils/errorHandling";
 
 const ProntuarioVermifugacao = () => {
     const { numero } = useParams();
@@ -114,11 +115,23 @@ const ProntuarioVermifugacao = () => {
                 });
                 window.location.reload();
             } else {
-                alert(`Erro ao salvar vermifugação: ${resultado?.erro || resultado?.error || "Falha desconhecida"}`);
+                alert(
+                    buildUserErrorMessage(
+                        "Falha ao salvar vermifugação",
+                        resultado,
+                        "A API rejeitou o lançamento de vermifugação"
+                    )
+                );
             }
         } catch (error) {
             console.error("Erro ao enviar vermifugação:", error);
-            alert("Erro de conexão ao enviar vermifugação para a API.");
+            alert(
+                buildUserErrorMessage(
+                    "Erro ao enviar vermifugação",
+                    error,
+                    "Falha na comunicação durante o envio da vermifugação"
+                )
+            );
         } finally {
             setSalvando(false);
         }
@@ -158,7 +171,7 @@ const ProntuarioVermifugacao = () => {
                             }}
                         >
                             <Row>
-                                <Col md={6}>
+                                <Col md={12}>
                                     <Form.Group className="mb-3">
                                         <Form.Label className="fw-bold">
                                             Produto (Vermífugo) *
@@ -178,7 +191,7 @@ const ProntuarioVermifugacao = () => {
                                         />
                                     </Form.Group>
                                 </Col>
-                                <Col md={6}>
+                                {/* <Col md={6}>
                                     <Form.Group className="mb-3">
                                         <Form.Label className="fw-bold">
                                             Partida
@@ -197,11 +210,11 @@ const ProntuarioVermifugacao = () => {
                                             disabled={salvando}
                                         />
                                     </Form.Group>
-                                </Col>
+                                </Col> */}
                             </Row>
                             
 
-                            <Row>
+                            {/* <Row>
                                 <Col md={6}>
                                     <Form.Group className="mb-3">
                                         <Form.Label className="fw-bold">
@@ -238,7 +251,7 @@ const ProntuarioVermifugacao = () => {
                                         />
                                     </Form.Group>
                                 </Col>
-                            </Row>
+                            </Row> */}
 
                         </div>
 

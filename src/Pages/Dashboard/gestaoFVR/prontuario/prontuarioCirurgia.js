@@ -10,6 +10,7 @@ import {
 import { useParams } from "react-router-dom";
 
 import { api } from "../../../../services/api";
+import { buildUserErrorMessage } from "../../../../utils/errorHandling";
 
 const ProntuarioCirurgia = () => {
     const { numero } = useParams();
@@ -129,11 +130,23 @@ const ProntuarioCirurgia = () => {
                     auxiliar_id: "",
                 });
             } else {
-                alert(`Erro ao salvar cirurgia: ${resultado?.erro || resultado?.error || "Falha desconhecida"}`);
+                alert(
+                    buildUserErrorMessage(
+                        "Falha ao salvar cirurgia",
+                        resultado,
+                        "A API rejeitou o lançamento de cirurgia"
+                    )
+                );
             }
         } catch (error) {
             console.error("Erro ao enviar cirurgia:", error);
-            alert("Erro de conexão ao enviar cirurgia para a API.");
+            alert(
+                buildUserErrorMessage(
+                    "Erro ao enviar cirurgia",
+                    error,
+                    "Falha na comunicação durante o envio da cirurgia"
+                )
+            );
         } finally {
             setSalvando(false);
         }

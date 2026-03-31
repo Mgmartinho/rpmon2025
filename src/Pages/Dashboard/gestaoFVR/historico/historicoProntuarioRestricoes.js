@@ -17,6 +17,7 @@ import {
   BsTrash,
 } from "react-icons/bs";
 import { api } from "../../../../services/api";
+import { buildUserErrorMessage } from "../../../../utils/errorHandling";
 
 const HistoricoProntuarioRestricoes = ({ registros = [] }) => {
   const [dadosLocais, setDadosLocais] = useState([]);
@@ -110,14 +111,26 @@ const HistoricoProntuarioRestricoes = ({ registros = [] }) => {
     try {
       const response = await api.concluirRegistro(registroSelecionado.id, senhaConclusaoRegistro);
       if (response?.error) {
-        setErroConclusaoRegistro(response.error);
+        setErroConclusaoRegistro(
+          buildUserErrorMessage(
+            "Falha ao concluir restrição",
+            response,
+            "A API rejeitou a conclusão da restrição"
+          )
+        );
         return;
       }
 
       handleFecharModalConclusaoRegistro();
       window.location.reload();
     } catch (error) {
-      setErroConclusaoRegistro("Erro ao concluir registro. Tente novamente.");
+      setErroConclusaoRegistro(
+        buildUserErrorMessage(
+          "Falha ao concluir restrição",
+          error,
+          "Não foi possível concluir o registro de restrição"
+        )
+      );
     } finally {
       setConcluindoRegistro(false);
     }
@@ -139,14 +152,26 @@ const HistoricoProntuarioRestricoes = ({ registros = [] }) => {
 
       const response = await api.atualizarProntuario(registroSelecionado.id, payload);
       if (response?.error) {
-        setErroEdicao(response.error);
+        setErroEdicao(
+          buildUserErrorMessage(
+            "Falha ao editar restrição",
+            response,
+            "A API rejeitou a atualização da restrição"
+          )
+        );
         return;
       }
 
       handleFecharEdicao();
       window.location.reload();
     } catch (error) {
-      setErroEdicao("Erro ao salvar edicao. Tente novamente.");
+      setErroEdicao(
+        buildUserErrorMessage(
+          "Falha ao salvar edição de restrição",
+          error,
+          "Não foi possível atualizar o registro de restrição"
+        )
+      );
     } finally {
       setSalvandoEdicao(false);
     }
@@ -162,14 +187,26 @@ const HistoricoProntuarioRestricoes = ({ registros = [] }) => {
     try {
       const response = await api.excluirRegistroProntuario(registroSelecionado.id, senhaExclusaoRegistro);
       if (response?.error) {
-        setErroExclusaoRegistro(response.error);
+        setErroExclusaoRegistro(
+          buildUserErrorMessage(
+            "Falha ao excluir restrição",
+            response,
+            "A API rejeitou a exclusão da restrição"
+          )
+        );
         return;
       }
 
       handleFecharExclusaoRegistro();
       window.location.reload();
     } catch (error) {
-      setErroExclusaoRegistro("Erro ao excluir registro. Tente novamente.");
+      setErroExclusaoRegistro(
+        buildUserErrorMessage(
+          "Falha ao excluir restrição",
+          error,
+          "Não foi possível excluir o registro de restrição"
+        )
+      );
     } finally {
       setExcluindoRegistro(false);
     }

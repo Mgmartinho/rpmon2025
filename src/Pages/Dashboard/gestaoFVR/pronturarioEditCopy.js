@@ -29,6 +29,7 @@ import { LuTriangleAlert, LuShieldAlert } from "react-icons/lu";
 
 import { useParams, useSearchParams } from "react-router-dom";
 import { api } from "../../../services/api";
+import { buildUserErrorMessage } from "../../../utils/errorHandling";
 import ProntuarioTratamento from "./prontuario/prontuarioTratamento";
 import ProntuarioRestricao from "./prontuario/prontuarioRestricao";
 import ProntuarioDieta from "./prontuario/prontuarioDieta";
@@ -87,7 +88,13 @@ export default function ProntuarioSolipedeEditCopy() {
         }
       } catch (err) {
         console.error("Erro ao buscar solípede:", err);
-        setError("Erro ao carregar dados do solípede");
+        setError(
+          buildUserErrorMessage(
+            "Falha ao carregar solípede",
+            err,
+            "Não foi possível consultar os dados do solípede"
+          )
+        );
       } finally {
         setLoading(false);
       }
@@ -112,6 +119,13 @@ export default function ProntuarioSolipedeEditCopy() {
         setHistorico(historicoFiltrado);
       } catch (err) {
         console.error("Erro ao carregar prontuário", err);
+        setError(
+          buildUserErrorMessage(
+            "Falha ao carregar prontuário",
+            err,
+            "Não foi possível consultar o histórico clínico"
+          )
+        );
         setHistorico([]);
       } finally {
         setLoadingHistorico(false);
@@ -502,6 +516,9 @@ export default function ProntuarioSolipedeEditCopy() {
                 },
                 { label: "Idade", value: `${calcularIdade(solipede.DataNascimento)} anos` },
                 { label: "Pelagem", value: solipede.pelagem },
+                { label: "Microchip", value: solipede.microchip },
+                { label: "Paleta Direita", value: solipede.paleta_direita },
+                
               ].map(({ label, value, icon }, i) => (
                 <ListGroup.Item
                   key={i}

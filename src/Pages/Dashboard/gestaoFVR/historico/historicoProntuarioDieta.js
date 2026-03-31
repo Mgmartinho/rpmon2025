@@ -17,6 +17,7 @@ import {
   BsTrash,
 } from "react-icons/bs";
 import { api } from "../../../../services/api";
+import { buildUserErrorMessage } from "../../../../utils/errorHandling";
 
 const HistoricoProntuarioDieta = ({ registros = [] }) => {
   const [dadosLocais, setDadosLocais] = useState([]);
@@ -108,14 +109,26 @@ const HistoricoProntuarioDieta = ({ registros = [] }) => {
     try {
       const response = await api.concluirRegistro(registroSelecionado.id, senhaConclusaoRegistro);
       if (response?.error) {
-        setErroConclusaoRegistro(response.error);
+        setErroConclusaoRegistro(
+          buildUserErrorMessage(
+            "Falha ao concluir dieta",
+            response,
+            "A API rejeitou a conclusão da dieta"
+          )
+        );
         return;
       }
 
       handleFecharModalConclusaoRegistro();
       window.location.reload();
     } catch (error) {
-      setErroConclusaoRegistro("Erro ao concluir registro. Tente novamente.");
+      setErroConclusaoRegistro(
+        buildUserErrorMessage(
+          "Falha ao concluir dieta",
+          error,
+          "Não foi possível concluir o registro de dieta"
+        )
+      );
     } finally {
       setConcluindoRegistro(false);
     }
@@ -136,14 +149,26 @@ const HistoricoProntuarioDieta = ({ registros = [] }) => {
 
       const response = await api.atualizarProntuario(registroSelecionado.id, payload);
       if (response?.error) {
-        setErroEdicao(response.error);
+        setErroEdicao(
+          buildUserErrorMessage(
+            "Falha ao editar dieta",
+            response,
+            "A API rejeitou a atualização da dieta"
+          )
+        );
         return;
       }
 
       handleFecharEdicao();
       window.location.reload();
     } catch (error) {
-      setErroEdicao("Erro ao salvar edicao. Tente novamente.");
+      setErroEdicao(
+        buildUserErrorMessage(
+          "Falha ao salvar edição de dieta",
+          error,
+          "Não foi possível atualizar o registro de dieta"
+        )
+      );
     } finally {
       setSalvandoEdicao(false);
     }
@@ -159,14 +184,26 @@ const HistoricoProntuarioDieta = ({ registros = [] }) => {
     try {
       const response = await api.excluirRegistroProntuario(registroSelecionado.id, senhaExclusaoRegistro);
       if (response?.error) {
-        setErroExclusaoRegistro(response.error);
+        setErroExclusaoRegistro(
+          buildUserErrorMessage(
+            "Falha ao excluir dieta",
+            response,
+            "A API rejeitou a exclusão da dieta"
+          )
+        );
         return;
       }
 
       handleFecharExclusaoRegistro();
       window.location.reload();
     } catch (error) {
-      setErroExclusaoRegistro("Erro ao excluir registro. Tente novamente.");
+      setErroExclusaoRegistro(
+        buildUserErrorMessage(
+          "Falha ao excluir dieta",
+          error,
+          "Não foi possível excluir o registro de dieta"
+        )
+      );
     } finally {
       setExcluindoRegistro(false);
     }

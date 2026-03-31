@@ -10,6 +10,7 @@ import {
 import { useParams } from "react-router-dom";
 
 import { api } from "../../../../services/api";
+import { buildUserErrorMessage } from "../../../../utils/errorHandling";
 
 
 const ProntuarioSuplementacao = () => {
@@ -63,11 +64,23 @@ const ProntuarioSuplementacao = () => {
                 setDescricao("");
                 setDataFim("");
             } else {
-                alert(`Erro ao salvar suplementação: ${resultado?.erro || resultado?.error || "Falha desconhecida"}`);
+                alert(
+                    buildUserErrorMessage(
+                        "Falha ao salvar suplementação",
+                        resultado,
+                        "A API rejeitou o lançamento de suplementação"
+                    )
+                );
             }
         } catch (error) {
             console.error("Erro ao enviar suplementação:", error);
-            alert("Erro de conexão ao enviar suplementação para a API.");
+            alert(
+                buildUserErrorMessage(
+                    "Erro ao enviar suplementação",
+                    error,
+                    "Falha na comunicação durante o envio da suplementação"
+                )
+            );
         } finally {
             setSalvando(false);
         }

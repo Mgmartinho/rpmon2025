@@ -17,6 +17,7 @@ import {
   BsTrash,
 } from "react-icons/bs";
 import { api } from "../../../../services/api";
+import { buildUserErrorMessage } from "../../../../utils/errorHandling";
 
 const HistoricoProntuarioMovimentacao = ({ registros = [] }) => {
   const [dadosLocais, setDadosLocais] = useState([]);
@@ -148,14 +149,26 @@ const HistoricoProntuarioMovimentacao = ({ registros = [] }) => {
         movimentacao_nova_alocacao: retornoMovimentacao === "outra" ? novaAlocacaoMovimentacao : null,
       });
       if (response?.error) {
-        setErroConclusaoRegistro(response.error);
+        setErroConclusaoRegistro(
+          buildUserErrorMessage(
+            "Falha ao concluir movimentação",
+            response,
+            "A API rejeitou a conclusão da movimentação"
+          )
+        );
         return;
       }
 
       handleFecharModalConclusaoRegistro();
       window.location.reload();
     } catch (error) {
-      setErroConclusaoRegistro("Erro ao concluir registro. Tente novamente.");
+      setErroConclusaoRegistro(
+        buildUserErrorMessage(
+          "Falha ao concluir movimentação",
+          error,
+          "Não foi possível concluir o registro de movimentação"
+        )
+      );
     } finally {
       setConcluindoRegistro(false);
     }
@@ -177,14 +190,26 @@ const HistoricoProntuarioMovimentacao = ({ registros = [] }) => {
 
       const response = await api.atualizarProntuario(registroSelecionado.id, payload);
       if (response?.error) {
-        setErroEdicao(response.error);
+        setErroEdicao(
+          buildUserErrorMessage(
+            "Falha ao editar movimentação",
+            response,
+            "A API rejeitou a atualização da movimentação"
+          )
+        );
         return;
       }
 
       handleFecharEdicao();
       window.location.reload();
     } catch (error) {
-      setErroEdicao("Erro ao salvar edicao. Tente novamente.");
+      setErroEdicao(
+        buildUserErrorMessage(
+          "Falha ao salvar edição de movimentação",
+          error,
+          "Não foi possível atualizar o registro de movimentação"
+        )
+      );
     } finally {
       setSalvandoEdicao(false);
     }
@@ -200,14 +225,26 @@ const HistoricoProntuarioMovimentacao = ({ registros = [] }) => {
     try {
       const response = await api.excluirRegistroProntuario(registroSelecionado.id, senhaExclusaoRegistro);
       if (response?.error) {
-        setErroExclusaoRegistro(response.error);
+        setErroExclusaoRegistro(
+          buildUserErrorMessage(
+            "Falha ao excluir movimentação",
+            response,
+            "A API rejeitou a exclusão da movimentação"
+          )
+        );
         return;
       }
 
       handleFecharExclusaoRegistro();
       window.location.reload();
     } catch (error) {
-      setErroExclusaoRegistro("Erro ao excluir registro. Tente novamente.");
+      setErroExclusaoRegistro(
+        buildUserErrorMessage(
+          "Falha ao excluir movimentação",
+          error,
+          "Não foi possível excluir o registro de movimentação"
+        )
+      );
     } finally {
       setExcluindoRegistro(false);
     }

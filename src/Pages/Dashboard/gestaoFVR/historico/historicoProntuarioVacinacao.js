@@ -17,6 +17,7 @@ import {
   BsTrash,
 } from "react-icons/bs";
 import { api } from "../../../../services/api";
+import { buildUserErrorMessage } from "../../../../utils/errorHandling";
 
 const HistoricoProntuarioVacinacao = ({ registros = [], prontuarioId = null }) => {
   const [dadosLocais, setDadosLocais] = useState([]);
@@ -191,14 +192,26 @@ const HistoricoProntuarioVacinacao = ({ registros = [], prontuarioId = null }) =
     try {
       const response = await api.concluirRegistro(registroSelecionado.prontuario_id, senhaConclusaoRegistro);
       if (response?.error) {
-        setErroConclusaoRegistro(response.error);
+        setErroConclusaoRegistro(
+          buildUserErrorMessage(
+            "Falha ao concluir vacinação",
+            response,
+            "A API rejeitou a conclusão da vacinação"
+          )
+        );
         return;
       }
 
       handleFecharModalConclusaoRegistro();
       window.location.reload();
     } catch (error) {
-      setErroConclusaoRegistro("Erro ao concluir registro. Tente novamente.");
+      setErroConclusaoRegistro(
+        buildUserErrorMessage(
+          "Falha ao concluir vacinação",
+          error,
+          "Não foi possível concluir o registro de vacinação"
+        )
+      );
     } finally {
       setConcluindoRegistro(false);
     }
@@ -225,14 +238,26 @@ const HistoricoProntuarioVacinacao = ({ registros = [], prontuarioId = null }) =
 
       const response = await api.atualizarProntuarioVacinacao(registroSelecionado.id, payload);
       if (response?.error) {
-        setErroEdicao(response.error);
+        setErroEdicao(
+          buildUserErrorMessage(
+            "Falha ao editar vacinação",
+            response,
+            "A API rejeitou a atualização da vacinação"
+          )
+        );
         return;
       }
 
       handleFecharEdicao();
       window.location.reload();
     } catch (error) {
-      setErroEdicao("Erro ao salvar edicao. Tente novamente.");
+      setErroEdicao(
+        buildUserErrorMessage(
+          "Falha ao salvar edição de vacinação",
+          error,
+          "Não foi possível atualizar o registro de vacinação"
+        )
+      );
     } finally {
       setSalvandoEdicao(false);
     }
@@ -251,14 +276,26 @@ const HistoricoProntuarioVacinacao = ({ registros = [], prontuarioId = null }) =
         senhaExclusaoRegistro
       );
       if (response?.error || response?.erro) {
-        setErroExclusaoRegistro(response.error || response.erro);
+        setErroExclusaoRegistro(
+          buildUserErrorMessage(
+            "Falha ao excluir vacinação",
+            response,
+            "A API rejeitou a exclusão da vacinação"
+          )
+        );
         return;
       }
 
       handleFecharExclusaoRegistro();
       window.location.reload();
     } catch (error) {
-      setErroExclusaoRegistro("Erro ao excluir registro. Tente novamente.");
+      setErroExclusaoRegistro(
+        buildUserErrorMessage(
+          "Falha ao excluir vacinação",
+          error,
+          "Não foi possível excluir o registro de vacinação"
+        )
+      );
     } finally {
       setExcluindoRegistro(false);
     }

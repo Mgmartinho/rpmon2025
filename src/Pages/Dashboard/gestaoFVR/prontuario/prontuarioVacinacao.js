@@ -10,6 +10,7 @@ import {
 import { useParams } from "react-router-dom";
 
 import { api } from "../../../../services/api";
+import { buildUserErrorMessage } from "../../../../utils/errorHandling";
 
 const ProntuarioVacinacao = () => {
     const { numero } = useParams();
@@ -119,11 +120,23 @@ const ProntuarioVacinacao = () => {
                 setDescricao("");
                 setDataFim("");
             } else {
-                alert(`Erro ao salvar vacinação: ${resultado?.erro || resultado?.error || "Falha desconhecida"}`);
+                alert(
+                    buildUserErrorMessage(
+                        "Falha ao salvar vacinação",
+                        resultado,
+                        "A API rejeitou o lançamento de vacinação"
+                    )
+                );
             }
         } catch (error) {
             console.error("Erro ao enviar vacinação:", error);
-            alert("Erro de conexão ao enviar vacinação para a API.");
+            alert(
+                buildUserErrorMessage(
+                    "Erro ao enviar vacinação",
+                    error,
+                    "Falha na comunicação durante o envio da vacinação"
+                )
+            );
         } finally {
             setSalvando(false);
         }
@@ -208,7 +221,7 @@ const ProntuarioVacinacao = () => {
                             
 
                             <Row>
-                                <Col md={6}>
+                                {/* <Col md={6}>
                                     <Form.Group className="mb-3">
                                         <Form.Label className="fw-bold">
                                             Data de Fabricação
@@ -225,7 +238,7 @@ const ProntuarioVacinacao = () => {
                                             disabled={salvando}
                                         />
                                     </Form.Group>
-                                </Col>
+                                </Col> */}
                                 <Col md={6}>
                                     <Form.Group className="mb-3">
                                         <Form.Label className="fw-bold">

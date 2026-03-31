@@ -24,6 +24,7 @@ import {
 } from "react-icons/bs";
 import { GiHorseHead } from "react-icons/gi";
 import { api } from "../../../services/api";
+import { buildUserErrorMessage } from "../../../utils/errorHandling";
 import "./styles.css";
 import "./exclusaostyles.css";
 
@@ -97,7 +98,13 @@ const ExclusaoSolipede = () => {
       }
     } catch (error) {
       console.error("Erro ao carregar dados:", error);
-      setErro("Erro ao carregar dados");
+      setErro(
+        buildUserErrorMessage(
+          "Falha ao carregar dados da tela de exclusão",
+          error,
+          "Não foi possível consultar solípedes ativos/excluídos"
+        )
+      );
     } finally {
       setLoading(false);
     }
@@ -148,7 +155,13 @@ const ExclusaoSolipede = () => {
       );
 
       if (resultado.error) {
-        setErro(resultado.error);
+        setErro(
+          buildUserErrorMessage(
+            "Falha ao excluir solípede",
+            resultado,
+            "A API rejeitou a exclusão solicitada"
+          )
+        );
         return;
       }
 
@@ -160,7 +173,13 @@ const ExclusaoSolipede = () => {
       }, 2000);
     } catch (error) {
       console.error("Erro ao excluir:", error);
-      setErro("Erro ao excluir solípede");
+      setErro(
+        buildUserErrorMessage(
+          "Erro de exclusão",
+          error,
+          "Não foi possível concluir a exclusão do solípede"
+        )
+      );
     } finally {
       setProcessando(false);
     }

@@ -10,6 +10,7 @@ import {
 import { useParams } from "react-router-dom";
 
 import { api } from "../../../../services/api";
+import { buildUserErrorMessage } from "../../../../utils/errorHandling";
 
 const ProntuarioAieMormo = () => {
     const { numero } = useParams();
@@ -100,11 +101,23 @@ const ProntuarioAieMormo = () => {
                 });
                 window.location.reload();
             } else {
-                alert(`Erro ao salvar AIE & Mormo: ${resultado?.erro || resultado?.error || "Falha desconhecida"}`);
+                alert(
+                    buildUserErrorMessage(
+                        "Falha ao salvar AIE & Mormo",
+                        resultado,
+                        "A API rejeitou o lançamento de AIE & Mormo"
+                    )
+                );
             }
         } catch (error) {
             console.error("Erro ao enviar AIE & Mormo:", error);
-            alert("Erro de conexão ao enviar AIE & Mormo para a API.");
+            alert(
+                buildUserErrorMessage(
+                    "Erro ao enviar AIE & Mormo",
+                    error,
+                    "Falha na comunicação durante o envio do exame"
+                )
+            );
         } finally {
             setSalvando(false);
         }

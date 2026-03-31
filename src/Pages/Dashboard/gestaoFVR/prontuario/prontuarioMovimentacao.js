@@ -10,6 +10,7 @@ import {
 import { useParams } from "react-router-dom";
 
 import { api } from "../../../../services/api";
+import { buildUserErrorMessage } from "../../../../utils/errorHandling";
 
 const ProntuarioMovimentacao = () => {
     const { numero } = useParams();
@@ -82,11 +83,23 @@ const ProntuarioMovimentacao = () => {
                     data_movimentacao: hoje,
                 });
             } else {
-                alert(`Erro ao salvar movimentação: ${resultado?.erro || resultado?.error || "Falha desconhecida"}`);
+                alert(
+                    buildUserErrorMessage(
+                        "Falha ao salvar movimentação",
+                        resultado,
+                        "A API rejeitou o lançamento de movimentação"
+                    )
+                );
             }
         } catch (error) {
             console.error("Erro ao enviar movimentação:", error);
-            alert("Erro de conexão ao enviar movimentação para a API.");
+            alert(
+                buildUserErrorMessage(
+                    "Erro ao enviar movimentação",
+                    error,
+                    "Falha na comunicação durante o envio da movimentação"
+                )
+            );
         } finally {
             setSalvando(false);
         }

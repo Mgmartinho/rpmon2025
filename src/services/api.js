@@ -28,6 +28,11 @@ const fetchWithAuth = async (url, options = {}) => {
   }
 };
 
+const fetchWithOptionalUnauthorized = async (url, options = {}) => {
+  const response = await fetch(url, options);
+  return response;
+};
+
 const parseApiResponse = async (response, endpointLabel = "API") => {
   const contentType = response.headers.get("content-type") || "";
   const raw = await response.text();
@@ -108,13 +113,20 @@ export const api = {
   // 🚀 OTIMIZADO: Busca apenas números de solípedes com observações
   listarSolipedesComObservacoes: async () => {
     const response = await fetch(`${API_BASE_URL}/observacoes/solipedes-com-observacoes`);
-    return response.json();
+
+    // Compatibilidade com APIs antigas que ainda retornam 410 nesta rota
+    if (response.status === 410) {
+      return [];
+    }
+
+    const parsed = await parseApiResponse(response, "listar solípedes com observações");
+    return Array.isArray(parsed) ? parsed : [];
   },
 
   // ➕ Criar nova observação comportamental
   criarObservacao: async (dados) => {
     const token = localStorage.getItem("token");
-    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/prontuario`, {
+    const response = await fetchWithOptionalUnauthorized(`${API_BASE_URL}/observacoes`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -122,13 +134,13 @@ export const api = {
       },
       body: JSON.stringify(dados),
     });
-    return response.json();
+    return parseApiResponse(response, "criar observação comportamental");
   },
 
   // ✏️ Editar observação comportamental
   editarObservacao: async (id, dados) => {
     const token = localStorage.getItem("token");
-    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/prontuario/${id}`, {
+    const response = await fetchWithAuth(`${API_BASE_URL}/observacoes/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -136,19 +148,19 @@ export const api = {
       },
       body: JSON.stringify(dados),
     });
-    return response.json();
+    return parseApiResponse(response, "editar observação comportamental");
   },
 
   // 🗑️ Deletar observação comportamental
   deletarObservacao: async (id) => {
     const token = localStorage.getItem("token");
-    const response = await fetchWithAuth(`${API_BASE_URL}/gestaoFVR/prontuario/${id}`, {
+    const response = await fetchWithAuth(`${API_BASE_URL}/observacoes/${id}`, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
-    return response.json();
+    return parseApiResponse(response, "deletar observação comportamental");
   },
 
   indicadoresAnuais: async (ano) => {
@@ -332,7 +344,19 @@ export const api = {
   // Observações Gerais Público (todos os tipos exceto Restrições) - COM dados do usuário
   listarObservacoesPublico: async (numero) => {
     const response = await fetch(`${API_BASE_URL}/observacoes/${numero}`);
-    return response.json();
+
+    // Compatibilidade: algumas versões antigas respondem 410 em /observacoes/:numero
+    if (response.status === 410) {
+      const fallbackResponse = await fetch(`${API_BASE_URL}/solipedes/observacoes/${numero}`);
+      const fallbackParsed = await parseApiResponse(
+        fallbackResponse,
+        "listar observações comportamentais (fallback)"
+      );
+      return Array.isArray(fallbackParsed) ? fallbackParsed : [];
+    }
+
+    const parsed = await parseApiResponse(response, "listar observações comportamentais");
+    return Array.isArray(parsed) ? parsed : [];
   },
   
   // Ferrageamentos Público

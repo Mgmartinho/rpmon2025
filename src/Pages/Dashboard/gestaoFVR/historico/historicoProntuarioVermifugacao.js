@@ -17,6 +17,7 @@ import {
   BsTrash,
 } from "react-icons/bs";
 import { api } from "../../../../services/api";
+import { buildUserErrorMessage } from "../../../../utils/errorHandling";
 
 const HistoricoProntuarioVermifugacao = ({ registros = [], prontuarioId = null }) => {
   const [dadosLocais, setDadosLocais] = useState([]);
@@ -185,7 +186,13 @@ const HistoricoProntuarioVermifugacao = ({ registros = [], prontuarioId = null }
       handleFecharModalConclusaoRegistro();
       window.location.reload();
     } catch (error) {
-      setErroConclusaoRegistro("Erro ao concluir registro. Tente novamente.");
+      setErroConclusaoRegistro(
+        buildUserErrorMessage(
+          "Falha ao concluir vermifugação",
+          error,
+          "Não foi possível concluir o registro de vermifugação"
+        )
+      );
     } finally {
       setConcluindoRegistro(false);
     }
@@ -220,7 +227,13 @@ const HistoricoProntuarioVermifugacao = ({ registros = [], prontuarioId = null }
       handleFecharEdicao();
       window.location.reload();
     } catch (error) {
-      setErroEdicao("Erro ao salvar edicao. Tente novamente.");
+      setErroEdicao(
+        buildUserErrorMessage(
+          "Falha ao salvar edição de vermifugação",
+          error,
+          "Não foi possível atualizar o registro de vermifugação"
+        )
+      );
     } finally {
       setSalvandoEdicao(false);
     }
@@ -247,7 +260,13 @@ const HistoricoProntuarioVermifugacao = ({ registros = [], prontuarioId = null }
       handleFecharExclusaoRegistro();
       window.location.reload();
     } catch (error) {
-      setErroExclusaoRegistro("Erro ao excluir registro. Tente novamente.");
+      setErroExclusaoRegistro(
+        buildUserErrorMessage(
+          "Falha ao excluir vermifugação",
+          error,
+          "Não foi possível excluir o registro de vermifugação"
+        )
+      );
     } finally {
       setExcluindoRegistro(false);
     }

@@ -10,6 +10,7 @@ import {
 import { useParams } from "react-router-dom";
 
 import { api } from "../../../../services/api";
+import { buildUserErrorMessage } from "../../../../utils/errorHandling";
 
 
 const ProntuarioRestricao = () => {
@@ -57,11 +58,23 @@ const ProntuarioRestricao = () => {
                     data_validade: "",
                 });
             } else {
-                alert(`Erro ao salvar restrição: ${resultado?.erro || resultado?.error || "Falha desconhecida"}`);
+                alert(
+                    buildUserErrorMessage(
+                        "Falha ao salvar restrição",
+                        resultado,
+                        "A API rejeitou o lançamento de restrição"
+                    )
+                );
             }
         } catch (error) {
             console.error("Erro ao enviar restrição:", error);
-            alert("Erro de conexão ao enviar restrição para a API.");
+            alert(
+                buildUserErrorMessage(
+                    "Erro ao enviar restrição",
+                    error,
+                    "Falha na comunicação durante o envio da restrição"
+                )
+            );
         } finally {
             setSalvando(false);
         }

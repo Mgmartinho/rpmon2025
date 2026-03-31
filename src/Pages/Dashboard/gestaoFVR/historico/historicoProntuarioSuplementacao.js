@@ -17,6 +17,7 @@ import {
   BsTrash,
 } from "react-icons/bs";
 import { api } from "../../../../services/api";
+import { buildUserErrorMessage } from "../../../../utils/errorHandling";
 
 const HistoricoProntuarioSuplementacao = ({ registros = [] }) => {
   const [dadosLocais, setDadosLocais] = useState([]);
@@ -105,14 +106,26 @@ const HistoricoProntuarioSuplementacao = ({ registros = [] }) => {
     try {
       const response = await api.concluirRegistro(registroSelecionado.id, senhaConclusaoRegistro);
       if (response?.error) {
-        setErroConclusaoRegistro(response.error);
+        setErroConclusaoRegistro(
+          buildUserErrorMessage(
+            "Falha ao concluir suplementação",
+            response,
+            "A API rejeitou a conclusão da suplementação"
+          )
+        );
         return;
       }
 
       handleFecharModalConclusaoRegistro();
       window.location.reload();
     } catch (error) {
-      setErroConclusaoRegistro("Erro ao concluir registro. Tente novamente.");
+      setErroConclusaoRegistro(
+        buildUserErrorMessage(
+          "Falha ao concluir suplementação",
+          error,
+          "Não foi possível concluir o registro de suplementação"
+        )
+      );
     } finally {
       setConcluindoRegistro(false);
     }
@@ -135,14 +148,26 @@ const HistoricoProntuarioSuplementacao = ({ registros = [] }) => {
 
       const response = await api.atualizarProntuario(registroSelecionado.id, payload);
       if (response?.error) {
-        setErroEdicao(response.error);
+        setErroEdicao(
+          buildUserErrorMessage(
+            "Falha ao editar suplementação",
+            response,
+            "A API rejeitou a atualização da suplementação"
+          )
+        );
         return;
       }
 
       handleFecharEdicao();
       window.location.reload();
     } catch (error) {
-      setErroEdicao("Erro ao salvar edicao. Tente novamente.");
+      setErroEdicao(
+        buildUserErrorMessage(
+          "Falha ao salvar edição de suplementação",
+          error,
+          "Não foi possível atualizar o registro de suplementação"
+        )
+      );
     } finally {
       setSalvandoEdicao(false);
     }
@@ -158,14 +183,26 @@ const HistoricoProntuarioSuplementacao = ({ registros = [] }) => {
     try {
       const response = await api.excluirRegistroProntuario(registroSelecionado.id, senhaExclusaoRegistro);
       if (response?.error) {
-        setErroExclusaoRegistro(response.error);
+        setErroExclusaoRegistro(
+          buildUserErrorMessage(
+            "Falha ao excluir suplementação",
+            response,
+            "A API rejeitou a exclusão da suplementação"
+          )
+        );
         return;
       }
 
       handleFecharExclusaoRegistro();
       window.location.reload();
     } catch (error) {
-      setErroExclusaoRegistro("Erro ao excluir registro. Tente novamente.");
+      setErroExclusaoRegistro(
+        buildUserErrorMessage(
+          "Falha ao excluir suplementação",
+          error,
+          "Não foi possível excluir o registro de suplementação"
+        )
+      );
     } finally {
       setExcluindoRegistro(false);
     }

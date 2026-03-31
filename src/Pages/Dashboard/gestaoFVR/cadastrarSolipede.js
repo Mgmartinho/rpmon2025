@@ -2,19 +2,22 @@ import { useState } from "react";
 import { Container, Card, Row, Col, Form, Button } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { api } from "../../../services/api";
+import { buildUserErrorMessage } from "../../../utils/errorHandling";
 
 const CadastrarSolipede = () => {
 
   const [formData, setFormData] = useState({
     numero: "",
     nome: "",
+    microchip: "",
+    paleta_direita: "",
     DataNascimento: "",
     sexo: "",
     pelagem: "",
     movimentacao: "",
     alocacao: "",
     restricoes: "",
-    status: "",
+    status: "Ativo",
     esquadrao: "",
     origem: "",
   });
@@ -28,17 +31,36 @@ const CadastrarSolipede = () => {
     e.preventDefault();
 
     try {
-      const response = await api.criarSolipede(formData);
+      const payload = {
+        ...formData,
+        microchip: formData.microchip?.trim() || null,
+        paleta_direita: formData.paleta_direita?.trim() || null,
+      };
+
+      const response = await api.criarSolipede(payload);
 
       if (response.error) {
-        throw new Error(response.error || "Erro ao cadastrar solípede");
+        alert(
+          buildUserErrorMessage(
+            "Falha ao cadastrar solípede",
+            response,
+            "Não foi possível cadastrar o solípede"
+          )
+        );
+        return;
       }
 
       alert("Solípede cadastrado com sucesso!");
       window.location.href = "/dashboard/gestaofvr";
     } catch (error) {
       console.error(error);
-      alert("Erro ao salvar dados");
+      alert(
+        buildUserErrorMessage(
+          "Falha ao salvar cadastro",
+          error,
+          "Erro inesperado ao salvar dados do solípede"
+        )
+      );
     }
   };
 
@@ -85,6 +107,8 @@ const CadastrarSolipede = () => {
                 </Col>
               </Row>
 
+              
+
               {/* LINHA 2 */}
               <Row className="mb-3">
                 <Col md={6}>
@@ -114,6 +138,7 @@ const CadastrarSolipede = () => {
                   </Form.Select>
                 </Col>
               </Row>
+            
 
               {/* LINHA 3 */}
               <Row className="mb-3">
@@ -154,6 +179,35 @@ const CadastrarSolipede = () => {
                 </Col>
               </Row>
 
+              <Row className="mb-3">
+                <Col md={6}>
+                  <Form.Label>Microchip</Form.Label>
+                  <Form.Control
+                    type="text"
+                    inputMode="numeric"
+                    name="microchip"
+                    value={formData.microchip}
+                    onChange={handleChange}
+                    maxLength={20}
+                    placeholder="Digite o número do microchip"
+                  />
+                <small>{formData.microchip?.length || 0}/20</small>
+                </Col>
+
+                <Col md={6}>
+                  <Form.Label>Paleta Direita</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="paleta_direita"
+                    value={formData.paleta_direita?.toLocaleUpperCase() || ""}
+                    onChange={handleChange}
+                    maxLength={30}
+                    placeholder="Digite a identificação da paleta direita"
+                  />
+                <small>{formData.paleta_direita?.length || 0}/30</small>
+                </Col>
+              </Row>
+
               <Col md={6}>
                 <Form.Label>Esquadrão / Batalhao</Form.Label>
                 <Form.Select
@@ -172,6 +226,8 @@ const CadastrarSolipede = () => {
 
                     <option value="Equoterapia">Equoterapia</option>
                     <option value="Representacao">Representação</option>
+                    <option value="Banda">Banda</option>
+                    <option value="Volteio">Volteio</option>
 
                     <option value="1 BAEP">1 BAEP - Campinas</option>
                     <option value="2 BAEP">2 BAEP - Santos</option>

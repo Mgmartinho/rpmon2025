@@ -19,6 +19,7 @@ import {
 import { api } from "../../../../services/api";
 import ReceituarioTemplate from "../../../../receituario/ReceituarioTemplate";
 import { gerarReceituarioPDF } from "../../../../services/receituarioService";
+import { buildUserErrorMessage } from "../../../../utils/errorHandling";
 
 const HistoricoProntuarioTratamento = ({ registros = [], solipede = null }) => {
   const [dadosLocais, setDadosLocais] = useState([]);
@@ -135,14 +136,26 @@ const HistoricoProntuarioTratamento = ({ registros = [], solipede = null }) => {
       const response = await api.concluirTratamento(registroSelecionado.id, senhaConclusaoRegistro);
 
       if (response?.error) {
-        setErroConclusaoRegistro(response.error);
+        setErroConclusaoRegistro(
+          buildUserErrorMessage(
+            "Falha ao concluir tratamento",
+            response,
+            "A API rejeitou a conclusão do tratamento"
+          )
+        );
         return;
       }
 
       handleFecharModalConclusaoRegistro();
       window.location.reload();
     } catch (error) {
-      setErroConclusaoRegistro("Erro ao concluir registro. Tente novamente.");
+      setErroConclusaoRegistro(
+        buildUserErrorMessage(
+          "Falha ao concluir tratamento",
+          error,
+          "Não foi possível concluir o registro de tratamento"
+        )
+      );
     } finally {
       setConcluindoRegistro(false);
     }
@@ -166,14 +179,26 @@ const HistoricoProntuarioTratamento = ({ registros = [], solipede = null }) => {
       const response = await api.atualizarProntuario(registroSelecionado.id, payload);
 
       if (response?.error) {
-        setErroEdicaoTratamento(response.error);
+        setErroEdicaoTratamento(
+          buildUserErrorMessage(
+            "Falha ao editar tratamento",
+            response,
+            "A API rejeitou a atualização do tratamento"
+          )
+        );
         return;
       }
 
       handleFecharEdicaoTratamento();
       window.location.reload();
     } catch (error) {
-      setErroEdicaoTratamento("Erro ao salvar edicao. Tente novamente.");
+      setErroEdicaoTratamento(
+        buildUserErrorMessage(
+          "Falha ao salvar edição de tratamento",
+          error,
+          "Não foi possível atualizar o registro de tratamento"
+        )
+      );
     } finally {
       setSalvandoEdicao(false);
     }
@@ -191,14 +216,26 @@ const HistoricoProntuarioTratamento = ({ registros = [], solipede = null }) => {
       const response = await api.excluirRegistroProntuario(registroSelecionado.id, senhaExclusaoRegistro);
 
       if (response?.error) {
-        setErroExclusaoRegistro(response.error);
+        setErroExclusaoRegistro(
+          buildUserErrorMessage(
+            "Falha ao excluir tratamento",
+            response,
+            "A API rejeitou a exclusão do tratamento"
+          )
+        );
         return;
       }
 
       handleFecharExclusaoRegistro();
       window.location.reload();
     } catch (error) {
-      setErroExclusaoRegistro("Erro ao excluir registro. Tente novamente.");
+      setErroExclusaoRegistro(
+        buildUserErrorMessage(
+          "Falha ao excluir tratamento",
+          error,
+          "Não foi possível excluir o registro de tratamento"
+        )
+      );
     } finally {
       setExcluindoRegistro(false);
     }
