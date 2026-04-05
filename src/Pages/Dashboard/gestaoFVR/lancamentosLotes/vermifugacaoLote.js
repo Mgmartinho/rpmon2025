@@ -2,12 +2,15 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Alert, Badge, Button, Card, Col, Form, Row, Spinner, Table } from "react-bootstrap";
 import { api } from "../../../../services/api";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const HOJE = new Date().toISOString().split("T")[0];
 
 export default function VermifugacaoLote() {
   const navigate = useNavigate();
   const debounceRef = useRef(null);
+
+  const [mostrarSenha, setMostrarSenha] = useState(false);
 
   const [solipedes, setSolipedes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -214,17 +217,18 @@ export default function VermifugacaoLote() {
         </Row>
         <Row className="mb-3 ">
 
-          <Col md={4} className="p-2">
+          <Col md={6} className="p-2">
             <Form.Group>
               <Form.Label>Produto *</Form.Label>
               <Form.Control
                 type="text"
-                placeholder="Ex: Vacina Raiva"
+                placeholder="Ex: Vermífugo..."
                 value={form.produto}
                 onChange={(e) => setForm((prev) => ({ ...prev, produto: e.target.value }))}
               />
             </Form.Group>
           </Col>
+          {/* 
           <Col md={4} className="p-2">
             <Form.Group>
               <Form.Label>Partida *</Form.Label>
@@ -235,10 +239,10 @@ export default function VermifugacaoLote() {
                 onChange={(e) => setForm((prev) => ({ ...prev, partida: e.target.value }))}
               />
             </Form.Group>
-          </Col>
+          </Col> */}
 
 
-          <Col  md={4} className="p-2">
+          {/* <Col  md={4} className="p-2">
             <Form.Group>
               <Form.Label>Data de Fabricação *</Form.Label>
               <Form.Control
@@ -248,7 +252,7 @@ export default function VermifugacaoLote() {
 
               />
             </Form.Group>
-          </Col>
+          </Col> 
           <Col md={4} className="p-2">
             <Form.Group>
               <Form.Label>Data de Validade *</Form.Label>
@@ -260,7 +264,7 @@ export default function VermifugacaoLote() {
               />
             </Form.Group>
           </Col>
-          
+          */}
         </Row>
 
         <Row>
@@ -302,15 +306,37 @@ export default function VermifugacaoLote() {
               </Form.Select>
             </Form.Group>
           </Col>
+
           <Col md={3}>
-            <Form.Group>
+            <Form.Group className="position-relative">
               <Form.Label>Senha do Usuário *</Form.Label>
-              <Form.Control
-                type="password"
-                value={form.senha_confirmacao}
-                onChange={(e) => setForm((prev) => ({ ...prev, senha_confirmacao: e.target.value }))}
-                placeholder="Confirme sua senha"
-              />
+
+              <div className="input-group">
+                <Form.Control
+                  type={mostrarSenha ? "text" : "password"}
+                  value={form.senha_confirmacao}
+                  onChange={(e) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      senha_confirmacao: e.target.value,
+                    }))
+                  }
+                  placeholder="Confirme sua senha"
+                  autoComplete="current-password"
+                />
+
+                <Button
+                  type="button"
+                  variant="outline-secondary"
+                  onClick={() => setMostrarSenha((prev) => !prev)}
+                  aria-label={mostrarSenha ? "Ocultar senha" : "Mostrar senha"}
+                  title={mostrarSenha ? "Ocultar senha" : "Mostrar senha"}
+                  className="d-flex align-items-center justify-content-center"
+                  style={{ minWidth: "44px" }}
+                >
+                  {mostrarSenha ? <FaEyeSlash size={16} /> : <FaEye size={16} />}
+                </Button>
+              </div>
             </Form.Group>
           </Col>
         </Row>

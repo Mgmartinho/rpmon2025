@@ -2,12 +2,15 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Alert, Badge, Button, Card, Col, Form, Row, Spinner, Table } from "react-bootstrap";
 import { api } from "../../../../services/api";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const HOJE = new Date().toISOString().split("T")[0];
 
 export default function AieMormoLote() {
   const navigate = useNavigate();
   const debounceRef = useRef(null);
+
+  const [mostrarSenha, setMostrarSenha] = useState(false);
 
   const [solipedes, setSolipedes] = useState([]);
   const [loadingSolipedes, setLoadingSolipedes] = useState(true);
@@ -242,12 +245,26 @@ export default function AieMormoLote() {
           <Col md={3}>
             <Form.Group>
               <Form.Label>Senha do Usuario *</Form.Label>
-              <Form.Control
-                type="password"
-                value={senhaConfirmacao}
-                onChange={(e) => setSenhaConfirmacao(e.target.value)}
-                placeholder="Confirme sua senha"
-              />
+              <div className="input-group">
+                <Form.Control
+                  type={mostrarSenha ? "text" : "password"}
+                  value={senhaConfirmacao}
+                  onChange={(e) => setSenhaConfirmacao(e.target.value)}
+                  placeholder="Confirme sua senha"
+                  autoComplete="current-password"
+                />
+                <Button
+                  type="button"
+                  variant="outline-secondary"
+                  onClick={() => setMostrarSenha((prev) => !prev)}
+                  aria-label={mostrarSenha ? "Ocultar senha" : "Mostrar senha"}
+                  title={mostrarSenha ? "Ocultar senha" : "Mostrar senha"}
+                  className="d-flex align-items-center justify-content-center"
+                  style={{ minWidth: "44px" }}
+                >
+                  {mostrarSenha ? <FaEyeSlash size={16} /> : <FaEye size={16} />}
+                </Button>
+              </div>
             </Form.Group>
           </Col>
         </Row>

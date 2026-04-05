@@ -28,7 +28,9 @@ import { BsShieldCheck, BsPersonBadge } from "react-icons/bs";
 import { temPermissao, isAdmin } from "../../../utils/permissions";
 
 // ===== CONSTANTES =====
-const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3000";
+const runtimeApiUrl = typeof window !== "undefined" ? window.ENV?.API_URL : undefined;
+const envApiUrl = process.env.REACT_APP_API_URL;
+const API_BASE_URL = (runtimeApiUrl || envApiUrl || "http://localhost:3000").replace(/(^['"]|['"]$)/g, "");
 
 const PERFIS_SISTEMA = [
   { valor: "Desenvolvedor", label: "Desenvolvedor", descricao: "Acesso completo ao sistema e desenvolvimento", cor: "danger" },

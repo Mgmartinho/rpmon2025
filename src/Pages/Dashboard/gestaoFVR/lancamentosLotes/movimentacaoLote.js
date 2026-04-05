@@ -2,12 +2,13 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Alert, Badge, Button, Card, Col, Form, Row, Spinner, Table } from "react-bootstrap";
 import { api } from "../../../../services/api";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const OPCOES_DESTINO = [
-  "RPMon","Barro Branco","Hospital Veterinario","Avare","Barretos","Bauru",
-  "Campinas","Colina","Escola Equitacao Exercito","Itapetininga","Marilia",
-  "Maua","Presidente Prudente","Ribeirao Preto","Santos","Sao Bernardo do Campo",
-  "Sao Jose do Rio Preto","Sorocaba","Taubate","Representacao",
+  "RPMon","Barro Branco","Hospital Veterinário","Avare","Barretos","Bauru",
+  "Campinas","Colina","Escola Equitação Exército","Itapetininga","Marília",
+  "Mauá","Presidente Prudente","Ribeirão Preto","Santos","São Bernardo do Campo",
+  "São José do Rio Preto","Sorocaba","Taubaté","Representação",
 ];
 
 const HOJE = new Date().toISOString().split("T")[0];
@@ -55,6 +56,7 @@ export default function MovimentacaoLote() {
   const [data_movimentacao, setData_movimentacao] = useState(HOJE);
   const [motivo, setMotivo] = useState("");
   const [senhaConfirmacao, setSenhaConfirmacao] = useState("");
+  const [mostrarSenha, setMostrarSenha] = useState(false);
   const [filtro, setFiltro] = useState("");
   const [filtroBusca, setFiltroBusca] = useState(""); // valor com debounce
 
@@ -200,12 +202,26 @@ export default function MovimentacaoLote() {
           <Col md={3}>
             <Form.Group>
               <Form.Label>Senha do Usuario *</Form.Label>
-              <Form.Control
-                type="password"
-                value={senhaConfirmacao}
-                onChange={(e) => setSenhaConfirmacao(e.target.value)}
-                placeholder="Confirme sua senha"
-              />
+              <div className="input-group">
+                <Form.Control
+                  type={mostrarSenha ? "text" : "password"}
+                  value={senhaConfirmacao}
+                  onChange={(e) => setSenhaConfirmacao(e.target.value)}
+                  placeholder="Confirme sua senha"
+                  autoComplete="current-password"
+                />
+                <Button
+                  type="button"
+                  variant="outline-secondary"
+                  onClick={() => setMostrarSenha((prev) => !prev)}
+                  aria-label={mostrarSenha ? "Ocultar senha" : "Mostrar senha"}
+                  title={mostrarSenha ? "Ocultar senha" : "Mostrar senha"}
+                  className="d-flex align-items-center justify-content-center"
+                  style={{ minWidth: "44px" }}
+                >
+                  {mostrarSenha ? <FaEyeSlash size={16} /> : <FaEye size={16} />}
+                </Button>
+              </div>
             </Form.Group>
           </Col>
         </Row>

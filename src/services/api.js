@@ -1,7 +1,9 @@
-// URL da API centralizada no .env
-const API_BASE_URL = process.env.REACT_APP_API_URL;
+// Prioriza config em runtime (public/config.js), com fallback para variáveis de build.
+const runtimeApiUrl = typeof window !== "undefined" ? window.ENV?.API_URL : undefined;
+const envApiUrl = process.env.REACT_APP_API_URL;
+const API_BASE_URL = (runtimeApiUrl || envApiUrl || "http://localhost:3000").replace(/(^['"]|['"]$)/g, "");
 
-console.log('🔗 API configurada para:', API_BASE_URL);
+console.log("🔗 API configurada para:", API_BASE_URL, runtimeApiUrl ? "(runtime)" : "(env)");
 
 // Função para fazer logout e redirecionar
 const handleUnauthorized = () => {

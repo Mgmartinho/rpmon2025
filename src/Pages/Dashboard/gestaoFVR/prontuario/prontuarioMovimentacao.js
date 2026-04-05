@@ -29,24 +29,10 @@ const ProntuarioMovimentacao = () => {
         "",
         "RPMon",
         "Barro Branco",
-        "Hospital Veterinário",
-        "Avare",
-        "Barretos",
-        "Bauru",
-        "Campinas",
-        "Colina",
-        "Escola Equitação Exército",
-        "Itapetininga",
-        "Marilia",
-        "Maua",
-        "Presidente Prudente",
-        "Ribeirão Preto",
-        "Santos",
-        "São Bernardo do Campo",
-        "São José do Rio Preto",
-        "Sorocaba",
-        "Taubate",
-        "Representacao",
+        "RPMon", "Barro Branco", "Hospital Veterinário", "Avare", "Barretos", "Bauru",
+        "Campinas", "Colina", "Escola Equitação Exército", "Itapetininga", "Marília",
+        "Mauá", "Presidente Prudente", "Ribeirão Preto", "Santos", "São Bernardo do Campo",
+        "São José do Rio Preto", "Sorocaba", "Taubaté", "Representação",
     ];
 
     const handleMovimentacaoSubmit = async (e) => {
@@ -122,7 +108,7 @@ const ProntuarioMovimentacao = () => {
 
                         <Form.Group className="mb-3">
                             <Form.Label className="fw-bold">
-                                Movimentação 
+                                Movimentação
                             </Form.Label>
                         </Form.Group>
 
