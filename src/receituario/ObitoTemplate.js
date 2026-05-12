@@ -1,0 +1,206 @@
+import React from 'react';
+import LogoRpmon from '../Imagens/LOGORPMON.png';
+import LogoPmesp from '../Imagens/Logo-PM.png';
+
+export const ReceituarioTemplate = React.forwardRef(({ solipede, tratamento, usuarioLogado, dadosObito }, ref) => {
+  const dataAtual = new Date();
+  const dataFormatada = dataAtual.toLocaleDateString('pt-BR');
+  const nomeResponsavel = tratamento?.usuario_nome || usuarioLogado?.nome || '—';
+  const dataObitoFonte = dadosObito?.dataObito || solipede?.dataObito || null;
+  const localObitoFonte = dadosObito?.localObito || solipede?.localObito || '—';
+  const descricaoObitoFonte = dadosObito?.descricao  || 'Sem descrição registrada.';
+  const confirmacoes = Array.isArray(dadosObito?.confirmacoes)
+    ? dadosObito.confirmacoes.filter(Boolean).slice(0, 4)
+    : [];
+  const confirmacoesPreenchidas = Array.from({ length: 4 }, (_, index) => confirmacoes[index] || '');
+  const linhasConfirmacao = [[0, 1], [2, 3]];
+
+  return (
+    <div
+      ref={ref}
+      style={{
+        width: '210mm',
+        height: '295mm',
+        margin: 0,
+        padding: '15mm 20mm 20mm 20mm',
+        fontFamily: 'Arial, sans-serif',
+        fontSize: '11px',
+        backgroundColor: '#fff',
+        color: '#000',
+        boxSizing: 'border-box',
+        position: 'relative',
+        overflow: 'hidden'
+      }}
+    >
+
+      {/* CABEÇALHO */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        borderBottom: '2px solid #000',
+        paddingBottom: '10px',
+        marginBottom: '15px'
+      }}>
+        <div style={{ width: '60px', textAlign: 'center' }}>
+          <img src={LogoPmesp} alt="Logo PMESP" style={{ height: '55px', width: 'auto' }} />
+        </div>
+
+        <div style={{
+          flex: 1,
+          textAlign: 'center',
+          paddingLeft: '15px',
+          paddingRight: '15px'
+        }}>
+          <div style={{ fontSize: '14px', fontWeight: 'bold', marginBottom: '3px' }}>
+            SECRETARIA DA SEGURANÇA PÚBLICA
+          </div>
+          <div style={{ fontSize: '12px', marginBottom: '2px' }}>
+            POLÍCIA MILITAR DO ESTADO DE SÃO PAULO
+          </div>
+          <div style={{ fontSize: '12px', marginBottom: '2px' }}>
+            COMANDO DE POLICIAMENTO DE CHOQUE
+          </div>
+          <div style={{ fontSize: '11px', color: '#333', fontWeight: '500' }}>
+            REGIMENTO DE POLÍCIA MONTADA "9 DE JULHO"
+          </div>
+        </div>
+
+        <div style={{ width: '60px', textAlign: 'center' }}>
+          <img src={LogoRpmon} alt="Logo RPMON" style={{ height: '55px', width: 'auto' }} />
+        </div>
+      </div>
+
+      {/* TÍTULO */}
+      <div style={{
+        textAlign: 'center',
+        fontSize: '16px',
+        fontWeight: 'bold',
+        textDecoration: 'underline',
+        marginBottom: '10px'
+      }}>
+        TERMO DE REGISTRO DE ÓBITO
+      </div>
+
+      {/* CONTEÚDO - ÁREA COM ALTURA FIXA */}
+      <div style={{
+        height: 'calc(297mm - 15mm - 20mm - 100px - 16px - 10px - 80px)', // Altura total - paddings - cabeçalho - título - rodapé
+        overflow: 'hidden'
+      }}
+          key={solipede?.id}
+      >
+        {/* Dados do Solípede */}
+        <div style={{ marginBottom: '15px' }}>
+          <div style={{ display: 'flex', marginBottom: '8px' }}>
+            <div style={{ flex: 1 }}>
+              <strong>Número:</strong> {solipede?.numero || '—'}
+            </div>
+            <div style={{ flex: 1 }}>
+              <strong>Nome:</strong> {solipede?.nome || '—'}
+            </div>
+            <div style={{ flex: 1 }}>
+              <strong>Nascimento:</strong>{' '}
+              {solipede?.DataNascimento
+                ? new Date(solipede.DataNascimento).toLocaleDateString('pt-BR')
+                : '—'}
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', marginBottom: '8px' }}>
+            <div style={{ flex: 1 }}>
+              <strong>Sexo:</strong> {solipede?.sexo || '—'}
+            </div>
+            <div style={{ flex: 1 }}>
+              <strong>Pelagem:</strong> {solipede?.pelagem || '—'}
+            </div>
+            <div style={{ flex: 1 }}>
+              <strong>Esquadrão:</strong> {solipede?.esquadrao || '—'}
+            </div>
+          </div>
+
+          <div style={{ marginBottom: '8px' }}>
+            <strong>Data do Óbito:</strong> {dataObitoFonte ? new Date(dataObitoFonte).toLocaleDateString('pt-BR') : '—'}
+          </div>
+
+          <div style={{ marginBottom: '8px' }}>
+            <strong>Local do Óbito:</strong> {localObitoFonte}
+          </div>
+        </div>
+        <hr style={{ margin: '10px 0' }} />
+
+        <div style={{ marginBottom: '10px' }}>
+          <div style={{ fontWeight: 'bold' }}>Descrição do Óbito:</div>
+          <div style={{
+            padding: '4px 0',
+            whiteSpace: 'pre-wrap',
+            lineHeight: '1.6',
+            minHeight: '50px'
+          }}>
+            {descricaoObitoFonte}
+          </div>
+        </div>
+
+        <div style={{ marginTop: '10px' }}>
+          <div style={{ fontWeight: 'bold', marginBottom: '8px' }}>Confirmações:</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            {linhasConfirmacao.map((linha, linhaIndex) => (
+              <div key={linhaIndex} style={{ display: 'flex', gap: '16px' }}>
+                {linha.map((index) => (
+                  <div key={index} style={{ flex: '1 1 50%', minWidth: 0 }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                      <div style={{ borderBottom: '1px solid #000', minHeight: '68px' }} />
+                      <div style={{ minHeight: '18px', padding: '0 2px', fontSize: '14px', textAlign:'center' }}>
+                        {confirmacoesPreenchidas[index]}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* RODAPÉ — POSIÇÃO ABSOLUTA NO FINAL DA PÁGINA */}
+      <div style={{
+        position: 'absolute',
+        bottom: '20mm',
+        left: '20mm',
+        right: '20mm',
+        paddingTop: '15px'
+      }}>
+        <div style={{
+          textAlign: 'center',
+          marginBottom: '10px',
+        }}>
+          <div style={{
+            borderTop: '1px solid #000',
+            width: '300px',
+            margin: '0 auto 5px auto',
+            paddingTop: '5px',
+            fontSize: '11px'
+          }}>
+            Assinatura do Responsável
+          </div>
+        </div>
+
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          fontSize: '11px'
+        }}>
+          <div>
+            <strong>Data:</strong> {dataFormatada}
+          </div>
+          <div>
+            <strong>Responsável:</strong> {nomeResponsavel}
+          </div>
+        </div>
+      </div>
+
+    </div>
+  );
+});
+
+ReceituarioTemplate.displayName = 'ReceituarioTemplate';
+export default ReceituarioTemplate;

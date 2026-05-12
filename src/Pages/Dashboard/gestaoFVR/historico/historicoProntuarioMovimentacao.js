@@ -51,24 +51,26 @@ const HistoricoProntuarioMovimentacao = ({ registros = [] }) => {
     "",
     "RPMon",
     "Barro Branco",
+    "RPMon",
+    "Barro Branco",
     "Hospital Veterinário",
-    "Avare",
+    "Avaré",
     "Barretos",
     "Bauru",
     "Campinas",
     "Colina",
-    "Escola Equitação Exército",
+    "Escola de Equitação do Exército",
     "Itapetininga",
-    "Marilia",
-    "Maua",
+    "Marília",
+    "Mauá",
     "Presidente Prudente",
     "Ribeirão Preto",
     "Santos",
     "São Bernardo do Campo",
     "São José do Rio Preto",
     "Sorocaba",
-    "Taubate",
-    "Representacao",
+    "Taubaté",
+    "Representação",
   ];
 
   useEffect(() => {
@@ -289,11 +291,11 @@ const HistoricoProntuarioMovimentacao = ({ registros = [] }) => {
                 <h6 className="text-secondary mb-1"><BsClipboardCheck className="me-1" />Origem</h6>
                 <p className="mb-0 text-muted"><strong>Origem:</strong> {item.movimentacao_origem || item.origem || "-"}</p>
               </div>
-               <div className="mb-3">
+              <div className="mb-3">
                 <h6 className="text-secondary mb-1"><BsClipboardCheck className="me-1" />Destino</h6>
                 <p className="mb-0 text-muted"><strong>Destino:</strong> {item.destino || "-"}</p>
               </div>
-               <div className="mb-3">
+              <div className="mb-3">
                 <h6 className="text-secondary mb-1"><BsClipboardCheck className="me-1" />Destino Final</h6>
                 <p className="mb-0 text-muted"><strong>Destino Final:</strong> {item.movimentacao_destino_final || item.destino_final || "-"}</p>
               </div>

@@ -289,6 +289,69 @@ export default function TaskCreatePage2() {
       }));
     }
 
+    if (tipoSelecionado === "Cirurgia") {
+      return registros.map((registro, index) => ({
+        "Nº": index + 1,
+        "Solípede": registro.numero_solipede || "-",
+        "Baia": registro.solipede_baia || "-",
+        "Data": formatarData(registro.data_criacao),
+        "Usuário": registro.usuario_nome || "-",
+        "ID Cirurgia": registro.cirurgia_id || "-",
+        "Status Conclusão": formatarStatus(registro.cirurgia_status || registro.status_conclusao),
+        "Observações": registro.observacao || registro.observacao_clinica || "-",
+      }));
+    }
+
+    if (tipoSelecionado === "Vacinação") {
+      return registros.map((registro, index) => ({
+        "Nº": index + 1,
+        "Solípede": registro.numero_solipede || "-",
+        "Baia": registro.solipede_baia || "-",
+        "Data": formatarData(registro.data_criacao),
+        "Usuário": registro.usuario_nome || "-",
+        "ID Vacinação": registro.vacinacao_id || "-",
+        "Produto": registro.produto || "-",
+        "Partida": registro.partida || "-",
+        "Fabricação": formatarData(registro.fabricacao),
+        "Lote": registro.lote || "-",
+        "Dose": registro.dose || "-",
+        "Data Início": formatarData(registro.data_inicio),
+        "Data Validade": formatarData(registro.data_validade),
+        "Data Fim": formatarData(registro.data_fim),
+        "Descrição": registro.descricao || registro.observacao || "-",
+        "Status Conclusão": formatarStatus(registro.vacinacao_status || registro.status_conclusao),
+      }));
+    }
+
+    if (tipoSelecionado === "Vermifugação") {
+      return registros.map((registro, index) => ({
+        "Nº": index + 1,
+        "Solípede": registro.numero_solipede || "-",
+        "Baia": registro.solipede_baia || "-",
+        "Data": formatarData(registro.data_criacao),
+        "Usuário": registro.usuario_nome || "-",
+        "ID Vermifugação": registro.vermifugacao_id || "-",
+        "Status Conclusão": formatarStatus(registro.vermifugacao_status || registro.status_conclusao),
+        "Observações": registro.observacao || "-",
+      }));
+    }
+
+    if (tipoSelecionado === "AIE & Mormo") {
+      return registros.map((registro, index) => ({
+        "Nº": index + 1,
+        "Solípede": registro.numero_solipede || "-",
+        "Baia": registro.solipede_baia || "-",
+        "Data": formatarData(registro.data_criacao),
+        "Usuário": registro.usuario_nome || "-",
+        "Exame": registro.produto || "-",
+        "Validade": formatarData(registro.validade) || "-",
+        "Status Conclusão": formatarStatus(registro.aiemormo_status || registro.status_conclusao),
+        "Observações": registro.observacao || "-",
+      }));
+    }
+
+
+
     return registros.map((registro, index) => ({
       "Nº": index + 1,
       "Solípede": registro.numero_solipede || "-",

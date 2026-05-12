@@ -12,6 +12,8 @@ import {
   Tab,
   Nav,
   Form,
+  Button,
+  Modal,
 } from "react-bootstrap";
 import {
   BsCheckCircle,
@@ -54,6 +56,9 @@ import ProntuarioTable from "./tabelaProntuario/prontuarioTable";
 
 export default function ProntuarioSolipedeEditCopy() {
 
+  // EXAMES
+  const [showFormIndaiatuba, setShowFormIndaiatuba] = useState(false);
+  const [showFormEqualli, setShowFormEqualli] = useState(false);
 
   const { numero } = useParams();
   const [searchParams] = useSearchParams();
@@ -280,6 +285,33 @@ export default function ProntuarioSolipedeEditCopy() {
     setFiltroHistorico(registro.tipo || "Todos");
     setBuscaHistorico("");
     setRegistroSelecionadoId(registro.id || null);
+  };
+
+  // Extrai o último registro de cada tipo de vacinação/exame
+  const obterUltimoRegistro = (tipo) => {
+    const registros = historico.filter((reg) => reg.tipo === tipo);
+    if (registros.length === 0) return null;
+    
+    const ordenados = [...registros].sort((a, b) => {
+      const dataA = new Date(a.data_criacao || 0).getTime();
+      const dataB = new Date(b.data_criacao || 0).getTime();
+      return dataB - dataA;
+    });
+    
+    return ordenados[0];
+  };
+
+  const ultimaVacina = obterUltimoRegistro("Vacinação");
+  const ultimoVermifugo = obterUltimoRegistro("Vermifugação");
+  const ultimoAieMormo = obterUltimoRegistro("AIE & Mormo");
+
+  const formatarData = (data) => {
+    if (!data) return "N/A";
+    try {
+      return new Date(data).toLocaleDateString("pt-BR");
+    } catch (e) {
+      return "N/A";
+    }
   };
 
   const handleFiltroHistoricoChange = (e) => {
@@ -518,7 +550,7 @@ export default function ProntuarioSolipedeEditCopy() {
                 { label: "Pelagem", value: solipede.pelagem },
                 { label: "Microchip", value: solipede.microchip },
                 { label: "Paleta Direita", value: solipede.paleta_direita },
-                
+
               ].map(({ label, value, icon }, i) => (
                 <ListGroup.Item
                   key={i}
@@ -581,22 +613,46 @@ export default function ProntuarioSolipedeEditCopy() {
                 padding: "12px 16px",
               }}
             >
-              <BsGeoAltFill size={15} style={{ color: "#1565c0" }} />
-              <span>Vacinas e Exames</span>
+              <BsShieldFill size={15} style={{ color: "#1565c0" }} />
+              <span>Últimas Vacinações e Exames</span>
             </Card.Header>
             <ListGroup variant="flush">
               {[
-                { label: "Vacina", value: "02/01/2026" },
-                { label: "Vermifugo", value: "09/07/2025" },
-                { label: "Aie / Mormo", value: "01/01/2026" },
-              ].map(({ label, value }, i) => (
+                { 
+                  label: "Vacina", 
+                  value: formatarData(ultimaVacina?.data_criacao),
+                  registro: ultimaVacina 
+                },
+                { 
+                  label: "Vermífugo", 
+                  value: formatarData(ultimoVermifugo?.data_criacao),
+                  registro: ultimoVermifugo 
+                },
+                { 
+                  label: "AIE & Mormo", 
+                  value: formatarData(ultimoAieMormo?.data_criacao),
+                  registro: ultimoAieMormo 
+                },
+              ].map(({ label, value, registro }, i) => (
                 <ListGroup.Item
                   key={i}
                   className="px-3 py-2 d-flex justify-content-between align-items-center"
-                  style={{ fontSize: "13px" }}
+                  style={{ 
+                    fontSize: "13px",
+                    cursor: registro ? "pointer" : "default",
+                    backgroundColor: registro ? "rgba(66, 165, 245, 0.02)" : "transparent",
+                  }}
+                  onClick={() => registro && handleConsultarRegistro(registro)}
                 >
                   <span className="text-muted">{label}</span>
-                  <strong style={{ color: "#1a2b4a" }}>{value || "N/A"}</strong>
+                  <div className="text-end">
+                    <strong style={{ color: "#1a2b4a" }}>{value}</strong>
+                    {registro && (
+                      <small className="d-block text-muted" style={{ fontSize: "11px" }}>
+                        Clique para ver detalhes
+                      </small>
+                    )}
+                  </div>
                 </ListGroup.Item>
               ))}
             </ListGroup>
@@ -802,6 +858,7 @@ export default function ProntuarioSolipedeEditCopy() {
                           <option>Vermifugação</option>
                           <option>AIE & Mormo</option>
                           <option>Cirurgia</option>
+                          <option>Exames</option>
                         </Form.Select>
                       </Card.Body>
                     </Card>
@@ -824,6 +881,87 @@ export default function ProntuarioSolipedeEditCopy() {
                       {tipoObservacao === "Vermifugação" && <ProntuarioVermifugacao />}
                       {tipoObservacao === "AIE & Mormo" && <ProntuarioAieMormo />}
                       {tipoObservacao === "Cirurgia" && <ProntuarioCirurgia />}
+                      {tipoObservacao === "Exames" &&
+
+                        <div className="p-2">
+                          <Row>
+                            <small className="text-muted mb-3">
+                                <strong>Link do Formulário de requisição do Drive:</strong>
+                                
+                              </small>
+                            <Col xl={6}>
+                              <small className="text-muted ">
+                                <Button
+                                  variant="link"
+                                  className="ms-1 p-0"
+                                  onClick={() => setShowFormEqualli(true)}
+                                >
+                                  REQUISIÇÃO DE EXAMES LABORATORIAIS
+                                  Equalli Laboratório
+                                </Button>
+                              </small>
+                            </Col>
+
+                            <Col xl={6}>
+                              <small className="text-muted">
+                                <Button
+                                  variant="link"
+                                  className="ms-1 p-0"
+                                  onClick={() => setShowFormIndaiatuba(true)}
+                                >
+                                  REQUISIÇÃO DE EXAMES LABORATORIAIS
+                                  Laboratório Veterinário Indaiatuba
+                                </Button>
+                              </small>
+                            </Col>
+                          </Row>
+
+                          {/* EQUALLI LAB PATOLO CLI VET */}
+                          <Modal
+                            show={showFormEqualli}
+                            onHide={() => setShowFormEqualli(false)}
+                            size="xl"
+                            centered
+                            style={{ maxWidth: "98vw" }}
+                          >
+                            <Modal.Header closeButton>
+                              <Modal.Title>Formulário de Requisição - Equalli Laboratório</Modal.Title>
+                            </Modal.Header>
+                            <Modal.Body style={{ height: "80vh", padding: 0 }}>
+                              <iframe
+                                src="https://docs.google.com/forms/d/e/1FAIpQLSfsP1YRhAaqErIB53691wcYDFzZYJOnbrcuL5qviRXSeEy63A/viewform"
+                                title="Formulário Google Equalli"
+                                width="100%"
+                                height="100%"
+                                style={{ border: "none" }}
+                              />
+                            </Modal.Body>
+                          </Modal>
+
+                          {/* INDAIATUBA */}
+                          <Modal
+                            show={showFormIndaiatuba}
+                            onHide={() => setShowFormIndaiatuba(false)}
+                            size="xl"
+                            centered
+                            style={{ maxWidth: "98vw" }}
+                          >
+                            <Modal.Header closeButton>
+                              <Modal.Title>Formulário de Requisição - Laboratório Veterinário Indaiatuba</Modal.Title>
+                            </Modal.Header>
+                            <Modal.Body style={{ height: "80vh", padding: 0 }}>
+                              <iframe
+                                src="https://docs.google.com/forms/d/e/1FAIpQLScRMd6InxeT1NIOGR9DdVCYyH5JcrPxDVpux6ac8JEH5uBF6A/viewform"
+                                title="Formulário Google INDAIATUBA"
+                                width="100%"
+                                height="100%"
+                                style={{ border: "none" }}
+                              />
+                            </Modal.Body>
+                          </Modal>
+                        </div>
+
+                      }
                     </div>
                   </Tab.Pane>
 

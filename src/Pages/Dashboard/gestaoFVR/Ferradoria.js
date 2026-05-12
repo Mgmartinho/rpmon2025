@@ -25,7 +25,6 @@ import {
   BsPlus,
   BsChevronUp,
   BsChevronDown,
-  BsPencilSquare,
 } from "react-icons/bs";
 
 
@@ -40,6 +39,34 @@ import autoTable from "jspdf-autotable";
 import { api } from "../../../services/api";
 import { buildUserErrorMessage } from "../../../utils/errorHandling";
 import "./ferradoriastyles.css";
+
+const normalizarTexto = (valor = "") =>
+  valor
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+
+const correspondeFiltroAlocacao = (alocacao, filtro) => {
+  if (filtro === "TODOS") {
+    return true;
+  }
+
+  const alocacaoNormalizada = normalizarTexto(alocacao);
+
+  if (filtro === "RPMON") {
+    return alocacaoNormalizada.includes("rpmon");
+  }
+
+  if (filtro === "BARRO_BRANCO") {
+    return alocacaoNormalizada.includes("barro branco");
+  }
+
+  if (filtro === "ESCOLA_DE_EQUITACAO_DO_EXERCITO") {
+    return alocacaoNormalizada.includes("escola de equitacao do exercito");
+  }
+
+  return false;
+};
 
 const Ferradoria = () => {
   // Estilos específicos para esta página
@@ -165,17 +192,21 @@ const Ferradoria = () => {
 
         // Filtrar apenas solípedes alocados em RPMon ou Barro Branco (incluindo baixados dessas alocações)
         const solipedesFiltrados = solipedesData.filter(sol => {
-          const alocacao = sol.alocacao?.toLowerCase() || '';
+          const alocacao = sol.alocacao || '';
           const situacao = sol.situacao?.toLowerCase() || '';
           const status = sol.status?.toLowerCase() || '';
           
           console.log(`Solípede ${sol.numero}: alocacao="${alocacao}", situacao="${situacao}", status="${status}"`);
           
-          // Incluir se alocação contém rpmon ou barro branco, independente do status
-          return alocacao.includes('rpmon') || alocacao.includes('barro branco');
+          // Incluir alocações contempladas na ferradoria, independente do status.
+          return (
+            correspondeFiltroAlocacao(alocacao, "RPMON") ||
+            correspondeFiltroAlocacao(alocacao, "BARRO_BRANCO") ||
+            correspondeFiltroAlocacao(alocacao, "ESCOLA_DE_EQUITACAO_DO_EXERCITO")
+          );
         });
 
-        console.log('🏢 Solípedes filtrados (RPMon/Barro Branco):', solipedesFiltrados.length);
+        console.log('🏢 Solípedes filtrados para ferradoria:', solipedesFiltrados.length);
         console.log('📊 Amostra de solípedes filtrados:', solipedesFiltrados.slice(0, 3).map(s => ({
           numero: s.numero,
           nome: s.nome,
@@ -234,16 +265,9 @@ const Ferradoria = () => {
     let solipedesFiltradosParaIndicadores = solipedes;
     
     if (filtroAlocacao !== "TODOS") {
-      solipedesFiltradosParaIndicadores = solipedes.filter(s => {
-        const alocacao = s.alocacao?.toLowerCase() || '';
-        if (filtroAlocacao === "RPMON") {
-          return alocacao.includes('rpmon');
-        }
-        if (filtroAlocacao === "BARRO_BRANCO") {
-          return alocacao.includes('barro branco');
-        }
-        return true;
-      });
+      solipedesFiltradosParaIndicadores = solipedes.filter(s =>
+        correspondeFiltroAlocacao(s.alocacao, filtroAlocacao)
+      );
     }
 
     const total = solipedesFiltradosParaIndicadores.length;
@@ -264,14 +288,8 @@ const Ferradoria = () => {
       }
 
       // Filtro por alocação
-      if (filtroAlocacao !== "TODOS") {
-        const alocacao = item.alocacao?.toLowerCase() || '';
-        if (filtroAlocacao === "RPMON" && !alocacao.includes('rpmon')) {
-          return false;
-        }
-        if (filtroAlocacao === "BARRO_BRANCO" && !alocacao.includes('barro branco')) {
-          return false;
-        }
+      if (!correspondeFiltroAlocacao(item.alocacao, filtroAlocacao)) {
+        return false;
       }
 
       // Filtro por indocibilidade
@@ -797,7 +815,8 @@ const Ferradoria = () => {
                   <option value="TODOS">Todas</option>
                   <option value="RPMON">RPMon</option>
                   <option value="BARRO_BRANCO">Barro Branco</option>
-                </Form.Select>
+                  <option value="ESCOLA_DE_EQUITACAO_DO_EXERCITO">Escola de Equitação do Exército</option>
+                </Form.Select>  
               </Form.Group>
             </Col>
             <Col md={2}>
@@ -898,11 +917,12 @@ const Ferradoria = () => {
                     <td>
                       <span 
                         onClick={() => {
-                          const alocacao = item.alocacao?.toLowerCase() || '';
-                          if (alocacao.includes('rpmon')) {
+                          if (correspondeFiltroAlocacao(item.alocacao, 'RPMON')) {
                             setFiltroAlocacao('RPMON');
-                          } else if (alocacao.includes('barro branco')) {
+                          } else if (correspondeFiltroAlocacao(item.alocacao, 'BARRO_BRANCO')) {
                             setFiltroAlocacao('BARRO_BRANCO');
+                          } else if (correspondeFiltroAlocacao(item.alocacao, 'ESCOLA_DE_EQUITACAO_DO_EXERCITO')) {
+                            setFiltroAlocacao('ESCOLA_DE_EQUITACAO_DO_EXERCITO');
                           }
                         }}
                         title="Clique para filtrar por esta alocação"
@@ -922,7 +942,7 @@ const Ferradoria = () => {
                     </td>
                     <td>
                       {item.diasRestantes !== null ? (
-                        <span className={item.diasRestantes < 0 ? 'text-danger fw-bold' : item.diasRestantes <= 15 ? 'text-warning fw-bold' : 'text-success'}>
+                        <span className={item.diasRestantes < 0 ? 'text-danger fw-bold' : item.diasRestantes <= 7 ? 'text-warning fw-bold' : 'text-success'}>
                           {item.diasRestantes} dias
                         </span>
                       ) : "—"}

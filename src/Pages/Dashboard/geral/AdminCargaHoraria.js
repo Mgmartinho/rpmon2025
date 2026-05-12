@@ -4,28 +4,49 @@ import {
   Form,
   Button,
   Modal,
-  InputGroup,
   FormControl,
   Spinner,
-  Col,
+  OverlayTrigger,
+  Tooltip,
+  Popover,
 } from "react-bootstrap";
+
 
 import { GoArrowSwitch } from "react-icons/go";
 import { FaSort, FaSortUp, FaSortDown } from "react-icons/fa";
+import { FaCircleInfo } from "react-icons/fa6";
 
 
 import { FaClock, FaFileExcel, FaFilePdf, FaInfoCircle } from "react-icons/fa";
-import { OverlayTrigger, Tooltip } from "react-bootstrap";
+
 import { api } from "../../../services/api";
 import { buildUserErrorMessage } from "../../../utils/errorHandling";
 import { temPermissao } from "../../../utils/permissions";
 
 import * as XLSX from "xlsx";
 
+const mesesDoAno = [
+  "Janeiro",
+  "Fevereiro",
+  "Março",
+  "Abril",
+  "Maio",
+  "Junho",
+  "Julho",
+  "Agosto",
+  "Setembro",
+  "Outubro",
+  "Novembro",
+  "Dezembro",
+];
+
 /* =========================
    ADMIN CARGA HORÁRIA
 ========================= */
 const AdminCargaHoraria = () => {
+  const anoCorrente = new Date().getFullYear();
+  const mesAtualCalendario = new Date().getMonth() + 1;
+
   /* ===== VALIDAÇÃO DE LOGIN (ROBUSTA) ===== */
   const [usuarioLogado, setUsuarioLogado] = useState(null);
 
@@ -58,7 +79,6 @@ const AdminCargaHoraria = () => {
   const [showMovimentacao, setShowMovimentacao] = useState(false);
 
   const [feedbackMessage, setFeedbackMessage] = useState("");
-  const [feedbackSuccess, setFeedbackSuccess] = useState(true);
 
   const [selecionados, setSelecionados] = useState([]);
   const [horasAdicionar, setHorasAdicionar] = useState(0);
@@ -83,14 +103,22 @@ const AdminCargaHoraria = () => {
   const [filtroEsqd, setFiltroEsqd] = useState("Todos");
   const [filtroNome, setFiltroNome] = useState("");
   const [ordenacaoHoras, setOrdenacaoHoras] = useState(null); // null, 'asc', 'desc'
+  const [mesSelecionado, setMesSelecionado] = useState(mesAtualCalendario);
 
   const [filtroNumeroModal, setFiltroNumeroModal] = useState("");
   const [horasMensais, setHorasMensais] = useState({});
-  const [horasMensaisCache, setHorasMensaisCache] = useState({});
   const [loadingHoras, setLoadingHoras] = useState(true);
 
   /* ===== PAGINAÇÃO ===== */
   const [limiteVisualizacao, setLimiteVisualizacao] = useState(10);
+
+  const opcoesMeses = useMemo(
+    () =>
+      mesesDoAno
+        .slice(0, mesAtualCalendario)
+        .map((label, index) => ({ value: index + 1, label })),
+    [mesAtualCalendario]
+  );
 
 
   /* ===== LOAD INICIAL ===== */
@@ -123,14 +151,13 @@ const AdminCargaHoraria = () => {
 
     const buscarHorasMensais = async () => {
       try {
-        console.log("🔍 Buscando horas do mês atual do backend...");
-        const horasDoBackend = await api.horasMesAtual();
+        console.log(`🔍 Buscando horas do mês ${mesSelecionado}/${anoCorrente} do backend...`);
+        const horasDoBackend = await api.horasMesAtual(mesSelecionado, anoCorrente);
         console.log("✅ Horas recebidas do backend:", horasDoBackend);
-        
+
         // Verificar se é um objeto válido
         if (horasDoBackend && typeof horasDoBackend === 'object' && !horasDoBackend.error) {
           setHorasMensais(horasDoBackend);
-          setHorasMensaisCache(horasDoBackend);
           console.log(`📊 Total de solípedes com horas: ${Object.keys(horasDoBackend).length}`);
         } else {
           console.error("❌ Resposta inválida do backend:", horasDoBackend);
@@ -146,15 +173,14 @@ const AdminCargaHoraria = () => {
 
     buscarHorasMensais();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dados.length]);
+  }, [anoCorrente, dados.length, mesSelecionado]);
 
   // Função para invalidar cache de horas de solípedes específicos
-  const invalidarCacheHoras = async (numeros) => {
+  const invalidarCacheHoras = async () => {
     // Rebuscar todas as horas do backend para garantir consistência
     try {
-      const horasDoBackend = await api.horasMesAtual();
+      const horasDoBackend = await api.horasMesAtual(mesSelecionado, anoCorrente);
       setHorasMensais(horasDoBackend);
-      setHorasMensaisCache(horasDoBackend);
     } catch (err) {
       console.error("Erro ao atualizar cache de horas:", err);
     }
@@ -184,7 +210,7 @@ const AdminCargaHoraria = () => {
         (d) =>
           (filtroEsqd === "Todos" || d.esquadrao === filtroEsqd) &&
           ((d.nome || "").toLowerCase().includes(filtroNome.toLowerCase()) ||
-           String(d.numero).includes(filtroNome))
+            String(d.numero).includes(filtroNome))
       );
 
     // Aplicar ordenação por carga horária se ativa
@@ -228,7 +254,6 @@ const AdminCargaHoraria = () => {
   const aplicarHoras = async () => {
     if (!selecionados.length || horasAdicionar <= 0 || !senhaConfirmacao.trim()) {
       setFeedbackMessage("Preencha todos os campos corretamente.");
-      setFeedbackSuccess(false);
       setShowFeedback(true);
       return;
     }
@@ -240,7 +265,7 @@ const AdminCargaHoraria = () => {
         throw new Error("Usuário não identificado. Faça login novamente.");
       }
       console.log("Aplicando horas, usuarioId:", usuarioLogado?.id, "usuarioLogado:", usuarioLogado);
-      
+
       const resultados = await Promise.all(
         selecionados.map((numero) =>
           api.adicionarHoras({
@@ -266,14 +291,13 @@ const AdminCargaHoraria = () => {
 
       // Aguardar um pouco para o backend processar
       await new Promise(resolve => setTimeout(resolve, 500));
-      
+
       // Invalidar cache apenas dos solípedes afetados
-      invalidarCacheHoras(selecionados);
-      
+      await invalidarCacheHoras();
+
       await fetchDados();
 
       setFeedbackMessage("Horas aplicadas com sucesso!");
-      setFeedbackSuccess(true);
       setShowFeedback(true);
 
       setShowModal(false);
@@ -291,7 +315,6 @@ const AdminCargaHoraria = () => {
           "Não foi possível lançar as horas selecionadas"
         )
       );
-      setFeedbackSuccess(false);
       setShowFeedback(true);
     } finally {
       setCarregando(false);
@@ -306,16 +329,11 @@ const AdminCargaHoraria = () => {
         : await api.historicoHorasPublico(numero);
 
       if (Array.isArray(response)) {
-        // Filtrar pelo mês atual
-        const hoje = new Date();
-        const mesAtual = hoje.getMonth() + 1;
-        const anoAtual = hoje.getFullYear();
-        
         const historicoFiltrado = response.filter((h) => {
           const data = new Date(h.dataLancamento);
           return (
-            data.getMonth() + 1 === mesAtual &&
-            data.getFullYear() === anoAtual
+            data.getMonth() + 1 === mesSelecionado &&
+            data.getFullYear() === anoCorrente
           );
         });
         setHistorico(historicoFiltrado);
@@ -336,7 +354,6 @@ const AdminCargaHoraria = () => {
           "Não foi possível consultar o histórico de horas"
         )
       );
-      setFeedbackSuccess(false);
       setShowFeedback(true);
     }
   };
@@ -345,18 +362,17 @@ const AdminCargaHoraria = () => {
   const atualizarHora = async (id, horas) => {
     try {
       await api.atualizarHistorico(id, Number(horas));
-      
+
       // Aguardar um pouco para o backend processar
       await new Promise(resolve => setTimeout(resolve, 500));
-      
+
       // Invalidar cache do solípede atual
-      invalidarCacheHoras([historicoNumero]);
-      
+      await invalidarCacheHoras();
+
       await fetchDados();
       await abrirHistorico(historicoNumero);
 
       setFeedbackMessage("Histórico atualizado com sucesso!");
-      setFeedbackSuccess(true);
       setShowFeedback(true);
     } catch (err) {
       console.error(err);
@@ -367,7 +383,6 @@ const AdminCargaHoraria = () => {
           "Não foi possível atualizar as horas lançadas"
         )
       );
-      setFeedbackSuccess(false);
       setShowFeedback(true);
     }
   };
@@ -404,14 +419,12 @@ const AdminCargaHoraria = () => {
   const aplicarMovimentacao = async () => {
     if (!esquadraoDestino || !senhaMovimentacao.trim()) {
       setFeedbackMessage("Selecione o esquadrão e confirme sua senha.");
-      setFeedbackSuccess(false);
       setShowFeedback(true);
       return;
     }
 
     if (esquadraoDestino === solipedeMovimentacao.esquadrao) {
       setFeedbackMessage("O solípede já está neste esquadrão.");
-      setFeedbackSuccess(false);
       setShowFeedback(true);
       return;
     }
@@ -442,14 +455,13 @@ const AdminCargaHoraria = () => {
 
       // Aguardar um pouco para o backend processar
       await new Promise(resolve => setTimeout(resolve, 500));
-      
+
       // Invalidar cache do solípede movimentado
-      invalidarCacheHoras([solipedeMovimentacao.numero]);
-      
+      await invalidarCacheHoras();
+
       await fetchDados();
 
       setFeedbackMessage(`${solipedeMovimentacao.nome} movimentado para ${esquadraoDestino} com sucesso!`);
-      setFeedbackSuccess(true);
       setShowFeedback(true);
 
       setShowMovimentacao(false);
@@ -468,7 +480,6 @@ const AdminCargaHoraria = () => {
           "Não foi possível concluir a movimentação do solípede"
         )
       );
-      setFeedbackSuccess(false);
       setShowFeedback(true);
     } finally {
       setCarregando(false);
@@ -515,6 +526,21 @@ const AdminCargaHoraria = () => {
     doc.save("carga_horaria_rpmon.pdf");
   };
 
+  const popover = (
+    <Popover id="popover-info">
+      <Popover.Body>
+        Selecione os solípedes e a quantidade de horas para aplicar o lançamento em lote.
+        <br />
+        * Aplique as seguintes horas padrão para cada tipo de atividade: <br />
+        <br />
+        - 6h para Policiamento Ordinário, <br />
+        - 5h para Dejem ou Delegada, <br />
+        - 3h para Curso Tropa Montada, <br />
+        - 1h para Instruções.
+       </Popover.Body>
+    </Popover>
+  );
+
   /* =========================
            RENDER
   ========================= */
@@ -528,7 +554,7 @@ const AdminCargaHoraria = () => {
       ) : loadingHoras ? (
         <div className="text-center p-5">
           <Spinner animation="border" variant="primary" />
-          <p>Calculando horas do mês atual...</p>
+          <p>Calculando horas de {mesesDoAno[mesSelecionado - 1]} de {anoCorrente}...</p>
           <small className="text-muted">Isso pode levar alguns segundos na primeira vez</small>
         </div>
       ) : (
@@ -554,6 +580,17 @@ const AdminCargaHoraria = () => {
                 value={filtroNome}
                 onChange={(e) => setFiltroNome(e.target.value)}
               />
+
+              <Form.Select
+                value={mesSelecionado}
+                onChange={(e) => setMesSelecionado(Number(e.target.value))}
+              >
+                {opcoesMeses.map((mes) => (
+                  <option key={mes.value} value={mes.value}>
+                    {mes.label} de {anoCorrente}
+                  </option>
+                ))}
+              </Form.Select>
 
               <Form.Select
                 style={{ width: "120px" }}
@@ -593,16 +630,16 @@ const AdminCargaHoraria = () => {
                 <th>Número</th>
                 <th>Nome</th>
                 <th>Esquadrão</th>
-                <th 
+                <th
                   style={{ cursor: 'pointer', userSelect: 'none' }}
                   onClick={toggleOrdenacaoHoras}
                   title="Clique para ordenar"
                 >
                   <div className="d-flex align-items-center justify-content-center gap-2">
                     <div>
-                      Carga Horária (Mês Atual)
+                      Carga Horária ({mesesDoAno[mesSelecionado - 1]})
                       <div style={{ fontSize: '0.75rem', fontWeight: 'normal' }}>
-                        {new Date().toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' })}
+                        {String(mesSelecionado).padStart(2, '0')}/{anoCorrente}
                       </div>
                     </div>
                     <div>
@@ -663,7 +700,14 @@ const AdminCargaHoraria = () => {
           size="lg"
         >
           <Modal.Header closeButton>
-            <Modal.Title>Aplicar Carga Horária</Modal.Title>
+            <Modal.Title className="d-flex align-items-center gap-2">
+              Aplicar Carga Horária
+
+              <OverlayTrigger trigger="click" placement="right" overlay={popover}>
+                <FaInfoCircle style={{ cursor: "pointer" }} />
+              </OverlayTrigger>
+
+            </Modal.Title>
           </Modal.Header>
 
           <Modal.Body>
@@ -711,7 +755,7 @@ const AdminCargaHoraria = () => {
                   <th>Número</th>
                   <th>Nome</th>
                   <th>Esquadrão</th>
-                  <th>Carga Mês Atual</th>
+                  <th>Carga em {mesesDoAno[mesSelecionado - 1]}</th>
                 </tr>
               </thead>
               <tbody>
@@ -775,7 +819,7 @@ const AdminCargaHoraria = () => {
             <Modal.Title className="d-flex align-items-center gap-2">
               Histórico – {historicoNumero}
               <span className="badge bg-info text-dark ms-2">
-                {new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}
+                {mesesDoAno[mesSelecionado - 1]} de {anoCorrente}
               </span>
               <OverlayTrigger
                 overlay={

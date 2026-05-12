@@ -163,7 +163,7 @@ const ProntuarioTratamento = () => {
                                         <Form.Control
                                             as="textarea"
                                             rows={2}
-                                            maxLength={500}
+                                            maxLength={5000}
                                             size="sm"
                                             placeholder="Descrição da observação clínica"
                                             value={tratamento.observacaoClinica}
@@ -176,7 +176,7 @@ const ProntuarioTratamento = () => {
                                             disabled={salvando}
                                         />
                                         <small className="text-muted">
-                                            caracteres: {tratamento.observacaoClinica.length}/500
+                                            caracteres: {tratamento.observacaoClinica.length}/5000
                                         </small>
                                     </Form.Group>
                                 </Col>
@@ -189,7 +189,7 @@ const ProntuarioTratamento = () => {
                                         <Form.Control
                                             as="textarea"
                                             rows={6}
-                                            maxLength={5000}
+                                            maxLength={10000}
                                             size="sm"
                                             placeholder="Prescrição veterinária"
                                             value={tratamento.prescricao}
@@ -202,7 +202,7 @@ const ProntuarioTratamento = () => {
                                             disabled={salvando}
                                         />
                                         <small className="text-muted">
-                                            caracteres: {tratamento.prescricao.length}/5.000
+                                            caracteres: {tratamento.prescricao.length}/10.000
                                         </small>
                                     </Form.Group>
                                 </Col>

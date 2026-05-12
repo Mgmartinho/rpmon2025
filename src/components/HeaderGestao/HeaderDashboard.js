@@ -13,11 +13,9 @@ import {
 } from "react-bootstrap";
 
 import {
-  BsHouse,
   BsListCheck,
   BsBarChart,
   BsClockHistory,
-  BsClipboardPlus,
   BsBoxArrowRight,
   BsBoxArrowInRight,
   BsPersonCircle,
@@ -34,6 +32,9 @@ import { HiCog8Tooth } from "react-icons/hi2";
 import { GiHorseHead } from "react-icons/gi";
 import { api } from "../../services/api";
 import { temPermissao } from "../../utils/permissions";
+import { FaBookMedical } from "react-icons/fa";
+
+
 
 import "./styles.css";
 
@@ -45,6 +46,13 @@ const HeaderDashboard = () => {
     email: "",
     senha: "",
   });
+
+  const handleKeyDown = (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault(); // evita comportamento padrão do form
+    handleLogin();
+  }
+};
 
   useEffect(() => {
     // Verifica se há usuário no localStorage quando componente monta
@@ -189,6 +197,15 @@ const HeaderDashboard = () => {
                   </Nav.Link>
                 </OverlayTrigger>
                 )}
+
+                {/* Controle de Exames e Vacinas - Veterinário Admin e Desenvolvedor */}
+                {temPermissao(usuario.perfil, "GESTAO_PRONTUARIO") && (
+                <OverlayTrigger placement="bottom" overlay={<Tooltip>Controle de Prazos</Tooltip>}>
+                  <Nav.Link as={NavLink} to="/dashboard/gestaofvr/controle">
+                  <FaBookMedical />
+                  </Nav.Link>
+                </OverlayTrigger>
+                )}
               </>
             )}
           </Nav>
@@ -269,6 +286,7 @@ const HeaderDashboard = () => {
                 name="senha"
                 value={credenciais.senha}
                 onChange={handleChange}
+                onKeyDown={handleKeyDown}
                 placeholder="Digite sua senha"
               />
             </Form.Group>

@@ -23,6 +23,33 @@ const EditarSolipede = () => {
     origem: "",
   });
 
+
+
+  const opcoesMovimentacao = [
+    "RPMon",
+    "Barro Branco",
+    "Escola de Equitação do Exército",
+    "Avaré",
+    "Bauru",
+    "Campinas",
+    "Taubaté",
+    "Colina",
+    "Itapetininga",
+    "Marília",
+    "Mauá",
+    "Presidente Prudente",
+    "Hospital Veterinário",
+    "Ribeirão Preto",
+    "Rio de Janeiro",
+    "Santos",
+    "São Bernardo do Campo",
+    "Sorocaba",
+    "São José do Rio Preto",
+    "Barretos",
+    "Representação"
+  ];
+
+
   // busca os dados do solípede ao carregar a página
   useEffect(() => {
     const fetchSolipede = async () => {
@@ -325,39 +352,11 @@ const EditarSolipede = () => {
                     value={formData.movimentacao}
                     onChange={handleChange}
                   >
-                    <option value="">Selecione</option>
-                    <option value=""> </option>
-                    <option value="RPMon">RPMon</option>
-                    <option value="Barro Branco">Barro Branco</option>
-                    <option value="Hospital Veterinario">
-                      Hospital Veterinário
-                    </option>
-                    <option value="Avare">Avaré</option>
-                    <option value="Barretos">Barretos</option>
-                    <option value="Bauru">Bauru</option>
-                    <option value="Campinas">Campinas</option>
-                    <option value="Colina">Colina</option>
-                    <option value="Escola Equitacao Exercito">
-                      Escola de Equitação do Exército
-                    </option>
-                    <option value="Itapetininga">Itapetininga</option>
-                    <option value="Marilia">Marília</option>
-                    <option value="Maua">Mauá</option>
-                    <option value="Presidente Prudente">
-                      Presidente Prudente
-                    </option>
-                    <option value="Ribeirao Preto">Ribeirão Preto</option>
-                    <option value="Santos">Santos</option>
-                    <option value="Sao Bernardo do Campo">
-                      São Bernardo do Campo
-                    </option>
-                    <option value="Sao Jose do Rio Preto">
-                      São José do Rio Preto
-                    </option>
-                    <option value="Sorocaba">Sorocaba</option>
-                    <option value="Taubate">Taubaté</option>
-                    <option value="Representacao">Representação</option>
-                  </Form.Select>
+                    {opcoesMovimentacao.map((value, index) =>
+                      <option key={index} value={value}>
+                        {value}
+                      </option>)}
+                     </Form.Select>
                 </Col>
 
                 {/* <Col md={6}>

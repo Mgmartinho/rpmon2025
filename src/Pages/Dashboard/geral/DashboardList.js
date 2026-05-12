@@ -56,6 +56,8 @@ const gerarChavesNumeroSolipede = (numero) => {
 const possuiObservacaoNoSet = (setNumeros, numero) =>
   gerarChavesNumeroSolipede(numero).some((chave) => setNumeros.has(chave));
 
+const normalizarBaia = (baia) => String(baia ?? "").trim().toLowerCase();
+
 const DashboardList = () => {
   const [dados, setDados] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -611,6 +613,23 @@ const DashboardList = () => {
   const salvarEdicaoBaia = async () => {
     if (!solipedeEditandoBaia) return;
 
+    const baiaNormalizada = normalizarBaia(baiaEditada);
+
+    if (baiaNormalizada) {
+      const solipedeComMesmaBaia = dados.find(
+        (item) =>
+          item.numero !== solipedeEditandoBaia.numero &&
+          normalizarBaia(item.baia) === baiaNormalizada
+      );
+
+      if (solipedeComMesmaBaia) {
+        alert(
+          `Não foi possível salvar: a baia "${baiaEditada.trim()}" já está cadastrada para ${solipedeComMesmaBaia.nome} (#${solipedeComMesmaBaia.numero}).`
+        );
+        return;
+      }
+    }
+
     setSalvandoBaia(true);
 
     try {
@@ -673,6 +692,19 @@ const DashboardList = () => {
       verificarRestricoes();
     }
   }, [dados]);
+
+  const existeConflitoBaia = useMemo(() => {
+    if (!solipedeEditandoBaia) return false;
+
+    const baiaNormalizada = normalizarBaia(baiaEditada);
+    if (!baiaNormalizada) return false;
+
+    return dados.some(
+      (item) =>
+        item.numero !== solipedeEditandoBaia.numero &&
+        normalizarBaia(item.baia) === baiaNormalizada
+    );
+  }, [baiaEditada, dados, solipedeEditandoBaia]);
   
   // 📝 VERIFICAR OBSERVAÇÕES
   useEffect(() => {
@@ -1067,7 +1099,7 @@ const DashboardList = () => {
           </Button>
         </div>
       )}
-
+        {/* Editar Numero da BAIA */}
       <Modal
         show={showModalEditarBaia}
         onHide={() => setShowModalEditarBaia(false)}
@@ -1092,6 +1124,11 @@ const DashboardList = () => {
             <Form.Text className="text-muted">
               Deixe em branco para remover a informação da baia.
             </Form.Text>
+            {existeConflitoBaia && (
+              <div className="text-danger mt-2" style={{ fontSize: "0.9rem" }}>
+                Já existe outro solípede cadastrado com este número de baia.
+              </div>
+            )}
           </Form.Group>
         </Modal.Body>
 
@@ -1106,7 +1143,7 @@ const DashboardList = () => {
           <Button
             variant="primary"
             onClick={salvarEdicaoBaia}
-            disabled={salvandoBaia}
+            disabled={salvandoBaia || existeConflitoBaia}
           >
             {salvandoBaia ? (
               <>

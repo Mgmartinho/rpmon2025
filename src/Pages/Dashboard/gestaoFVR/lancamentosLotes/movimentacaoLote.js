@@ -5,8 +5,8 @@ import { api } from "../../../../services/api";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const OPCOES_DESTINO = [
-  "RPMon","Barro Branco","Hospital Veterinário","Avare","Barretos","Bauru",
-  "Campinas","Colina","Escola Equitação Exército","Itapetininga","Marília",
+  "RPMon","Barro Branco","Hospital Veterinário","Avaré","Barretos","Bauru",
+  "Campinas","Colina","Escola de Equitação do Exército","Itapetininga","Marília",
   "Mauá","Presidente Prudente","Ribeirão Preto","Santos","São Bernardo do Campo",
   "São José do Rio Preto","Sorocaba","Taubaté","Representação",
 ];

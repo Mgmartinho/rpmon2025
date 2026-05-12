@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Card,
   Form,
@@ -25,7 +25,7 @@ import {
   FaUserShield,
 } from "react-icons/fa";
 import { BsShieldCheck, BsPersonBadge } from "react-icons/bs";
-import { temPermissao, isAdmin } from "../../../utils/permissions";
+import { temPermissao } from "../../../utils/permissions";
 
 // ===== CONSTANTES =====
 const runtimeApiUrl = typeof window !== "undefined" ? window.ENV?.API_URL : undefined;
@@ -55,7 +55,6 @@ const ConfiguracaoPerfil = () => {
   const [abaAtiva, setAbaAtiva] = useState("configuracoes");
   
   // Dados do usuário logado
-  const [usuarioId, setUsuarioId] = useState(null);
   const [nome, setNome] = useState("");
   const [registro, setRegistro] = useState("");
   const [email, setEmail] = useState("");
@@ -64,6 +63,14 @@ const ConfiguracaoPerfil = () => {
   // Lista de usuários (para gerenciamento)
   const [usuarios, setUsuarios] = useState([]);
   const [usuarioSelecionado, setUsuarioSelecionado] = useState(null);
+  const [filtroNomeUsuario, setFiltroNomeUsuario] = useState("");
+  const [filtroRegistroUsuario, setFiltroRegistroUsuario] = useState("");
+  const [filtroEmailUsuario, setFiltroEmailUsuario] = useState("");
+  const [filtroPerfilUsuario, setFiltroPerfilUsuario] = useState("Todos");
+  const [ordenacaoUsuarios, setOrdenacaoUsuarios] = useState({
+    campo: "nome",
+    direcao: "desc",
+  });
 
   // Alteração de senha
   const [senhaAtual, setSenhaAtual] = useState("");
@@ -105,7 +112,6 @@ const ConfiguracaoPerfil = () => {
 
           if (response.ok) {
             const dados = await response.json();
-            setUsuarioId(dados.id);
             setNome(dados.nome || "");
             setRegistro(dados.registro || "");
             setEmail(dados.email || "");
@@ -113,7 +119,6 @@ const ConfiguracaoPerfil = () => {
             setPerfilSelecionado(dados.perfil || "Pendente de Aprovacao");
             localStorage.setItem("usuario", JSON.stringify(dados));
           } else {
-            setUsuarioId(usuario.id);
             setNome(usuario.nome || "");
             setRegistro(usuario.registro || "");
             setEmail(usuario.email || "");
@@ -122,7 +127,6 @@ const ConfiguracaoPerfil = () => {
           }
         } catch (error) {
           console.error("Erro ao carregar dados:", error);
-          setUsuarioId(usuario.id);
           setNome(usuario.nome || "");
           setRegistro(usuario.registro || "");
           setEmail(usuario.email || "");
@@ -444,6 +448,55 @@ const ConfiguracaoPerfil = () => {
     return "Fraca";
   };
 
+  const usuariosFiltradosOrdenados = useMemo(() => {
+    const filtrar = (valor) => String(valor || "").toLowerCase().trim();
+
+    const filtrados = usuarios.filter((usuario) => {
+      const nomeOk = filtrar(usuario.nome).includes(filtrar(filtroNomeUsuario));
+      const registroOk = filtrar(usuario.registro).includes(filtrar(filtroRegistroUsuario));
+      const emailOk = filtrar(usuario.email).includes(filtrar(filtroEmailUsuario));
+      const perfilOk =
+        filtroPerfilUsuario === "Todos" ||
+        usuario.perfil === filtroPerfilUsuario;
+
+      return nomeOk && registroOk && emailOk && perfilOk;
+    });
+
+    const { campo, direcao } = ordenacaoUsuarios;
+
+    return [...filtrados].sort((a, b) => {
+      const valorA = String(a?.[campo] ?? "").toLowerCase();
+      const valorB = String(b?.[campo] ?? "").toLowerCase();
+
+      if (valorA < valorB) return direcao === "asc" ? -1 : 1;
+      if (valorA > valorB) return direcao === "asc" ? 1 : -1;
+      return 0;
+    });
+  }, [
+    usuarios,
+    filtroNomeUsuario,
+    filtroRegistroUsuario,
+    filtroEmailUsuario,
+    filtroPerfilUsuario,
+    ordenacaoUsuarios,
+  ]);
+
+  const alternarOrdenacaoUsuarios = (campo) => {
+    setOrdenacaoUsuarios((atual) => {
+      if (atual.campo === campo) {
+        return {
+          campo,
+          direcao: atual.direcao === "desc" ? "asc" : "desc",
+        };
+      }
+
+      return {
+        campo,
+        direcao: "desc",
+      };
+    });
+  };
+
   return (
     <div className="container-fluid p-4" style={{ backgroundColor: "#f8f9fa", minHeight: "100vh" }}>
       <Row className="mb-4">
@@ -697,35 +750,98 @@ const ConfiguracaoPerfil = () => {
                     <div>
                       <strong>ℹ️ Gerenciamento Completo</strong>
                       <div className="mt-1">
-                        Gerencie os usuários do sistema, alterando perfis, dados pessoais e senhas. 
+                        Gerencie os usuários do sistema, alterando perfis, dados pessoais e senhas.
                         Total de usuários: <Badge bg="info">{usuarios.length}</Badge>
                       </div>
                     </div>
                   </div>
                 </Alert>
 
+                <Row className="g-2 mb-3">
+                  <Col md={3}>
+                    <Form.Group>
+                      <Form.Label className="small text-muted mb-1">Pesquisar por Nome</Form.Label>
+                      <Form.Control
+                        value={filtroNomeUsuario}
+                        onChange={(e) => setFiltroNomeUsuario(e.target.value)}
+                        placeholder="Nome do usuário"
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col md={2}>
+                    <Form.Group>
+                      <Form.Label className="small text-muted mb-1">Pesquisar por RE</Form.Label>
+                      <Form.Control
+                        value={filtroRegistroUsuario}
+                        onChange={(e) => setFiltroRegistroUsuario(e.target.value)}
+                        placeholder="Registro"
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col md={3}>
+                    <Form.Group>
+                      <Form.Label className="small text-muted mb-1">Pesquisar por E-mail</Form.Label>
+                      <Form.Control
+                        value={filtroEmailUsuario}
+                        onChange={(e) => setFiltroEmailUsuario(e.target.value)}
+                        placeholder="email@dominio.com"
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col md={3}>
+                    <Form.Group>
+                      <Form.Label className="small text-muted mb-1">Perfil (enum)</Form.Label>
+                      <Form.Select
+                        value={filtroPerfilUsuario}
+                        onChange={(e) => setFiltroPerfilUsuario(e.target.value)}
+                      >
+                        <option value="Todos">Todos os perfis</option>
+                        {PERFIS_SISTEMA.map((item) => (
+                          <option key={item.valor} value={item.valor}>
+                            {item.label}
+                          </option>
+                        ))}
+                      </Form.Select>
+                    </Form.Group>
+                  </Col>
+                  <Col md={1} className="d-flex align-items-end">
+                    <Button
+                      variant="outline-secondary"
+                      className="w-100"
+                      onClick={() => {
+                        setFiltroNomeUsuario("");
+                        setFiltroRegistroUsuario("");
+                        setFiltroEmailUsuario("");
+                        setFiltroPerfilUsuario("Todos");
+                      }}
+                    >
+                      Limpar
+                    </Button>
+                  </Col>
+                </Row>
+
                 {loading ? (
                   <div className="text-center py-5">
                     <Spinner animation="border" variant="primary" />
                     <p className="mt-3">Carregando usuários...</p>
                   </div>
-                ) : usuarios.length === 0 ? (
+                ) : usuariosFiltradosOrdenados.length === 0 ? (
                   <Alert variant="warning">
-                    Nenhum usuário encontrado.
+                    Nenhum usuário encontrado com os filtros atuais.
                   </Alert>
                 ) : (
                   <Table responsive hover className="mb-0">
                     <thead className="table-light">
                       <tr>
-                        <th>Nome</th>
-                        <th>Registro</th>
-                        <th>E-mail</th>
-                        <th>Perfil</th>
+                        <th role="button" onClick={() => alternarOrdenacaoUsuarios("nome")}>Nome</th>
+                        <th role="button" onClick={() => alternarOrdenacaoUsuarios("registro")}>Registro</th>
+                        <th role="button" onClick={() => alternarOrdenacaoUsuarios("email")}>E-mail</th>
+                        <th role="button" onClick={() => alternarOrdenacaoUsuarios("perfil")}>Perfil</th>
                         <th className="text-center">Ações</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {usuarios.map((usuario) => (
+                      {usuariosFiltradosOrdenados.map((usuario) => (
                         <tr key={usuario.id}>
                           <td className="fw-bold">{usuario.nome}</td>
                           <td>{usuario.registro}</td>

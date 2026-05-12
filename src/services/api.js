@@ -297,8 +297,19 @@ export const api = {
     return response.json();
   },
 
-  horasMesAtual: async () => {
-    const response = await fetch(`${API_BASE_URL}/solipedes/horas-mes-atual`);
+  horasMesAtual: async (mes, ano) => {
+    const query = new URLSearchParams();
+
+    if (mes) {
+      query.set("mes", mes);
+    }
+
+    if (ano) {
+      query.set("ano", ano);
+    }
+
+    const sufixo = query.toString() ? `?${query.toString()}` : "";
+    const response = await fetch(`${API_BASE_URL}/solipedes/horas-mes-atual${sufixo}`);
     return response.json();
   },
 

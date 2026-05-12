@@ -35,6 +35,8 @@ import ProntuarioTratamento from "../Pages/Dashboard/gestaoFVR/prontuario/prontu
 import ProntuarioSolipedeEditCopy from "../Pages/Dashboard/gestaoFVR/pronturarioEditCopy";
 import TaskCreatePage2 from "../Pages/Dashboard/gestaoFVR/tasks2";
 import LancamentosLotePage from "../Pages/Dashboard/gestaoFVR/lancamentosLotes/lancamentosLotePage";
+import ControleExamesVacinas from "../Pages/Dashboard/gestaoFVR/controleExamesVacinas";
+
 
 const MainRoutes = () => {
   return (
@@ -144,6 +146,20 @@ const MainRoutes = () => {
         <Route path="gestaofvr/solipede/:numero/exames" element={
           <ProtectedRoute requiredPermission="GESTAO_PRONTUARIO">
             <Exames />
+          </ProtectedRoute>
+        } />
+
+        {/* Exames - Controle de datas e vacinas */}
+        <Route path="gestaofvr/solipede/controle" element={
+          <ProtectedRoute requiredPermission="GESTAO_PRONTUARIO">
+            <ControleExamesVacinas />
+          </ProtectedRoute>
+        } />
+
+        {/* Alias para compatibilidade de navegação antiga/curta */}
+        <Route path="gestaofvr/controle" element={
+          <ProtectedRoute requiredPermission="GESTAO_PRONTUARIO">
+            <ControleExamesVacinas />
           </ProtectedRoute>
         } />
 

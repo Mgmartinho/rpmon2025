@@ -9,9 +9,7 @@ import {
   Col,
   Spinner,
   Form,
-  Modal,
-  Alert,
-  Accordion,
+
 } from "react-bootstrap";
 
 import {
@@ -28,7 +26,6 @@ import {
   BsArrowRepeat,
   BsFileEarmarkExcel,
   BsFileEarmarkPdf,
-  BsClipboardPlus,
 } from "react-icons/bs";
 
 import "./styles.css";
@@ -78,73 +75,6 @@ const GestaoFvr = () => {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [pageSolipede, setPageSolipede] = useState(1);
 
-  /* ===========================
-      MODAL – SOLICITAR EXAMES EM LOTE
-    =========================== */
-  const [showExamesModal, setShowExamesModal] = useState(false);
-  const [selecionadosExames, setSelecionadosExames] = useState([]);
-  const [filtroExamesModal, setFiltroExamesModal] = useState("");
-  const [observacaoExames, setObservacaoExames] = useState("");
-  const [examesLoading, setExamesLoading] = useState(false);
-  const [examesErro, setExamesErro] = useState("");
-  const [examesSucesso, setExamesSucesso] = useState("");
-
-  // Estados para os exames selecionados
-  const [examesSelecionados, setExamesSelecionados] = useState({
-    // Hematologia
-    hemogramaCompleto: false,
-    hemacias: false,
-    hemoglobina: false,
-    hematocrito: false,
-    indices: false,
-    leucograma: false,
-    plaquetas: false,
-    // Bioquímica - Função hepática
-    ast: false,
-    alt: false,
-    ggt: false,
-    fosfataseAlcalina: false,
-    bilirrubinaTotal: false,
-    bilirrubinaDireta: false,
-    bilirrubinaIndireta: false,
-    // Bioquímica - Função renal
-    ureia: false,
-    creatinina: false,
-    // Bioquímica - Músculos
-    ck: false,
-    ldh: false,
-    // Bioquímica - Metabolismo e proteínas
-    proteinasTotais: false,
-    albumina: false,
-    globulinas: false,
-    relacaoAG: false,
-    // Bioquímica - Eletrólitos
-    sodio: false,
-    potassio: false,
-    cloro: false,
-    calcio: false,
-    fosforo: false,
-    magnesio: false,
-    // Bioquímica - Outros
-    glicose: false,
-    colesterol: false,
-    triglicerideos: false,
-    lactato: false,
-    // Sorologia
-    aie: false,
-    mormo: false,
-    leptospirose: false,
-    brucelose: false,
-    influenzaEquina: false,
-    herpesvirusEquino: false,
-    raiva: false,
-    encefalomieliteEquina: false,
-    arteriteViralEquina: false,
-    // Parasitologia
-    coproparasitologico: false,
-    opg: false,
-    coprocultura: false,
-  });
 
   /* ===========================
      INDICADORES (DADOS REAIS) - MEMOIZADOS
@@ -305,6 +235,91 @@ const GestaoFvr = () => {
     });
   }, [dados, dadosProntuario, indicador, filtroNumero, filtroAlocacao, restricaoEmAndamento, normalizarNumeroSolipede]);
 
+  const baixadosDetalhados = useMemo(() => {
+    const solipedesPorNumero = new Map(
+      dados.map((solipede) => [normalizarNumeroSolipede(solipede.numero), solipede])
+    );
+
+    const usuariosPorId = new Map();
+    dadosProntuario.forEach((registro) => {
+      const nome = registro?.usuario_nome;
+
+      if (!nome) return;
+
+      if (registro?.usuarioId !== undefined && registro?.usuarioId !== null) {
+        usuariosPorId.set(String(registro.usuarioId), nome);
+      }
+
+      if (registro?.usuario_id !== undefined && registro?.usuario_id !== null) {
+        usuariosPorId.set(String(registro.usuario_id), nome);
+      }
+
+      if (registro?.tratamento_usuario_id !== undefined && registro?.tratamento_usuario_id !== null) {
+        usuariosPorId.set(String(registro.tratamento_usuario_id), nome);
+      }
+    });
+
+    return dadosProntuario
+      .filter((registro) => registro?.tipo === "Tratamento")
+      .filter((registro) => {
+        const numeroNormalizado = normalizarNumeroSolipede(registro.numero_solipede);
+        const solipede = solipedesPorNumero.get(numeroNormalizado);
+        const statusConclusao = String(
+          registro?.status_conclusao || registro?.tratamento_status || ""
+        )
+          .toLowerCase()
+          .trim();
+
+        if (!solipede || solipede.status !== "Baixado") return false;
+        if (statusConclusao !== "em_andamento") return false;
+
+        if (!String(solipede.numero ?? "").includes(filtroNumero)) return false;
+
+        if (
+          !(solipede.alocacao || "")
+            .toLowerCase()
+            .includes(filtroAlocacao.toLowerCase())
+        ) {
+          return false;
+        }
+
+        return true;
+      })
+      .map((registro) => {
+        const numeroNormalizado = normalizarNumeroSolipede(registro.numero_solipede);
+        const solipede = solipedesPorNumero.get(numeroNormalizado);
+        const numeroSolipede = solipede?.numero ?? registro.numero_solipede ?? "-";
+        const nomeSolipede = solipede?.nome ?? registro.solipede_nome ?? "-";
+        const dataTratamento = registro.tratamento_data_criacao || registro.data_criacao;
+        const responsavelId =
+          registro.tratamento_usuario_id ??
+          registro.usuario_id ??
+          registro.usuarioId ??
+          null;
+        const responsavelNome =
+          registro.tratamento_usuario_nome ||
+          registro.usuario_nome ||
+          (responsavelId !== null ? usuariosPorId.get(String(responsavelId)) : null) ||
+          "-";
+
+        return {
+          id: registro.id,
+          numeroSolipede,
+          dataTratamento,
+          tipo: registro.tipo || "Tratamento",
+          alocacao: solipede?.alocacao || "-",
+          solipe: `${numeroSolipede} - ${nomeSolipede}`,
+          diagnostico: registro.diagnostico || "-",
+          responsavel: responsavelNome,
+        };
+      })
+      .sort(
+        (a, b) =>
+          new Date(b.dataTratamento || 0).getTime() -
+          new Date(a.dataTratamento || 0).getTime()
+      );
+  }, [dados, dadosProntuario, filtroAlocacao, filtroNumero, normalizarNumeroSolipede]);
+
   /* ===========================
      ORDENAÇÃO – SOLÍPEDES - MEMOIZADA
   =========================== */
@@ -339,17 +354,18 @@ const GestaoFvr = () => {
      PAGINAÇÃO – SOLÍPEDES - MEMOIZADA
   =========================== */
   const { totalPagesSolipede, solipedesPaginados } = useMemo(() => {
-    const total = solipeddesOrdenados.length;
+    const baseRegistros = indicador === "BAIXADOS" ? baixadosDetalhados : solipeddesOrdenados;
+    const total = baseRegistros.length;
     const totalPages = itemsPerPage === "all" ? 1 : Math.ceil(total / itemsPerPage);
     const inicio = itemsPerPage === "all" ? 0 : (pageSolipede - 1) * itemsPerPage;
     const fim = itemsPerPage === "all" ? total : inicio + itemsPerPage;
-    const paginados = solipeddesOrdenados.slice(inicio, fim);
+    const paginados = baseRegistros.slice(inicio, fim);
 
     return {
       totalPagesSolipede: totalPages,
       solipedesPaginados: paginados,
     };
-  }, [solipeddesOrdenados, itemsPerPage, pageSolipede]);
+  }, [solipeddesOrdenados, baixadosDetalhados, indicador, itemsPerPage, pageSolipede]);
 
   // Cache de cálculo de idade para evitar recálculos (otimização de performance)
   const cacheIdade = useMemo(() => new Map(), []);
@@ -391,6 +407,8 @@ const GestaoFvr = () => {
         : "",
       Sexo: item.sexo,
       Pelagem: item.pelagem,
+      microchip: item.microchip,
+      PaletaDireita: item.paleta_direita,
       Alocacao: item.alocacao,
       Origem: item.origem,
       Esquadrao: item.esquadrao,
@@ -420,6 +438,8 @@ const GestaoFvr = () => {
       "Ano",
       "Sexo",
       "Pelagem",
+      "Microchip",
+      "Paleta Direita",
       "Alocação",
       "Origem",
       "Esquadrão",
@@ -433,6 +453,8 @@ const GestaoFvr = () => {
       item.DataNascimento ? new Date(item.DataNascimento).getFullYear() : "",
       item.sexo,
       item.pelagem,
+      item.microchip,
+      item.paleta_direita,
       item.alocacao,
       item.origem,
       item.esquadrao,
@@ -459,243 +481,6 @@ const GestaoFvr = () => {
     doc.save("solipedes_fvr.pdf");
   }, [solipedesFiltrados]);
 
-  /* ===========================
-     FUNÇÕES DE EXAMES EM LOTE
-  =========================== */
-  const handleCheckboxExame = (exame) => {
-    setExamesSelecionados((prev) => ({
-      ...prev,
-      [exame]: !prev[exame],
-    }));
-  };
-
-  const marcarTodosCategoria = (categoria) => {
-    const novosExames = { ...examesSelecionados };
-
-    switch (categoria) {
-      case "hematologia":
-        novosExames.hemogramaCompleto = true;
-        novosExames.hemacias = true;
-        novosExames.hemoglobina = true;
-        novosExames.hematocrito = true;
-        novosExames.indices = true;
-        novosExames.leucograma = true;
-        novosExames.plaquetas = true;
-        break;
-      case "funcaoHepatica":
-        novosExames.ast = true;
-        novosExames.alt = true;
-        novosExames.ggt = true;
-        novosExames.fosfataseAlcalina = true;
-        novosExames.bilirrubinaTotal = true;
-        novosExames.bilirrubinaDireta = true;
-        novosExames.bilirrubinaIndireta = true;
-        break;
-      case "funcaoRenal":
-        novosExames.ureia = true;
-        novosExames.creatinina = true;
-        break;
-      case "musculos":
-        novosExames.ck = true;
-        novosExames.ldh = true;
-        break;
-      case "metabolismo":
-        novosExames.proteinasTotais = true;
-        novosExames.albumina = true;
-        novosExames.globulinas = true;
-        novosExames.relacaoAG = true;
-        break;
-      case "eletrolitos":
-        novosExames.sodio = true;
-        novosExames.potassio = true;
-        novosExames.cloro = true;
-        novosExames.calcio = true;
-        novosExames.fosforo = true;
-        novosExames.magnesio = true;
-        break;
-      case "outrosBioq":
-        novosExames.glicose = true;
-        novosExames.colesterol = true;
-        novosExames.triglicerideos = true;
-        novosExames.lactato = true;
-        break;
-      case "sorologia":
-        novosExames.aie = true;
-        novosExames.mormo = true;
-        novosExames.leptospirose = true;
-        novosExames.brucelose = true;
-        novosExames.influenzaEquina = true;
-        novosExames.herpesvirusEquino = true;
-        novosExames.raiva = true;
-        novosExames.encefalomieliteEquina = true;
-        novosExames.arteriteViralEquina = true;
-        break;
-      case "parasitologia":
-        novosExames.coproparasitologico = true;
-        novosExames.opg = true;
-        novosExames.coprocultura = true;
-        break;
-      default:
-        break;
-    }
-
-    setExamesSelecionados(novosExames);
-  };
-
-  const toggleSelecionadoExame = (numero) => {
-    setSelecionadosExames((prev) =>
-      prev.includes(numero)
-        ? prev.filter((n) => n !== numero)
-        : [...prev, numero]
-    );
-  };
-
-  const selecionarTodosExames = () => {
-    const todosFiltrados = solipedesFiltrados
-      .filter((sol) => {
-        if (!filtroExamesModal) return true;
-        const filtro = filtroExamesModal.toLowerCase();
-        return (
-          sol.numero.toString().includes(filtro) ||
-          sol.nome.toLowerCase().includes(filtro)
-        );
-      })
-      .map((sol) => sol.numero);
-    setSelecionadosExames(todosFiltrados);
-  };
-
-  const desselecionarTodosExames = () => {
-    setSelecionadosExames([]);
-  };
-
-  const confirmarExames = async () => {
-    setExamesErro("");
-    setExamesSucesso("");
-
-    // Validações
-    if (selecionadosExames.length === 0) {
-      setExamesErro("Selecione pelo menos um solípede");
-      return;
-    }
-
-    const algumExameSelecionado = Object.values(examesSelecionados).some((v) => v === true);
-    if (!algumExameSelecionado) {
-      setExamesErro("Selecione pelo menos um exame");
-      return;
-    }
-
-    setExamesLoading(true);
-
-    try {
-      // Preparar lista de exames formatada
-      const examesLista = [];
-
-      // Hematologia
-      if (examesSelecionados.hemogramaCompleto) examesLista.push("• Hemograma completo");
-      if (examesSelecionados.hemacias) examesLista.push("• Hemácias");
-      if (examesSelecionados.hemoglobina) examesLista.push("• Hemoglobina");
-      if (examesSelecionados.hematocrito) examesLista.push("• Hematócrito");
-      if (examesSelecionados.indices) examesLista.push("• VCM, HCM, CHCM");
-      if (examesSelecionados.leucograma) examesLista.push("• Leucograma");
-      if (examesSelecionados.plaquetas) examesLista.push("• Plaquetas");
-
-      // Bioquímica - Função Hepática
-      if (examesSelecionados.ast) examesLista.push("• AST (TGO)");
-      if (examesSelecionados.alt) examesLista.push("• ALT (TGP)");
-      if (examesSelecionados.ggt) examesLista.push("• GGT");
-      if (examesSelecionados.fosfataseAlcalina) examesLista.push("• FA (Fosfatase Alcalina)");
-      if (examesSelecionados.bilirrubinaTotal) examesLista.push("• Bilirrubina total");
-      if (examesSelecionados.bilirrubinaDireta) examesLista.push("• Bilirrubina direta");
-      if (examesSelecionados.bilirrubinaIndireta) examesLista.push("• Bilirrubina indireta");
-
-      // Bioquímica - Função Renal
-      if (examesSelecionados.ureia) examesLista.push("• Ureia");
-      if (examesSelecionados.creatinina) examesLista.push("• Creatinina");
-
-      // Bioquímica - Músculos
-      if (examesSelecionados.ck) examesLista.push("• CK (Creatina Quinase)");
-      if (examesSelecionados.ldh) examesLista.push("• LDH");
-
-      // Bioquímica - Metabolismo
-      if (examesSelecionados.proteinasTotais) examesLista.push("• Proteínas totais");
-      if (examesSelecionados.albumina) examesLista.push("• Albumina");
-      if (examesSelecionados.globulinas) examesLista.push("• Globulinas");
-      if (examesSelecionados.relacaoAG) examesLista.push("• Relação A/G");
-
-      // Bioquímica - Eletrólitos
-      if (examesSelecionados.sodio) examesLista.push("• Sódio (Na⁺)");
-      if (examesSelecionados.potassio) examesLista.push("• Potássio (K⁺)");
-      if (examesSelecionados.cloro) examesLista.push("• Cloro (Cl⁻)");
-      if (examesSelecionados.calcio) examesLista.push("• Cálcio (Ca²⁺)");
-      if (examesSelecionados.fosforo) examesLista.push("• Fósforo (P)");
-      if (examesSelecionados.magnesio) examesLista.push("• Magnésio (Mg²⁺)");
-
-      // Bioquímica - Outros
-      if (examesSelecionados.glicose) examesLista.push("• Glicose");
-      if (examesSelecionados.colesterol) examesLista.push("• Colesterol");
-      if (examesSelecionados.triglicerideos) examesLista.push("• Triglicerídeos");
-      if (examesSelecionados.lactato) examesLista.push("• Lactato");
-
-      // Sorologia
-      if (examesSelecionados.aie) examesLista.push("• Anemia Infecciosa Equina (AIE – Coggins)");
-      if (examesSelecionados.mormo) examesLista.push("• Mormo");
-      if (examesSelecionados.leptospirose) examesLista.push("• Leptospirose");
-      if (examesSelecionados.brucelose) examesLista.push("• Brucelose");
-      if (examesSelecionados.influenzaEquina) examesLista.push("• Influenza Equina");
-      if (examesSelecionados.herpesvirusEquino) examesLista.push("• Herpesvírus Equino (EHV-1/EHV-4)");
-      if (examesSelecionados.raiva) examesLista.push("• Raiva");
-      if (examesSelecionados.encefalomieliteEquina) examesLista.push("• Encefalomielite Equina");
-      if (examesSelecionados.arteriteViralEquina) examesLista.push("• Arterite Viral Equina");
-
-      // Parasitologia
-      if (examesSelecionados.coproparasitologico) examesLista.push("• Exame coproparasitológico");
-      if (examesSelecionados.opg) examesLista.push("• OPG (Ovos Por Grama)");
-      if (examesSelecionados.coprocultura) examesLista.push("• Coprocultura");
-
-      // Montar texto formatado
-      const textoExames = `SOLICITAÇÃO DE EXAMES LABORATORIAIS - LOTE\n\n` +
-        `Exames solicitados:\n${examesLista.join("\n")}\n\n` +
-        (observacaoExames ? `Observações: ${observacaoExames}\n\n` : "") +
-        `Data da solicitação: ${new Date().toLocaleDateString("pt-BR")} às ${new Date().toLocaleTimeString("pt-BR")}\n` +
-        `Solípedes: ${selecionadosExames.length} animal(is) selecionado(s)`;
-
-      // Salvar para cada solípede selecionado
-      const promessas = selecionadosExames.map((numero) =>
-        api.salvarProntuario({
-          numero_solipede: numero,
-          tipo: "Exame",
-          observacao: textoExames,
-          recomendacoes: observacaoExames || null,
-        })
-      );
-
-      await Promise.all(promessas);
-
-      setExamesSucesso(
-        `Exames solicitados com sucesso para ${selecionadosExames.length} solípede(s)!`
-      );
-
-      // Limpar seleções após 2 segundos
-      setTimeout(() => {
-        setShowExamesModal(false);
-        setSelecionadosExames([]);
-        setObservacaoExames("");
-        setFiltroExamesModal("");
-        setExamesSucesso("");
-        // Resetar checkboxes
-        setExamesSelecionados(Object.keys(examesSelecionados).reduce((acc, key) => {
-          acc[key] = false;
-          return acc;
-        }, {}));
-      }, 2000);
-
-    } catch (error) {
-      console.error("Erro ao solicitar exames:", error);
-      setExamesErro("Erro ao solicitar exames em lote");
-    } finally {
-      setExamesLoading(false);
-    }
-  };
 
   /* ===========================
      RENDER
@@ -925,108 +710,147 @@ const GestaoFvr = () => {
             <div className="table-responsive">
               <Table hover striped className="align-middle mb-0 table-sm">
                 <thead className="table-light text-center">
-                  <tr>
-                    {[
-                      ["numero", "Nº"],
-                      ["nome", "Nome"],
-                      ["DataNascimento", "Idade"],
-                      ["sexo", "Sexo"],
-                      ["pelagem", "Pelagem"],
-                      ["alocacao", "Alocação"],
-                      ["origem", "Origem"],
-                      ["esquadrao", "Esquadrão"],
-                      ["status", "Status"],
-                    ].map(([key, label]) => (
-                      <th
-                        key={key}
-                        role="button"
-                        onClick={() => requestSort(key)}
-                        className="text-nowrap"
-                      >
-                        {label}
-                        {sortConfig.key === key && (
-                          <span className="ms-1">
-                            {sortConfig.direction === "asc" ? "▲" : "▼"}
-                          </span>
-                        )}
-                      </th>
-                    ))}
+                  {indicador === "BAIXADOS" ? (
+                    <tr>
+                      <th>Data do Tratamento</th>
+                      <th>Tipo</th>
+                      <th>Alocação</th>
+                      <th>Solipe</th>
+                      <th>Motivo da Baixa</th>
+                      <th>Responsável</th>
+                    </tr>
+                  ) : (
+                    <tr>
+                      {[
+                        ["numero", "Nº"],
+                        ["nome", "Nome"],
+                        ["DataNascimento", "Idade"],
+                        ["sexo", "Sexo"],
+                        ["pelagem", "Pelagem"],
+                        ["alocacao", "Alocação"],
+                        ["origem", "Origem"],
+                        ["esquadrao", "Esquadrão"],
+                        ["status", "Status"],
+                      ].map(([key, label]) => (
+                        <th
+                          key={key}
+                          role="button"
+                          onClick={() => requestSort(key)}
+                          className="text-nowrap"
+                        >
+                          {label}
+                          {sortConfig.key === key && (
+                            <span className="ms-1">
+                              {sortConfig.direction === "asc" ? "▲" : "▼"}
+                            </span>
+                          )}
+                        </th>
+                      ))}
 
-                    {temMovimentacao && <th>Movimentação</th>}
-                    <th className="text-nowrap">Gestão</th>
-                  </tr>
+                      {temMovimentacao && <th>Movimentação</th>}
+                      <th className="text-nowrap">Gestão</th>
+                    </tr>
+                  )}
                 </thead>
 
                 <tbody className="text-center">
-                  {solipedesPaginados.map((item) => (
-                    <tr key={item.numero}>
-                      <td className="fw-semibold">
-                        <Link
-                          to={`/dashboard/gestaofvr/solipede/prontuario/edit/${item.numero}`}
-                        >
-                          {item.numero}
-                        </Link>
-                      </td>
-
-                      <td>{item.nome}</td>
-                      <td>{calcularIdade(item.DataNascimento)} anos</td>
-                      <td>{item.sexo}</td>
-                      <td>{item.pelagem}</td>
-                      <td>{item.alocacao}</td>
-                      <td>{item.origem}</td>
-                      <td>{item.esquadrao}</td>
-                      <td>
-                        <Badge
-                          pill
-                          className={`bg-opacity-50 text-dark d-inline-flex align-items-center gap-1 ${item.status === "Baixado"
-                              ? "bg-danger"
-                              : item.status === "Ativo" && temRestricao(item.numero)
-                                ? "bg-warning"
-                                : "bg-success"
-                            }`}
-                          title={
-                            item.status === "Ativo" && temRestricao(item.numero)
-                              ? "Possui restrições"
-                              : ""
-                          }
-                          style={{
-                            cursor:
-                              item.status === "Ativo" && temRestricao(item.numero)
-                                ? "help"
-                                : "default",
-                          }}
-                        >
-                          {item.status === "Baixado" ? "● " : "✔ "}
-                          {item.status}
-                        </Badge>
-                      </td>
-
-
-
-                      <td className="text-nowrap">
-                        <Link
-                          to={`/dashboard/gestaofvr/solipede/prontuario/edit/${item.numero}`}
-                          className="me-1"
-                        >
-                          <Button size="sm" variant="light" className="border">
-                            <BsClipboardCheck />
-                          </Button>
-                        </Link>
-
-                        {podeEditarSolipede && (
+                  {indicador === "BAIXADOS" ? (
+                    solipedesPaginados.length > 0 ? (
+                      solipedesPaginados.map((item) => (
+                        <tr key={`${item.id}-${item.numeroSolipede}`}>
+                          <td>
+                            {item.dataTratamento
+                              ? new Date(item.dataTratamento).toLocaleDateString("pt-BR")
+                              : "-"}
+                          </td>
+                          <td>{item.tipo}</td>
+                          <td>{item.alocacao}</td>
+                          <td className="text-start">
+                            <Link
+                              to={`/dashboard/gestaofvr/solipede/prontuario/edit/${item.numeroSolipede}`}
+                            >
+                              {item.solipe}
+                            </Link>
+                          </td>
+                          <td className="text-start">{item.diagnostico}</td>
+                          <td>{item.responsavel}</td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={6} className="text-muted py-3">
+                          Nenhum registro de baixa por tratamento encontrado.
+                        </td>
+                      </tr>
+                    )
+                  ) : (
+                    solipedesPaginados.map((item) => (
+                      <tr key={item.numero}>
+                        <td className="fw-semibold">
                           <Link
-                            to={`/dashboard/gestaofvr/solipede/edit/${item.numero}`}
+                            to={`/dashboard/gestaofvr/solipede/prontuario/edit/${item.numero}`}
+                          >
+                            {item.numero}
+                          </Link>
+                        </td>
+
+                        <td>{item.nome}</td>
+                        <td>{calcularIdade(item.DataNascimento)} anos</td>
+                        <td>{item.sexo}</td>
+                        <td>{item.pelagem}</td>
+                        <td>{item.alocacao}</td>
+                        <td>{item.origem}</td>
+                        <td>{item.esquadrao}</td>
+                        <td>
+                          <Badge
+                            pill
+                            className={`bg-opacity-50 text-dark d-inline-flex align-items-center gap-1 ${item.status === "Baixado"
+                                ? "bg-danger"
+                                : item.status === "Ativo" && temRestricao(item.numero)
+                                  ? "bg-warning"
+                                  : "bg-success"
+                              }`}
+                            title={
+                              item.status === "Ativo" && temRestricao(item.numero)
+                                ? "Possui restrições"
+                                : ""
+                            }
+                            style={{
+                              cursor:
+                                item.status === "Ativo" && temRestricao(item.numero)
+                                  ? "help"
+                                  : "default",
+                            }}
+                          >
+                            {item.status === "Baixado" ? "● " : "✔ "}
+                            {item.status}
+                          </Badge>
+                        </td>
+
+                        <td className="text-nowrap">
+                          <Link
+                            to={`/dashboard/gestaofvr/solipede/prontuario/edit/${item.numero}`}
                             className="me-1"
                           >
                             <Button size="sm" variant="light" className="border">
-                              <BsPencilSquare />
+                              <BsClipboardCheck />
                             </Button>
                           </Link>
-                        )}
-                      </td>
 
-                    </tr>
-                  ))}
+                          {podeEditarSolipede && (
+                            <Link
+                              to={`/dashboard/gestaofvr/solipede/edit/${item.numero}`}
+                              className="me-1"
+                            >
+                              <Button size="sm" variant="light" className="border">
+                                <BsPencilSquare />
+                              </Button>
+                            </Link>
+                          )}
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </Table>
             </div>
@@ -1060,306 +884,6 @@ const GestaoFvr = () => {
           </Card.Body>
         </Card>
 
-        {/* ==========================================
-            MODAL – SOLICITAR EXAMES EM LOTE
-        ========================================== */}
-        <Modal
-          show={showExamesModal}
-          onHide={() => {
-            setShowExamesModal(false);
-            setSelecionadosExames([]);
-            setFiltroExamesModal("");
-            setObservacaoExames("");
-            setExamesErro("");
-            setExamesSucesso("");
-          }}
-          size="xl"
-          scrollable
-        >
-          <Modal.Header closeButton>
-            <Modal.Title>🧪 Solicitar Exames em Lote</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            {examesErro && <Alert variant="danger">{examesErro}</Alert>}
-            {examesSucesso && <Alert variant="success">{examesSucesso}</Alert>}
-
-            <p className="text-muted mb-3">
-              Selecione os solípedes e os exames que deseja solicitar
-            </p>
-
-            {/* Filtro e Seleção */}
-            <Row className="mb-3">
-              <Col md={8}>
-                <Form.Group>
-                  <Form.Label>Filtrar solípedes</Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder="Digite o número ou nome..."
-                    value={filtroExamesModal}
-                    onChange={(e) => setFiltroExamesModal(e.target.value)}
-                  />
-                </Form.Group>
-              </Col>
-              <Col md={4} className="d-flex align-items-end">
-                <Button
-                  size="sm"
-                  variant="outline-primary"
-                  className="me-2"
-                  onClick={selecionarTodosExames}
-                >
-                  Selecionar Todos
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline-secondary"
-                  onClick={desselecionarTodosExames}
-                >
-                  Limpar
-                </Button>
-              </Col>
-            </Row>
-
-            {/* Lista de Solípedes com Checkboxes */}
-            <Card className="mb-3" style={{ maxHeight: "250px", overflowY: "auto" }}>
-              <Card.Body>
-                <Form.Label className="fw-bold">
-                  Solípedes Selecionados: {selecionadosExames.length}
-                </Form.Label>
-                {dados
-                  .filter((sol) => {
-                    if (!filtroExamesModal) return true;
-                    const filtro = filtroExamesModal.toLowerCase();
-                    return (
-                      sol.numero.toString().includes(filtro) ||
-                      sol.nome.toLowerCase().includes(filtro)
-                    );
-                  })
-                  .sort((a, b) => a.numero - b.numero)
-                  .map((sol) => (
-                    <Form.Check
-                      key={sol.numero}
-                      type="checkbox"
-                      label={`Nº ${sol.numero} - ${sol.nome} (${sol.pelagem || "S/P"}) - ${sol.alocacao || "S/A"}`}
-                      checked={selecionadosExames.includes(sol.numero)}
-                      onChange={() => toggleSelecionadoExame(sol.numero)}
-                    />
-                  ))}
-              </Card.Body>
-            </Card>
-
-            {/* Interface de Exames */}
-            <h6 className="fw-bold mb-3">Exames a Solicitar</h6>
-            <Accordion defaultActiveKey="0" className="mb-3">
-              {/* HEMATOLOGIA */}
-              <Accordion.Item eventKey="0">
-                <Accordion.Header>
-                  🧪 Hematologia
-                </Accordion.Header>
-                <Accordion.Body>
-                  <Button size="sm" variant="outline-primary" className="mb-2"
-                    onClick={() => marcarTodosCategoria("hematologia")}>
-                    Marcar todos
-                  </Button>
-                  <Row>
-                    <Col md={6}>
-                      <Form.Check type="checkbox" label="Hemograma completo"
-                        checked={examesSelecionados.hemogramaCompleto}
-                        onChange={() => handleCheckboxExame("hemogramaCompleto")} />
-                      <Form.Check type="checkbox" label="Hemácias"
-                        checked={examesSelecionados.hemacias}
-                        onChange={() => handleCheckboxExame("hemacias")} />
-                      <Form.Check type="checkbox" label="Hemoglobina"
-                        checked={examesSelecionados.hemoglobina}
-                        onChange={() => handleCheckboxExame("hemoglobina")} />
-                      <Form.Check type="checkbox" label="Hematócrito"
-                        checked={examesSelecionados.hematocrito}
-                        onChange={() => handleCheckboxExame("hematocrito")} />
-                    </Col>
-                    <Col md={6}>
-                      <Form.Check type="checkbox" label="VCM, HCM, CHCM"
-                        checked={examesSelecionados.indices}
-                        onChange={() => handleCheckboxExame("indices")} />
-                      <Form.Check type="checkbox" label="Leucograma"
-                        checked={examesSelecionados.leucograma}
-                        onChange={() => handleCheckboxExame("leucograma")} />
-                      <Form.Check type="checkbox" label="Plaquetas"
-                        checked={examesSelecionados.plaquetas}
-                        onChange={() => handleCheckboxExame("plaquetas")} />
-                    </Col>
-                  </Row>
-                </Accordion.Body>
-              </Accordion.Item>
-
-              {/* BIOQUÍMICA */}
-              <Accordion.Item eventKey="1">
-                <Accordion.Header>🧬 Bioquímica</Accordion.Header>
-                <Accordion.Body>
-                  <h6 className="text-primary">Função Hepática</h6>
-                  <Button size="sm" variant="outline-primary" className="mb-2"
-                    onClick={() => marcarTodosCategoria("funcaoHepatica")}>Marcar todos</Button>
-                  <Row className="mb-3">
-                    <Col md={6}>
-                      <Form.Check type="checkbox" label="AST (TGO)"
-                        checked={examesSelecionados.ast}
-                        onChange={() => handleCheckboxExame("ast")} />
-                      <Form.Check type="checkbox" label="GGT"
-                        checked={examesSelecionados.ggt}
-                        onChange={() => handleCheckboxExame("ggt")} />
-                      <Form.Check type="checkbox" label="Bilirrubina total"
-                        checked={examesSelecionados.bilirrubinaTotal}
-                        onChange={() => handleCheckboxExame("bilirrubinaTotal")} />
-                    </Col>
-                    <Col md={6}>
-                      <Form.Check type="checkbox" label="FA (Fosfatase)"
-                        checked={examesSelecionados.fosfataseAlcalina}
-                        onChange={() => handleCheckboxExame("fosfataseAlcalina")} />
-                      <Form.Check type="checkbox" label="ALT (TGP)"
-                        checked={examesSelecionados.alt}
-                        onChange={() => handleCheckboxExame("alt")} />
-                    </Col>
-                  </Row>
-                  <h6 className="text-primary">Função Renal</h6>
-                  <Button size="sm" variant="outline-primary" className="mb-2"
-                    onClick={() => marcarTodosCategoria("funcaoRenal")}>Marcar todos</Button>
-                  <Row className="mb-3">
-                    <Col md={6}>
-                      <Form.Check type="checkbox" label="Ureia"
-                        checked={examesSelecionados.ureia}
-                        onChange={() => handleCheckboxExame("ureia")} />
-                    </Col>
-                    <Col md={6}>
-                      <Form.Check type="checkbox" label="Creatinina"
-                        checked={examesSelecionados.creatinina}
-                        onChange={() => handleCheckboxExame("creatinina")} />
-                    </Col>
-                  </Row>
-                  <h6 className="text-primary">Eletrólitos</h6>
-                  <Button size="sm" variant="outline-primary" className="mb-2"
-                    onClick={() => marcarTodosCategoria("eletrolitos")}>Marcar todos</Button>
-                  <Row>
-                    <Col md={6}>
-                      <Form.Check type="checkbox" label="Sódio (Na⁺)"
-                        checked={examesSelecionados.sodio}
-                        onChange={() => handleCheckboxExame("sodio")} />
-                      <Form.Check type="checkbox" label="Potássio (K⁺)"
-                        checked={examesSelecionados.potassio}
-                        onChange={() => handleCheckboxExame("potassio")} />
-                      <Form.Check type="checkbox" label="Cálcio (Ca²⁺)"
-                        checked={examesSelecionados.calcio}
-                        onChange={() => handleCheckboxExame("calcio")} />
-                    </Col>
-                    <Col md={6}>
-                      <Form.Check type="checkbox" label="Cloro (Cl⁻)"
-                        checked={examesSelecionados.cloro}
-                        onChange={() => handleCheckboxExame("cloro")} />
-                      <Form.Check type="checkbox" label="Glicose"
-                        checked={examesSelecionados.glicose}
-                        onChange={() => handleCheckboxExame("glicose")} />
-                    </Col>
-                  </Row>
-                </Accordion.Body>
-              </Accordion.Item>
-
-              {/* SOROLOGIA */}
-              <Accordion.Item eventKey="2">
-                <Accordion.Header>🦠 Sorologia</Accordion.Header>
-                <Accordion.Body>
-                  <Button size="sm" variant="outline-primary" className="mb-2"
-                    onClick={() => marcarTodosCategoria("sorologia")}>Marcar todos</Button>
-                  <Row>
-                    <Col md={6}>
-                      <Form.Check type="checkbox" label="AIE (Coggins)"
-                        checked={examesSelecionados.aie}
-                        onChange={() => handleCheckboxExame("aie")} />
-                      <Form.Check type="checkbox" label="Mormo"
-                        checked={examesSelecionados.mormo}
-                        onChange={() => handleCheckboxExame("mormo")} />
-                      <Form.Check type="checkbox" label="Leptospirose"
-                        checked={examesSelecionados.leptospirose}
-                        onChange={() => handleCheckboxExame("leptospirose")} />
-                      <Form.Check type="checkbox" label="Influenza"
-                        checked={examesSelecionados.influenzaEquina}
-                        onChange={() => handleCheckboxExame("influenzaEquina")} />
-                    </Col>
-                    <Col md={6}>
-                      <Form.Check type="checkbox" label="Herpesvírus"
-                        checked={examesSelecionados.herpesvirusEquino}
-                        onChange={() => handleCheckboxExame("herpesvirusEquino")} />
-                      <Form.Check type="checkbox" label="Raiva"
-                        checked={examesSelecionados.raiva}
-                        onChange={() => handleCheckboxExame("raiva")} />
-                      <Form.Check type="checkbox" label="Encefalomielite"
-                        checked={examesSelecionados.encefalomieliteEquina}
-                        onChange={() => handleCheckboxExame("encefalomieliteEquina")} />
-                    </Col>
-                  </Row>
-                </Accordion.Body>
-              </Accordion.Item>
-
-              {/* PARASITOLOGIA */}
-              <Accordion.Item eventKey="3">
-                <Accordion.Header>🧫 Parasitologia</Accordion.Header>
-                <Accordion.Body>
-                  <Button size="sm" variant="outline-primary" className="mb-2"
-                    onClick={() => marcarTodosCategoria("parasitologia")}>Marcar todos</Button>
-                  <Form.Check type="checkbox" label="Exame coproparasitológico"
-                    checked={examesSelecionados.coproparasitologico}
-                    onChange={() => handleCheckboxExame("coproparasitologico")} />
-                  <Form.Check type="checkbox" label="OPG (Ovos Por Grama)"
-                    checked={examesSelecionados.opg}
-                    onChange={() => handleCheckboxExame("opg")} />
-                  <Form.Check type="checkbox" label="Coprocultura"
-                    checked={examesSelecionados.coprocultura}
-                    onChange={() => handleCheckboxExame("coprocultura")} />
-                </Accordion.Body>
-              </Accordion.Item>
-            </Accordion>
-
-            {/* Observações */}
-            <Form.Group className="mb-3">
-              <Form.Label>Observações (opcional)</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={3}
-                placeholder="Informações adicionais sobre a solicitação..."
-                value={observacaoExames}
-                onChange={(e) => setObservacaoExames(e.target.value)}
-              />
-            </Form.Group>
-          </Modal.Body>
-          <Modal.Footer>
-            <Button
-              variant="secondary"
-              onClick={() => {
-                setShowExamesModal(false);
-                setSelecionadosExames([]);
-                setObservacaoExames("");
-                setFiltroExamesModal("");
-              }}
-              disabled={examesLoading}
-            >
-              Cancelar
-            </Button>
-            <Button
-              variant="primary"
-              onClick={confirmarExames}
-              disabled={examesLoading || selecionadosExames.length === 0}
-            >
-              {examesLoading ? (
-                <>
-                  <Spinner size="sm" className="me-2" animation="border" />
-                  Processando...
-                </>
-              ) : (
-                <>
-                  <BsClipboardPlus className="me-2" />
-                  Confirmar Solicitação ({selecionadosExames.length} solípede{selecionadosExames.length !== 1 ? 's' : ''})
-                </>
-              )}
-            </Button>
-          </Modal.Footer>
-          
-        </Modal>
       </div>
     </div>
   );

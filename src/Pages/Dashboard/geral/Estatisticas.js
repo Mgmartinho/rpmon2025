@@ -13,7 +13,24 @@ import {
 } from "recharts";
 import { api } from "../../../services/api";
 
+const mesesDoAno = [
+  "Janeiro",
+  "Fevereiro",
+  "Março",
+  "Abril",
+  "Maio",
+  "Junho",
+  "Julho",
+  "Agosto",
+  "Setembro",
+  "Outubro",
+  "Novembro",
+  "Dezembro",
+];
+
 const Estatisticas = () => {
+  const hoje = new Date();
+  const anoCorrente = hoje.getFullYear();
   const [dados, setDados] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filtroEsqd, setFiltroEsqd] = useState("Todos");
@@ -27,6 +44,15 @@ const Estatisticas = () => {
     "Representacao",
   ]);
   const [historicoCompleto, setHistoricoCompleto] = useState({});
+  const [mesSelecionado, setMesSelecionado] = useState(hoje.getMonth() + 1);
+
+  const opcoesMeses = useMemo(
+    () =>
+      mesesDoAno
+        .slice(0, hoje.getMonth() + 1)
+        .map((label, index) => ({ value: index + 1, label })),
+    [hoje]
+  );
 
   useEffect(() => {
     const fetchDados = async () => {
@@ -50,13 +76,13 @@ const Estatisticas = () => {
     fetchDados();
   }, []);
 
-  // Buscar horas do mês atual do backend (otimizado)
+  // Buscar horas do mês selecionado do backend (otimizado)
   useEffect(() => {
     if (dados.length === 0) return;
 
     const buscarHorasMesAtual = async () => {
       try {
-        const horasMensais = await api.horasMesAtual();
+        const horasMensais = await api.horasMesAtual(mesSelecionado, anoCorrente);
         
         // Agrupar por esquadrão
         const historicos = {};
@@ -69,19 +95,18 @@ const Estatisticas = () => {
         
         setHistoricoCompleto(historicos);
       } catch (err) {
-        console.error("Erro ao buscar horas do mês atual:", err);
+        console.error("Erro ao buscar horas do mês selecionado:", err);
         setHistoricoCompleto({});
       }
     };
 
     buscarHorasMesAtual();
-  }, [dados]);
+  }, [anoCorrente, dados, mesSelecionado]);
 
   useEffect(() => {
     const fetchIndicadores = async () => {
       try {
-        const anoAtual = new Date().getFullYear();
-        const res = await api.indicadoresAnuais(anoAtual);
+        const res = await api.indicadoresAnuais(anoCorrente);
         if (res) {
           setEvolucaoAnualCategorias(res.meses || []);
           if (Array.isArray(res.categorias)) {
@@ -93,7 +118,7 @@ const Estatisticas = () => {
       }
     };
     fetchIndicadores();
-  }, []);
+  }, [anoCorrente]);
 
   
 
@@ -134,7 +159,7 @@ const Estatisticas = () => {
       .sort((a, b) => a.esquadrao.localeCompare(b.esquadrao));
   }, [filtrados]);
 
-  // ===== Carga horária por esquadrão (MÊS ATUAL) =====
+  // ===== Carga horária por esquadrão (MÊS SELECIONADO) =====
   const cargaPorEsqd = useMemo(() => {
     const agrupados = {};
     
@@ -264,6 +289,19 @@ const Estatisticas = () => {
               <option value="Representacao">Representação</option>
             </Form.Select>
           </Col>
+          <Col md={4}>
+            <Form.Select
+              value={mesSelecionado}
+              onChange={(e) => setMesSelecionado(Number(e.target.value))}
+              className="shadow-sm rounded-3"
+            >
+              {opcoesMeses.map((mes) => (
+                <option key={mes.value} value={mes.value}>
+                  {mes.label} de {anoCorrente}
+                </option>
+              ))}
+            </Form.Select>
+          </Col>
         </Row>
 
         {/* ===== Gráficos ===== */}
@@ -307,7 +345,7 @@ const Estatisticas = () => {
           <Col md={12} className="mb-4">
             <Card className="p-3 shadow-sm border-0 rounded-3">
               <h5 className="text-center">
-                Carga Horária por Esquadrão {filtroEsqd !== "Todos" && `(Filtro: ${filtroEsqd})`}
+                Carga Horária por Esquadrão em {mesesDoAno[mesSelecionado - 1]} de {anoCorrente} {filtroEsqd !== "Todos" && `(Filtro: ${filtroEsqd})`}
               </h5>
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={cargaPorEsqd}>

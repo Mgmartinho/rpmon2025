@@ -221,7 +221,7 @@ const HistoricoProntuarioSuplementacao = ({ registros = [] }) => {
             <Card.Header className="bg-white border-0 py-3 d-flex justify-content-between align-items-center">
               <div>
                 <Badge bg="info" className="me-2 px-3 py-2">
-                  {item.tipo || "Suplementacao"}
+                  {item.tipo || "Suplementação"}
                 </Badge>
                 <small className="text-muted m-2">
                   {item.data_criacao ? new Date(item.data_criacao).toLocaleDateString("pt-BR") : "-"}
@@ -229,7 +229,7 @@ const HistoricoProntuarioSuplementacao = ({ registros = [] }) => {
 
                 {isConcluido ? (
                   <Badge bg="success-subtle" text="success" className="px-3 py-2">
-                    Concluido
+                    Concluído
                   </Badge>
                 ) : (
                   <Badge bg="warning-subtle" text="warning" className="px-3 py-2">
@@ -262,7 +262,7 @@ const HistoricoProntuarioSuplementacao = ({ registros = [] }) => {
               <div className="mb-3">
                 <h6 className="text-info mb-1">
                   <BsClipboardCheck className="me-1" />
-                  Suplementacao
+                  Suplementação
                 </h6>
                 <Row className="mt-3">
                   <Col xl={4} md={4} sm={12}>
@@ -280,13 +280,18 @@ const HistoricoProntuarioSuplementacao = ({ registros = [] }) => {
                       <strong>Frequencia:</strong> {item.frequencia || "-"}
                     </p>
                   </Col>
+                  <Col xl={4} md={4} sm={12}>
+                      <p className="mb-0 text-muted">
+                        <strong>Data de término:</strong> {item.suplementacao_data_fim ? new Date(item.suplementacao_data_fim).toLocaleDateString("pt-BR") : "-"}
+                    </p>
+                  </Col>
                 </Row>
               </div>
 
               <hr />
 
               <div className="border-4 border-info ps-3 mb-3">
-                <strong className="text-info">Observacoes</strong>
+                <strong className="text-info">Observações</strong>
                 <p className="mb-0 text-muted">
                   {item.observacoes || item.descricao || "-"}
                 </p>

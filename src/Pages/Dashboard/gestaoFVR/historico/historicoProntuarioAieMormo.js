@@ -45,6 +45,8 @@ const HistoricoProntuarioAieMormo = ({ registros = [], prontuarioId = null }) =>
     status_conclusao: "em_andamento",
   });
 
+  const [showForm, setShowForm] = useState(false);
+
   const mapearConsolidado = (item) => {
     if (item.data_exame !== undefined) return item;
     return {
@@ -270,10 +272,10 @@ const HistoricoProntuarioAieMormo = ({ registros = [], prontuarioId = null }) =>
         prev.map((registro) =>
           registro.id === item.id
             ? {
-                ...registro,
-                status_conclusao: "concluido",
-                data_atualizacao: new Date().toISOString(),
-              }
+              ...registro,
+              status_conclusao: "concluido",
+              data_atualizacao: new Date().toISOString(),
+            }
             : registro
         )
       );
@@ -449,7 +451,46 @@ const HistoricoProntuarioAieMormo = ({ registros = [], prontuarioId = null }) =>
                   </Col>
                 </Row>
               </div>
+
             </Card.Footer>
+            <div className="p-2">
+              <Row>
+                <Col xl={8}>
+                  <small className="text-muted">
+                    <strong>Link do Formulário de requisição do Drive:</strong>
+                    <Button
+                      variant="link"
+                      className="ms-1 p-0"
+                      onClick={() => setShowForm(true)}
+                    >
+                      Acessar Formulário
+                    </Button>
+                  </small>
+                </Col>
+              </Row>
+
+              {/* Modal para abrir o formulário */}
+              <Modal
+                show={showForm}
+                onHide={() => setShowForm(false)}
+                size="xl"
+                centered
+                style={{ maxWidth: "98vw" }}
+              >
+                <Modal.Header closeButton>
+                  <Modal.Title>Formulário de Requisição</Modal.Title>
+                </Modal.Header>
+                <Modal.Body style={{ height: "80vh", padding: 0 }}>
+                  <iframe
+                    src="https://docs.google.com/forms/d/e/1FAIpQLSeBNlj04dg2eua8uCtj_v2qqnp2pwLbUB0AbP4Z4EtYxoWWXA/viewform"
+                    title="Formulário Google"
+                    width="100%"
+                    height="100%"
+                    style={{ border: "none" }}
+                  />
+                </Modal.Body>
+              </Modal>
+            </div>
           </Card>
         );
       })}

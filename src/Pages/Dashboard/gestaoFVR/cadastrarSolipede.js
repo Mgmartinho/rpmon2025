@@ -22,6 +22,30 @@ const CadastrarSolipede = () => {
     origem: "",
   });
 
+  const opcoesMovimentacao = [
+    "RPMon",
+    "Barro Branco",
+    "Escola de Equitação do Exército",
+    "Avaré",
+    "Bauru",
+    "Campinas",
+    "Taubaté",
+    "Colina",
+    "Itapetininga",
+    "Marília",
+    "Mauá",
+    "P. Prudente",
+    "Hospital Veterinário",
+    "Ribeirão Preto",
+    "Rio de Janeiro",
+    "Santos",
+    "São Bernardo do Campo",
+    "Sorocaba",
+    "São José do Rio Preto",
+    "Barretos",
+    "Representação"
+  ];
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -107,7 +131,7 @@ const CadastrarSolipede = () => {
                 </Col>
               </Row>
 
-              
+
 
               {/* LINHA 2 */}
               <Row className="mb-3">
@@ -138,7 +162,7 @@ const CadastrarSolipede = () => {
                   </Form.Select>
                 </Col>
               </Row>
-            
+
 
               {/* LINHA 3 */}
               <Row className="mb-3">
@@ -191,7 +215,7 @@ const CadastrarSolipede = () => {
                     maxLength={20}
                     placeholder="Digite o número do microchip"
                   />
-                <small>{formData.microchip?.length || 0}/20</small>
+                  <small>{formData.microchip?.length || 0}/20</small>
                 </Col>
 
                 <Col md={6}>
@@ -204,7 +228,7 @@ const CadastrarSolipede = () => {
                     maxLength={30}
                     placeholder="Digite a identificação da paleta direita"
                   />
-                <small>{formData.paleta_direita?.length || 0}/30</small>
+                  <small>{formData.paleta_direita?.length || 0}/30</small>
                 </Col>
               </Row>
 
@@ -216,29 +240,29 @@ const CadastrarSolipede = () => {
                   onChange={handleChange}
 
                 >
-                <option value="">Selecione</option>
-                    <option value=""> </option>
+                  <option value="">Selecione</option>
+                  <option value=""> </option>
 
-                    <option value="1 Esquadrao">1 Esquadrão</option>
-                    <option value="2 Esquadrao">2 Esquadrão</option>
-                    <option value="3 Esquadrao">3 Esquadrão</option>
-                    <option value="4 Esquadrao">4 Esquadrão</option>
+                  <option value="1 Esquadrao">1 Esquadrão</option>
+                  <option value="2 Esquadrao">2 Esquadrão</option>
+                  <option value="3 Esquadrao">3 Esquadrão</option>
+                  <option value="4 Esquadrao">4 Esquadrão</option>
 
-                    <option value="Equoterapia">Equoterapia</option>
-                    <option value="Representacao">Representação</option>
-                    <option value="Banda">Banda</option>
-                    <option value="Volteio">Volteio</option>
+                  <option value="Equoterapia">Equoterapia</option>
+                  <option value="Representacao">Representação</option>
+                  <option value="Banda">Banda</option>
+                  <option value="Volteio">Volteio</option>
 
-                    <option value="1 BAEP">1 BAEP - Campinas</option>
-                    <option value="2 BAEP">2 BAEP - Santos</option>
-                    <option value="3 BAEP">3 BAEP - Taubaté</option>
-                    <option value="6 BAEP">6 BAEP - Mauá/S.B. do Campo</option>
-                    <option value="8 BAEP">8 BAEP - P. Prudente</option>
-                    <option value="9 BAEP">9 BAEP - S. J . do Rio Preto</option>
-                    <option value="11 BAEP">11 BAEP - Barretos/ R. Preto</option>
-                    <option value="13 BAEP">13 BAEP - Bauru/ Marilia</option>
-                    <option value="14 BAEP">14 BAEP - Avaré/Itapetininga/Sorocaba</option>
-                 </Form.Select>
+                  <option value="1 BAEP">1 BAEP - Campinas</option>
+                  <option value="2 BAEP">2 BAEP - Santos</option>
+                  <option value="3 BAEP">3 BAEP - Taubaté</option>
+                  <option value="6 BAEP">6 BAEP - Mauá/S.B. do Campo</option>
+                  <option value="8 BAEP">8 BAEP - P. Prudente</option>
+                  <option value="9 BAEP">9 BAEP - S. J . do Rio Preto</option>
+                  <option value="11 BAEP">11 BAEP - Barretos/ R. Preto</option>
+                  <option value="13 BAEP">13 BAEP - Bauru/ Marilia</option>
+                  <option value="14 BAEP">14 BAEP - Avaré/Itapetininga/Sorocaba</option>
+                </Form.Select>
               </Col>
 
               {/* Alocação */}
@@ -251,25 +275,12 @@ const CadastrarSolipede = () => {
                     onChange={handleChange}
                   >
                     <option value="">Selecione</option>
-                    <option value="RPMon">RPMon</option>
-                    <option value="Barro Branco">Barro Branco</option>
-                    <option value="Avaré">Avaré</option>
-                    <option value="Bauru">Bauru</option>
-                    <option value="Campinas">Campinas</option>
-                    <option value="Taubaté">Taubaté</option>
-                    <option value="Colina">Colina</option>
-                    <option value="Itapetininga">Itapetininga</option>
-                    <option value="Marília">Marília</option>
-                    <option value="Mauá">Mauá</option>
-                    <option value="Presidente Prudente">P. Prudente</option>
-                    <option value="Hospital Veterinário">Hosp Vet</option>
-                    <option value="Ribeirão Preto">Ribeirão Preto</option>
-                    <option value="Rio de Janeiro">Rio de Janeiro</option>
-                    <option value="Santos">Santos</option>
-                    <option value="São Bernardo do Campo">São Bernardo</option>
-                    <option value="Sorocaba">Sorocaba</option>
-                    <option value="São José do Rio Preto">São José do Rio Preto</option>
-                    <option value="Barretos">Barretos</option>
+
+                    {opcoesMovimentacao.map((opcao, index) => (
+                      <option key={index} value={opcao}>
+                        {opcao}
+                      </option>
+                    ))}
                   </Form.Select>
                 </Col>
 
@@ -293,42 +304,17 @@ const CadastrarSolipede = () => {
                 <Col md={6}>
                   <Form.Label>Movimentação</Form.Label>
                   <Form.Select
-                    name="movimentacao"
-                    value={formData.movimentacao}
+                    name="alocacao"
+                    value={formData.alocacao || ""}
                     onChange={handleChange}
                   >
                     <option value="">Selecione</option>
-                    <option value=""></option>
-                    <option value="RPMon">RPMon</option>
-                    <option value="Barro Branco">Barro Branco</option>
-                    <option value="Hospital Veterinario">
-                      Hospital Veterinário
-                    </option>
-                    <option value="Avare">Avaré</option>
-                    <option value="Barretos">Barretos</option>
-                    <option value="Bauru">Bauru</option>
-                    <option value="Campinas">Campinas</option>
-                    <option value="Colina">Colina</option>
-                    <option value="Escola Equitacao Exercito">
-                      Escola de Equitação do Exército
-                    </option>
-                    <option value="Itapetininga">Itapetininga</option>
-                    <option value="Marilia">Marília</option>
-                    <option value="Maua">Mauá</option>
-                    <option value="Presidente Prudente">
-                      Presidente Prudente
-                    </option>
-                    <option value="Ribeirao Preto">Ribeirão Preto</option>
-                    <option value="Santos">Santos</option>
-                    <option value="Sao Bernardo do Campo">
-                      São Bernardo do Campo
-                    </option>
-                    <option value="Sao Jose do Rio Preto">
-                      São José do Rio Preto
-                    </option>
-                    <option value="Sorocaba">Sorocaba</option>
-                    <option value="Taubate">Taubaté</option>
-                    <option value="Representacao">Representação</option>
+
+                    {opcoesMovimentacao.map((opcao, index) => (
+                      <option key={index} value={opcao}>
+                        {opcao}
+                      </option>
+                    ))}
                   </Form.Select>
                 </Col>
 
